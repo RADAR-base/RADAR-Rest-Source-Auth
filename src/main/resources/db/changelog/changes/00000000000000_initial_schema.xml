@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="now" value="now()" dbms="h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="autoIncrement" value="true"/>
+
+    <changeSet id="00000000000000" author="jhipster" dbms="postgresql,oracle,h2">
+        <createSequence sequenceName="hibernate_sequence" startValue="1000" incrementBy="50"/>
+    </changeSet>
+    <!--
+        JHipster core tables.
+        The initial schema has the '00000000000001' id, so that it is over-written if we re-generate it.
+    -->
+    <changeSet id="00000000000001" author="nivethika@thehyve.nl">
+        <createTable tableName="radar_device">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="varchar(50)"/>
+            <column name="user_id" type="varchar(50)"/>
+            <column name="source_id" type="varchar(50)">
+                <constraints unique="true"/>
+            </column>
+            <column name="device_type" type="varchar(50)"/>
+            <column name="start_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="end_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="external_user_id" type="varchar(200)"/>
+            <column name="authorized" type="boolean" valueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <createIndex indexName="idx_radar_device_id"
+            tableName="radar_device" unique="true">
+            <column name="id" type="bigint"/>
+        </createIndex>
+
+        <createIndex indexName="idx_radar_device_external_id"
+            tableName="radar_device">
+            <column name="external_user_id" type="varchar(200)"/>
+        </createIndex>
+
+        <createIndex indexName="idx_radar_device_source_id"
+                     tableName="radar_device" unique="true">
+            <column name="source_id" type="varchar(200)"/>
+        </createIndex>
+
+
+        <createTable tableName="device_access_token">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="access_token" type="varchar(2000)"/>
+            <column name="refresh_token" type="varchar(2000)"/>
+            <column name="expires_in" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="token_type" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

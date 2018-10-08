@@ -1,0 +1,63 @@
+buildscript {
+	ext {
+		springBootVersion = '2.0.5.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'org.radarbase'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	jcenter()
+	mavenCentral()
+
+	maven { url 'https://oss.jfrog.org/artifactory/libs-snapshot/' }
+	maven { url 'https://dl.bintray.com/radar-cns/org.radarcns' }
+}
+
+ext {
+	githubRepoName = 'RADAR-base/RADAR-Device-Authorizer'
+	githubUrl = 'https://github.com/' + githubRepoName + '.git'
+	issueUrl = 'https://github.com/' + githubRepoName + '/issues'
+	website = 'http://radar-base.org'
+	description = 'RADAR Device Authorizer handles authorization for data access from third party APIs for wearable devices.'
+
+	okhttp3Version = '3.11.0'
+	mapstructVersion = '1.3.0.Beta1'
+}
+
+dependencies {
+	compileOnly('org.projectlombok:lombok:1.16.20')
+	implementation('org.springframework.boot:spring-boot-starter')
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+	implementation('org.springframework.boot:spring-boot-starter-jersey')
+	implementation('org.springframework.boot:spring-boot-starter-validation')
+	implementation('org.springframework.boot:spring-boot-starter-web')
+	implementation('org.liquibase:liquibase-core')
+	implementation('org.springframework.session:spring-session-core')
+	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp3Version
+	runtimeOnly('org.postgresql:postgresql')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+}
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs = [
+			'-Amapstruct.suppressGeneratorTimestamp=true'
+	]
+}
+
+springBoot {
+	mainClassName = 'org.radarbase.authorizer.RadarDeviceAuthorizerApplication'
+}
