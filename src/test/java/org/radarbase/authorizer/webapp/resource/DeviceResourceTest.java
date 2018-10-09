@@ -5,6 +5,12 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.radarbase.authorizer.service.DeviceServiceTest.DEFAULT_EXTERNAL_USER_ID;
+import static org.radarbase.authorizer.service.DeviceServiceTest.DEFAULT_PROJ_NAME;
+import static org.radarbase.authorizer.service.DeviceServiceTest.DEFAULT_SOURCE_ID;
+import static org.radarbase.authorizer.service.DeviceServiceTest.DEFAULT_USER_ID;
+import static org.radarbase.authorizer.service.DeviceServiceTest.createDefaultDeviceDto;
+import static org.radarbase.authorizer.service.DeviceServiceTest.createEntity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -48,16 +54,6 @@ public class DeviceResourceTest {
     @Autowired
     private DeviceRepository deviceRepository;
 
-    private static final String DEFAULT_PROJ_NAME = "Test-proj";
-    private static final String DEFAULT_USER_ID = "Test-sub";
-    private static final String DEFAULT_SOURCE_ID = "Test-source";
-    private static final String DEFAULT_DEVICE_TYPE = "Fitbit";
-    private static final Instant DEFAULT_START_TIME = Instant.now().minus(Duration.ofHours(1));
-    private static final Instant DEFAULT_END_TIME = Instant.now().plus(Duration.ofHours(1));
-    private static final Boolean DEFAULT_AUTHORIZED = false;
-    private static final String DEFAULT_EXTERNAL_USER_ID = "86420984";
-
-
     private Device sampleDevice;
 
     private MockMvc restUserMockMvc;
@@ -74,22 +70,7 @@ public class DeviceResourceTest {
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(deviceResource).build();
     }
 
-    /**
-     * Create an entity for this test.
-     *
-     * <p>This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.</p>
-     */
-    public static Device createEntity() {
-        return new Device()
-                .projectId(DEFAULT_PROJ_NAME)
-                .userId(DEFAULT_USER_ID)
-                .sourceId(DEFAULT_SOURCE_ID)
-                .startDate(DEFAULT_START_TIME)
-                .endDate(DEFAULT_END_TIME)
-                .externalUserId(DEFAULT_EXTERNAL_USER_ID)
-                .authorized(DEFAULT_AUTHORIZED);
-    }
+
 
     @Before
     public void initTest() {
@@ -101,7 +82,7 @@ public class DeviceResourceTest {
     public void createDevice() throws Exception {
         final int databaseSizeBeforeCreate = deviceRepository.findAll().size();
 
-        DevicePropertiesDTO devicePropertiesDTO = createDefaultDevice();
+        DevicePropertiesDTO devicePropertiesDTO = createDefaultDeviceDto();
 
         restUserMockMvc.perform(post("/devices")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -132,15 +113,5 @@ public class DeviceResourceTest {
                         hasItem(DEFAULT_EXTERNAL_USER_ID.toString())));
     }
 
-    private DevicePropertiesDTO createDefaultDevice() {
-        DevicePropertiesDTO result = new DevicePropertiesDTO();
-        result.projectId("test-proj");
-        result.userId("userId");
-        result.sourceId("sepid");
-        result.stateDate(Instant.now().minus(Duration.ofHours(1)));
-        result.endDate(Instant.now().plus(Duration.ofHours(1)));
-        result.authorized(false);
-        result.externalDeviceId("rspthinr");
-        return result;
-    }
+
 }
