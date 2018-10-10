@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import {MatDialog, MatDialogConfig} from '@angular/material';
 import {AddDeviceDialogComponent} from "../add-device-dialog/add-device-dialog.component";
 
 @Component({
@@ -9,14 +9,18 @@ import {AddDeviceDialogComponent} from "../add-device-dialog/add-device-dialog.c
 })
 export class DevicesHeaderComponent implements OnInit {
 
-  addDeviceDialogRef: MatDialogRef<AddDeviceDialogComponent>;
+  constructor(private dialog: MatDialog) {}
 
-  constructor(private dialog: MatDialog) { }
+  openDialog() {
 
-  ngOnInit() {
+    const dialogConfig = new MatDialogConfig();
+
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
+    this.dialog.open(AddDeviceDialogComponent, dialogConfig);
   }
 
-  addDevice() {
-    this.addDeviceDialogRef = this.dialog.open(AddDeviceDialogComponent);
+  ngOnInit(): void {
   }
 }
