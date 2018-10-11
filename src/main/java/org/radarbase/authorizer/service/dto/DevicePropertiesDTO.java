@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
-import org.radarbase.authorizer.config.DeviceAuthorizationConfig.DeviceType;
 import org.radarbase.authorizer.domain.Device;
 
 
@@ -31,7 +30,7 @@ public class DevicePropertiesDTO implements Serializable {
     private Instant endDate;
 
 
-    private DeviceType deviceType;
+    private String deviceType;
 
     // is authorized by user
     private Boolean authorized = false;
@@ -107,11 +106,11 @@ public class DevicePropertiesDTO implements Serializable {
     }
 
 
-    public DeviceType getDeviceType() {
+    public String getDeviceType() {
         return deviceType;
     }
 
-    public DevicePropertiesDTO deviceType(DeviceType deviceType) {
+    public DevicePropertiesDTO deviceType(String deviceType) {
         this.deviceType = deviceType;
         return this;
     }

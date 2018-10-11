@@ -29,8 +29,12 @@ public class DeviceService {
     }
 
     public DevicePropertiesDTO save(DevicePropertiesDTO devicePropertiesDTO) {
-        log.info("Saving new device");
         Device device = this.deviceRepository.save(new Device(devicePropertiesDTO));
         return new DevicePropertiesDTO(device);
+    }
+
+    Device save(Device device) {
+        log.info("Saving new device");
+        return this.deviceRepository.save(device);
     }
 }

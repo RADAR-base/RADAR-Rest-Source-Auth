@@ -44,43 +44,5 @@ public class DeviceAuthorizerClient {
 
     }
 
-    public DeviceAccessToken getAccessTokenWithAuthorizeCode(String code) {
-        LOGGER.info("Requesting access token with authorization code" );
-        FormBody form = new FormBody.Builder()
-                .add("code", code)
-                .add("grant_type", "authorization_code")
-                .add("client_id", authorizationConfig.getClientId())
-                .build();
 
-        String credentials = Credentials.basic(authorizationConfig.getClientId(),
-                authorizationConfig.getClientSecret());
-
-        Request request = new Request.Builder()
-                .addHeader("Accept", "application/json")
-                .addHeader("Authorization", credentials)
-                .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .url(authorizationConfig.getTokenEndpoint())
-                .post(form)
-                .build();
-
-        // make the client execute the POST request
-        try (Response response = client.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                ResponseBody responseBody = response.body();
-                if (responseBody == null) {
-                    throw new BadGatewayException("No response from server");
-                }
-
-                return mapper.readValue(responseBody.string(),
-                        DeviceAccessToken.class);
-            } else {
-                // TODO handle status codes from fitbut
-                throw new BadGatewayException("Cannot get a valid token : Response-code :"
-                        + response.code() + " received when requesting token from server with "
-                        + "message " + response.message());
-            }
-        } catch (IOException e) {
-            throw new BadGatewayException(e);
-        }
-    }
 }

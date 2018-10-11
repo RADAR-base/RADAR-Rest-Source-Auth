@@ -8,7 +8,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.Data;
-import org.radarbase.authorizer.config.DeviceAuthorizationConfig;
 import org.radarbase.authorizer.service.dto.DevicePropertiesDTO;
 
 @Data
@@ -36,7 +35,7 @@ public class Device {
     private Instant endDate;
 
 
-    private DeviceAuthorizationConfig.DeviceType deviceType;
+    private String deviceType;
 
     // is authorized by user
     private Boolean authorized = false;
@@ -113,11 +112,11 @@ public class Device {
         return this;
     }
 
-    public DeviceAuthorizationConfig.DeviceType getDeviceType() {
+    public String getDeviceType() {
         return deviceType;
     }
 
-    public Device userId(DeviceAuthorizationConfig.DeviceType deviceType) {
+    public Device deviceType(String deviceType) {
         this.deviceType = deviceType;
         return this;
     }
