@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { DevicesService } from './devices.service';
 
-describe('DevicesService', () => {
+describe('DeviceAuthorizationService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
