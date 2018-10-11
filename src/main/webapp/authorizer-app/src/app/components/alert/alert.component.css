@@ -1,0 +1,37 @@
+
+.alert {
+  border: none !important;
+  margin: 0;
+  height: 20px;
+  padding: 8px !important;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.alert-dismissable .close {
+  top: inherit !important;
+  right: inherit !important;
+  fill: #CA7070;
+  background-color: #CA7070
+}
+
+.alert-success  {
+  background-color: #5cb85c;
+}
+
+.alert-info  {
+  background-color: #5bc0de;
+}
+
+.alert-warning  {
+  background-color: #f0ad4e;
+}
+
+.alert-danger  {
+  background-color: #CA7070;
+}
+

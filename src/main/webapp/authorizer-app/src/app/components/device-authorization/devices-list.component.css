@@ -1,0 +1,41 @@
+.devices-table {
+  list-style-type: none;
+  padding: 25px;
+  align-content: center;
+}
+
+.devices-table td, th {
+  width: 180px;
+  display: inline-block;
+  margin: 10px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.device-button {
+  background-color: #41b6c4;
+  border: none #777;
+  color: white;
+  font-size: 30px;
+  padding: 10px 10px 10px 10px;
+}
+
+.device-button-delete {
+  background-color: #ff9999;
+  border: none #777;
+  color: white;
+  font-size: 20px;
+}
+
+.devices-table tr:nth-child(1) {
+  background-color: #ff9999;
+}
+
+.devices-table tr:nth-child(odd) {
+  background-color: #c0d3d8;
+}
+
+.devices-table tr:nth-child(even) {
+  background-color: #a3c2c2;
+}

@@ -1,0 +1,38 @@
+<div>
+  <h2>Registered Devices</h2>
+  <alert-comp></alert-comp>
+  <device-registration-form></device-registration-form>
+  <div>
+    <table class="devices-table" align="center">
+      <thead>
+      <tr>
+        <th><span>Id</span></th>
+        <th><span>Project Id</span></th>
+        <th><span>User Id</span></th>
+        <th><span>Source Id</span></th>
+        <th><span>Start Date</span></th>
+        <th><span>End Date</span></th>
+        <th><span>External User Id</span></th>
+        <th><span>Authorized</span></th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let device of devices">
+        <td>{{device.id}}</td>
+        <td>{{device.projectId}}</td>
+        <td>{{device.userId}}</td>
+        <td>{{device.sourceId}}</td>
+        <td>{{device.startDate}}</td>
+        <td>{{device.endDate}}</td>
+        <td>{{device.externalUserId}}</td>
+        <td>{{device.authorized}}</td>
+        <td>
+          <button class="participant-button-delete" (click)="removeDevice(device)">delete</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+

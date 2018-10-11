@@ -1,0 +1,16 @@
+<alert-comp></alert-comp>
+<form>
+  <div *ngIf="device" class="input">
+    <label> Enter details for Device User Id: {{device.externalUserId}} </label>
+    <div class="input">
+      <label>Subject Id/ User Id: </label>
+      <input type="text" [(ngModel)]="device.userId" name="userId">
+    </div>
+
+    <div class="input">
+      <label>Project Id: </label>
+      <input type="text" [(ngModel)]="device.projectId" name="projectId">
+    </div>
+    <button (click)="addDevice()"> Register Participant details</button>
+  </div>
+</form>
