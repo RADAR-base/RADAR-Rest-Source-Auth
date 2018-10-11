@@ -2,9 +2,6 @@ package org.radarbase.authorizer.webapp.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 import static org.radarbase.authorizer.service.DeviceServiceTest.DEFAULT_EXTERNAL_USER_ID;
 import static org.radarbase.authorizer.service.DeviceServiceTest.DEFAULT_PROJ_NAME;
 import static org.radarbase.authorizer.service.DeviceServiceTest.DEFAULT_SOURCE_ID;
@@ -17,20 +14,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import javax.persistence.EntityManager;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.authorizer.RadarDeviceAuthorizerApplication;
-import org.radarbase.authorizer.RadarDeviceAuthorizerApplicationTests;
 import org.radarbase.authorizer.domain.Device;
 import org.radarbase.authorizer.repository.DeviceRepository;
 import org.radarbase.authorizer.service.DeviceService;

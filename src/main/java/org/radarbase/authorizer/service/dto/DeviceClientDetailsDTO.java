@@ -1,7 +1,8 @@
-package org.radarbase.authorizer.config;
+package org.radarbase.authorizer.service.dto;
 
-public class DeviceAuthorizationConfig {
+import org.radarbase.authorizer.config.DeviceAuthorizationConfig;
 
+public class DeviceClientDetailsDTO {
 
     private String deviceType;
 
@@ -15,7 +16,15 @@ public class DeviceAuthorizationConfig {
 
     private String clientId;
 
-    private String clientSecret;
+    public DeviceClientDetailsDTO () {}
+
+    public DeviceClientDetailsDTO(DeviceAuthorizationConfig deviceAuthorizationConfig) {
+        this.authorizationEndpoint = deviceAuthorizationConfig.getAuthorizationEndpoint();
+        this.deviceType = deviceAuthorizationConfig.getDeviceType();
+        this.grantType = deviceAuthorizationConfig.getGrantType();
+        this.clientId = deviceAuthorizationConfig.getClientId();
+        this.scope = deviceAuthorizationConfig.getScope();
+    }
 
     public String getDeviceType() {
         return deviceType;
@@ -63,13 +72,5 @@ public class DeviceAuthorizationConfig {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
     }
 }

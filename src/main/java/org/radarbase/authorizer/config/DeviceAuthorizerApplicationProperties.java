@@ -3,14 +3,13 @@ package org.radarbase.authorizer.config;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-public class AuthorizationAppConfig {
+@ConfigurationProperties(prefix = "device-clients", ignoreUnknownFields = false)
+public class DeviceAuthorizerApplicationProperties {
 
-    @JsonProperty("device_auth_configs")
     private List<DeviceAuthorizationConfig> deviceAuthConfigs;
 
-    @JsonProperty("config_files_location")
     private String configsFileLocation;
 
     public List<DeviceAuthorizationConfig> getDeviceAuthConfigs() {
@@ -21,9 +20,17 @@ public class AuthorizationAppConfig {
         return configsFileLocation;
     }
 
+    public void setDeviceAuthConfigs(List<DeviceAuthorizationConfig> deviceAuthConfigs) {
+        this.deviceAuthConfigs = deviceAuthConfigs;
+    }
+
+    public void setConfigsFileLocation(String configsFileLocation) {
+        this.configsFileLocation = configsFileLocation;
+    }
+
     @Override
     public String toString() {
-        return "AuthorizationAppConfig{" + "deviceAuthConfigs=" + deviceAuthConfigs
+        return "DeviceAuthorizerApplicationProperties{" + "deviceAuthConfigs=" + deviceAuthConfigs
                 + ", configsFileLocation='" + configsFileLocation + '\'' + '}';
     }
 
@@ -35,7 +42,7 @@ public class AuthorizationAppConfig {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AuthorizationAppConfig config = (AuthorizationAppConfig) o;
+        DeviceAuthorizerApplicationProperties config = (DeviceAuthorizerApplicationProperties) o;
         return Objects.equals(deviceAuthConfigs, config.deviceAuthConfigs) && Objects
                 .equals(configsFileLocation, config.configsFileLocation);
     }
