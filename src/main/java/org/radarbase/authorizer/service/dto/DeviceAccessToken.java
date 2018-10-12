@@ -11,7 +11,8 @@ public class DeviceAccessToken extends Oauth2AccessToken{
         return externalUserId;
     }
 
-    public void setExternalUserId(String externalUserId) {
+    public DeviceAccessToken externalUserId(String externalUserId) {
         this.externalUserId = externalUserId;
+        return this;
     }
 }

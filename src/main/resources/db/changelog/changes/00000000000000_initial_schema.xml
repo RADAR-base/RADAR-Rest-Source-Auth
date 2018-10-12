@@ -39,11 +39,12 @@
                 <constraints nullable="false" />
             </column>
             <column name="access_token" type="varchar(2000)">
-
             </column>
             <column name="refresh_token" type="varchar(2000)"/>
             <column name="expires_in" type="int">
                 <constraints nullable="true"/>
+            </column>
+            <column name="expires_at" type="timestamp">
             </column>
             <column name="token_type" type="varchar(50)">
                 <constraints nullable="true"/>

@@ -10,6 +10,10 @@ public class TokenException extends RuntimeException{
         super("Unable to get a valid access token");
     }
 
+    public TokenException(String message) {
+        super(message);
+    }
+
     public TokenException(Throwable cause) {
         super("Unable to get a valid access token" , cause);
     }

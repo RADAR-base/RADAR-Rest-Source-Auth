@@ -5,11 +5,14 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.radarbase.authorizer.service.DeviceService;
+import org.radarbase.authorizer.service.dto.DeviceAccessToken;
 import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
+import org.radarbase.authorizer.service.dto.TokenDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,5 +62,27 @@ public class DeviceUserResource {
                 .ok(this.deviceService.updateDeviceUser(id, deviceUser));
     }
 
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity deleteDeviceUser(@Valid @PathVariable Long id) {
+        logger.debug("Requesting to delete deviceUser");
+        return ResponseEntity
+                .ok(this.deviceService.revokeTokenAndDeleteUser(id));
+    }
 
+
+    @GetMapping("/users/{id}/token")
+    public ResponseEntity<TokenDTO> getUserToken(
+            @PathVariable Long id) {
+        logger.debug("Get user token for id {}", id);
+        return ResponseEntity
+                .ok(this.deviceService.getDeviceTokenByUserId(id));
+    }
+
+    @PostMapping("/users/{id}/token")
+    public ResponseEntity<TokenDTO> requestRefreshTokenForUser(
+            @PathVariable Long id) {
+        logger.debug("Refreshing user token for id {}", id);
+        return ResponseEntity
+                .ok(this.deviceService.refreshTokenForUser(id));
+    }
 }

@@ -18,7 +18,6 @@ export class DevicesService {
   constructor(private http: HttpClient) { }
 
   getDevices(): Observable<DeviceUser[]> {
-    console.log("get devices")
     return this.http.get<DeviceUser[]>(this.serviceUrl);
   }
 
@@ -27,7 +26,6 @@ export class DevicesService {
   }
 
   addAuthorizedUser(code: string, state: string): Observable<any> {
-    console.log("send addAuthorizedUser request")
     const params = new HttpParams()
       .set('code', code)
       .set('state', state);
@@ -35,8 +33,8 @@ export class DevicesService {
     return this.http.post(this.serviceUrl ,params);
   }
 
-  delete(deviceId: number): Observable<any> {
-    return this.http.delete(`${this.serviceUrl}/${deviceId}`);
+  deleteUser(deviceId: number): Observable<any> {
+    return this.http.delete(this.serviceUrl + '/' + deviceId);
   }
 
 

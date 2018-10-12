@@ -1,5 +1,6 @@
 package org.radarbase.authorizer.domain;
 
+import java.time.Duration;
 import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.Data;
+import org.radarbase.authorizer.service.dto.DeviceAccessToken;
 import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
 
 @Data
@@ -15,6 +17,8 @@ import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
 @Table(name = "radar_device_user")
 public class DeviceUser {
 
+
+    private static final Duration EXPIRY_TIME_MARGIN = Duration.ofMinutes(5);
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -47,6 +51,8 @@ public class DeviceUser {
     private String refreshToken;
 
     private Integer expiresIn;
+
+    private Instant expiresAt;
 
     private String tokenType;
 
@@ -174,6 +180,15 @@ public class DeviceUser {
         return this;
     }
 
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public DeviceUser expiresIn(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+        return this;
+    }
+
     public String getTokenType() {
         return tokenType;
     }
@@ -194,5 +209,20 @@ public class DeviceUser {
         this.sourceId = deviceUserDto.getSourceId();
         this.startDate = deviceUserDto.getStartDate();
         this.endDate = deviceUserDto.getEndDate();
+    }
+
+
+    /**
+     * Updates only the token related properties during update.
+     * Does not update properties such as id and study information.
+     * @param deviceAccessToken token details to update.
+     */
+    public void safeUpdateTokenDetails(DeviceAccessToken deviceAccessToken) {
+        this.accessToken = deviceAccessToken.getAccessToken();
+        this.refreshToken = deviceAccessToken.getRefreshToken();
+        this.expiresIn = deviceAccessToken.getExpiresIn();
+        this.expiresAt = Instant.now()
+                .plusSeconds(deviceAccessToken.getExpiresIn())
+                .minus(EXPIRY_TIME_MARGIN);
     }
 }

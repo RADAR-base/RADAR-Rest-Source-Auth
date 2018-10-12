@@ -10,6 +10,7 @@ import org.radarbase.authorizer.domain.DeviceUser;
 import org.radarbase.authorizer.repository.DeviceUserRepository;
 import org.radarbase.authorizer.service.dto.DeviceAccessToken;
 import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
+import org.radarbase.authorizer.service.dto.TokenDTO;
 import org.radarbase.authorizer.webapp.exception.NotFoundException;
 import org.radarbase.authorizer.webapp.exception.TokenException;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class DeviceService {
     @Autowired
     private DeviceClientService authorizationService;
 
-
+    @Transactional(readOnly = true)
     public List<DeviceUserPropertiesDTO> getAllDevices() {
         log.info("Querying all saved devices");
         return this.deviceUserRepository.findAll().stream().map(DeviceUserPropertiesDTO::new)
@@ -55,18 +56,15 @@ public class DeviceService {
 
             DeviceUser resultUser;
             if (existingUser.isPresent()) {
-                resultUser = existingUser.get().authorized(true)
-                        .accessToken(accessToken.getAccessToken())
-                        .refreshToken(accessToken.getRefreshToken())
-                        .expiresIn(accessToken.getExpiresIn())
-                        .tokenType(accessToken.getTokenType());
+                resultUser = existingUser.get();
+                resultUser.safeUpdateTokenDetails(accessToken);
             } else {
-                resultUser = new DeviceUser().authorized(true)
-                        .externalUserId(accessToken.getExternalUserId()).deviceType(deviceType)
-                        .startDate(Instant.now()).accessToken(accessToken.getAccessToken())
-                        .refreshToken(accessToken.getRefreshToken())
-                        .expiresIn(accessToken.getExpiresIn())
-                        .tokenType(accessToken.getTokenType());
+                resultUser = new DeviceUser()
+                        .authorized(true)
+                        .externalUserId(accessToken.getExternalUserId())
+                        .deviceType(deviceType)
+                        .startDate(Instant.now());
+                resultUser.safeUpdateTokenDetails(accessToken);
 
                 resultUser = this.deviceUserRepository.save(resultUser);
             }
@@ -87,6 +85,7 @@ public class DeviceService {
         }
     }
 
+    @Transactional
     public DeviceUserPropertiesDTO updateDeviceUser(Long id,
             DeviceUserPropertiesDTO deviceUserDto) {
 
@@ -102,5 +101,55 @@ public class DeviceService {
                             + deviceUserDto.getId());
         }
 
+    }
+
+    /**
+     * TODO Implement this
+     *
+     * @param id
+     * @return
+     */
+    public Object revokeTokenAndDeleteUser(Long id) {
+        return null;
+    }
+
+    @Transactional(readOnly = true)
+    public TokenDTO getDeviceTokenByUserId(Long id) {
+        Optional<DeviceUser> user = deviceUserRepository.findById(id);
+
+        if (user.isPresent()) {
+            DeviceUser deviceUser = user.get();
+            return new TokenDTO()
+                    .accessToken(deviceUser.getAccessToken())
+                    .refreshToken(deviceUser.getRefreshToken())
+                    .expiresAt(deviceUser.getExpiresAt());
+        } else {
+            throw new NotFoundException("DeviceUser not found with id " + id);
+        }
+    }
+
+    @Transactional
+    public TokenDTO refreshTokenForUser(Long id) {
+        Optional<DeviceUser> user = deviceUserRepository.findById(id);
+        if (user.isPresent()) {
+            DeviceUser deviceUser = user.get();
+            // refresh token by user id and device-type
+            DeviceAccessToken accessToken = authorizationService
+                    .refreshToken(deviceUser.getRefreshToken(), deviceUser.getDeviceType());
+            // update token
+            if (accessToken != null) {
+                deviceUser.safeUpdateTokenDetails(accessToken);
+                deviceUser = this.deviceUserRepository.save(deviceUser);
+                return new TokenDTO()
+                        .accessToken(deviceUser.getAccessToken())
+                        .refreshToken(deviceUser.getRefreshToken())
+                        .expiresAt(deviceUser.getExpiresAt());
+            } else {
+                throw new TokenException("Could not refresh token successfully");
+            }
+
+        } else {
+            throw new NotFoundException("DeviceUser not found with id " + id);
+        }
     }
 }

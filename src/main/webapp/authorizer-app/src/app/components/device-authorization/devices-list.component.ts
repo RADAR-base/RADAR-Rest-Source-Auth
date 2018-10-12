@@ -13,11 +13,9 @@ export class DevicesListComponent implements OnInit {
   devices: DeviceUser[];
 
   constructor(private deviceService: DevicesService,
-              private alertService: AlertService,
-  ) {}
+              private alertService: AlertService) {}
 
   ngOnInit() {
-    console.log("on ingit")
     this.loadAllUsers();
   }
 
@@ -26,12 +24,12 @@ export class DevicesListComponent implements OnInit {
         this.devices = devicesList;
       },
       () => {
-        this.alertService.error('Cannot load registered devices!');
+        this.alertService.error('Cannot load registered users!');
       });
   }
 
   removeDevice(device: DeviceUser) {
-    this.deviceService.delete(device.id).subscribe(() => {
+    this.deviceService.deleteUser(device.id).subscribe(() => {
       this.loadAllUsers();
     });
   }
