@@ -1,16 +1,16 @@
 <alert-comp></alert-comp>
 <form>
-  <div *ngIf="device" class="input">
-    <label> Enter details for Device User Id: {{device.externalUserId}} </label>
+  <div *ngIf="deviceUser" class="input">
+    <label> Enter details for DeviceUser User Id: {{deviceUser.externalUserId}} </label>
     <div class="input">
       <label>Subject Id/ User Id: </label>
-      <input type="text" [(ngModel)]="device.userId" name="userId">
+      <input type="text" [(ngModel)]="deviceUser.userId" name="userId">
     </div>
 
     <div class="input">
       <label>Project Id: </label>
-      <input type="text" [(ngModel)]="device.projectId" name="projectId">
+      <input type="text" [(ngModel)]="deviceUser.projectId" name="projectId">
     </div>
-    <button (click)="addDevice()"> Register Participant details</button>
+    <button (click)="updateDeviceUser()"> Update DeviceUser details</button>
   </div>
 </form>

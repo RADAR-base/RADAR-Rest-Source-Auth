@@ -1,7 +1,7 @@
 <div>
   <h2>Registered Devices</h2>
   <alert-comp></alert-comp>
-  <device-registration-form></device-registration-form>
+  <user-registration-form></user-registration-form>
   <div>
     <table class="devices-table" align="center">
       <thead>
@@ -18,17 +18,17 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let device of devices">
-        <td>{{device.id}}</td>
-        <td>{{device.projectId}}</td>
-        <td>{{device.userId}}</td>
-        <td>{{device.sourceId}}</td>
-        <td>{{device.startDate}}</td>
-        <td>{{device.endDate}}</td>
-        <td>{{device.externalUserId}}</td>
-        <td>{{device.authorized}}</td>
+      <tr *ngFor="let deviceUser of devices">
+        <td>{{deviceUser.id}}</td>
+        <td>{{deviceUser.projectId}}</td>
+        <td>{{deviceUser.userId}}</td>
+        <td>{{deviceUser.sourceId}}</td>
+        <td>{{deviceUser.startDate}}</td>
+        <td>{{deviceUser.endDate}}</td>
+        <td>{{deviceUser.externalUserId}}</td>
+        <td>{{deviceUser.authorized}}</td>
         <td>
-          <button class="participant-button-delete" (click)="removeDevice(device)">delete</button>
+          <button class="participant-button-delete" (click)="removeDevice(deviceUser)">delete</button>
         </td>
       </tr>
       </tbody>

@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import {AlertService} from '../alert/alert.service';
 import {DevicesService} from "../../services/devices.service";
-import {Device} from "../../models/device.model";
+import {DeviceUser} from "../../models/device.model";
 import {DeviceAuthorizationService} from "../../services/device-authorization.service";
 
 @Component({
@@ -12,7 +12,7 @@ import {DeviceAuthorizationService} from "../../services/device-authorization.se
 })
 export class AddDeviceComponent implements OnInit {
 
-  device: Device;
+  deviceUser: DeviceUser;
 
   constructor(private devicesService: DevicesService,
               private deviceAuthorizationService: DeviceAuthorizationService,
@@ -23,13 +23,12 @@ export class AddDeviceComponent implements OnInit {
 
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe((params: Params) => {
-      console.log("params" , params)
-      this.getExternalUserId(params['code'], params['state']);
+      this.addDeviceUser(params['code'], params['state']);
     });
   }
 
-  private addDevice() {
-    this.devicesService.addDevice(this.device).subscribe(() => {
+  private updateDeviceUser() {
+    this.devicesService.updateDeviceUser(this.deviceUser).subscribe(() => {
         return this.router.navigate(['/devices']);
       },
       err => {
@@ -38,10 +37,9 @@ export class AddDeviceComponent implements OnInit {
       });
   }
 
-  private getExternalUserId(code: string, state: string) {
-    this.deviceAuthorizationService.authorize(code, state).subscribe(data => {
-        this.device = data;
-        console.log("created deevice" , this.device)
+  private addDeviceUser(code: string, state: string) {
+    this.devicesService.addAuthorizedUser(code, state).subscribe(data => {
+        this.deviceUser = data;
       },
       (err: Response) => {
         this.alertService.error('Cannot retrieve current user details');

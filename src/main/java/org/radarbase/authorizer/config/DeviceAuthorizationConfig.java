@@ -2,7 +2,6 @@ package org.radarbase.authorizer.config;
 
 public class DeviceAuthorizationConfig {
 
-
     private String deviceType;
 
     private String authorizationEndpoint;

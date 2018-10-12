@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AlertService} from '../alert/alert.service';
-import {Device} from "../../models/device.model";
+import {DeviceUser} from "../../models/device.model";
 import {DevicesService} from "../../services/devices.service";
 
 @Component({
@@ -10,7 +10,7 @@ import {DevicesService} from "../../services/devices.service";
 })
 export class DevicesListComponent implements OnInit {
 
-  devices: Device[];
+  devices: DeviceUser[];
 
   constructor(private deviceService: DevicesService,
               private alertService: AlertService,
@@ -30,7 +30,7 @@ export class DevicesListComponent implements OnInit {
       });
   }
 
-  removeDevice(device: Device) {
+  removeDevice(device: DeviceUser) {
     this.deviceService.delete(device.id).subscribe(() => {
       this.loadAllUsers();
     });

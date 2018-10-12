@@ -14,7 +14,7 @@ public class Oauth2AccessToken {
     private String refreshToken;
 
     @JsonProperty("expires_in")
-    private String expiresIn;
+    private Integer expiresIn;
 
     @JsonProperty("token_type")
     private String tokenType;
@@ -37,11 +37,11 @@ public class Oauth2AccessToken {
         return this;
     }
 
-    public String getExpiresIn() {
+    public Integer getExpiresIn() {
         return expiresIn;
     }
 
-    public Oauth2AccessToken expiresIn(String expiresIn) {
+    public Oauth2AccessToken expiresIn(Integer expiresIn) {
         this.expiresIn = expiresIn;
         return this;
     }

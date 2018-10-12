@@ -1,4 +1,4 @@
-export class Device {
+export class DeviceUser {
      id?: number ;
      projectId?: string;
      userId?: string;

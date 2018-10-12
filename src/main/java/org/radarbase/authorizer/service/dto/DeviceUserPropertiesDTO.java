@@ -5,10 +5,10 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
-import org.radarbase.authorizer.domain.Device;
+import org.radarbase.authorizer.domain.DeviceUser;
 
 
-public class DevicePropertiesDTO implements Serializable {
+public class DeviceUserPropertiesDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
     // Unique user key
@@ -37,25 +37,25 @@ public class DevicePropertiesDTO implements Serializable {
 
     private String externalUserId;
 
-    public DevicePropertiesDTO () {}
+    public DeviceUserPropertiesDTO() {}
 
-    public DevicePropertiesDTO (Device device) {
-        this.id = device.getId();
-        this.projectId = device.getProjectId();
-        this.userId = device.getUserId();
-        this.sourceId = device.getSourceId();
-        this.authorized = device.getAuthorized();
-        this.deviceType = device.getDeviceType();
-        this.endDate = device.getEndDate();
-        this.stateDate = device.getStartDate();
-        this.externalUserId = device.getExternalUserId();
+    public DeviceUserPropertiesDTO(DeviceUser deviceUser) {
+        this.id = deviceUser.getId();
+        this.projectId = deviceUser.getProjectId();
+        this.userId = deviceUser.getUserId();
+        this.sourceId = deviceUser.getSourceId();
+        this.authorized = deviceUser.getAuthorized();
+        this.deviceType = deviceUser.getDeviceType();
+        this.endDate = deviceUser.getEndDate();
+        this.stateDate = deviceUser.getStartDate();
+        this.externalUserId = deviceUser.getExternalUserId();
     }
 
     public Long getId() {
         return id;
     }
 
-    public DevicePropertiesDTO id(Long id) {
+    public DeviceUserPropertiesDTO id(Long id) {
         this.id = id;
         return this;
     }
@@ -64,7 +64,7 @@ public class DevicePropertiesDTO implements Serializable {
         return projectId;
     }
 
-    public DevicePropertiesDTO projectId(String projectId) {
+    public DeviceUserPropertiesDTO projectId(String projectId) {
         this.projectId = projectId;
         return this;
     }
@@ -73,7 +73,7 @@ public class DevicePropertiesDTO implements Serializable {
         return userId;
     }
 
-    public DevicePropertiesDTO userId(String userId) {
+    public DeviceUserPropertiesDTO userId(String userId) {
         this.userId = userId;
         return this;
     }
@@ -82,7 +82,7 @@ public class DevicePropertiesDTO implements Serializable {
         return sourceId;
     }
 
-    public DevicePropertiesDTO sourceId(String sourceId) {
+    public DeviceUserPropertiesDTO sourceId(String sourceId) {
         this.sourceId = sourceId;
         return this;
     }
@@ -91,7 +91,7 @@ public class DevicePropertiesDTO implements Serializable {
         return stateDate;
     }
 
-    public DevicePropertiesDTO stateDate(Instant stateDate) {
+    public DeviceUserPropertiesDTO stateDate(Instant stateDate) {
         this.stateDate = stateDate;
         return this;
     }
@@ -100,7 +100,7 @@ public class DevicePropertiesDTO implements Serializable {
         return endDate;
     }
 
-    public DevicePropertiesDTO endDate(Instant endDate) {
+    public DeviceUserPropertiesDTO endDate(Instant endDate) {
         this.endDate = endDate;
         return this;
     }
@@ -110,7 +110,7 @@ public class DevicePropertiesDTO implements Serializable {
         return deviceType;
     }
 
-    public DevicePropertiesDTO deviceType(String deviceType) {
+    public DeviceUserPropertiesDTO deviceType(String deviceType) {
         this.deviceType = deviceType;
         return this;
     }
@@ -119,7 +119,7 @@ public class DevicePropertiesDTO implements Serializable {
         return authorized;
     }
 
-    public DevicePropertiesDTO authorized(Boolean isAuthorized) {
+    public DeviceUserPropertiesDTO authorized(Boolean isAuthorized) {
         this.authorized = isAuthorized;
         return this;
     }
@@ -128,7 +128,7 @@ public class DevicePropertiesDTO implements Serializable {
         return externalUserId;
     }
 
-    public DevicePropertiesDTO externalDeviceId(String externalDeviceId) {
+    public DeviceUserPropertiesDTO externalDeviceId(String externalDeviceId) {
         this.externalUserId = externalDeviceId;
         return this;
     }
@@ -141,7 +141,7 @@ public class DevicePropertiesDTO implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DevicePropertiesDTO that = (DevicePropertiesDTO) o;
+        DeviceUserPropertiesDTO that = (DeviceUserPropertiesDTO) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(projectId, that.projectId)
                 && Objects.equals(userId, that.userId)
@@ -162,7 +162,7 @@ public class DevicePropertiesDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "DevicePropertiesDTO{"
+        return "DeviceUserPropertiesDTO{"
                 + "id='" + id + '\''
                 + ", projectId='" + projectId + '\''
                 + ", userId='" + userId + '\''

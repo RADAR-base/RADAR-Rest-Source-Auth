@@ -22,7 +22,8 @@ public class RadarDeviceAuthorizerApplication {
 		return new WebMvcConfigurerAdapter() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/devices").allowedOrigins("http://localhost:4200");
+				registry.addMapping("/users/**").allowedOrigins("http://localhost:4200")
+				.allowedMethods("PUT", "POST", "GET", "OPTIONS", "DELETE");
 				registry.addMapping("/device-clients/**").allowedOrigins("http://localhost:4200");
 				registry.addMapping("/callback").allowedOrigins("http://localhost:4200");
 			}

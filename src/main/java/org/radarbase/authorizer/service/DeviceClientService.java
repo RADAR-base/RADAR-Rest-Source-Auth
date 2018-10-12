@@ -1,8 +1,6 @@
 package org.radarbase.authorizer.service;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,33 +19,25 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.radarbase.authorizer.config.DeviceAuthorizationConfig;
 import org.radarbase.authorizer.config.DeviceAuthorizerApplicationProperties;
-import org.radarbase.authorizer.domain.Device;
-import org.radarbase.authorizer.listener.DeviceAuthorizerClient;
 import org.radarbase.authorizer.service.dto.DeviceAccessToken;
 import org.radarbase.authorizer.service.dto.DeviceClientDetailsDTO;
-import org.radarbase.authorizer.service.dto.DevicePropertiesDTO;
 import org.radarbase.authorizer.webapp.exception.BadGatewayException;
-import org.radarbase.authorizer.webapp.exception.TokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class DeviceAuthorizationService {
+public class DeviceClientService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceAuthorizerClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceClientService.class);
 
     @Autowired
     private DeviceAuthorizerApplicationProperties deviceAuthorizerApplicationProperties;
 
-    @Autowired
-    private DeviceService deviceService;
-
     private OkHttpClient client;
 
-    private ObjectMapper mapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    private ObjectMapper mapper;
 
     // contains private data
     private Map<String, DeviceAuthorizationConfig> configMap ;
@@ -70,6 +59,8 @@ public class DeviceAuthorizationService {
                 .writeTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .build();
+        this.mapper = new ObjectMapper()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     }
 
@@ -89,29 +80,13 @@ public class DeviceAuthorizationService {
         return this.clientDetailsDTOMap.get(deviceType);
     }
 
-    @Transactional
-    public DevicePropertiesDTO authorizeAndStoreDevice(@NotNull String code,
-            @NotNull String deviceType) {
-        DeviceAccessToken accessToken = getAccessTokenWithAuthorizeCode(code,
-                getClientAuthorizationConfig(deviceType));
 
-        if(accessToken != null) {
-            Device newDevice = new Device();
-            newDevice.authorized(true);
-            newDevice.externalUserId(accessToken.getExternalUserId());
-            newDevice.deviceType(deviceType);
-            newDevice.startDate(Instant.now().minus(Duration.ofDays(7)));
-            newDevice.startDate(Instant.now().plus(Duration.ofDays(14)));
 
-            newDevice = this.deviceService.save(newDevice);
-            return new DevicePropertiesDTO(newDevice);
-        } else {
-            throw new TokenException();
-        }
-    }
+    DeviceAccessToken getAccessTokenWithAuthorizeCode(String code,
+            String deviceType) {
 
-    private DeviceAccessToken getAccessTokenWithAuthorizeCode(String code,
-            DeviceAuthorizationConfig authorizationConfig) {
+        DeviceAuthorizationConfig authorizationConfig = this.configMap.get(deviceType);
+        // TODO null check and throw exception
         LOGGER.info("Requesting access token with authorization code" );
         FormBody form = new FormBody.Builder()
                 .add("code", code)

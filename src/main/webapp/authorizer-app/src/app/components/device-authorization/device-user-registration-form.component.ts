@@ -8,10 +8,10 @@ import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {DeviceAuthDetails} from "../../models/device-auth-details.model";
 
 @Component({
-  selector: 'device-registration-form',
-  templateUrl: './device-registration-form.component.html'
+  selector: 'user-registration-form',
+  templateUrl: './device-user-registration-form.component.html'
 })
-export class DeviceRegistrationFormComponent implements OnInit {
+export class DeviceUserRegistrationFormComponent implements OnInit {
 
   deviceTypeForm: any;
   registrationServiceUrl: String;

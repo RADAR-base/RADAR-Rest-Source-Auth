@@ -9,10 +9,10 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AddDeviceComponent} from "./components/device-authorization/add-device.component";
 import {AlertComponent} from "./components/alert/alert.component";
 import {DevicesListComponent} from "./components/device-authorization/devices-list.component";
-import {DeviceRegistrationFormComponent} from "./components/device-authorization/device-registration-form.component";
 import {ErrorReportingComponent} from "./components/device-authorization/error.component";
 import {AlertService} from "./components/alert/alert.service";
 import {DeviceAuthorizationService} from "./services/device-authorization.service";
+import {DeviceUserRegistrationFormComponent} from "./components/device-authorization/device-user-registration-form.component";
 
 const appRoutes: Routes = [
   {
@@ -28,8 +28,8 @@ const appRoutes: Routes = [
     component: AddDeviceComponent,
   },
   {
-    path: 'authorize',
-    component: DeviceRegistrationFormComponent
+    path: 'addAuthorizedUser',
+    component: DeviceUserRegistrationFormComponent
   },
   {
     path: 'request-failed',
@@ -44,7 +44,7 @@ const appRoutes: Routes = [
     AddDeviceComponent,
     AlertComponent,
     AppComponent,
-    DeviceRegistrationFormComponent,
+    DeviceUserRegistrationFormComponent,
     ErrorReportingComponent,
     DevicesListComponent
   ],
