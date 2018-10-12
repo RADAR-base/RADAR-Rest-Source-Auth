@@ -32,7 +32,7 @@ public class DeviceService {
 
     @Transactional(readOnly = true)
     public List<DeviceUserPropertiesDTO> getAllDevices() {
-        log.info("Querying all saved devices");
+        log.debug("Querying all saved devices");
         return this.deviceUserRepository.findAll().stream().map(DeviceUserPropertiesDTO::new)
                 .collect(Collectors.toList());
     }
@@ -104,13 +104,23 @@ public class DeviceService {
     }
 
     /**
-     * TODO Implement this
+     * Removes user from database and revokes access token and refresh token
      *
-     * @param id
-     * @return
+     * @param id userID
      */
-    public Object revokeTokenAndDeleteUser(Long id) {
-        return null;
+    @Transactional
+    public void revokeTokenAndDeleteUser(Long id) {
+        Optional<DeviceUser> user = deviceUserRepository.findById(id);
+
+        if (user.isPresent()) {
+            DeviceUser deviceUser = user.get();
+            authorizationService.revokeToken(deviceUser.getAccessToken(),
+                    deviceUser.getDeviceType());
+            deviceUserRepository.deleteById(id);
+
+        } else {
+            throw new NotFoundException("DeviceUser not found with id " + id);
+        }
     }
 
     @Transactional(readOnly = true)

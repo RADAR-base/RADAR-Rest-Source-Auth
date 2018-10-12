@@ -94,26 +94,7 @@ public class DeviceUserResourceTest {
 
     @Test
     @Transactional
-    public void createDevice() throws Exception {
-        final int databaseSizeBeforeCreate = deviceUserRepository.findAll().size();
-
-        DeviceUserPropertiesDTO deviceUserPropertiesDTO = createDefaultDeviceDto();
-
-        restUserMockMvc.perform(post("/users")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(deviceUserPropertiesDTO)))
-                .andExpect(status().isCreated());
-
-        // Validate the User in the database
-        List<DeviceUser> userList = deviceUserRepository.findAll();
-        assertThat(userList).hasSize(databaseSizeBeforeCreate + 1);
-        DeviceUser createdDeviceUser = userList.get(userList.size() - 1);
-
-    }
-
-    @Test
-    @Transactional
-    public void getAllSourceTypes() throws Exception {
+    public void getAllUsers() throws Exception {
         // Initialize the database
         deviceUserRepository.saveAndFlush(sampleDeviceUser);
 

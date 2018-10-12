@@ -50,6 +50,7 @@
                 <constraints nullable="true"/>
             </column>
         </createTable>
+
         <createIndex indexName="idx_radar_device_user_id"
             tableName="radar_device_user" unique="true">
             <column name="id" type="bigint"/>
@@ -64,13 +65,5 @@
                      tableName="radar_device_user" unique="true">
             <column name="source_id" type="varchar(200)"/>
         </createIndex>
-
-
-        <createTable tableName="device_access_token">
-            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-
-        </createTable>
     </changeSet>
 </databaseChangeLog>

@@ -1,5 +1,7 @@
 package org.radarbase.authorizer.webapp.resource;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -32,11 +34,13 @@ public class DeviceUserResource {
     @PostMapping("/users")
     public ResponseEntity addAuthorizedDeviceUser(
             @RequestParam(value = "code") String code,
-            @RequestParam(value = "state") String state) {
+            @RequestParam(value = "state") String state) throws URISyntaxException {
         logger.debug("Add a device user with code {} and state {}" , code, state);
         // TODO this should be created status
+        DeviceUserPropertiesDTO user = this.deviceService.authorizeAndStoreDevice(code, state);
         return ResponseEntity
-                .ok(this.deviceService.authorizeAndStoreDevice(code, state));
+                .created(new URI("/user/" + user.getId()))
+                .body(user);
     }
 
     @GetMapping("/users")
@@ -63,10 +67,12 @@ public class DeviceUserResource {
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity deleteDeviceUser(@Valid @PathVariable Long id) {
+    public ResponseEntity<Void> deleteDeviceUser(@Valid @PathVariable Long id) {
         logger.debug("Requesting to delete deviceUser");
+        this.deviceService.revokeTokenAndDeleteUser(id);
         return ResponseEntity
-                .ok(this.deviceService.revokeTokenAndDeleteUser(id));
+                .ok()
+                .header("user-removed" , id.toString()).build();
     }
 
 

@@ -22,7 +22,7 @@ public class DeviceClientResource {
 
     @GetMapping("/device-clients")
     public ResponseEntity<List<DeviceClientDetailsDTO>> getAllDeviceProperties() {
-        logger.info("Get all devices client details");
+        logger.debug("Get all devices client details");
         return ResponseEntity
                 .ok(this.deviceClientService.getAllDeviceClientDetails());
     }
@@ -30,7 +30,7 @@ public class DeviceClientResource {
 
     @GetMapping("/device-clients/device-type")
     public ResponseEntity<List<String>> getAllAvailableDeviceTypes() {
-        logger.info("Get all devices client details");
+        logger.debug("Get all devices-types");
         return ResponseEntity
                 .ok(this.deviceClientService.getAvailableDeviceTypes());
     }

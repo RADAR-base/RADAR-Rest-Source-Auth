@@ -116,11 +116,14 @@ public class DeviceClientService {
                     throw new BadGatewayException("No response from server");
                 }
 
-                return mapper.readValue(responseBody.string(), DeviceAccessToken.class);
+                try {
+                    return mapper.readValue(responseBody.string(), DeviceAccessToken.class);
+                } catch (IOException e) {
+                    throw new TokenException("Cannot read token response");
+                }
             } else {
-                // TODO handle status codes from fitbut
                 throw new BadGatewayException(
-                        "Cannot get a valid token : Response-code :" + response.code()
+                        "Failed to execute the request : Response-code :" + response.code()
                                 + " received when requesting token from server with " + "message "
                                 + response.message());
             }
@@ -135,6 +138,29 @@ public class DeviceClientService {
                 .add("refresh_token", refreshToken)
                 .build();
         LOGGER.info("Requesting to refreshToken");
-        return processTokenRequest(form,  getClientAuthorizationConfig(deviceType));
+        return  processTokenRequest(form, getClientAuthorizationConfig(deviceType));
+    }
+
+    boolean revokeToken(String accessToken, String deviceType) {
+
+        DeviceAuthorizationConfig authorizationConfig = getClientAuthorizationConfig(deviceType);
+        FormBody form = new FormBody.Builder()
+                .add("token", accessToken)
+                .build();
+        LOGGER.info("Requesting to revoke access token");
+        String credentials = Credentials
+                .basic(authorizationConfig.getClientId(), authorizationConfig.getClientSecret());
+
+        Request request = new Request.Builder().addHeader("Accept", "application/json")
+                .addHeader("Authorization", credentials)
+                .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                .url(authorizationConfig.getTokenEndpoint()).post(form).build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return response.isSuccessful();
+        } catch (IOException e) {
+            throw new BadGatewayException(e);
+        }
+
     }
 }

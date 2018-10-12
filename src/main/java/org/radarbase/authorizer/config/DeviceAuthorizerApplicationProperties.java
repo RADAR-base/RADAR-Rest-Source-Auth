@@ -10,29 +10,16 @@ public class DeviceAuthorizerApplicationProperties {
 
     private List<DeviceAuthorizationConfig> deviceAuthConfigs;
 
-    private String configsFileLocation;
 
     public List<DeviceAuthorizationConfig> getDeviceAuthConfigs() {
         return deviceAuthConfigs;
     }
 
-    public String getConfigsFileLocation() {
-        return configsFileLocation;
-    }
 
     public void setDeviceAuthConfigs(List<DeviceAuthorizationConfig> deviceAuthConfigs) {
         this.deviceAuthConfigs = deviceAuthConfigs;
     }
 
-    public void setConfigsFileLocation(String configsFileLocation) {
-        this.configsFileLocation = configsFileLocation;
-    }
-
-    @Override
-    public String toString() {
-        return "DeviceAuthorizerApplicationProperties{" + "deviceAuthConfigs=" + deviceAuthConfigs
-                + ", configsFileLocation='" + configsFileLocation + '\'' + '}';
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -43,13 +30,12 @@ public class DeviceAuthorizerApplicationProperties {
             return false;
         }
         DeviceAuthorizerApplicationProperties config = (DeviceAuthorizerApplicationProperties) o;
-        return Objects.equals(deviceAuthConfigs, config.deviceAuthConfigs) && Objects
-                .equals(configsFileLocation, config.configsFileLocation);
+        return Objects.equals(deviceAuthConfigs, config.deviceAuthConfigs);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(deviceAuthConfigs, configsFileLocation);
+        return Objects.hash(deviceAuthConfigs);
     }
 }
