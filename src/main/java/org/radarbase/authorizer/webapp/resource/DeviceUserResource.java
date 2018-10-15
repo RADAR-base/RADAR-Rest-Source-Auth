@@ -36,7 +36,6 @@ public class DeviceUserResource {
             @RequestParam(value = "code") String code,
             @RequestParam(value = "state") String state) throws URISyntaxException {
         logger.debug("Add a device user with code {} and state {}" , code, state);
-        // TODO this should be created status
         DeviceUserPropertiesDTO user = this.deviceService.authorizeAndStoreDevice(code, state);
         return ResponseEntity
                 .created(new URI("/user/" + user.getId()))

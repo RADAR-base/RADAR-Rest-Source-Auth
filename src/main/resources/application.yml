@@ -10,16 +10,16 @@ spring:
     properties.hibernate.temp.use_jdbc_metadata_defaults: false
 
 device-clients:
+  cors:
+    allowed-origins: '*'
+    allowed-methods: GET, PUT, POST, DELETE, OPTIONS
+    allowed-headers: Authorization, Content-Type
+    allow-credentials: true
+    max-age: 1800
   device-auth-configs:
     - device_type: FitBit
       authorization_endpoint: https://www.fitbit.com/oauth2/authorize
       token_endpoint: https://api.fitbit.com/oauth2/token
       client_id:
       client_secret:
-      scope: activity heartrate location nutrition sleep social weight profile settings
-    - deviceType: something else
-      authorizationEndpoint:
-      tokenEndpoint:
-      clientId:
-      clientSecret:
-      scope:
+      scope: activity heartrate location nutrition sleep social weight

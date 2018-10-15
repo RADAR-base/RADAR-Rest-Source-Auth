@@ -10,6 +10,8 @@
   <input type="hidden" name="client_id" [value]="deviceAuthDetail.clientId"/>
   <input type="hidden" name="state" [value]="deviceAuthDetail.deviceType"/>
   <input type="hidden" name="scope" [value]="deviceAuthDetail.scope"/>
+  <input type="hidden" name="prompt" value="login"/>
+
   <!--<input type="hidden" name="redirect_uri" [value]="callbackUrl"/>-->
   <button type="submit" class="deviceUser-button">Request to authorize</button>
 </form>
