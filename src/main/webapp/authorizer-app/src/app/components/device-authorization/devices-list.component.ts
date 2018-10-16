@@ -6,11 +6,11 @@ import {DevicesService} from "../../services/devices.service";
 @Component({
   selector: 'devices-list',
   templateUrl: './devices-list.component.html',
-  styleUrls: ['./devices-list.component.css']
 })
 export class DevicesListComponent implements OnInit {
 
   devices: DeviceUser[];
+  public isCollapsed = true;
 
   constructor(private deviceService: DevicesService,
               private alertService: AlertService) {}

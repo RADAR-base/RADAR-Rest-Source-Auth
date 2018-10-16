@@ -1,17 +1,20 @@
-
-<form [formGroup]="deviceTypeForm">
-  <select formControlName="selectedDeviceType" (change)="onChange($event.target.value)">
-    <option [value]="deviceType" *ngFor="let deviceType of deviceTypes">{{deviceType}}</option>
-  </select>
+<form [formGroup]="deviceTypeForm" class="form-group container">
+  <div class=" text-center">
+    <label for="field_deviceType">Select device type : </label>
+      <select class="form-control" id="field_deviceType" formControlName="selectedDeviceType"
+              (change)="onChange($event.target.value)">
+        <option [value]="deviceType" *ngFor="let deviceType of deviceTypes">{{deviceType}}</option>
+      </select>
+  </div>
 </form>
-
-<form *ngIf="deviceAuthDetail" ngNoForm method="GET" [action]="deviceAuthDetail.authorizationEndpoint">
+<form *ngIf="deviceAuthDetail" class="form-group" ngNoForm method="GET"
+      [action]="deviceAuthDetail.authorizationEndpoint">
   <input type="hidden" name="response_type" value="code"/>
   <input type="hidden" name="client_id" [value]="deviceAuthDetail.clientId"/>
   <input type="hidden" name="state" [value]="deviceAuthDetail.deviceType"/>
   <input type="hidden" name="scope" [value]="deviceAuthDetail.scope"/>
   <input type="hidden" name="prompt" value="login"/>
-
   <!--<input type="hidden" name="redirect_uri" [value]="callbackUrl"/>-->
-  <button type="submit" class="deviceUser-button">Request to authorize</button>
+  <button class="btn btn-success" type="submit" >Request to authorize</button>
 </form>
+

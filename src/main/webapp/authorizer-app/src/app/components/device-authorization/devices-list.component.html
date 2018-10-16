@@ -1,9 +1,22 @@
 <div>
-  <h2>Registered Devices</h2>
   <alert-comp></alert-comp>
-  <user-registration-form></user-registration-form>
-  <div>
-    <table class="devices-table" align="center">
+
+  <p>
+    <button type="button" class="btn btn-primary" (click)="isCollapsed = !isCollapsed"
+            [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample">
+      Add new device
+    </button>
+  </p>
+  <div id="collapseExample" [ngbCollapse]="isCollapsed">
+    <div class="card">
+      <div class="card-body">
+        <user-registration-form></user-registration-form>
+      </div>
+    </div>
+  </div>
+
+  <div class="container table-responsive"  *ngIf="devices">
+    <table class="table table-hover table-striped ">
       <thead>
       <tr>
         <th><span>Id</span></th>
@@ -27,12 +40,26 @@
         <td>{{deviceUser.endDate}}</td>
         <td>{{deviceUser.externalUserId}}</td>
         <td>{{deviceUser.authorized}}</td>
-        <td>
-          <button class="participant-button-delete" (click)="removeDevice(deviceUser)">delete</button>
+        <td class="text-right">
+          <button class="btn btn-danger" (click)="removeDevice(deviceUser)">Delete</button>
         </td>
       </tr>
       </tbody>
     </table>
   </div>
+
+  <!--<ngb-tabset>-->
+  <!--<ngb-tab title="View Device Users">-->
+    <!--<ng-template ngbTabContent>-->
+
+    <!--</ng-template>-->
+  <!--</ngb-tab>-->
+  <!--<ngb-tab>-->
+    <!--<ng-template ngbTabTitle><b>Add</b> new device</ng-template>-->
+    <!--<ng-template ngbTabContent>-->
+      <!--<user-registration-form></user-registration-form>-->
+    <!--</ng-template>-->
+  <!--</ngb-tab>-->
+  <!--</ngb-tabset>-->
 </div>
 

@@ -13,7 +13,7 @@ import {ErrorReportingComponent} from "./components/device-authorization/error.c
 import {AlertService} from "./components/alert/alert.service";
 import {DeviceAuthorizationService} from "./services/device-authorization.service";
 import {DeviceUserRegistrationFormComponent} from "./components/device-authorization/device-user-registration-form.component";
-
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 const appRoutes: Routes = [
   {
     path: '',
@@ -55,6 +55,7 @@ const appRoutes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot(appRoutes),
+    NgbModule.forRoot()
   ],
   providers: [
     DevicesService,

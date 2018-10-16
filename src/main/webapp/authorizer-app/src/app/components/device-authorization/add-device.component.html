@@ -1,16 +1,68 @@
-<alert-comp></alert-comp>
-<form>
-  <div *ngIf="deviceUser" class="input">
-    <label> Enter details for DeviceUser User Id: {{deviceUser.externalUserId}} </label>
-    <div class="input">
-      <label>Subject Id/ User Id: </label>
-      <input type="text" [(ngModel)]="deviceUser.userId" name="userId">
+
+
+<div *ngIf="deviceUser" class="container col-md-3">
+  <h3> Enter details for User with External User Id: {{deviceUser.externalUserId}}</h3>
+  <form>
+
+    <div class="form-group">
+      <label for="userId">User Id: </label>
+      <input class="form-control" name="userId" type="text" [(ngModel)]="deviceUser.userId" id="userId">
     </div>
 
-    <div class="input">
-      <label>Project Id: </label>
-      <input type="text" [(ngModel)]="deviceUser.projectId" name="projectId">
+    <div class="form-group">
+      <label for="projectId">Project Id: </label>
+      <input class="form-control" name="projectId" type="text" [(ngModel)]="deviceUser.projectId" id="projectId">
     </div>
-    <button (click)="updateDeviceUser()"> Update User details</button>
-  </div>
-</form>
+
+    <div class="form-group">
+      <label for="startDate">Start Date: </label>
+      <div class="input-group">
+        <input id="startDate" class="form-control" placeholder="yyyy-mm-dd"
+               name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary calendar" (click)="e.toggle()" type="button"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="endDate">End Date: </label>
+      <div class="input-group">
+        <input id="endDate" class="form-control" placeholder="yyyy-mm-dd"
+               name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button"></button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" (click)="updateDeviceUser()" class="btn btn-success">Submit</button>
+  </form>
+</div>
+
+<!--<div class="model-body">-->
+<!--<alert-comp></alert-comp>-->
+
+<!--<div *ngIf="deviceUser" class=" container text-center col-md-3">-->
+  <!--<form role="form" >-->
+    <!--<label> Enter details for DeviceUser User Id: {{deviceUser.externalUserId}} </label>-->
+
+
+    <!--<div class="form-inline">-->
+      <!--<label>Start Date </label>-->
+      <!--<ngb-datepicker #dp [(ngModel)]="deviceUser.startDate"-->
+                      <!--(navigate)="date = $event.next"></ngb-datepicker>-->
+    <!--</div>-->
+    <!--<div class="form-inline">-->
+      <!--<label>End Date </label>-->
+      <!--<ngb-datepicker #dp [(ngModel)]="deviceUser.endDate"-->
+                      <!--(navigate)="date = $event.next"></ngb-datepicker>-->
+    <!--</div>-->
+
+    <!--<div class="modal-footer">-->
+    <!--<button class="btn-success btn" (click)="updateDeviceUser()"> Update User details</button>-->
+    <!--</div>-->
+  <!--</form>-->
+<!--</div>-->
+
+<!--</div>-->

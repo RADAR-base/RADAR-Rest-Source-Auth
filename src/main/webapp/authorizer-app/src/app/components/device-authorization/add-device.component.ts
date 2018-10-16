@@ -8,11 +8,12 @@ import {DeviceAuthorizationService} from "../../services/device-authorization.se
 @Component({
   selector: 'add-device',
   templateUrl: './add-device.component.html',
-  styleUrls: ['./add-device.component.css']
 })
 export class AddDeviceComponent implements OnInit {
 
   deviceUser: DeviceUser;
+  startDate;
+  endDate;
 
   constructor(private devicesService: DevicesService,
               private deviceAuthorizationService: DeviceAuthorizationService,
@@ -28,6 +29,9 @@ export class AddDeviceComponent implements OnInit {
   }
 
   private updateDeviceUser() {
+    console.log('user', this.deviceUser);
+    this.deviceUser.startDate = new Date(this.startDate.year, this.startDate.month, this.startDate.day)
+    console.log('user', this.deviceUser);
     this.devicesService.updateDeviceUser(this.deviceUser).subscribe(() => {
         return this.router.navigate(['/devices']);
       },
