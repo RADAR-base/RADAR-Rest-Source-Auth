@@ -24,7 +24,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
     private String sourceId;
 
     // Date from when to collect data.
-    private Instant stateDate;
+    private Instant startDate;
 
     // Date until when to collect data.
     private Instant endDate;
@@ -47,7 +47,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
         this.authorized = deviceUser.getAuthorized();
         this.deviceType = deviceUser.getDeviceType();
         this.endDate = deviceUser.getEndDate();
-        this.stateDate = deviceUser.getStartDate();
+        this.startDate = deviceUser.getStartDate();
         this.externalUserId = deviceUser.getExternalUserId();
     }
 
@@ -88,11 +88,11 @@ public class DeviceUserPropertiesDTO implements Serializable {
     }
 
     public Instant getStartDate() {
-        return stateDate;
+        return startDate;
     }
 
-    public DeviceUserPropertiesDTO stateDate(Instant stateDate) {
-        this.stateDate = stateDate;
+    public DeviceUserPropertiesDTO startDate(Instant stateDate) {
+        this.startDate = stateDate;
         return this;
     }
 
@@ -146,7 +146,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
                 && Objects.equals(projectId, that.projectId)
                 && Objects.equals(userId, that.userId)
                 && Objects.equals(sourceId, that.sourceId)
-                && Objects.equals(stateDate, that.stateDate)
+                && Objects.equals(startDate, that.startDate)
                 && Objects.equals(endDate, that.endDate)
                 &&  Objects.equals(deviceType, that.deviceType)
                 && Objects.equals(authorized, that.authorized)
@@ -156,7 +156,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, projectId, userId, sourceId, stateDate, endDate, deviceType,
+        return Objects.hash(id, projectId, userId, sourceId, startDate, endDate, deviceType,
                 authorized, externalUserId);
     }
 
@@ -167,7 +167,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
                 + ", projectId='" + projectId + '\''
                 + ", userId='" + userId + '\''
                 + ", sourceId='" + sourceId + '\''
-                + ", stateDate=" + stateDate + '\''
+                + ", startDate=" + startDate + '\''
                 + ", endDate=" + endDate + '\''
                 + ", deviceType=" + deviceType + '\''
                 + ", authorized=" + authorized + '\''

@@ -162,4 +162,12 @@ public class DeviceService {
             throw new NotFoundException("DeviceUser not found with id " + id);
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<DeviceUserPropertiesDTO>  getAllUsersByDeviceType(String deviceType) {
+        log.debug("Querying all saved users by device-type {}", deviceType);
+        return this.deviceUserRepository.findAllByDeviceType(deviceType).stream()
+                .map(DeviceUserPropertiesDTO::new)
+                .collect(Collectors.toList());
+    }
 }

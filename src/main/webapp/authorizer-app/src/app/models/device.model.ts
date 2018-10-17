@@ -3,8 +3,8 @@ export class DeviceUser {
      projectId?: string;
      userId?: string;
      sourceId?: string;
-     startDate?: Date;
-     endDate?: Date;
+     startDate?: string;
+     endDate?: string;
      externalUserId?: string;
      authorized?: boolean
 }

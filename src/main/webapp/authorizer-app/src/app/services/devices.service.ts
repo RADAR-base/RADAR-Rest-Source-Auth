@@ -3,6 +3,7 @@ import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs/internal/Observable";
 import {DeviceUser} from "../models/device.model";
 import {environment} from "../../environments/environment";
+import {DatePipe} from "@angular/common";
 
 export class AuthorizedDeviceDetails {
   externalUserId: string | null;
@@ -22,6 +23,7 @@ export class DevicesService {
   }
 
   updateDeviceUser(deviceUser: DeviceUser): Observable<any> {
+
     return this.http.put(this.serviceUrl + '/' + deviceUser.id, deviceUser);
   }
 

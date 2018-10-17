@@ -49,6 +49,14 @@ public class DeviceUserResource {
                 .ok(this.deviceService.getAllDevices());
     }
 
+    @GetMapping("/users/{device-type}")
+    public ResponseEntity<List<DeviceUserPropertiesDTO>> getAllUsersByDeviceType(
+            @PathVariable String deviceType) {
+        logger.debug("Get all users by device-type {}", deviceType);
+        return ResponseEntity
+                .ok(this.deviceService.getAllUsersByDeviceType(deviceType));
+    }
+
     @GetMapping("/users/{id}")
     public ResponseEntity<DeviceUserPropertiesDTO> getAllDeviceProperties(
             @PathVariable Long id) {

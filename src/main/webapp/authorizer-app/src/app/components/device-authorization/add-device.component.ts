@@ -29,9 +29,10 @@ export class AddDeviceComponent implements OnInit {
   }
 
   private updateDeviceUser() {
-    console.log('user', this.deviceUser);
-    this.deviceUser.startDate = new Date(this.startDate.year, this.startDate.month, this.startDate.day)
-    console.log('user', this.deviceUser);
+
+    this.deviceUser.startDate = new Date(Date.UTC(this.startDate.year, this.startDate.month-1, this.startDate.day)).toISOString();
+    this.deviceUser.endDate = new Date(Date.UTC(this.endDate.year, this.endDate.month-1, this.endDate.day)).toISOString();
+    console.log('out', this.deviceUser)
     this.devicesService.updateDeviceUser(this.deviceUser).subscribe(() => {
         return this.router.navigate(['/devices']);
       },
