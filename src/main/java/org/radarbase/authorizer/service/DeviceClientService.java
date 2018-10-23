@@ -1,15 +1,23 @@
 package org.radarbase.authorizer.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import javax.naming.ConfigurationException;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -18,6 +26,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.radarbase.authorizer.config.DeviceAuthorizationConfig;
 import org.radarbase.authorizer.config.DeviceAuthorizerApplicationProperties;
+import org.radarbase.authorizer.config.DeviceClients;
 import org.radarbase.authorizer.service.dto.DeviceAccessToken;
 import org.radarbase.authorizer.service.dto.DeviceClientDetailsDTO;
 import org.radarbase.authorizer.webapp.exception.BadGatewayException;
@@ -47,15 +56,21 @@ public class DeviceClientService {
     private Map<String, DeviceClientDetailsDTO> clientDetailsDTOMap;
 
     @PostConstruct
-    public void init() {
-        this.configMap = deviceAuthorizerApplicationProperties.getDeviceAuthConfigs()
-                .stream()
-                .collect(Collectors.toMap(DeviceAuthorizationConfig::getDeviceType, p -> p));
+    public void init() throws ConfigurationException {
+        String path = deviceAuthorizerApplicationProperties.getDeviceClientsFilePath();
+        if (Objects.isNull(path) || path.equals("")) {
+            LOGGER.info("No device clients file specified, not loading device clients");
+            return;
+        }
+        List<DeviceAuthorizationConfig> deviceAuthConfigs = loadDeviceClientConfigs(path);
 
-        this.clientDetailsDTOMap = deviceAuthorizerApplicationProperties.getDeviceAuthConfigs()
-                .stream()
+        this.configMap = deviceAuthConfigs.stream()
+                .collect(Collectors.toMap(DeviceAuthorizationConfig::getDeviceType, p -> p));
+        this.clientDetailsDTOMap = deviceAuthConfigs.stream()
                 .collect(Collectors.toMap(DeviceAuthorizationConfig::getDeviceType,
-                                DeviceClientDetailsDTO::new));
+                        DeviceClientDetailsDTO::new));
+
+        LOGGER.info("Device configs loaded...");
         this.client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
@@ -64,6 +79,40 @@ public class DeviceClientService {
         this.mapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     }
+
+    private List<DeviceAuthorizationConfig> loadDeviceClientConfigs(@NotNull String path) throws
+            ConfigurationException {
+
+        YAMLFactory yamlFactory = new YAMLFactory();
+        try {
+            YAMLParser yamlParser = yamlFactory.createParser(new File(path));
+            MappingIterator<DeviceClients> mappingIterator = new ObjectMapper(yamlFactory)
+                    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                    .readValues(yamlParser, DeviceClients.class);
+
+            if( mappingIterator.hasNext() ) {
+                DeviceClients deviceClients = mappingIterator.next();
+                if(deviceClients == null || deviceClients.getDeviceClients() == null) {
+                    LOGGER.error("No valid configurations available on configred path. Please "
+                            + "check the syntax and file name");
+                    throw new ConfigurationException("No valid device-client configs are provided"
+                            + ".");
+                }
+                return deviceClients.getDeviceClients();
+            }
+            else {
+                throw new ConfigurationException("No valid device-client configs are provided"
+                        + ".");
+            }
+
+        } catch (IOException e) {
+           LOGGER.error("Could not successfully read config file at {}", path);
+           throw new ConfigurationException("Could not successfully read config file at " + path);
+        }
+    }
+
+
 
     public List<DeviceClientDetailsDTO> getAllDeviceClientDetails() {
         return new ArrayList<>(this.clientDetailsDTOMap.values());

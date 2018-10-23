@@ -20,11 +20,11 @@ const appRoutes: Routes = [
     component: DevicesListComponent,
   },
   {
-    path: 'devices',
+    path: 'users',
     component: DevicesListComponent,
   },
   {
-    path: 'devices:new',
+    path: 'users:new',
     component: AddDeviceComponent,
   },
   {

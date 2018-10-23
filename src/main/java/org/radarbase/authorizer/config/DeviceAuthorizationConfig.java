@@ -1,5 +1,8 @@
 package org.radarbase.authorizer.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
 public class DeviceAuthorizationConfig {
 
     private String deviceType;

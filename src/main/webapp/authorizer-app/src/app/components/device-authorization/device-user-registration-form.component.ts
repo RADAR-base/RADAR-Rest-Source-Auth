@@ -35,7 +35,6 @@ export class DeviceUserRegistrationFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("on init")
     this.deviceAuthorizationService.getDeviceTypes().subscribe(
       data => {
         this.deviceTypes = data;
@@ -50,14 +49,12 @@ export class DeviceUserRegistrationFormComponent implements OnInit {
   }
 
   onChange(deviceType: any) {
-    console.log('evt',deviceType)
     this.deviceAuthorizationService.getDeviceClientAuthDetails(deviceType).subscribe(
       data => {
         this.deviceAuthDetail = data;
-        console.log("receive detail ", data)
         this.callbackUrl = window.location.origin
           + this.platformLocation.getBaseHrefFromDOM()
-          + 'devices:new';
+          + 'users:new';
       }
     )
   }
