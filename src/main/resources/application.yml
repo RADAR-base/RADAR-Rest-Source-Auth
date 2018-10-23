@@ -22,9 +22,3 @@ device-authorizer:
     max-age: 1800
 
   device-clients-file-path: src/main/docker/etc/device_clients_configs.yml
-
-#      authorization_endpoint: https://www.fitbit.com/oauth2/authorize
-#      token_endpoint: https://api.fitbit.com/oauth2/token
-#      client_id:
-#      client_secret:
-#      scope: activity heartrate location nutrition sleep social weight

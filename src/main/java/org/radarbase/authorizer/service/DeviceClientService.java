@@ -82,7 +82,7 @@ public class DeviceClientService {
 
     private List<DeviceAuthorizationConfig> loadDeviceClientConfigs(@NotNull String path) throws
             ConfigurationException {
-
+        LOGGER.info("Loading device client configs from {}", path);
         YAMLFactory yamlFactory = new YAMLFactory();
         try {
             YAMLParser yamlParser = yamlFactory.createParser(new File(path));
