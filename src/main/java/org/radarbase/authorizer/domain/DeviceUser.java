@@ -2,6 +2,7 @@ package org.radarbase.authorizer.domain;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -58,7 +59,11 @@ public class DeviceUser {
 
     private String tokenType;
 
-    public DeviceUser() {}
+    public DeviceUser() {
+        if (this.sourceId == null) {
+            this.sourceId = UUID.randomUUID().toString();
+        }
+    }
 
     public DeviceUser(DeviceUserPropertiesDTO deviceUserPropertiesDTO) {
         if(deviceUserPropertiesDTO.getId() != null) {
