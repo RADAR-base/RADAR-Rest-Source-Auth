@@ -10,14 +10,14 @@ services:
             - SPRING_DATASOURCE_PASSWORD=radarcns
             - DEVICE_AUTHORIZER_DEVICE_CLIENTS_FILE_PATH=app-includes/device_clients_configs.yml
             - APP_SLEEP=10 # gives time for the database to boot before the application
-        ports:
-            - 8080:8080
+#        ports:
+#            - 8080:8080
         volumes:
             - ./etc:/app-includes
     auth-postgresql:
         image: postgres:9.6.2
-        ports:
-          - "5432:5432"
+#        ports:
+#          - "5432:5432"
         environment:
           - POSTGRES_USER=radarcns
           - POSTGRES_PASSWORD=radarcns
