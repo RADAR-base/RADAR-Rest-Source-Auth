@@ -3,4 +3,4 @@ out
 .idea
 .gradle
 .git
-src/main/webapp
+authorizer-app/

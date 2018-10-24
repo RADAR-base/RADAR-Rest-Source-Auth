@@ -5,4 +5,3 @@ device_clients:
     client_id: 
     client_secret:
     scope: activity heartrate location nutrition sleep social weight
-  - device_type: something else
