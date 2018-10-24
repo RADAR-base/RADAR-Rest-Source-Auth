@@ -24,3 +24,5 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+/src/main/docker/etc/device_clients_configs.yml
