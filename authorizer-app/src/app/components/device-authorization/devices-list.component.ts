@@ -20,8 +20,8 @@ export class DevicesListComponent implements OnInit {
   }
 
   private loadAllUsers() {
-    this.deviceService.getDevices().subscribe(devicesList => {
-        this.devices = devicesList;
+    this.deviceService.getDevices().subscribe((devicesList: any) => {
+        this.devices = devicesList.users;
       },
       () => {
         this.alertService.error('Cannot load registered users!');
