@@ -23,24 +23,21 @@ public class DeviceClientResource {
     @GetMapping("/device-clients")
     public ResponseEntity<List<DeviceClientDetailsDTO>> getAllDeviceProperties() {
         logger.debug("Get all devices client details");
-        return ResponseEntity
-                .ok(this.deviceClientService.getAllDeviceClientDetails());
+        return ResponseEntity.ok(this.deviceClientService.getAllDeviceClientDetails());
     }
 
 
     @GetMapping("/device-clients/device-type")
     public ResponseEntity<List<String>> getAllAvailableDeviceTypes() {
         logger.debug("Get all devices-types");
-        return ResponseEntity
-                .ok(this.deviceClientService.getAvailableDeviceTypes());
+        return ResponseEntity.ok(this.deviceClientService.getAvailableDeviceTypes());
     }
 
     @GetMapping("/device-clients/{deviceType}")
-    public ResponseEntity<DeviceClientDetailsDTO> getDeviceAuthDetailsByDeviceType(@PathVariable String
-            deviceType) {
+    public ResponseEntity<DeviceClientDetailsDTO> getDeviceAuthDetailsByDeviceType(
+            @PathVariable String deviceType) {
         logger.info("Get device detail by device-type {}", deviceType);
-        return ResponseEntity
-                .ok(this.deviceClientService.getAllDeviceClientDetails(deviceType));
+        return ResponseEntity.ok(this.deviceClientService.getAllDeviceClientDetails(deviceType));
     }
 
 }

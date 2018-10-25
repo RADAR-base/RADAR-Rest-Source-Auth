@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class DeviceService {
-    private final Logger log = LoggerFactory.getLogger(DeviceService.class);
+public class DeviceUserService {
+    private final Logger log = LoggerFactory.getLogger(DeviceUserService.class);
 
     @Autowired
     private DeviceUserRepository deviceUserRepository;
@@ -32,8 +32,9 @@ public class DeviceService {
 
     @Transactional(readOnly = true)
     public List<DeviceUserPropertiesDTO> getAllDevices() {
-        log.debug("Querying all saved devices");
-        return this.deviceUserRepository.findAll().stream().map(DeviceUserPropertiesDTO::new)
+        log.debug("Querying all saved device users");
+        return this.deviceUserRepository.findAll().stream()
+                .map(DeviceUserPropertiesDTO::new)
                 .collect(Collectors.toList());
     }
 
@@ -114,8 +115,8 @@ public class DeviceService {
 
         if (user.isPresent()) {
             DeviceUser deviceUser = user.get();
-            authorizationService.revokeToken(deviceUser.getAccessToken(),
-                    deviceUser.getDeviceType());
+            authorizationService
+                    .revokeToken(deviceUser.getAccessToken(), deviceUser.getDeviceType());
             deviceUserRepository.deleteById(id);
 
         } else {
@@ -129,8 +130,7 @@ public class DeviceService {
 
         if (user.isPresent()) {
             DeviceUser deviceUser = user.get();
-            return new TokenDTO()
-                    .accessToken(deviceUser.getAccessToken())
+            return new TokenDTO().accessToken(deviceUser.getAccessToken())
                     .refreshToken(deviceUser.getRefreshToken())
                     .expiresAt(deviceUser.getExpiresAt());
         } else {
@@ -164,10 +164,9 @@ public class DeviceService {
     }
 
     @Transactional(readOnly = true)
-    public List<DeviceUserPropertiesDTO>  getAllUsersByDeviceType(String deviceType) {
+    public List<DeviceUserPropertiesDTO> getAllUsersByDeviceType(String deviceType) {
         log.debug("Querying all saved users by device-type {}", deviceType);
         return this.deviceUserRepository.findAllByDeviceType(deviceType).stream()
-                .map(DeviceUserPropertiesDTO::new)
-                .collect(Collectors.toList());
+                .map(DeviceUserPropertiesDTO::new).collect(Collectors.toList());
     }
 }

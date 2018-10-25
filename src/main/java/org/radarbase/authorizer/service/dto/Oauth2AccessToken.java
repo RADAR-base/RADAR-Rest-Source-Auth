@@ -57,8 +57,11 @@ public class Oauth2AccessToken {
 
     @Override
     public String toString() {
-        return "DeviceAccessToken{" + "accessToken='" + accessToken + '\'' + ", refreshToken='"
-                + refreshToken + '\'' + ", expiresIn='" + expiresIn + '\'' + ", tokenType='"
-                + tokenType + '\'' + '}';
+        return "DeviceAccessToken{"
+                + "accessToken='" + accessToken + '\''
+                + ", refreshToken='" + refreshToken + '\''
+                + ", expiresIn='" + expiresIn + '\''
+                + ", tokenType='" + tokenType + '\''
+                + '}';
     }
 }

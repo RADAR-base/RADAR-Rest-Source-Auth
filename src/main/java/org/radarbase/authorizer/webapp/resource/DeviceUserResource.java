@@ -3,11 +3,9 @@ package org.radarbase.authorizer.webapp.resource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-
 import javax.validation.Valid;
 
-import org.radarbase.authorizer.service.DeviceService;
-import org.radarbase.authorizer.service.dto.DeviceAccessToken;
+import org.radarbase.authorizer.service.DeviceUserService;
 import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
 import org.radarbase.authorizer.service.dto.TokenDTO;
 import org.slf4j.Logger;
@@ -29,39 +27,36 @@ public class DeviceUserResource {
     private Logger logger = LoggerFactory.getLogger(DeviceUserResource.class);
 
     @Autowired
-    private DeviceService deviceService;
+    private DeviceUserService deviceUserService;
 
     @PostMapping("/users")
-    public ResponseEntity addAuthorizedDeviceUser(
-            @RequestParam(value = "code") String code,
+    public ResponseEntity addAuthorizedDeviceUser(@RequestParam(value = "code") String code,
             @RequestParam(value = "state") String state) throws URISyntaxException {
-        logger.debug("Add a device user with code {} and state {}" , code, state);
-        DeviceUserPropertiesDTO user = this.deviceService.authorizeAndStoreDevice(code, state);
+        logger.debug("Add a device user with code {} and state {}", code, state);
+        DeviceUserPropertiesDTO user = this.deviceUserService.authorizeAndStoreDevice(code, state);
         return ResponseEntity
-                .created(new URI("/user/" + user.getId()))
-                .body(user);
+                .created(new URI("/user/" + user.getId())).body(user);
     }
 
     @GetMapping("/users")
     public ResponseEntity<List<DeviceUserPropertiesDTO>> getAllDeviceProperties(
-            @RequestParam(value="device-type", required = false) String deviceType) {
+            @RequestParam(value = "device-type", required = false) String deviceType) {
         if (deviceType != null && !deviceType.isEmpty()) {
             logger.debug("Get all users by device-type {}", deviceType);
             return ResponseEntity
-                    .ok(this.deviceService.getAllUsersByDeviceType(deviceType));
+                    .ok(this.deviceUserService.getAllUsersByDeviceType(deviceType));
         }
 
         logger.debug("Get all device users");
         return ResponseEntity
-                .ok(this.deviceService.getAllDevices());
+                .ok(this.deviceUserService.getAllDevices());
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<DeviceUserPropertiesDTO> getAllDeviceProperties(
-            @PathVariable Long id) {
+    public ResponseEntity<DeviceUserPropertiesDTO> getAllDeviceProperties(@PathVariable Long id) {
         logger.debug("Get device user with id {}", id);
         return ResponseEntity
-                .ok(this.deviceService.getDeviceUserById(id));
+                .ok(this.deviceUserService.getDeviceUserById(id));
     }
 
     @PutMapping("/users/{id}")
@@ -69,32 +64,29 @@ public class DeviceUserResource {
             @RequestBody DeviceUserPropertiesDTO deviceUser) {
         logger.debug("Requesting to update deviceUser");
         return ResponseEntity
-                .ok(this.deviceService.updateDeviceUser(id, deviceUser));
+                .ok(this.deviceUserService.updateDeviceUser(id, deviceUser));
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteDeviceUser(@Valid @PathVariable Long id) {
         logger.debug("Requesting to delete deviceUser");
-        this.deviceService.revokeTokenAndDeleteUser(id);
+        this.deviceUserService.revokeTokenAndDeleteUser(id);
         return ResponseEntity
-                .ok()
-                .header("user-removed" , id.toString()).build();
+                .ok().header("user-removed", id.toString()).build();
     }
 
 
     @GetMapping("/users/{id}/token")
-    public ResponseEntity<TokenDTO> getUserToken(
-            @PathVariable Long id) {
+    public ResponseEntity<TokenDTO> getUserToken(@PathVariable Long id) {
         logger.debug("Get user token for id {}", id);
         return ResponseEntity
-                .ok(this.deviceService.getDeviceTokenByUserId(id));
+                .ok(this.deviceUserService.getDeviceTokenByUserId(id));
     }
 
     @PostMapping("/users/{id}/token")
-    public ResponseEntity<TokenDTO> requestRefreshTokenForUser(
-            @PathVariable Long id) {
+    public ResponseEntity<TokenDTO> requestRefreshTokenForUser(@PathVariable Long id) {
         logger.debug("Refreshing user token for id {}", id);
         return ResponseEntity
-                .ok(this.deviceService.refreshTokenForUser(id));
+                .ok(this.deviceUserService.refreshTokenForUser(id));
     }
 }

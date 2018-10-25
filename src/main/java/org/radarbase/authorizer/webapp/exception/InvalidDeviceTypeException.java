@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
-public class InvalidDeviceTypeException extends RuntimeException{
+public class InvalidDeviceTypeException extends RuntimeException {
 
     public InvalidDeviceTypeException(String deviceType) {
         super("Unsupported device type found");

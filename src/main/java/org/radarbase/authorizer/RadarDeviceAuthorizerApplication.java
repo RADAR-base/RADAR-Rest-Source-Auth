@@ -18,30 +18,29 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableConfigurationProperties({DeviceAuthorizerApplicationProperties.class})
 public class RadarDeviceAuthorizerApplication {
 
-	@Autowired
-	private DeviceAuthorizerApplicationProperties authorizerApplicationProperties;
+    @Autowired
+    private DeviceAuthorizerApplicationProperties authorizerApplicationProperties;
 
-	public static void main(String[] args) {
-		SpringApplication.run(RadarDeviceAuthorizerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(RadarDeviceAuthorizerApplication.class, args);
+    }
 
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurerAdapter() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
 
-				CorsConfiguration corsConfiguration = authorizerApplicationProperties.getCors();
-				Stream.of("/users/**", "/device-clients/**")
-						.forEach(p -> registry.addMapping(p)
-								.allowedOrigins(listToArray(corsConfiguration.getAllowedOrigins()))
-								.allowedMethods(listToArray(corsConfiguration.getAllowedMethods()))
-								.allowedHeaders(listToArray(corsConfiguration.getAllowedHeaders()))
-								.allowCredentials(corsConfiguration.getAllowCredentials()));
+                CorsConfiguration corsConfiguration = authorizerApplicationProperties.getCors();
+                Stream.of("/users/**", "/device-clients/**").forEach(p -> registry.addMapping(p)
+                        .allowedOrigins(listToArray(corsConfiguration.getAllowedOrigins()))
+                        .allowedMethods(listToArray(corsConfiguration.getAllowedMethods()))
+                        .allowedHeaders(listToArray(corsConfiguration.getAllowedHeaders()))
+                        .allowCredentials(corsConfiguration.getAllowCredentials()));
 
-			}
-		};
-	}
+            }
+        };
+    }
 
     private String[] listToArray(List<String> list) {
         return list.stream().toArray(String[]::new);

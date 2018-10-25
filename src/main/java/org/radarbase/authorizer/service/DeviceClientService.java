@@ -76,7 +76,8 @@ public class DeviceClientService {
                 .writeTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .build();
-        this.mapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        this.mapper = new ObjectMapper()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     }
 
@@ -91,27 +92,25 @@ public class DeviceClientService {
                     .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
                     .readValues(yamlParser, DeviceClients.class);
 
-            if( mappingIterator.hasNext() ) {
+            if (mappingIterator.hasNext()) {
                 DeviceClients deviceClients = mappingIterator.next();
-                if(deviceClients == null || deviceClients.getDeviceClients() == null) {
+                if (deviceClients == null || deviceClients.getDeviceClients() == null) {
                     LOGGER.error("No valid configurations available on configred path. Please "
                             + "check the syntax and file name");
-                    throw new ConfigurationException("No valid device-client configs are provided"
-                            + ".");
+                    throw new ConfigurationException(
+                            "No valid device-client configs are provided" + ".");
                 }
                 return deviceClients.getDeviceClients();
-            }
-            else {
-                throw new ConfigurationException("No valid device-client configs are provided"
-                        + ".");
+            } else {
+                throw new ConfigurationException(
+                        "No valid device-client configs are provided" + ".");
             }
 
         } catch (IOException e) {
-           LOGGER.error("Could not successfully read config file at {}", path);
-           throw new ConfigurationException("Could not successfully read config file at " + path);
+            LOGGER.error("Could not successfully read config file at {}", path);
+            throw new ConfigurationException("Could not successfully read config file at " + path);
         }
     }
-
 
 
     public List<DeviceClientDetailsDTO> getAllDeviceClientDetails() {
@@ -123,7 +122,7 @@ public class DeviceClientService {
     }
 
     private DeviceAuthorizationConfig getClientAuthorizationConfig(String deviceType) {
-        if(this.configMap.containsKey(deviceType)) {
+        if (this.configMap.containsKey(deviceType)) {
             return this.configMap.get(deviceType);
         } else {
             throw new InvalidDeviceTypeException(deviceType);
@@ -156,7 +155,9 @@ public class DeviceClientService {
         Request request = new Request.Builder().addHeader("Accept", "application/json")
                 .addHeader("Authorization", credentials)
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .url(authorizationConfig.getTokenEndpoint()).post(form).build();
+                .url(authorizationConfig.getTokenEndpoint())
+                .post(form)
+                .build();
 
         try (Response response = client.newCall(request).execute()) {
             if (response.isSuccessful()) {
@@ -187,15 +188,13 @@ public class DeviceClientService {
                 .add("refresh_token", refreshToken)
                 .build();
         LOGGER.info("Requesting to refreshToken");
-        return  processTokenRequest(form, getClientAuthorizationConfig(deviceType));
+        return processTokenRequest(form, getClientAuthorizationConfig(deviceType));
     }
 
     boolean revokeToken(String accessToken, String deviceType) {
 
         DeviceAuthorizationConfig authorizationConfig = getClientAuthorizationConfig(deviceType);
-        FormBody form = new FormBody.Builder()
-                .add("token", accessToken)
-                .build();
+        FormBody form = new FormBody.Builder().add("token", accessToken).build();
         LOGGER.info("Requesting to revoke access token");
         String credentials = Credentials
                 .basic(authorizationConfig.getClientId(), authorizationConfig.getClientSecret());

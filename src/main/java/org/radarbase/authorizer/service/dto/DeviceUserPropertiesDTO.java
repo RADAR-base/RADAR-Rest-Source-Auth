@@ -37,7 +37,8 @@ public class DeviceUserPropertiesDTO implements Serializable {
 
     private String externalUserId;
 
-    public DeviceUserPropertiesDTO() {}
+    public DeviceUserPropertiesDTO() {
+    }
 
     public DeviceUserPropertiesDTO(DeviceUser deviceUser) {
         this.id = deviceUser.getId();
@@ -142,13 +143,12 @@ public class DeviceUserPropertiesDTO implements Serializable {
             return false;
         }
         DeviceUserPropertiesDTO that = (DeviceUserPropertiesDTO) o;
-        return Objects.equals(id, that.id)
-                && Objects.equals(projectId, that.projectId)
+        return Objects.equals(id, that.id) && Objects.equals(projectId, that.projectId)
                 && Objects.equals(userId, that.userId)
                 && Objects.equals(sourceId, that.sourceId)
                 && Objects.equals(startDate, that.startDate)
                 && Objects.equals(endDate, that.endDate)
-                &&  Objects.equals(deviceType, that.deviceType)
+                && Objects.equals(deviceType, that.deviceType)
                 && Objects.equals(authorized, that.authorized)
                 && Objects.equals(externalUserId, that.externalUserId);
     }
@@ -156,8 +156,9 @@ public class DeviceUserPropertiesDTO implements Serializable {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, projectId, userId, sourceId, startDate, endDate, deviceType,
-                authorized, externalUserId);
+        return Objects
+                .hash(id, projectId, userId, sourceId, startDate, endDate, deviceType, authorized,
+                        externalUserId);
     }
 
     @Override
@@ -174,7 +175,6 @@ public class DeviceUserPropertiesDTO implements Serializable {
                 + ", externalUserId='" + externalUserId + '\''
                 + '}';
     }
-
 
 
 }

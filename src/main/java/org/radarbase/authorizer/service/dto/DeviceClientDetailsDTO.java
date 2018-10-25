@@ -16,7 +16,8 @@ public class DeviceClientDetailsDTO {
 
     private String clientId;
 
-    public DeviceClientDetailsDTO () {}
+    public DeviceClientDetailsDTO() {
+    }
 
     public DeviceClientDetailsDTO(DeviceAuthorizationConfig deviceAuthorizationConfig) {
         this.authorizationEndpoint = deviceAuthorizationConfig.getAuthorizationEndpoint();

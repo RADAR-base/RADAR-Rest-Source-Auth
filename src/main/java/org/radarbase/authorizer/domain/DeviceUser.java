@@ -66,7 +66,7 @@ public class DeviceUser {
     }
 
     public DeviceUser(DeviceUserPropertiesDTO deviceUserPropertiesDTO) {
-        if(deviceUserPropertiesDTO.getId() != null) {
+        if (deviceUserPropertiesDTO.getId() != null) {
             this.id = deviceUserPropertiesDTO.getId();
         }
         this.projectId = deviceUserPropertiesDTO.getProjectId();
@@ -208,6 +208,7 @@ public class DeviceUser {
     /**
      * Updates only a subset of user properties during update.
      * Does not update properties such as id and token data.
+     *
      * @param deviceUserDto user details to update.
      */
     public void safeUpdateProperties(DeviceUserPropertiesDTO deviceUserDto) {
@@ -222,6 +223,7 @@ public class DeviceUser {
     /**
      * Updates only the token related properties during update.
      * Does not update properties such as id and study information.
+     *
      * @param deviceAccessToken token details to update.
      */
     public void safeUpdateTokenDetails(DeviceAccessToken deviceAccessToken) {

@@ -1,7 +1,6 @@
 package org.radarbase.authorizer.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.util.Objects;
 
 public class DeviceAuthorizationConfig {
 
@@ -73,5 +72,29 @@ public class DeviceAuthorizationConfig {
 
     public void setClientSecret(String clientSecret) {
         this.clientSecret = clientSecret;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DeviceAuthorizationConfig that = (DeviceAuthorizationConfig) o;
+        return Objects.equals(deviceType, that.deviceType) && Objects
+                .equals(authorizationEndpoint, that.authorizationEndpoint) && Objects
+                .equals(tokenEndpoint, that.tokenEndpoint) && Objects
+                .equals(grantType, that.grantType) && Objects.equals(scope, that.scope) && Objects
+                .equals(clientId, that.clientId) && Objects.equals(clientSecret, that.clientSecret);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects
+                .hash(deviceType, authorizationEndpoint, tokenEndpoint, grantType, scope, clientId,
+                        clientSecret);
     }
 }

@@ -50,9 +50,9 @@ public class DeviceAuthorizerApplicationProperties {
             return false;
         }
         DeviceAuthorizerApplicationProperties that = (DeviceAuthorizerApplicationProperties) o;
-        return Objects.equals(deviceAuthConfigs, that.deviceAuthConfigs)
-                && Objects.equals(cors, that.cors)
-                && Objects.equals(deviceClientsFilePath, that.deviceClientsFilePath);
+        return Objects.equals(deviceAuthConfigs, that.deviceAuthConfigs) && Objects
+                .equals(cors, that.cors) && Objects
+                .equals(deviceClientsFilePath, that.deviceClientsFilePath);
     }
 
     @Override
