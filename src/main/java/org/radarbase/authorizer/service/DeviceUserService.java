@@ -10,6 +10,7 @@ import org.radarbase.authorizer.domain.DeviceUser;
 import org.radarbase.authorizer.repository.DeviceUserRepository;
 import org.radarbase.authorizer.service.dto.DeviceAccessToken;
 import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
+import org.radarbase.authorizer.service.dto.DeviceUsersDTO;
 import org.radarbase.authorizer.service.dto.TokenDTO;
 import org.radarbase.authorizer.webapp.exception.NotFoundException;
 import org.radarbase.authorizer.webapp.exception.TokenException;
@@ -31,11 +32,13 @@ public class DeviceUserService {
     private DeviceClientService authorizationService;
 
     @Transactional(readOnly = true)
-    public List<DeviceUserPropertiesDTO> getAllDevices() {
+    public DeviceUsersDTO getAllDevices() {
         log.debug("Querying all saved device users");
-        return this.deviceUserRepository.findAll().stream()
-                .map(DeviceUserPropertiesDTO::new)
-                .collect(Collectors.toList());
+        return new DeviceUsersDTO()
+                .users(this.deviceUserRepository.findAll()
+                        .stream()
+                        .map(DeviceUserPropertiesDTO::new)
+                        .collect(Collectors.toList()));
     }
 
     public DeviceUserPropertiesDTO save(DeviceUserPropertiesDTO deviceUserPropertiesDTO) {
@@ -130,8 +133,8 @@ public class DeviceUserService {
 
         if (user.isPresent()) {
             DeviceUser deviceUser = user.get();
-            return new TokenDTO().accessToken(deviceUser.getAccessToken())
-                    .refreshToken(deviceUser.getRefreshToken())
+            return new TokenDTO()
+                    .accessToken(deviceUser.getAccessToken())
                     .expiresAt(deviceUser.getExpiresAt());
         } else {
             throw new NotFoundException("DeviceUser not found with id " + id);
@@ -152,7 +155,6 @@ public class DeviceUserService {
                 deviceUser = this.deviceUserRepository.save(deviceUser);
                 return new TokenDTO()
                         .accessToken(deviceUser.getAccessToken())
-                        .refreshToken(deviceUser.getRefreshToken())
                         .expiresAt(deviceUser.getExpiresAt());
             } else {
                 throw new TokenException("Could not refresh token successfully");
@@ -164,9 +166,12 @@ public class DeviceUserService {
     }
 
     @Transactional(readOnly = true)
-    public List<DeviceUserPropertiesDTO> getAllUsersByDeviceType(String deviceType) {
+    public DeviceUsersDTO getAllUsersByDeviceType(String deviceType) {
         log.debug("Querying all saved users by device-type {}", deviceType);
-        return this.deviceUserRepository.findAllByDeviceType(deviceType).stream()
-                .map(DeviceUserPropertiesDTO::new).collect(Collectors.toList());
+        return new DeviceUsersDTO()
+                .users(this.deviceUserRepository.findAllByDeviceType(deviceType)
+                        .stream()
+                        .map(DeviceUserPropertiesDTO::new)
+                        .collect(Collectors.toList()));
     }
 }

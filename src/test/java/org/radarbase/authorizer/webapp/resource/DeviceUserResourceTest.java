@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,7 @@ import org.mockito.MockitoAnnotations;
 import org.radarbase.authorizer.RadarDeviceAuthorizerApplication;
 import org.radarbase.authorizer.domain.DeviceUser;
 import org.radarbase.authorizer.repository.DeviceUserRepository;
-import org.radarbase.authorizer.service.DeviceService;
+import org.radarbase.authorizer.service.DeviceUserService;
 import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeviceUserResourceTest {
 
     @Autowired
-    private DeviceService deviceService;
+    private DeviceUserService deviceUserService;
 
     @Autowired
     private DeviceUserRepository deviceUserRepository;
@@ -58,7 +57,7 @@ public class DeviceUserResourceTest {
         MockitoAnnotations.initMocks(this);
 
         DeviceUserResource deviceUserResource = new DeviceUserResource();
-        ReflectionTestUtils.setField(deviceUserResource, "deviceService", deviceService);
+        ReflectionTestUtils.setField(deviceUserResource, "deviceService", deviceUserService);
 
 
 

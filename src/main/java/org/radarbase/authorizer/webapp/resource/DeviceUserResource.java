@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.radarbase.authorizer.service.DeviceUserService;
 import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
+import org.radarbase.authorizer.service.dto.DeviceUsersDTO;
 import org.radarbase.authorizer.service.dto.TokenDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class DeviceUserResource {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<DeviceUserPropertiesDTO>> getAllDeviceProperties(
+    public ResponseEntity<DeviceUsersDTO> getAllDeviceProperties(
             @RequestParam(value = "device-type", required = false) String deviceType) {
         if (deviceType != null && !deviceType.isEmpty()) {
             logger.debug("Get all users by device-type {}", deviceType);

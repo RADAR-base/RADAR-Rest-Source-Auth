@@ -6,8 +6,6 @@ public class TokenDTO {
 
     private String accessToken;
 
-    private String refreshToken;
-
     private Instant expiresAt;
 
     public String getAccessToken() {
@@ -16,15 +14,6 @@ public class TokenDTO {
 
     public TokenDTO accessToken(String accessToken) {
         this.accessToken = accessToken;
-        return this;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public TokenDTO refreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
         return this;
     }
 
