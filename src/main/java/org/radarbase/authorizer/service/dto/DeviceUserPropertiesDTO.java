@@ -12,7 +12,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
     // Unique user key
-    private Long id;
+    private String id;
 
     // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String projectId;
@@ -41,7 +41,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
     }
 
     public DeviceUserPropertiesDTO(DeviceUser deviceUser) {
-        this.id = deviceUser.getId();
+        this.id = String.valueOf(deviceUser.getId());
         this.projectId = deviceUser.getProjectId();
         this.userId = deviceUser.getUserId();
         this.sourceId = deviceUser.getSourceId();
@@ -52,11 +52,11 @@ public class DeviceUserPropertiesDTO implements Serializable {
         this.externalUserId = deviceUser.getExternalUserId();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public DeviceUserPropertiesDTO id(Long id) {
+    public DeviceUserPropertiesDTO id(String id) {
         this.id = id;
         return this;
     }

@@ -35,7 +35,7 @@ export class DevicesService {
     return this.http.post(this.serviceUrl ,params);
   }
 
-  deleteUser(deviceId: number): Observable<any> {
+  deleteUser(deviceId: string): Observable<any> {
     return this.http.delete(this.serviceUrl + '/' + deviceId);
   }
 

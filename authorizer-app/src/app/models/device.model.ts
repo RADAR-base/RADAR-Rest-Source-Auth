@@ -1,5 +1,5 @@
 export class DeviceUser {
-     id?: number ;
+     id?: string ;
      projectId?: string;
      userId?: string;
      sourceId?: string;

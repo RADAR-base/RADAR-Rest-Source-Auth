@@ -67,7 +67,7 @@ public class DeviceUser {
 
     public DeviceUser(DeviceUserPropertiesDTO deviceUserPropertiesDTO) {
         if (deviceUserPropertiesDTO.getId() != null) {
-            this.id = deviceUserPropertiesDTO.getId();
+            this.id = Long.valueOf(deviceUserPropertiesDTO.getId());
         }
         this.projectId = deviceUserPropertiesDTO.getProjectId();
         this.userId = deviceUserPropertiesDTO.getUserId();

@@ -54,40 +54,41 @@ public class DeviceUserResource {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<DeviceUserPropertiesDTO> getAllDeviceProperties(@PathVariable Long id) {
+    public ResponseEntity<DeviceUserPropertiesDTO> getDevicePropertiesById(
+            @PathVariable String id) {
         logger.debug("Get device user with id {}", id);
         return ResponseEntity
-                .ok(this.deviceUserService.getDeviceUserById(id));
+                .ok(this.deviceUserService.getDeviceUserById(Long.valueOf(id)));
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity updateDeviceUser(@Valid @PathVariable Long id,
+    public ResponseEntity updateDeviceUser(@Valid @PathVariable String id,
             @RequestBody DeviceUserPropertiesDTO deviceUser) {
         logger.debug("Requesting to update deviceUser");
         return ResponseEntity
-                .ok(this.deviceUserService.updateDeviceUser(id, deviceUser));
+                .ok(this.deviceUserService.updateDeviceUser(Long.valueOf(id), deviceUser));
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteDeviceUser(@Valid @PathVariable Long id) {
+    public ResponseEntity<Void> deleteDeviceUser(@Valid @PathVariable String id) {
         logger.debug("Requesting to delete deviceUser");
-        this.deviceUserService.revokeTokenAndDeleteUser(id);
+        this.deviceUserService.revokeTokenAndDeleteUser(Long.valueOf(id));
         return ResponseEntity
-                .ok().header("user-removed", id.toString()).build();
+                .ok().header("user-removed", id).build();
     }
 
 
     @GetMapping("/users/{id}/token")
-    public ResponseEntity<TokenDTO> getUserToken(@PathVariable Long id) {
+    public ResponseEntity<TokenDTO> getUserToken(@PathVariable String id) {
         logger.debug("Get user token for id {}", id);
         return ResponseEntity
-                .ok(this.deviceUserService.getDeviceTokenByUserId(id));
+                .ok(this.deviceUserService.getDeviceTokenByUserId(Long.valueOf(id)));
     }
 
     @PostMapping("/users/{id}/token")
-    public ResponseEntity<TokenDTO> requestRefreshTokenForUser(@PathVariable Long id) {
+    public ResponseEntity<TokenDTO> requestRefreshTokenForUser(@PathVariable String id) {
         logger.debug("Refreshing user token for id {}", id);
         return ResponseEntity
-                .ok(this.deviceUserService.refreshTokenForUser(id));
+                .ok(this.deviceUserService.refreshTokenForUser(Long.valueOf(id)));
     }
 }
