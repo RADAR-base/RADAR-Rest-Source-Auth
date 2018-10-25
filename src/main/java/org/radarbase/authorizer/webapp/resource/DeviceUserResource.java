@@ -43,18 +43,17 @@ public class DeviceUserResource {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<DeviceUserPropertiesDTO>> getAllDeviceProperties() {
+    public ResponseEntity<List<DeviceUserPropertiesDTO>> getAllDeviceProperties(@RequestParam
+            (value="device-type") String deviceType) {
+        if (deviceType != null || !deviceType.isEmpty()) {
+            logger.debug("Get all users by device-type {}", deviceType);
+            return ResponseEntity
+                    .ok(this.deviceService.getAllUsersByDeviceType(deviceType));
+        }
+
         logger.debug("Get all device users");
         return ResponseEntity
                 .ok(this.deviceService.getAllDevices());
-    }
-
-    @GetMapping("/users/{device-type}")
-    public ResponseEntity<List<DeviceUserPropertiesDTO>> getAllUsersByDeviceType(
-            @PathVariable String deviceType) {
-        logger.debug("Get all users by device-type {}", deviceType);
-        return ResponseEntity
-                .ok(this.deviceService.getAllUsersByDeviceType(deviceType));
     }
 
     @GetMapping("/users/{id}")
