@@ -43,9 +43,9 @@ public class DeviceUserResource {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<DeviceUserPropertiesDTO>> getAllDeviceProperties(@RequestParam
-            (value="device-type") String deviceType) {
-        if (deviceType != null || !deviceType.isEmpty()) {
+    public ResponseEntity<List<DeviceUserPropertiesDTO>> getAllDeviceProperties(
+            @RequestParam(value="device-type", required = false) String deviceType) {
+        if (deviceType != null && !deviceType.isEmpty()) {
             logger.debug("Get all users by device-type {}", deviceType);
             return ResponseEntity
                     .ok(this.deviceService.getAllUsersByDeviceType(deviceType));
