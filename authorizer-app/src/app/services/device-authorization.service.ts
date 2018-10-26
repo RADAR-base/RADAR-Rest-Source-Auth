@@ -13,12 +13,10 @@ export class DeviceAuthorizationService {
   constructor(private http: HttpClient) { }
 
   getDeviceTypes(): Observable<any> {
-    console.log("get device types");
     return this.http.get(this.serviceUrl + '/device-clients/device-type');
   }
 
   getDeviceClientAuthDetails(deviceType: string): Observable<any> {
-    console.log("get device types");
     return this.http.get(this.serviceUrl + '/device-clients/' + deviceType);
   }
 }

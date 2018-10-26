@@ -1,7 +1,7 @@
 version: '2'
 services:
     radar-auth-backend:
-        image: auth-test:latest
+        image: radarbase/radar-device-auth-backend:latest
         depends_on:
           - auth-postgresql
         environment:
@@ -10,12 +10,10 @@ services:
             - SPRING_DATASOURCE_PASSWORD=radarcns
             - DEVICE_AUTHORIZER_DEVICE_CLIENTS_FILE_PATH=app-includes/device_clients_configs.yml
             - APP_SLEEP=10 # gives time for the database to boot before the application
-#        ports:
-#            - 8080:8080
         volumes:
             - ./etc:/app-includes
     auth-postgresql:
-        image: postgres:9.6.2
+        image: postgres:10.4-alpine
 #        ports:
 #          - "5432:5432"
         environment:
@@ -24,7 +22,7 @@ services:
           - POSTGRES_DB=deviceauthorizer
 
     radar-auth-frontend:
-        image: auth-front:latest
+        image: radarbase/radar-device-authorizer:latest
         depends_on:
           - radar-auth-backend
           - auth-postgresql
