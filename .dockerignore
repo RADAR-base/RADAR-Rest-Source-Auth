@@ -3,4 +3,4 @@ out
 .idea
 .gradle
 .git
-authorizer-app/
+authorizer-app/*

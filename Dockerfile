@@ -1,14 +1,12 @@
 # Build stage
-FROM openjdk:8-jdk as builder
+FROM openjdk:8-jdk-alpine as builder
 
 WORKDIR /app
 COPY gradlew /app/
 COPY gradle/wrapper gradle/wrapper
-RUN ./gradlew --version
-
 COPY gradle gradle
 COPY build.gradle settings.gradle /app/
-RUN ./gradlew downloadDependencies
+RUN ./gradlew --version downloadDependencies
 
 COPY src src
 RUN ./gradlew assemble
