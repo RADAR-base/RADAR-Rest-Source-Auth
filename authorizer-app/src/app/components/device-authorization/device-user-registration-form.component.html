@@ -3,6 +3,7 @@
     <label for="field_deviceType">Select device type : </label>
       <select class="form-control" id="field_deviceType" formControlName="selectedDeviceType"
               (change)="onChange($event.target.value)">
+        <option selected disabled value="">-- select a third party service --</option>
         <option [value]="deviceType" *ngFor="let deviceType of deviceTypes">{{deviceType}}</option>
       </select>
   </div>
