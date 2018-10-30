@@ -48,7 +48,7 @@ import org.radarbase.authorizer.config.DeviceAuthorizerApplicationProperties;
 import org.radarbase.authorizer.config.DeviceClients;
 import org.radarbase.authorizer.service.dto.DeviceAccessToken;
 import org.radarbase.authorizer.service.dto.DeviceClientDetailsDTO;
-import org.radarbase.authorizer.service.dto.SourceClients;
+import org.radarbase.authorizer.service.dto.SourceClientsDTO;
 import org.radarbase.authorizer.webapp.exception.BadGatewayException;
 import org.radarbase.authorizer.webapp.exception.InvalidDeviceTypeException;
 import org.radarbase.authorizer.webapp.exception.TokenException;
@@ -133,8 +133,8 @@ public class DeviceClientService {
     }
 
 
-    public SourceClients getAllDeviceClientDetails() {
-        return new SourceClients()
+    public SourceClientsDTO getAllDeviceClientDetails() {
+        return new SourceClientsDTO()
                 .sourceClients(new ArrayList<>(this.clientDetailsDTOMap.values()));
     }
 

@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.radarbase.authorizer.service.DeviceClientService;
 import org.radarbase.authorizer.service.dto.DeviceClientDetailsDTO;
-import org.radarbase.authorizer.service.dto.SourceClients;
+import org.radarbase.authorizer.service.dto.SourceClientsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class SourceClientResource {
     private DeviceClientService deviceClientService;
 
     @GetMapping("/source-clients")
-    public ResponseEntity<SourceClients> getAllDeviceProperties() {
+    public ResponseEntity<SourceClientsDTO> getAllDeviceProperties() {
         logger.debug("Get all devices client details");
         return ResponseEntity.ok(this.deviceClientService.getAllDeviceClientDetails());
     }

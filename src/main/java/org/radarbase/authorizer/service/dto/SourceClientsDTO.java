@@ -21,7 +21,7 @@ package org.radarbase.authorizer.service.dto;
 
 import java.util.List;
 
-public class SourceClients {
+public class SourceClientsDTO {
 
     private List<DeviceClientDetailsDTO> sourceClients;
 
@@ -29,7 +29,7 @@ public class SourceClients {
         return sourceClients;
     }
 
-    public SourceClients sourceClients(List<DeviceClientDetailsDTO> sourceClients) {
+    public SourceClientsDTO sourceClients(List<DeviceClientDetailsDTO> sourceClients) {
         this.sourceClients = sourceClients;
         return this;
     }

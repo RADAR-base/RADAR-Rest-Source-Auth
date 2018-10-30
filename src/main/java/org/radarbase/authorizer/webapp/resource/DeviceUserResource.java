@@ -21,7 +21,6 @@ package org.radarbase.authorizer.webapp.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import javax.validation.Valid;
 
 import org.radarbase.authorizer.service.DeviceUserService;
