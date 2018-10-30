@@ -1,11 +1,7 @@
-
-
+<ngb-alert *ngIf="errorMessage" type="danger" (close)="errorMessage = null">{{ errorMessage}}</ngb-alert>
 <div *ngIf="deviceUser" class="container col-md-3">
   <h3> Enter details for User with External User Id: {{deviceUser.externalUserId}}</h3>
   <form>
-
-
-
     <div class="form-group">
       <label for="projectId">Project Id: </label>
       <input class="form-control" name="projectId" type="text" [(ngModel)]="deviceUser.projectId" id="projectId">

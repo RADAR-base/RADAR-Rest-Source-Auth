@@ -10,7 +10,7 @@ import {DeviceAuthorizationService} from "../../services/device-authorization.se
   templateUrl: './add-device.component.html',
 })
 export class AddDeviceComponent implements OnInit {
-
+  errorMessage: string;
   deviceUser: DeviceUser;
   startDate;
   endDate;
@@ -24,7 +24,12 @@ export class AddDeviceComponent implements OnInit {
 
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe((params: Params) => {
-      this.addDeviceUser(params['code'], params['state']);
+      if(params.hasOwnProperty('error')) {
+        this.errorMessage = params['error_description'];
+      } else {
+        this.errorMessage = null;
+        this.addDeviceUser(params['code'], params['state']);
+      }
     });
   }
 
