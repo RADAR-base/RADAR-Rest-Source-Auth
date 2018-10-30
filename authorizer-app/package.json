@@ -1,6 +1,13 @@
 {
   "name": "authorizer-app",
-  "version": "0.1",
+  "version": "1.0.0",
+  "description": "Simple app to authorize to collect data from third party services ",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RADAR-base/RADAR-Rest-Source-Auth.git"
+  },
+  "author": "Nivethika Mahasivam <nivethika@thehyve.nl>",
+  "license": "Apache 2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
