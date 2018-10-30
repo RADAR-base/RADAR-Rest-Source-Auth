@@ -20,13 +20,13 @@ To run this application from source:
 
 ```$cmd
 ./gradlew build assemble
-java -jar radar-device-authorizer*.jar
+java -jar radar-rest-sources-authorizer*.jar
 ```
 
 To build and run this application from Docker:
 ```$cmd
 
-docker build -t radarbase/radar-device-auth-backend:latest .
+docker build -t radarbase/radar-rest-source-auth-backend:latest .
 
-docker run -p 8080:8080 radarbase/radar-device-auth-backend:latest
+docker run -p 8080:8080 radarbase/radar-rest-source-auth-backend:latest
 ```
