@@ -1,5 +1,5 @@
 <div>
-  <alert-comp></alert-comp>
+  <ngb-alert *ngIf="errorMessage" type="danger" (close)="errorMessage = null">{{ errorMessage}}</ngb-alert>
   <user-registration-form></user-registration-form>
   <div class="container table-responsive"  *ngIf="devices">
     <table class="table table-hover table-striped ">

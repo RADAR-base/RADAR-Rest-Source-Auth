@@ -7,13 +7,11 @@ import {DevicesService} from "./services/devices.service";
 import {RouterModule, Routes} from "@angular/router";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AddDeviceComponent} from "./components/device-authorization/add-device.component";
-import {AlertComponent} from "./components/alert/alert.component";
 import {DevicesListComponent} from "./components/device-authorization/devices-list.component";
-import {ErrorReportingComponent} from "./components/device-authorization/error.component";
-import {AlertService} from "./components/alert/alert.service";
 import {DeviceAuthorizationService} from "./services/device-authorization.service";
 import {DeviceUserRegistrationFormComponent} from "./components/device-authorization/device-user-registration-form.component";
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {ErrorReportingComponent} from "./components/device-authorization/error.component";
 const appRoutes: Routes = [
   {
     path: '',
@@ -42,7 +40,6 @@ const appRoutes: Routes = [
 @NgModule({
   declarations: [
     AddDeviceComponent,
-    AlertComponent,
     AppComponent,
     DeviceUserRegistrationFormComponent,
     ErrorReportingComponent,
@@ -59,7 +56,6 @@ const appRoutes: Routes = [
   ],
   providers: [
     DevicesService,
-    AlertService,
     DeviceAuthorizationService
   ],
   // entryComponents: [AddDeviceDialogComponent],

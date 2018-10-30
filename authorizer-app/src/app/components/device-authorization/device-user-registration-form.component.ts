@@ -1,10 +1,8 @@
 import {Component, OnInit} from "@angular/core";
-import {AlertService} from "../alert/alert.service";
 import {DevicesService} from "../../services/devices.service";
-import {environment} from "../../../environments/environment";
 import {PlatformLocation} from "@angular/common";
 import {DeviceAuthorizationService} from "../../services/device-authorization.service";
-import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
+import {FormBuilder} from "@angular/forms";
 import {DeviceAuthDetails} from "../../models/device-auth-details.model";
 
 @Component({
@@ -14,10 +12,8 @@ import {DeviceAuthDetails} from "../../models/device-auth-details.model";
 export class DeviceUserRegistrationFormComponent implements OnInit {
 
   deviceTypeForm: any;
-  registrationServiceUrl: String;
   callbackUrl: String;
   clientId: String;
-  authState: String;
 
   deviceTypes: string[];
   deviceAuthDetail: DeviceAuthDetails;
@@ -26,7 +22,6 @@ export class DeviceUserRegistrationFormComponent implements OnInit {
 
   constructor(private deviceService: DevicesService,
               private deviceAuthorizationService: DeviceAuthorizationService,
-              private alertService: AlertService,
               private fb: FormBuilder,
               private platformLocation: PlatformLocation
   ) {

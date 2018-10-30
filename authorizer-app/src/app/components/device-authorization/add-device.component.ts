@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {AlertService} from '../alert/alert.service';
 import {DevicesService} from "../../services/devices.service";
 import {DeviceUser} from "../../models/device.model";
 import {DeviceAuthorizationService} from "../../services/device-authorization.service";
@@ -18,7 +17,6 @@ export class AddDeviceComponent implements OnInit {
   constructor(private devicesService: DevicesService,
               private deviceAuthorizationService: DeviceAuthorizationService,
               private router: Router,
-              private alertService: AlertService,
               private activatedRoute: ActivatedRoute) {
   }
 
@@ -41,7 +39,7 @@ export class AddDeviceComponent implements OnInit {
         return this.router.navigate(['/users']);
       },
       err => {
-        this.alertService.error(err.json._body);
+        this.errorMessage = err.json._body;
 
       });
   }
@@ -51,7 +49,7 @@ export class AddDeviceComponent implements OnInit {
         this.deviceUser = data;
       },
       (err: Response) => {
-        this.alertService.error('Cannot retrieve current user details');
+        this.errorMessage = 'Cannot retrieve current user details'
         window.setTimeout(() => this.router.navigate(['']), 5000);
       });
   }

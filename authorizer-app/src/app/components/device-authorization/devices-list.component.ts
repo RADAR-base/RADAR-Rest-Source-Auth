@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {AlertService} from '../alert/alert.service';
 import {DeviceUser} from "../../models/device.model";
 import {DevicesService} from "../../services/devices.service";
 
@@ -8,12 +7,11 @@ import {DevicesService} from "../../services/devices.service";
   templateUrl: './devices-list.component.html',
 })
 export class DevicesListComponent implements OnInit {
-
+  errorMessage: string;
   devices: DeviceUser[];
   public isCollapsed = true;
 
-  constructor(private deviceService: DevicesService,
-              private alertService: AlertService) {}
+  constructor(private deviceService: DevicesService) {}
 
   ngOnInit() {
     this.loadAllUsers();
@@ -24,7 +22,7 @@ export class DevicesListComponent implements OnInit {
         this.devices = devicesList.users;
       },
       () => {
-        this.alertService.error('Cannot load registered users!');
+        this.errorMessage = 'Cannot load registered users!';
       });
   }
 
