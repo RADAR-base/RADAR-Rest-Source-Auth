@@ -4,12 +4,12 @@
   <form>
     <div class="form-group">
       <label for="projectId">Project Id: </label>
-      <input class="form-control" name="projectId" type="text" [(ngModel)]="deviceUser.projectId" id="projectId">
+      <input class="form-control" name="projectId" type="text" [(ngModel)]="deviceUser.projectId" id="projectId"  placement="top" ngbTooltip="Project name from ManagementPortal">
     </div>
 
     <div class="form-group">
       <label for="userId">User Id: </label>
-      <input class="form-control" name="userId" type="text" [(ngModel)]="deviceUser.userId" id="userId">
+      <input class="form-control" name="userId" type="text" [(ngModel)]="deviceUser.userId" id="userId" placement="top" ngbTooltip="Subject Id from ManagementPortal">
     </div>
 
 
@@ -20,18 +20,18 @@
 
     <div class="form-group">
       <label for="startDate">Start Date: </label>
-      <div class="input-group">
+      <div class="input-group" placement="top" ngbTooltip="Start date to collect data from this source">
         <input id="startDate" class="form-control" placeholder="yyyy-mm-dd"
                name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker">
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary calendar" (click)="e.toggle()" type="button"></button>
+          <button class="btn btn-outline-secondary calendar" (click)="e.toggle()" type="button" ></button>
         </div>
       </div>
     </div>
 
     <div class="form-group">
       <label for="endDate">End Date: </label>
-      <div class="input-group">
+      <div class="input-group" placement="top" ngbTooltip="End date to collect data from this source">
         <input id="endDate" class="form-control" placeholder="yyyy-mm-dd"
                name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker">
         <div class="input-group-append">

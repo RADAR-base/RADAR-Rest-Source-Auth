@@ -1,6 +1,6 @@
 <form [formGroup]="deviceTypeForm" class="form-group container">
   <div class=" text-center">
-    <label for="field_deviceType">Select device type : </label>
+    <label for="field_deviceType">Select an external service : </label>
       <select class="form-control" id="field_deviceType" formControlName="selectedDeviceType"
               (change)="onChange($event.target.value)">
         <option selected disabled value="">-- select a third party service --</option>
