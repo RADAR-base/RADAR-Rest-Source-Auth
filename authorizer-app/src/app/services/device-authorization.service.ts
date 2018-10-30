@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpParams} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs/internal/Observable";
-import {DeviceUser} from "../models/device.model";
 import {environment} from "../../environments/environment";
 
 
@@ -13,11 +12,11 @@ export class DeviceAuthorizationService {
   constructor(private http: HttpClient) { }
 
   getDeviceTypes(): Observable<any> {
-    return this.http.get(this.serviceUrl + '/device-clients/device-type');
+    return this.http.get(this.serviceUrl + '/source-clients/type');
   }
 
-  getDeviceClientAuthDetails(deviceType: string): Observable<any> {
-    return this.http.get(this.serviceUrl + '/device-clients/' + deviceType);
+  getDeviceClientAuthDetails(sourceType: string): Observable<any> {
+    return this.http.get(this.serviceUrl + '/source-clients/' + sourceType);
   }
 }
 

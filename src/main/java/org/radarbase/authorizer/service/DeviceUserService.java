@@ -165,7 +165,7 @@ public class DeviceUserService {
         Optional<DeviceUser> user = deviceUserRepository.findById(id);
         if (user.isPresent()) {
             DeviceUser deviceUser = user.get();
-            // refresh token by user id and device-type
+            // refresh token by user id and source-type
             DeviceAccessToken accessToken = authorizationService
                     .refreshToken(deviceUser.getRefreshToken(), deviceUser.getDeviceType());
             // update token
@@ -186,7 +186,7 @@ public class DeviceUserService {
 
     @Transactional(readOnly = true)
     public DeviceUsersDTO getAllUsersByDeviceType(String deviceType) {
-        log.debug("Querying all saved users by device-type {}", deviceType);
+        log.debug("Querying all saved users by source-type {}", deviceType);
         return new DeviceUsersDTO()
                 .users(this.deviceUserRepository.findAllByDeviceType(deviceType)
                         .stream()

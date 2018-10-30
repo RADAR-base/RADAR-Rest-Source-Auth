@@ -59,6 +59,10 @@ springBoot {
 	mainClassName = 'org.radarbase.authorizer.RadarDeviceAuthorizerApplication'
 }
 
+wrapper {
+	gradleVersion '4.10.2'
+}
+
 task downloadDependencies {
 	description "Pre-downloads dependencies"
 	configurations.compileClasspath.files

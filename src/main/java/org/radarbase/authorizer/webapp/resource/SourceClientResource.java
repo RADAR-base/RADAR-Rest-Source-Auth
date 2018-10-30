@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.radarbase.authorizer.service.DeviceClientService;
 import org.radarbase.authorizer.service.dto.DeviceClientDetailsDTO;
+import org.radarbase.authorizer.service.dto.SourceClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,31 +33,31 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class DeviceClientResource {
+public class SourceClientResource {
 
-    private Logger logger = LoggerFactory.getLogger(DeviceClientResource.class);
+    private Logger logger = LoggerFactory.getLogger(SourceClientResource.class);
 
     @Autowired
     private DeviceClientService deviceClientService;
 
-    @GetMapping("/device-clients")
-    public ResponseEntity<List<DeviceClientDetailsDTO>> getAllDeviceProperties() {
+    @GetMapping("/source-clients")
+    public ResponseEntity<SourceClients> getAllDeviceProperties() {
         logger.debug("Get all devices client details");
         return ResponseEntity.ok(this.deviceClientService.getAllDeviceClientDetails());
     }
 
 
-    @GetMapping("/device-clients/device-type")
+    @GetMapping("/source-clients/type")
     public ResponseEntity<List<String>> getAllAvailableDeviceTypes() {
         logger.debug("Get all devices-types");
         return ResponseEntity.ok(this.deviceClientService.getAvailableDeviceTypes());
     }
 
-    @GetMapping("/device-clients/{deviceType}")
+    @GetMapping("/source-clients/{sourceType}")
     public ResponseEntity<DeviceClientDetailsDTO> getDeviceAuthDetailsByDeviceType(
-            @PathVariable String deviceType) {
-        logger.info("Get device detail by device-type {}", deviceType);
-        return ResponseEntity.ok(this.deviceClientService.getAllDeviceClientDetails(deviceType));
+            @PathVariable String sourceType) {
+        logger.info("Get device detail by type {}", sourceType);
+        return ResponseEntity.ok(this.deviceClientService.getAllDeviceClientDetails(sourceType));
     }
 
 }

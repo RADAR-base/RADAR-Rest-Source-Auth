@@ -51,7 +51,7 @@ public class RadarDeviceAuthorizerApplication {
             public void addCorsMappings(CorsRegistry registry) {
 
                 CorsConfiguration corsConfiguration = authorizerApplicationProperties.getCors();
-                Stream.of("/users/**", "/device-clients/**").forEach(p -> registry.addMapping(p)
+                Stream.of("/users/**", "/source-clients/**").forEach(p -> registry.addMapping(p)
                         .allowedOrigins(listToArray(corsConfiguration.getAllowedOrigins()))
                         .allowedMethods(listToArray(corsConfiguration.getAllowedMethods()))
                         .allowedHeaders(listToArray(corsConfiguration.getAllowedHeaders()))

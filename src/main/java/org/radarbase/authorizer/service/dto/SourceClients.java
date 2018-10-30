@@ -17,19 +17,20 @@
  *
  */
 
-package org.radarbase.authorizer.webapp.exception;
+package org.radarbase.authorizer.service.dto;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import java.util.List;
 
-@ResponseStatus(HttpStatus.EXPECTATION_FAILED)
-public class InvalidDeviceTypeException extends RuntimeException {
+public class SourceClients {
 
-    public InvalidDeviceTypeException(String deviceType) {
-        super("Unsupported device type found");
+    private List<DeviceClientDetailsDTO> sourceClients;
+
+    public List<DeviceClientDetailsDTO> getSourceClients() {
+        return sourceClients;
     }
 
-    public InvalidDeviceTypeException(String deviceType, Throwable cause) {
-        super("Cannot find configurations for type " + deviceType, cause);
+    public SourceClients sourceClients(List<DeviceClientDetailsDTO> sourceClients) {
+        this.sourceClients = sourceClients;
+        return this;
     }
 }
