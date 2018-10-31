@@ -8,8 +8,8 @@ An application to get authorization from users to access their data through 3rd 
 3. Has a simple web-service with REST Endpoints to share configured source-type client details and authorized users.
 4. Currently various source-types can be configured using a YAML file and these entries are stored in memory.
 
-## APIs to be used by Device-Connectors
-Device `Source-Connectors` can use the APIs as follows.
+## APIs to be used by REST Source-Connectors
+`RADAR REST Source-Connectors` can use the APIs as follows.
  1. To get all configured users for a particular source-type use `GET */users/{source-type}` .
  2. To get details of a particular user use `GET */users/{id}`.
  3. To get the token details of a particular user use `GET */users/{id}/token`.
