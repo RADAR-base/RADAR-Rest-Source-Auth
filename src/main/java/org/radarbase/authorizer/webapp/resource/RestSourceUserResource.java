@@ -23,9 +23,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import javax.validation.Valid;
 
-import org.radarbase.authorizer.service.DeviceUserService;
-import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
-import org.radarbase.authorizer.service.dto.DeviceUsersDTO;
+import org.radarbase.authorizer.service.RestSourceUserService;
+import org.radarbase.authorizer.service.dto.RestSourceUserPropertiesDTO;
+import org.radarbase.authorizer.service.dto.RestSourceUsers;
 import org.radarbase.authorizer.service.dto.TokenDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,56 +41,57 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class DeviceUserResource {
+public class RestSourceUserResource {
 
-    private Logger logger = LoggerFactory.getLogger(DeviceUserResource.class);
+    private Logger logger = LoggerFactory.getLogger(RestSourceUserResource.class);
 
     @Autowired
-    private DeviceUserService deviceUserService;
+    private RestSourceUserService restSourceUserService;
 
     @PostMapping("/users")
-    public ResponseEntity addAuthorizedDeviceUser(@RequestParam(value = "code") String code,
+    public ResponseEntity addAuthorizedRestSourceUser(@RequestParam(value = "code") String code,
             @RequestParam(value = "state") String state) throws URISyntaxException {
-        logger.debug("Add a device user with code {} and state {}", code, state);
-        DeviceUserPropertiesDTO user = this.deviceUserService.authorizeAndStoreDevice(code, state);
+        logger.debug("Add a rest-source user with code {} and state {}", code, state);
+        RestSourceUserPropertiesDTO
+                user = this.restSourceUserService.authorizeAndStoreDevice(code, state);
         return ResponseEntity
                 .created(new URI("/user/" + user.getId())).body(user);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<DeviceUsersDTO> getAllDeviceProperties(
-            @RequestParam(value = "source-type", required = false) String deviceType) {
-        if (deviceType != null && !deviceType.isEmpty()) {
-            logger.debug("Get all users by type {}", deviceType);
+    public ResponseEntity<RestSourceUsers> getAllRestSources(
+            @RequestParam(value = "source-type", required = false) String sourceType) {
+        if (sourceType != null && !sourceType.isEmpty()) {
+            logger.debug("Get all rest source users by type {}", sourceType);
             return ResponseEntity
-                    .ok(this.deviceUserService.getAllUsersByDeviceType(deviceType));
+                    .ok(this.restSourceUserService.getAllUsersBySourceType(sourceType));
         }
 
-        logger.debug("Get all device users");
+        logger.debug("Get all rest source users");
         return ResponseEntity
-                .ok(this.deviceUserService.getAllDevices());
+                .ok(this.restSourceUserService.getAllRestSourceUsers());
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<DeviceUserPropertiesDTO> getDevicePropertiesById(
+    public ResponseEntity<RestSourceUserPropertiesDTO> getRestSourceUserById(
             @PathVariable String id) {
-        logger.debug("Get device user with id {}", id);
+        logger.debug("Get rest source user with id {}", id);
         return ResponseEntity
-                .ok(this.deviceUserService.getDeviceUserById(Long.valueOf(id)));
+                .ok(this.restSourceUserService.getRestSourceUserById(Long.valueOf(id)));
     }
 
     @PutMapping("/users/{id}")
     public ResponseEntity updateDeviceUser(@Valid @PathVariable String id,
-            @RequestBody DeviceUserPropertiesDTO deviceUser) {
-        logger.debug("Requesting to update deviceUser");
+            @RequestBody RestSourceUserPropertiesDTO restSourceUser) {
+        logger.debug("Requesting to update rest source user");
         return ResponseEntity
-                .ok(this.deviceUserService.updateDeviceUser(Long.valueOf(id), deviceUser));
+                .ok(this.restSourceUserService.updateRestSourceUser(Long.valueOf(id), restSourceUser));
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteDeviceUser(@Valid @PathVariable String id) {
-        logger.debug("Requesting to delete deviceUser");
-        this.deviceUserService.revokeTokenAndDeleteUser(Long.valueOf(id));
+        logger.debug("Requesting to delete rest source user");
+        this.restSourceUserService.revokeTokenAndDeleteUser(Long.valueOf(id));
         return ResponseEntity
                 .ok().header("user-removed", id).build();
     }
@@ -98,15 +99,15 @@ public class DeviceUserResource {
 
     @GetMapping("/users/{id}/token")
     public ResponseEntity<TokenDTO> getUserToken(@PathVariable String id) {
-        logger.debug("Get user token for id {}", id);
+        logger.debug("Get user token for rest source user id {}", id);
         return ResponseEntity
-                .ok(this.deviceUserService.getDeviceTokenByUserId(Long.valueOf(id)));
+                .ok(this.restSourceUserService.getDeviceTokenByUserId(Long.valueOf(id)));
     }
 
     @PostMapping("/users/{id}/token")
     public ResponseEntity<TokenDTO> requestRefreshTokenForUser(@PathVariable String id) {
-        logger.debug("Refreshing user token for id {}", id);
+        logger.debug("Refreshing user token for rest source user id {}", id);
         return ResponseEntity
-                .ok(this.deviceUserService.refreshTokenForUser(Long.valueOf(id)));
+                .ok(this.restSourceUserService.refreshTokenForUser(Long.valueOf(id)));
     }
 }

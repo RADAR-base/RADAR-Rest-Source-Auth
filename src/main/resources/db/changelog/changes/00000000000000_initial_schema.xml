@@ -15,7 +15,7 @@
     </changeSet>
 
     <changeSet id="00000000000001" author="nivethika@thehyve.nl">
-        <createTable tableName="radar_device_user">
+        <createTable tableName="rest_source_user">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -24,7 +24,7 @@
             <column name="source_id" type="varchar(50)">
                 <constraints unique="true"/>
             </column>
-            <column name="device_type" type="varchar(50)"/>
+            <column name="source_type" type="varchar(50)"/>
             <column name="start_date" type="timestamp">
                 <constraints nullable="true"/>
             </column>
@@ -48,18 +48,18 @@
             </column>
         </createTable>
 
-        <createIndex indexName="idx_radar_device_user_id"
-            tableName="radar_device_user" unique="true">
+        <createIndex indexName="idx_rest_source_user_id"
+            tableName="rest_source_user" unique="true">
             <column name="id" type="bigint"/>
         </createIndex>
 
-        <createIndex indexName="idx_radar_device_user_external_id"
-            tableName="radar_device_user">
+        <createIndex indexName="idx_rest_source_user_external_id"
+            tableName="rest_source_user">
             <column name="external_user_id" type="varchar(200)"/>
         </createIndex>
 
-        <createIndex indexName="idx_radar_device_user_source_id"
-                     tableName="radar_device_user" unique="true">
+        <createIndex indexName="idx_rest_source_user_source_id"
+                     tableName="rest_source_user" unique="true">
             <column name="source_id" type="varchar(200)"/>
         </createIndex>
     </changeSet>

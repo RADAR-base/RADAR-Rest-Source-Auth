@@ -30,13 +30,13 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import lombok.Data;
-import org.radarbase.authorizer.service.dto.DeviceAccessToken;
-import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
+import org.radarbase.authorizer.service.dto.RestSourceAccessToken;
+import org.radarbase.authorizer.service.dto.RestSourceUserPropertiesDTO;
 
 @Data
 @Entity
-@Table(name = "radar_device_user")
-public class DeviceUser {
+@Table(name = "rest_source_user")
+public class RestSourceUser {
 
     @Transient
     private static final Duration EXPIRY_TIME_MARGIN = Duration.ofMinutes(5);
@@ -61,7 +61,7 @@ public class DeviceUser {
     private Instant endDate;
 
 
-    private String deviceType;
+    private String sourceType;
 
     // is authorized by user
     private Boolean authorized = false;
@@ -78,31 +78,31 @@ public class DeviceUser {
 
     private String tokenType;
 
-    public DeviceUser() {
+    public RestSourceUser() {
         if (this.sourceId == null) {
             this.sourceId = UUID.randomUUID().toString();
         }
     }
 
-    public DeviceUser(DeviceUserPropertiesDTO deviceUserPropertiesDTO) {
-        if (deviceUserPropertiesDTO.getId() != null) {
-            this.id = Long.valueOf(deviceUserPropertiesDTO.getId());
+    public RestSourceUser(RestSourceUserPropertiesDTO restSourceUserPropertiesDTO) {
+        if (restSourceUserPropertiesDTO.getId() != null) {
+            this.id = Long.valueOf(restSourceUserPropertiesDTO.getId());
         }
-        this.projectId = deviceUserPropertiesDTO.getProjectId();
-        this.userId = deviceUserPropertiesDTO.getUserId();
-        this.sourceId = deviceUserPropertiesDTO.getSourceId();
-        this.deviceType = deviceUserPropertiesDTO.getDeviceType();
-        this.startDate = deviceUserPropertiesDTO.getStartDate();
-        this.endDate = deviceUserPropertiesDTO.getEndDate();
-        this.externalUserId = deviceUserPropertiesDTO.getExternalUserId();
-        this.authorized = deviceUserPropertiesDTO.isAuthorized();
+        this.projectId = restSourceUserPropertiesDTO.getProjectId();
+        this.userId = restSourceUserPropertiesDTO.getUserId();
+        this.sourceId = restSourceUserPropertiesDTO.getSourceId();
+        this.sourceType = restSourceUserPropertiesDTO.getSourceType();
+        this.startDate = restSourceUserPropertiesDTO.getStartDate();
+        this.endDate = restSourceUserPropertiesDTO.getEndDate();
+        this.externalUserId = restSourceUserPropertiesDTO.getExternalUserId();
+        this.authorized = restSourceUserPropertiesDTO.isAuthorized();
     }
 
     public long getId() {
         return id;
     }
 
-    public DeviceUser id(Long id) {
+    public RestSourceUser id(Long id) {
         this.id = id;
         return this;
     }
@@ -111,7 +111,7 @@ public class DeviceUser {
         return projectId;
     }
 
-    public DeviceUser projectId(String projectId) {
+    public RestSourceUser projectId(String projectId) {
         this.projectId = projectId;
         return this;
     }
@@ -120,7 +120,7 @@ public class DeviceUser {
         return userId;
     }
 
-    public DeviceUser userId(String userId) {
+    public RestSourceUser userId(String userId) {
         this.userId = userId;
         return this;
     }
@@ -129,7 +129,7 @@ public class DeviceUser {
         return sourceId;
     }
 
-    public DeviceUser sourceId(String sourceId) {
+    public RestSourceUser sourceId(String sourceId) {
         this.sourceId = sourceId;
         return this;
     }
@@ -138,7 +138,7 @@ public class DeviceUser {
         return startDate;
     }
 
-    public DeviceUser startDate(Instant startDate) {
+    public RestSourceUser startDate(Instant startDate) {
         this.startDate = startDate;
         return this;
     }
@@ -147,17 +147,17 @@ public class DeviceUser {
         return endDate;
     }
 
-    public DeviceUser endDate(Instant endDate) {
+    public RestSourceUser endDate(Instant endDate) {
         this.endDate = endDate;
         return this;
     }
 
-    public String getDeviceType() {
-        return deviceType;
+    public String getSourceType() {
+        return sourceType;
     }
 
-    public DeviceUser deviceType(String deviceType) {
-        this.deviceType = deviceType;
+    public RestSourceUser sourceType(String sourceType) {
+        this.sourceType = sourceType;
         return this;
     }
 
@@ -165,7 +165,7 @@ public class DeviceUser {
         return authorized;
     }
 
-    public DeviceUser authorized(Boolean authorized) {
+    public RestSourceUser authorized(Boolean authorized) {
         this.authorized = authorized;
         return this;
     }
@@ -174,7 +174,7 @@ public class DeviceUser {
         return externalUserId;
     }
 
-    public DeviceUser externalUserId(String externalUserId) {
+    public RestSourceUser externalUserId(String externalUserId) {
         this.externalUserId = externalUserId;
         return this;
     }
@@ -183,7 +183,7 @@ public class DeviceUser {
         return accessToken;
     }
 
-    public DeviceUser accessToken(String accessToken) {
+    public RestSourceUser accessToken(String accessToken) {
         this.accessToken = accessToken;
         return this;
     }
@@ -192,7 +192,7 @@ public class DeviceUser {
         return refreshToken;
     }
 
-    public DeviceUser refreshToken(String refreshToken) {
+    public RestSourceUser refreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
         return this;
     }
@@ -201,7 +201,7 @@ public class DeviceUser {
         return expiresIn;
     }
 
-    public DeviceUser expiresIn(Integer expiresIn) {
+    public RestSourceUser expiresIn(Integer expiresIn) {
         this.expiresIn = expiresIn;
         return this;
     }
@@ -210,7 +210,7 @@ public class DeviceUser {
         return expiresAt;
     }
 
-    public DeviceUser expiresIn(Instant expiresAt) {
+    public RestSourceUser expiresIn(Instant expiresAt) {
         this.expiresAt = expiresAt;
         return this;
     }
@@ -219,7 +219,7 @@ public class DeviceUser {
         return tokenType;
     }
 
-    public DeviceUser tokenType(String tokenType) {
+    public RestSourceUser tokenType(String tokenType) {
         this.tokenType = tokenType;
         return this;
     }
@@ -228,14 +228,14 @@ public class DeviceUser {
      * Updates only a subset of user properties during update.
      * Does not update properties such as id and token data.
      *
-     * @param deviceUserDto user details to update.
+     * @param sourceUserDto user details to update.
      */
-    public void safeUpdateProperties(DeviceUserPropertiesDTO deviceUserDto) {
-        this.projectId = deviceUserDto.getProjectId();
-        this.userId = deviceUserDto.getUserId();
-        this.sourceId = deviceUserDto.getSourceId();
-        this.startDate = deviceUserDto.getStartDate();
-        this.endDate = deviceUserDto.getEndDate();
+    public void safeUpdateProperties(RestSourceUserPropertiesDTO sourceUserDto) {
+        this.projectId = sourceUserDto.getProjectId();
+        this.userId = sourceUserDto.getUserId();
+        this.sourceId = sourceUserDto.getSourceId();
+        this.startDate = sourceUserDto.getStartDate();
+        this.endDate = sourceUserDto.getEndDate();
     }
 
 
@@ -243,14 +243,14 @@ public class DeviceUser {
      * Updates only the token related properties during update.
      * Does not update properties such as id and study information.
      *
-     * @param deviceAccessToken token details to update.
+     * @param restSourceAccessToken token details to update.
      */
-    public void safeUpdateTokenDetails(DeviceAccessToken deviceAccessToken) {
-        this.accessToken = deviceAccessToken.getAccessToken();
-        this.refreshToken = deviceAccessToken.getRefreshToken();
-        this.expiresIn = deviceAccessToken.getExpiresIn();
+    public void safeUpdateTokenDetails(RestSourceAccessToken restSourceAccessToken) {
+        this.accessToken = restSourceAccessToken.getAccessToken();
+        this.refreshToken = restSourceAccessToken.getRefreshToken();
+        this.expiresIn = restSourceAccessToken.getExpiresIn();
         this.expiresAt = Instant.now()
-                .plusSeconds(deviceAccessToken.getExpiresIn())
+                .plusSeconds(restSourceAccessToken.getExpiresIn())
                 .minus(EXPIRY_TIME_MARGIN);
     }
 }

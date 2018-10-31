@@ -17,20 +17,19 @@
  *
  */
 
-package org.radarbase.authorizer.config;
+package org.radarbase.authorizer.webapp.exception;
 
-import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+@ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+public class InvalidSourceTypeException extends RuntimeException {
 
-public class DeviceClients {
-
-    private List<DeviceAuthorizationConfig> deviceClients;
-
-    public List<DeviceAuthorizationConfig> getDeviceClients() {
-        return deviceClients;
+    public InvalidSourceTypeException(String sourceType) {
+        super("Unsupported source type [ " + sourceType + " ] found ");
     }
 
-    public void setDeviceClients(List<DeviceAuthorizationConfig> deviceClients) {
-        this.deviceClients = deviceClients;
+    public InvalidSourceTypeException(String sourceType, Throwable cause) {
+        super("Cannot find configurations for type " + sourceType, cause);
     }
 }

@@ -22,7 +22,7 @@ package org.radarbase.authorizer;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.radarbase.authorizer.config.DeviceAuthorizerApplicationProperties;
+import org.radarbase.authorizer.config.RestSourceAuthorizerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,14 +34,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @SpringBootApplication
-@EnableConfigurationProperties({DeviceAuthorizerApplicationProperties.class})
-public class RadarDeviceAuthorizerApplication {
+@EnableConfigurationProperties({RestSourceAuthorizerProperties.class})
+public class RadarRestSourceAuthorizerApplication {
 
     @Autowired
-    private DeviceAuthorizerApplicationProperties authorizerApplicationProperties;
+    private RestSourceAuthorizerProperties authorizerApplicationProperties;
 
     public static void main(String[] args) {
-        SpringApplication.run(RadarDeviceAuthorizerApplication.class, args);
+        SpringApplication.run(RadarRestSourceAuthorizerApplication.class, args);
     }
 
     @Bean

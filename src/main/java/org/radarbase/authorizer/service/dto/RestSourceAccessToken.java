@@ -17,19 +17,21 @@
  *
  */
 
-package org.radarbase.authorizer.repository;
+package org.radarbase.authorizer.service.dto;
 
-import java.util.List;
-import java.util.Optional;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.radarbase.authorizer.domain.DeviceUser;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+public class RestSourceAccessToken extends Oauth2AccessToken {
 
-@Repository
-public interface DeviceUserRepository extends JpaRepository<DeviceUser, Long> {
-    Optional<DeviceUser> findByDeviceTypeAndExternalUserId(String deviceType,
-            String externalUserId);
+    @JsonProperty("user_id")
+    private String externalUserId;
 
-    List<DeviceUser> findAllByDeviceType(String deviceType);
+    public String getExternalUserId() {
+        return externalUserId;
+    }
+
+    public RestSourceAccessToken externalUserId(String externalUserId) {
+        this.externalUserId = externalUserId;
+        return this;
+    }
 }

@@ -24,10 +24,10 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
-import org.radarbase.authorizer.domain.DeviceUser;
+import org.radarbase.authorizer.domain.RestSourceUser;
 
 
-public class DeviceUserPropertiesDTO implements Serializable {
+public class RestSourceUserPropertiesDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
     // Unique user key
@@ -49,33 +49,33 @@ public class DeviceUserPropertiesDTO implements Serializable {
     private Instant endDate;
 
 
-    private String deviceType;
+    private String sourceType;
 
     // is authorized by user
     private Boolean authorized = false;
 
     private String externalUserId;
 
-    public DeviceUserPropertiesDTO() {
+    public RestSourceUserPropertiesDTO() {
     }
 
-    public DeviceUserPropertiesDTO(DeviceUser deviceUser) {
-        this.id = String.valueOf(deviceUser.getId());
-        this.projectId = deviceUser.getProjectId();
-        this.userId = deviceUser.getUserId();
-        this.sourceId = deviceUser.getSourceId();
-        this.authorized = deviceUser.getAuthorized();
-        this.deviceType = deviceUser.getDeviceType();
-        this.endDate = deviceUser.getEndDate();
-        this.startDate = deviceUser.getStartDate();
-        this.externalUserId = deviceUser.getExternalUserId();
+    public RestSourceUserPropertiesDTO(RestSourceUser restSourceUser) {
+        this.id = String.valueOf(restSourceUser.getId());
+        this.projectId = restSourceUser.getProjectId();
+        this.userId = restSourceUser.getUserId();
+        this.sourceId = restSourceUser.getSourceId();
+        this.authorized = restSourceUser.getAuthorized();
+        this.sourceType = restSourceUser.getSourceType();
+        this.endDate = restSourceUser.getEndDate();
+        this.startDate = restSourceUser.getStartDate();
+        this.externalUserId = restSourceUser.getExternalUserId();
     }
 
     public String getId() {
         return id;
     }
 
-    public DeviceUserPropertiesDTO id(String id) {
+    public RestSourceUserPropertiesDTO id(String id) {
         this.id = id;
         return this;
     }
@@ -84,7 +84,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
         return projectId;
     }
 
-    public DeviceUserPropertiesDTO projectId(String projectId) {
+    public RestSourceUserPropertiesDTO projectId(String projectId) {
         this.projectId = projectId;
         return this;
     }
@@ -93,7 +93,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
         return userId;
     }
 
-    public DeviceUserPropertiesDTO userId(String userId) {
+    public RestSourceUserPropertiesDTO userId(String userId) {
         this.userId = userId;
         return this;
     }
@@ -102,7 +102,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
         return sourceId;
     }
 
-    public DeviceUserPropertiesDTO sourceId(String sourceId) {
+    public RestSourceUserPropertiesDTO sourceId(String sourceId) {
         this.sourceId = sourceId;
         return this;
     }
@@ -111,7 +111,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
         return startDate;
     }
 
-    public DeviceUserPropertiesDTO startDate(Instant stateDate) {
+    public RestSourceUserPropertiesDTO startDate(Instant stateDate) {
         this.startDate = stateDate;
         return this;
     }
@@ -120,18 +120,18 @@ public class DeviceUserPropertiesDTO implements Serializable {
         return endDate;
     }
 
-    public DeviceUserPropertiesDTO endDate(Instant endDate) {
+    public RestSourceUserPropertiesDTO endDate(Instant endDate) {
         this.endDate = endDate;
         return this;
     }
 
 
-    public String getDeviceType() {
-        return deviceType;
+    public String getSourceType() {
+        return sourceType;
     }
 
-    public DeviceUserPropertiesDTO deviceType(String deviceType) {
-        this.deviceType = deviceType;
+    public RestSourceUserPropertiesDTO sourceType(String sourceType) {
+        this.sourceType = sourceType;
         return this;
     }
 
@@ -139,7 +139,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
         return authorized;
     }
 
-    public DeviceUserPropertiesDTO authorized(Boolean isAuthorized) {
+    public RestSourceUserPropertiesDTO authorized(Boolean isAuthorized) {
         this.authorized = isAuthorized;
         return this;
     }
@@ -148,7 +148,7 @@ public class DeviceUserPropertiesDTO implements Serializable {
         return externalUserId;
     }
 
-    public DeviceUserPropertiesDTO externalDeviceId(String externalDeviceId) {
+    public RestSourceUserPropertiesDTO externalDeviceId(String externalDeviceId) {
         this.externalUserId = externalDeviceId;
         return this;
     }
@@ -161,13 +161,13 @@ public class DeviceUserPropertiesDTO implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DeviceUserPropertiesDTO that = (DeviceUserPropertiesDTO) o;
+        RestSourceUserPropertiesDTO that = (RestSourceUserPropertiesDTO) o;
         return Objects.equals(id, that.id) && Objects.equals(projectId, that.projectId)
                 && Objects.equals(userId, that.userId)
                 && Objects.equals(sourceId, that.sourceId)
                 && Objects.equals(startDate, that.startDate)
                 && Objects.equals(endDate, that.endDate)
-                && Objects.equals(deviceType, that.deviceType)
+                && Objects.equals(sourceType, that.sourceType)
                 && Objects.equals(authorized, that.authorized)
                 && Objects.equals(externalUserId, that.externalUserId);
     }
@@ -176,20 +176,20 @@ public class DeviceUserPropertiesDTO implements Serializable {
     public int hashCode() {
 
         return Objects
-                .hash(id, projectId, userId, sourceId, startDate, endDate, deviceType, authorized,
+                .hash(id, projectId, userId, sourceId, startDate, endDate, sourceType, authorized,
                         externalUserId);
     }
 
     @Override
     public String toString() {
-        return "DeviceUserPropertiesDTO{"
+        return "RestSourceUserPropertiesDTO{"
                 + "id='" + id + '\''
                 + ", projectId='" + projectId + '\''
                 + ", userId='" + userId + '\''
                 + ", sourceId='" + sourceId + '\''
                 + ", startDate=" + startDate + '\''
                 + ", endDate=" + endDate + '\''
-                + ", deviceType=" + deviceType + '\''
+                + ", sourceType=" + sourceType + '\''
                 + ", authorized=" + authorized + '\''
                 + ", externalUserId='" + externalUserId + '\''
                 + '}';

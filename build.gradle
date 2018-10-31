@@ -32,7 +32,7 @@ ext {
 	githubUrl = 'https://github.com/' + githubRepoName + '.git'
 	issueUrl = 'https://github.com/' + githubRepoName + '/issues'
 	website = 'http://radar-base.org'
-	description = 'RADAR Device Authorizer handles authorization for data access from third party APIs for wearable devices.'
+	description = 'RADAR Rest Source Authorizer handles authorization for data access from third party APIs for wearable devices or other connected sources.'
 
 	okhttp3Version = '3.11.0'
 	mapstructVersion = '1.3.0.Beta1'
@@ -56,7 +56,7 @@ dependencies {
 }
 
 springBoot {
-	mainClassName = 'org.radarbase.authorizer.RadarDeviceAuthorizerApplication'
+	mainClassName = 'org.radarbase.authorizer.RadarRestSourceAuthorizerApplication'
 }
 
 wrapper {

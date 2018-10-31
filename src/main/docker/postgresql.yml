@@ -7,4 +7,4 @@ services:
         environment:
           - POSTGRES_USER=radarcns
           - POSTGRES_PASSWORD=radarcns
-          - POSTGRES_DB=deviceauthorizer
+          - POSTGRES_DB=restsourceauth

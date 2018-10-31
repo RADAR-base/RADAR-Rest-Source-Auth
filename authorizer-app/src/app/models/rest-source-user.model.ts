@@ -1,4 +1,4 @@
-export class DeviceUser {
+export class RestSourceUser {
      id?: string ;
      projectId?: string;
      userId?: string;

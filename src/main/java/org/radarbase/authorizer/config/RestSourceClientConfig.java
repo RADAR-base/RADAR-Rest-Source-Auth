@@ -17,13 +17,13 @@
  *
  */
 
-package org.radarbase.authorizer.service.dto;
+package org.radarbase.authorizer.config;
 
-import org.radarbase.authorizer.config.DeviceAuthorizationConfig;
+import java.util.Objects;
 
-public class DeviceClientDetailsDTO {
+public class RestSourceClientConfig {
 
-    private String deviceType;
+    private String sourceType;
 
     private String authorizationEndpoint;
 
@@ -35,23 +35,14 @@ public class DeviceClientDetailsDTO {
 
     private String clientId;
 
-    public DeviceClientDetailsDTO() {
+    private String clientSecret;
+
+    public String getSourceType() {
+        return sourceType;
     }
 
-    public DeviceClientDetailsDTO(DeviceAuthorizationConfig deviceAuthorizationConfig) {
-        this.authorizationEndpoint = deviceAuthorizationConfig.getAuthorizationEndpoint();
-        this.deviceType = deviceAuthorizationConfig.getDeviceType();
-        this.grantType = deviceAuthorizationConfig.getGrantType();
-        this.clientId = deviceAuthorizationConfig.getClientId();
-        this.scope = deviceAuthorizationConfig.getScope();
-    }
-
-    public String getDeviceType() {
-        return deviceType;
-    }
-
-    public void setDeviceType(String deviceType) {
-        this.deviceType = deviceType;
+    public void setSourceType(String sourceType) {
+        this.sourceType = sourceType;
     }
 
     public String getAuthorizationEndpoint() {
@@ -92,5 +83,37 @@ public class DeviceClientDetailsDTO {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RestSourceClientConfig that = (RestSourceClientConfig) o;
+        return Objects.equals(sourceType, that.sourceType) && Objects
+                .equals(authorizationEndpoint, that.authorizationEndpoint) && Objects
+                .equals(tokenEndpoint, that.tokenEndpoint) && Objects
+                .equals(grantType, that.grantType) && Objects.equals(scope, that.scope) && Objects
+                .equals(clientId, that.clientId) && Objects.equals(clientSecret, that.clientSecret);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects
+                .hash(sourceType, authorizationEndpoint, tokenEndpoint, grantType, scope, clientId,
+                        clientSecret);
     }
 }

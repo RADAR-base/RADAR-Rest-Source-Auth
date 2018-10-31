@@ -17,20 +17,19 @@
  *
  */
 
-package org.radarbase.authorizer.service.dto;
+package org.radarbase.authorizer.repository;
 
 import java.util.List;
+import java.util.Optional;
 
-public class SourceClientsDTO {
+import org.radarbase.authorizer.domain.RestSourceUser;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-    private List<DeviceClientDetailsDTO> sourceClients;
+@Repository
+public interface RestSourceUserRepository extends JpaRepository<RestSourceUser, Long> {
+    Optional<RestSourceUser> findBySourceTypeAndExternalUserId(String sourceType,
+            String externalUserId);
 
-    public List<DeviceClientDetailsDTO> getSourceClients() {
-        return sourceClients;
-    }
-
-    public SourceClientsDTO sourceClients(List<DeviceClientDetailsDTO> sourceClients) {
-        this.sourceClients = sourceClients;
-        return this;
-    }
+    List<RestSourceUser> findAllBySourceType(String sourceType);
 }

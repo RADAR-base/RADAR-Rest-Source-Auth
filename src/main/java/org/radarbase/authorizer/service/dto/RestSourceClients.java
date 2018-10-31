@@ -19,19 +19,18 @@
 
 package org.radarbase.authorizer.service.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
-public class DeviceAccessToken extends Oauth2AccessToken {
+public class RestSourceClients {
 
-    @JsonProperty("user_id")
-    private String externalUserId;
+    private List<RestSourceClientDetailsDTO> sourceClients;
 
-    public String getExternalUserId() {
-        return externalUserId;
+    public List<RestSourceClientDetailsDTO> getSourceClients() {
+        return sourceClients;
     }
 
-    public DeviceAccessToken externalUserId(String externalUserId) {
-        this.externalUserId = externalUserId;
+    public RestSourceClients sourceClients(List<RestSourceClientDetailsDTO> sourceClients) {
+        this.sourceClients = sourceClients;
         return this;
     }
 }

@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { DevicesService } from './devices.service';
+import { RestSourceUserService } from './rest-source-user.service';
 
 describe('DeviceAuthorizationService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: DevicesService = TestBed.get(DevicesService);
+    const service: RestSourceUserService = TestBed.get(RestSourceUserService);
     expect(service).toBeTruthy();
   });
 });

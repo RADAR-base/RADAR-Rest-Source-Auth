@@ -43,14 +43,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.radarbase.authorizer.config.DeviceAuthorizationConfig;
-import org.radarbase.authorizer.config.DeviceAuthorizerApplicationProperties;
-import org.radarbase.authorizer.config.DeviceClients;
-import org.radarbase.authorizer.service.dto.DeviceAccessToken;
-import org.radarbase.authorizer.service.dto.DeviceClientDetailsDTO;
-import org.radarbase.authorizer.service.dto.SourceClientsDTO;
+import org.radarbase.authorizer.config.RestSourceClientConfig;
+import org.radarbase.authorizer.config.RestSourceAuthorizerProperties;
+import org.radarbase.authorizer.service.dto.RestSourceAccessToken;
+import org.radarbase.authorizer.service.dto.RestSourceClientDetailsDTO;
+import org.radarbase.authorizer.service.dto.RestSourceClients;
 import org.radarbase.authorizer.webapp.exception.BadGatewayException;
-import org.radarbase.authorizer.webapp.exception.InvalidDeviceTypeException;
+import org.radarbase.authorizer.webapp.exception.InvalidSourceTypeException;
 import org.radarbase.authorizer.webapp.exception.TokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,39 +57,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DeviceClientService {
+public class RestSourceClientService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceClientService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestSourceClientService.class);
 
     @Autowired
-    private DeviceAuthorizerApplicationProperties deviceAuthorizerApplicationProperties;
+    private RestSourceAuthorizerProperties restSourceAuthorizerProperties;
 
     private OkHttpClient client;
 
     private ObjectMapper mapper;
 
     // contains private data
-    private Map<String, DeviceAuthorizationConfig> configMap;
+    private Map<String, RestSourceClientConfig> configMap;
 
     // contains sharable public data
-    private Map<String, DeviceClientDetailsDTO> clientDetailsDTOMap;
+    private Map<String, RestSourceClientDetailsDTO> clientDetailsDTOMap;
 
     @PostConstruct
     public void init() throws ConfigurationException {
-        String path = deviceAuthorizerApplicationProperties.getDeviceClientsFilePath();
+        String path = restSourceAuthorizerProperties.getSourceClientsFilePath();
         if (Objects.isNull(path) || path.equals("")) {
-            LOGGER.info("No device clients file specified, not loading device clients");
+            LOGGER.info("No source clients file specified, not loading source clients");
             return;
         }
-        List<DeviceAuthorizationConfig> deviceAuthConfigs = loadDeviceClientConfigs(path);
+        List<RestSourceClientConfig> restSourceClientConfigs = loadDeviceClientConfigs(path);
 
-        this.configMap = deviceAuthConfigs.stream()
-                .collect(Collectors.toMap(DeviceAuthorizationConfig::getDeviceType, p -> p));
-        this.clientDetailsDTOMap = deviceAuthConfigs.stream()
-                .collect(Collectors.toMap(DeviceAuthorizationConfig::getDeviceType,
-                        DeviceClientDetailsDTO::new));
+        this.configMap = restSourceClientConfigs.stream()
+                .collect(Collectors.toMap(RestSourceClientConfig::getSourceType, p -> p));
+        this.clientDetailsDTOMap = restSourceClientConfigs.stream()
+                .collect(Collectors.toMap(RestSourceClientConfig::getSourceType,
+                        RestSourceClientDetailsDTO::new));
 
-        LOGGER.info("Device configs loaded...");
+        LOGGER.info("Source client configs loaded...");
         this.client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
@@ -101,29 +100,29 @@ public class DeviceClientService {
 
     }
 
-    private List<DeviceAuthorizationConfig> loadDeviceClientConfigs(@NotNull String path) throws
+    private List<RestSourceClientConfig> loadDeviceClientConfigs(@NotNull String path) throws
             ConfigurationException {
-        LOGGER.info("Loading device client configs from {}", path);
+        LOGGER.info("Loading source client configs from {}", path);
         YAMLFactory yamlFactory = new YAMLFactory();
         try {
             YAMLParser yamlParser = yamlFactory.createParser(new File(path));
-            MappingIterator<DeviceClients> mappingIterator = new ObjectMapper(yamlFactory)
+            MappingIterator<org.radarbase.authorizer.config.RestSourceClients> mappingIterator = new ObjectMapper(yamlFactory)
                     .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                     .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
-                    .readValues(yamlParser, DeviceClients.class);
+                    .readValues(yamlParser, org.radarbase.authorizer.config.RestSourceClients.class);
 
             if (mappingIterator.hasNext()) {
-                DeviceClients deviceClients = mappingIterator.next();
-                if (deviceClients == null || deviceClients.getDeviceClients() == null) {
-                    LOGGER.error("No valid configurations available on configred path. Please "
+                org.radarbase.authorizer.config.RestSourceClients restSourceClients = mappingIterator.next();
+                if (restSourceClients == null || restSourceClients.getRestSourceClients() == null) {
+                    LOGGER.error("No valid configurations available on configured path. Please "
                             + "check the syntax and file name");
                     throw new ConfigurationException(
-                            "No valid device-client configs are provided" + ".");
+                            "No valid source-client configs are provided" + ".");
                 }
-                return deviceClients.getDeviceClients();
+                return restSourceClients.getRestSourceClients();
             } else {
                 throw new ConfigurationException(
-                        "No valid device-client configs are provided" + ".");
+                        "No valid source-client configs are provided" + ".");
             }
 
         } catch (IOException e) {
@@ -133,8 +132,8 @@ public class DeviceClientService {
     }
 
 
-    public SourceClientsDTO getAllDeviceClientDetails() {
-        return new SourceClientsDTO()
+    public RestSourceClients getAllRestSourceClientDetails() {
+        return new RestSourceClients()
                 .sourceClients(new ArrayList<>(this.clientDetailsDTOMap.values()));
     }
 
@@ -142,22 +141,22 @@ public class DeviceClientService {
         return new ArrayList<>(this.clientDetailsDTOMap.keySet());
     }
 
-    private DeviceAuthorizationConfig getClientAuthorizationConfig(String deviceType) {
-        if (this.configMap.containsKey(deviceType)) {
-            return this.configMap.get(deviceType);
+    private RestSourceClientConfig getClientAuthorizationConfig(String sourceType) {
+        if (this.configMap.containsKey(sourceType)) {
+            return this.configMap.get(sourceType);
         } else {
-            throw new InvalidDeviceTypeException(deviceType);
+            throw new InvalidSourceTypeException(sourceType);
         }
     }
 
-    public DeviceClientDetailsDTO getAllDeviceClientDetails(String deviceType) {
-        return this.clientDetailsDTOMap.get(deviceType);
+    public RestSourceClientDetailsDTO getAllRestSourceClientDetails(String sourceType) {
+        return this.clientDetailsDTOMap.get(sourceType);
     }
 
 
-    DeviceAccessToken getAccessTokenWithAuthorizeCode(String code, String deviceType) {
+    RestSourceAccessToken getAccessTokenWithAuthorizeCode(String code, String sourceType) {
 
-        DeviceAuthorizationConfig authorizationConfig = getClientAuthorizationConfig(deviceType);
+        RestSourceClientConfig authorizationConfig = getClientAuthorizationConfig(sourceType);
         FormBody form = new FormBody.Builder()
                 .add("code", code)
                 .add("grant_type", "authorization_code")
@@ -168,8 +167,8 @@ public class DeviceClientService {
 
     }
 
-    private DeviceAccessToken processTokenRequest(FormBody form,
-            DeviceAuthorizationConfig authorizationConfig) {
+    private RestSourceAccessToken processTokenRequest(FormBody form,
+            RestSourceClientConfig authorizationConfig) {
         String credentials = Credentials
                 .basic(authorizationConfig.getClientId(), authorizationConfig.getClientSecret());
 
@@ -188,7 +187,7 @@ public class DeviceClientService {
                 }
 
                 try {
-                    return mapper.readValue(responseBody.string(), DeviceAccessToken.class);
+                    return mapper.readValue(responseBody.string(), RestSourceAccessToken.class);
                 } catch (IOException e) {
                     throw new TokenException("Cannot read token response");
                 }
@@ -203,18 +202,18 @@ public class DeviceClientService {
         }
     }
 
-    DeviceAccessToken refreshToken(String refreshToken, String deviceType) {
+    RestSourceAccessToken refreshToken(String refreshToken, String sourceType) {
         FormBody form = new FormBody.Builder()
                 .add("grant_type", "refresh_token")
                 .add("refresh_token", refreshToken)
                 .build();
         LOGGER.info("Requesting to refreshToken");
-        return processTokenRequest(form, getClientAuthorizationConfig(deviceType));
+        return processTokenRequest(form, getClientAuthorizationConfig(sourceType));
     }
 
-    boolean revokeToken(String accessToken, String deviceType) {
+    boolean revokeToken(String accessToken, String sourceType) {
 
-        DeviceAuthorizationConfig authorizationConfig = getClientAuthorizationConfig(deviceType);
+        RestSourceClientConfig authorizationConfig = getClientAuthorizationConfig(sourceType);
         FormBody form = new FormBody.Builder().add("token", accessToken).build();
         LOGGER.info("Requesting to revoke access token");
         String credentials = Credentials

@@ -3,31 +3,31 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HttpClientModule} from "@angular/common/http";
-import {DevicesService} from "./services/devices.service";
 import {RouterModule, Routes} from "@angular/router";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {AddDeviceComponent} from "./components/device-authorization/add-device.component";
-import {DevicesListComponent} from "./components/device-authorization/devices-list.component";
-import {DeviceAuthorizationService} from "./services/device-authorization.service";
-import {DeviceUserRegistrationFormComponent} from "./components/device-authorization/device-user-registration-form.component";
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import {ErrorReportingComponent} from "./components/device-authorization/error.component";
+import {ErrorReportingComponent} from "./components/rest-source-authorization/error.component";
+import {RestSourceUserService} from "./services/rest-source-user.service";
+import {SourceClientAuthorizationService} from "./services/source-client-authorization.service";
+import {RestSourceUserListComponent} from "./components/rest-source-authorization/rest-source-user-list.component";
+import {RestSourceUserRegistrationFormComponent} from "./components/rest-source-authorization/rest-source-user-registration-form.component";
+import {UpdateRestSourceUserComponent} from "./components/rest-source-authorization/update-rest-source-user.component";
 const appRoutes: Routes = [
   {
     path: '',
-    component: DevicesListComponent,
+    component: RestSourceUserListComponent,
   },
   {
     path: 'users',
-    component: DevicesListComponent,
+    component: RestSourceUserListComponent,
   },
   {
     path: 'users:new',
-    component: AddDeviceComponent,
+    component: UpdateRestSourceUserComponent,
   },
   {
     path: 'addAuthorizedUser',
-    component: DeviceUserRegistrationFormComponent
+    component: RestSourceUserRegistrationFormComponent
   },
   {
     path: 'request-failed',
@@ -39,11 +39,11 @@ const appRoutes: Routes = [
 
 @NgModule({
   declarations: [
-    AddDeviceComponent,
+    UpdateRestSourceUserComponent,
     AppComponent,
-    DeviceUserRegistrationFormComponent,
+    RestSourceUserRegistrationFormComponent,
     ErrorReportingComponent,
-    DevicesListComponent
+    RestSourceUserListComponent
   ],
   imports: [
     BrowserModule,
@@ -55,8 +55,8 @@ const appRoutes: Routes = [
     NgbModule.forRoot()
   ],
   providers: [
-    DevicesService,
-    DeviceAuthorizationService
+    RestSourceUserService,
+    SourceClientAuthorizationService
   ],
   // entryComponents: [AddDeviceDialogComponent],
   bootstrap: [AppComponent]

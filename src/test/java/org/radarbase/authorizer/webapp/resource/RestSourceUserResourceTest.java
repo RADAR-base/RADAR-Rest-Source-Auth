@@ -32,11 +32,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.radarbase.authorizer.RadarDeviceAuthorizerApplication;
-import org.radarbase.authorizer.domain.DeviceUser;
-import org.radarbase.authorizer.repository.DeviceUserRepository;
-import org.radarbase.authorizer.service.DeviceUserService;
-import org.radarbase.authorizer.service.dto.DeviceUserPropertiesDTO;
+import org.radarbase.authorizer.RadarRestSourceAuthorizerApplication;
+import org.radarbase.authorizer.domain.RestSourceUser;
+import org.radarbase.authorizer.repository.RestSourceUserRepository;
+import org.radarbase.authorizer.service.RestSourceUserService;
+import org.radarbase.authorizer.service.dto.RestSourceUserPropertiesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -47,14 +47,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RadarDeviceAuthorizerApplication.class)
-public class DeviceUserResourceTest {
+@SpringBootTest(classes = RadarRestSourceAuthorizerApplication.class)
+public class RestSourceUserResourceTest {
 
     @Autowired
-    private DeviceUserService deviceUserService;
+    private RestSourceUserService restSourceUserService;
 
     @Autowired
-    private DeviceUserRepository deviceUserRepository;
+    private RestSourceUserRepository restSourceUserRepository;
 
     public static final String DEFAULT_PROJ_NAME = "Test-proj";
     public static final String DEFAULT_USER_ID = "Test-sub";
@@ -65,7 +65,7 @@ public class DeviceUserResourceTest {
     public static final Boolean DEFAULT_AUTHORIZED = false;
     public static final String DEFAULT_EXTERNAL_USER_ID = "86420984";
 
-    private DeviceUser sampleDeviceUser;
+    private RestSourceUser sampleRestSourceUser;
 
     private MockMvc restUserMockMvc;
 
@@ -73,12 +73,12 @@ public class DeviceUserResourceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        DeviceUserResource deviceUserResource = new DeviceUserResource();
-        ReflectionTestUtils.setField(deviceUserResource, "deviceService", deviceUserService);
+        RestSourceUserResource restSourceUserResource = new RestSourceUserResource();
+        ReflectionTestUtils.setField(restSourceUserResource, "restSourceUserService", restSourceUserService);
 
 
 
-        this.restUserMockMvc = MockMvcBuilders.standaloneSetup(deviceUserResource).build();
+        this.restUserMockMvc = MockMvcBuilders.standaloneSetup(restSourceUserResource).build();
     }
 
 
@@ -88,8 +88,8 @@ public class DeviceUserResourceTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.</p>
      */
-    public static DeviceUser createEntity() {
-        return new DeviceUser()
+    public static RestSourceUser createEntity() {
+        return new RestSourceUser()
                 .projectId(DEFAULT_PROJ_NAME)
                 .userId(DEFAULT_USER_ID)
                 .sourceId(DEFAULT_SOURCE_ID)
@@ -99,29 +99,29 @@ public class DeviceUserResourceTest {
                 .authorized(DEFAULT_AUTHORIZED);
     }
 
-    public static DeviceUserPropertiesDTO createDefaultDeviceDto() {
-        return new DeviceUserPropertiesDTO(createEntity());
+    public static RestSourceUserPropertiesDTO createDefaultDeviceDto() {
+        return new RestSourceUserPropertiesDTO(createEntity());
     }
 
     @Before
     public void initTest() {
-        sampleDeviceUser = createEntity();
+        sampleRestSourceUser = createEntity();
     }
 
     @Test
     @Transactional
     public void getAllUsers() throws Exception {
         // Initialize the database
-        deviceUserRepository.saveAndFlush(sampleDeviceUser);
+        restSourceUserRepository.saveAndFlush(sampleRestSourceUser);
 
         // Get all the users
         restUserMockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(jsonPath("$.[*].projectId").value(hasItem(DEFAULT_PROJ_NAME)))
-                .andExpect(jsonPath("$.[*].userId").value(hasItem(DEFAULT_USER_ID)))
-                .andExpect(jsonPath("$.[*].sourceId").value(hasItem(DEFAULT_SOURCE_ID)))
-                .andExpect(jsonPath("$.[*].externalUserId").value(
+                .andExpect(jsonPath("$.users.[*].projectId").value(hasItem(DEFAULT_PROJ_NAME)))
+                .andExpect(jsonPath("$.users.[*].userId").value(hasItem(DEFAULT_USER_ID)))
+                .andExpect(jsonPath("$.users.[*].sourceId").value(hasItem(DEFAULT_SOURCE_ID)))
+                .andExpect(jsonPath("$.users.[*].externalUserId").value(
                         hasItem(DEFAULT_EXTERNAL_USER_ID.toString())));
     }
 

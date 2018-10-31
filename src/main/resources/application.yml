@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/deviceauthorizer
+    url: jdbc:postgresql://localhost:5432/restsourceauth
     username: radarcns
     password: radarcns
     driver-class-name: org.postgresql.Driver
@@ -13,7 +13,7 @@ spring:
     serialization:
       write_dates_as_timestamps: false
 
-device-authorizer:
+rest-source-authorizer:
   cors:
     allowed-origins: '*'
     allowed-methods: GET, PUT, POST, DELETE, OPTIONS
@@ -21,4 +21,4 @@ device-authorizer:
     allow-credentials: true
     max-age: 1800
 
-  device-clients-file-path: src/main/docker/etc/device_clients_configs.yml
+  source-clients-file-path: src/main/docker/etc/rest_source_clients_configs.yml

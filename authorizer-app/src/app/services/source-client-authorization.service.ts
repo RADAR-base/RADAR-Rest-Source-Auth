@@ -7,7 +7,7 @@ import {environment} from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
-export class DeviceAuthorizationService {
+export class SourceClientAuthorizationService {
   private serviceUrl = environment.BACKEND_BASE_URL;
   constructor(private http: HttpClient) { }
 
@@ -15,7 +15,7 @@ export class DeviceAuthorizationService {
     return this.http.get(this.serviceUrl + '/source-clients/type');
   }
 
-  getDeviceClientAuthDetails(sourceType: string): Observable<any> {
+  getSourceClientAuthDetails(sourceType: string): Observable<any> {
     return this.http.get(this.serviceUrl + '/source-clients/' + sourceType);
   }
 }

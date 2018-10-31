@@ -17,13 +17,13 @@
  *
  */
 
-package org.radarbase.authorizer.config;
+package org.radarbase.authorizer.service.dto;
 
-import java.util.Objects;
+import org.radarbase.authorizer.config.RestSourceClientConfig;
 
-public class DeviceAuthorizationConfig {
+public class RestSourceClientDetailsDTO {
 
-    private String deviceType;
+    private String sourceType;
 
     private String authorizationEndpoint;
 
@@ -35,14 +35,23 @@ public class DeviceAuthorizationConfig {
 
     private String clientId;
 
-    private String clientSecret;
-
-    public String getDeviceType() {
-        return deviceType;
+    public RestSourceClientDetailsDTO() {
     }
 
-    public void setDeviceType(String deviceType) {
-        this.deviceType = deviceType;
+    public RestSourceClientDetailsDTO(RestSourceClientConfig restSourceClientConfig) {
+        this.authorizationEndpoint = restSourceClientConfig.getAuthorizationEndpoint();
+        this.sourceType = restSourceClientConfig.getSourceType();
+        this.grantType = restSourceClientConfig.getGrantType();
+        this.clientId = restSourceClientConfig.getClientId();
+        this.scope = restSourceClientConfig.getScope();
+    }
+
+    public String getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(String sourceType) {
+        this.sourceType = sourceType;
     }
 
     public String getAuthorizationEndpoint() {
@@ -83,37 +92,5 @@ public class DeviceAuthorizationConfig {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DeviceAuthorizationConfig that = (DeviceAuthorizationConfig) o;
-        return Objects.equals(deviceType, that.deviceType) && Objects
-                .equals(authorizationEndpoint, that.authorizationEndpoint) && Objects
-                .equals(tokenEndpoint, that.tokenEndpoint) && Objects
-                .equals(grantType, that.grantType) && Objects.equals(scope, that.scope) && Objects
-                .equals(clientId, that.clientId) && Objects.equals(clientSecret, that.clientSecret);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects
-                .hash(deviceType, authorizationEndpoint, tokenEndpoint, grantType, scope, clientId,
-                        clientSecret);
     }
 }

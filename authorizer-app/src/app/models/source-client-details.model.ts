@@ -1,5 +1,5 @@
-export class DeviceAuthDetails {
-  deviceType?: string;
+export class RestSourceClientDetails {
+  sourceType?: string;
   authorizationEndpoint?: string;
   clientId?: string;
   scope?: string;

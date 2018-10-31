@@ -17,20 +17,21 @@
  *
  */
 
-package org.radarbase.authorizer.service.dto;
+package org.radarbase.authorizer.config;
 
 import java.util.List;
 
-public class DeviceUsersDTO {
 
-    List<DeviceUserPropertiesDTO> users;
+public class RestSourceClients {
 
-    public List<DeviceUserPropertiesDTO> getUsers() {
-        return users;
+    private List<RestSourceClientConfig> restSourceClients;
+
+    public List<RestSourceClientConfig> getRestSourceClients() {
+        return restSourceClients;
     }
 
-    public DeviceUsersDTO users(List<DeviceUserPropertiesDTO> users) {
-        this.users = users;
+    public RestSourceClients restSourceClients(List<RestSourceClientConfig> restSourceClients) {
+        this.restSourceClients = restSourceClients;
         return this;
     }
 }

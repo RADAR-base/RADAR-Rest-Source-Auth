@@ -19,30 +19,17 @@
 
 package org.radarbase.authorizer.config;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.cors.CorsConfiguration;
 
-@ConfigurationProperties(prefix = "device-authorizer", ignoreUnknownFields = false)
-public class DeviceAuthorizerApplicationProperties {
-
-    private List<DeviceAuthorizationConfig> deviceAuthConfigs;
+@ConfigurationProperties(prefix = "rest-source-authorizer", ignoreUnknownFields = false)
+public class RestSourceAuthorizerProperties {
 
     private CorsConfiguration cors;
 
-    private String deviceClientsFilePath;
-
-    public List<DeviceAuthorizationConfig> getDeviceAuthConfigs() {
-        return deviceAuthConfigs;
-    }
-
-
-    public void setDeviceAuthConfigs(List<DeviceAuthorizationConfig> deviceAuthConfigs) {
-        this.deviceAuthConfigs = deviceAuthConfigs;
-    }
-
+    private String sourceClientsFilePath;
 
     public CorsConfiguration getCors() {
         return cors;
@@ -52,12 +39,12 @@ public class DeviceAuthorizerApplicationProperties {
         this.cors = cors;
     }
 
-    public String getDeviceClientsFilePath() {
-        return deviceClientsFilePath;
+    public String getSourceClientsFilePath() {
+        return sourceClientsFilePath;
     }
 
-    public void setDeviceClientsFilePath(String deviceClientsFilePath) {
-        this.deviceClientsFilePath = deviceClientsFilePath;
+    public void setSourceClientsFilePath(String sourceClientsFilePath) {
+        this.sourceClientsFilePath = sourceClientsFilePath;
     }
 
     @Override
@@ -68,15 +55,14 @@ public class DeviceAuthorizerApplicationProperties {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DeviceAuthorizerApplicationProperties that = (DeviceAuthorizerApplicationProperties) o;
-        return Objects.equals(deviceAuthConfigs, that.deviceAuthConfigs) && Objects
-                .equals(cors, that.cors) && Objects
-                .equals(deviceClientsFilePath, that.deviceClientsFilePath);
+        RestSourceAuthorizerProperties that = (RestSourceAuthorizerProperties) o;
+        return Objects.equals(cors, that.cors)
+                && Objects.equals(sourceClientsFilePath, that.sourceClientsFilePath);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(deviceAuthConfigs, cors, deviceClientsFilePath);
+        return Objects.hash(cors, sourceClientsFilePath);
     }
 }
