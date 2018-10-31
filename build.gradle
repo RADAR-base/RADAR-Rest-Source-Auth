@@ -28,7 +28,7 @@ repositories {
 }
 
 ext {
-	githubRepoName = 'RADAR-base/RADAR-Device-Auth'
+	githubRepoName = 'RADAR-base/RADAR-Rest-Source-Auth'
 	githubUrl = 'https://github.com/' + githubRepoName + '.git'
 	issueUrl = 'https://github.com/' + githubRepoName + '/issues'
 	website = 'http://radar-base.org'
