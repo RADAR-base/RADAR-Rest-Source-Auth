@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/restsourceauth
+    username: radarcns
+    password: radarcns
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
+    properties.hibernate.temp.use_jdbc_metadata_defaults: false
+
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+
+rest-source-authorizer:
+  cors:
+    allowed-origins: '*'
+    allowed-methods: GET, PUT, POST, DELETE, OPTIONS
+    allowed-headers: Authorization, Content-Type
+    allow-credentials: true
+    max-age: 1800
+
+  source-clients-file-path: src/main/docker/etc/rest_source_clients_configs.yml

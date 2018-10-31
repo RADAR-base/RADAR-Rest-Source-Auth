@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="now" value="now()" dbms="h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="autoIncrement" value="true"/>
+
+    <changeSet id="00000000000000" author="nivethika@thehyve.nl" dbms="postgresql,oracle,h2">
+        <createSequence sequenceName="hibernate_sequence" startValue="1000" incrementBy="50"/>
+    </changeSet>
+
+    <changeSet id="00000000000001" author="nivethika@thehyve.nl">
+        <createTable tableName="rest_source_user">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="varchar(50)"/>
+            <column name="user_id" type="varchar(50)"/>
+            <column name="source_id" type="varchar(50)">
+                <constraints unique="true"/>
+            </column>
+            <column name="source_type" type="varchar(50)"/>
+            <column name="start_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="end_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="external_user_id" type="varchar(200)"/>
+            <column name="authorized" type="boolean" valueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+            <column name="access_token" type="varchar(2000)">
+            </column>
+            <column name="refresh_token" type="varchar(2000)"/>
+            <column name="expires_in" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expires_at" type="timestamp">
+            </column>
+            <column name="token_type" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <createIndex indexName="idx_rest_source_user_id"
+            tableName="rest_source_user" unique="true">
+            <column name="id" type="bigint"/>
+        </createIndex>
+
+        <createIndex indexName="idx_rest_source_user_external_id"
+            tableName="rest_source_user">
+            <column name="external_user_id" type="varchar(200)"/>
+        </createIndex>
+
+        <createIndex indexName="idx_rest_source_user_source_id"
+                     tableName="rest_source_user" unique="true">
+            <column name="source_id" type="varchar(200)"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
