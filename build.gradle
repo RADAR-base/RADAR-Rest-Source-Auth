@@ -39,7 +39,7 @@ ext {
 }
 
 dependencies {
-	compileOnly('org.projectlombok:lombok:1.16.20')
+	compileOnly('org.projectlombok:lombok:1.18.4')
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	implementation('org.springframework.boot:spring-boot-starter')
 	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
