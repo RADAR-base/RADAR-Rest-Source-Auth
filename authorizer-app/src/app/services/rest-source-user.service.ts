@@ -29,6 +29,10 @@ export class RestSourceUserService {
     return this.http.post(this.serviceUrl ,params);
   }
 
+  getUserById(userId: string): Observable<RestSourceUser> {
+    return this.http.get(this.serviceUrl + '/' +userId);
+  }
+
   deleteUser(userId: string): Observable<any> {
     return this.http.delete(this.serviceUrl + '/' + userId);
   }

@@ -14,6 +14,7 @@
         <th><span>External User Id</span></th>
         <th><span>Authorized</span></th>
         <th></th>
+        <th></th>
       </tr>
       </thead>
       <tbody>
@@ -26,6 +27,9 @@
         <td>{{restSourceUser.endDate | date:'dd/MM/yyyy'}}</td>
         <td>{{restSourceUser.externalUserId}}</td>
         <td>{{restSourceUser.authorized}}</td>
+        <td class="text-right">
+          <button class="btn btn-primary"  [routerLink]="['/users', restSourceUser.id]">Edit</button>
+        </td>
         <td class="text-right">
           <button class="btn btn-danger" (click)="removeDevice(restSourceUser)">Delete</button>
         </td>
