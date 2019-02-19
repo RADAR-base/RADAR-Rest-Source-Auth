@@ -18,7 +18,7 @@ export class RestSourceUserService {
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
 
-    return this.http.put(this.serviceUrl + '/' + sourceUser.id, sourceUser);
+    return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser);
   }
 
   addAuthorizedUser(code: string, state: string): Observable<any> {

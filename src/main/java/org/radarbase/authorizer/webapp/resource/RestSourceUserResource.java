@@ -80,7 +80,7 @@ public class RestSourceUserResource {
                 .ok(this.restSourceUserService.getRestSourceUserById(Long.valueOf(id)));
     }
 
-    @PutMapping("/users/{id}")
+    @PostMapping("/users/{id}")
     public ResponseEntity updateDeviceUser(@Valid @PathVariable String id,
             @RequestBody RestSourceUserPropertiesDTO restSourceUser) {
         logger.debug("Requesting to update rest source user");
