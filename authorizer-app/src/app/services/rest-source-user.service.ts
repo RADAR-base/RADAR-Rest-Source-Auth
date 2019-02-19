@@ -18,7 +18,7 @@ export class RestSourceUserService {
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
 
-    return this.http.put(this.serviceUrl + '/' + sourceUser.id, sourceUser);
+    return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser);
   }
 
   addAuthorizedUser(code: string, state: string): Observable<any> {
@@ -27,6 +27,10 @@ export class RestSourceUserService {
       .set('state', state);
 
     return this.http.post(this.serviceUrl ,params);
+  }
+
+  getUserById(userId: string): Observable<RestSourceUser> {
+    return this.http.get(this.serviceUrl + '/' +userId);
   }
 
   deleteUser(userId: string): Observable<any> {

@@ -26,6 +26,10 @@ const appRoutes: Routes = [
     component: UpdateRestSourceUserComponent,
   },
   {
+    path: 'users/:id',
+    component: UpdateRestSourceUserComponent,
+  },
+  {
     path: 'addAuthorizedUser',
     component: RestSourceUserRegistrationFormComponent
   },
