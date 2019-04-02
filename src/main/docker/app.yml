@@ -22,7 +22,7 @@ services:
     radar-rest-source-authorizer:
         image: radarbase/radar-rest-source-authorizer:latest
         depends_on:
-          - radar-rest-auth-backend
+          - radar-rest-source-auth-backend
           - auth-postgresql
         ports:
           - "3000:80"
