@@ -44,6 +44,7 @@ public class RestSourceClientDetailsDTO {
         this.grantType = restSourceClientConfig.getGrantType();
         this.clientId = restSourceClientConfig.getClientId();
         this.scope = restSourceClientConfig.getScope();
+        this.tokenEndpoint = restSourceClientConfig.getTokenEndpoint();
     }
 
     public String getSourceType() {
