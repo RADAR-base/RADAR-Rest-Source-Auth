@@ -1,0 +1,19 @@
+ .mat-sort-header-container {
+  align-items: center;
+}
+
+.mat-cell {
+  margin-left: 10px;
+  margin-right: 10px;
+  align-content: center;
+  text-align: center;
+}
+
+.mat-header-cell {
+  margin-left: 10px;
+  margin-right: 10px;
+  align-content: center;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
