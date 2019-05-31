@@ -1,6 +1,6 @@
 {
   "name": "authorizer-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple app to authorize to collect data from third party services ",
   "repository": {
     "type": "git",
@@ -37,7 +37,7 @@
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.8.0",
+    "@angular-devkit/build-angular": "0.8.9",
     "@angular/cli": "~6.2.3",
     "@angular/compiler-cli": "^6.1.0",
     "@angular/language-service": "^6.1.0",

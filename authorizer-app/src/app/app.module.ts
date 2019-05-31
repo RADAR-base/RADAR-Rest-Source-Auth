@@ -12,6 +12,14 @@ import {SourceClientAuthorizationService} from "./services/source-client-authori
 import {RestSourceUserListComponent} from "./components/rest-source-authorization/rest-source-user-list.component";
 import {RestSourceUserRegistrationFormComponent} from "./components/rest-source-authorization/rest-source-user-registration-form.component";
 import {UpdateRestSourceUserComponent} from "./components/rest-source-authorization/update-rest-source-user.component";
+import {
+  MatPaginatorModule,
+  MatTableModule,
+  MatSortModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatButtonModule } from '@angular/material';
+
 const appRoutes: Routes = [
   {
     path: '',
@@ -23,6 +31,10 @@ const appRoutes: Routes = [
   },
   {
     path: 'users:new',
+    component: UpdateRestSourceUserComponent,
+  },
+  {
+    path: 'users/:id',
     component: UpdateRestSourceUserComponent,
   },
   {
@@ -51,6 +63,12 @@ const appRoutes: Routes = [
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    MatPaginatorModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSortModule,
+    MatButtonModule,
     RouterModule.forRoot(appRoutes),
     NgbModule.forRoot()
   ],

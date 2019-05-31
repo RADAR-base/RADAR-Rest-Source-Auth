@@ -9,7 +9,7 @@
 
     <div class="form-group">
       <label for="userId">User Id: </label>
-      <input class="form-control" name="userId" type="text" [(ngModel)]="restSourceUser.userId" id="userId" placement="top" ngbTooltip="Subject Id from ManagementPortal">
+      <input class="form-control" name="userId" [disabled]="isEditing" type="text" [(ngModel)]="restSourceUser.userId" id="userId" placement="top" ngbTooltip="Subject Id from ManagementPortal">
     </div>
 
 
