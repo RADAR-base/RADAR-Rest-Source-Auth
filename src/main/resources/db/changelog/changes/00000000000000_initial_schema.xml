@@ -11,10 +11,29 @@
     <property name="autoIncrement" value="true"/>
 
     <changeSet id="00000000000000" author="nivethika@thehyve.nl" dbms="postgresql,oracle,h2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="hibernate_sequence"/>
+            </not>
+        </preConditions>
         <createSequence sequenceName="hibernate_sequence" startValue="1000" incrementBy="50"/>
     </changeSet>
 
     <changeSet id="00000000000001" author="nivethika@thehyve.nl">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="rest_source_user"/>
+            </not>
+            <not>
+                <indexExists indexName="idx_rest_source_user_id"/>
+            </not>
+            <not>
+                <indexExists indexName="idx_rest_source_user_external_id"/>
+            </not>
+            <not>
+                <indexExists indexName="idx_rest_source_user_source_id"/>
+            </not>
+        </preConditions>
         <createTable tableName="rest_source_user">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
