@@ -1,0 +1,5 @@
+base_url: "http://localhost:8090"
+projects_path: "/projects"
+subjects_path: "/subjects"
+oauth_client_id: "rest-sources"
+oauth_client_secret: "secret"

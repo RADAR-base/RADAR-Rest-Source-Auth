@@ -22,3 +22,6 @@ rest-source-authorizer:
     max-age: 1800
 
   source-clients-file-path: src/main/docker/etc/rest_source_clients_configs.yml
+
+validator: managementportal
+mp-config-file-path: src/main/docker/etc/management_portal_config.yml
