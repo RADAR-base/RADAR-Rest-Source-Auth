@@ -1,7 +1,9 @@
 package org.radarbase.authorizer.validation;
 
 import org.radarbase.authorizer.service.managementportal.ManagementPortalClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
+@ConditionalOnProperty(value = "validator", havingValue = "managementportal")
 public class ManagementPortalValidator implements Validator {
 
   private static final ManagementPortalClient mpClient = new ManagementPortalClient();

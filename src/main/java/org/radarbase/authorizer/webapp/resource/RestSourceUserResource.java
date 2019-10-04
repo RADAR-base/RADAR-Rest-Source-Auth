@@ -34,6 +34,7 @@ import org.radarbase.authorizer.validation.exception.ValidatorNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,9 +60,12 @@ public class RestSourceUserResource {
   @PostConstruct
   private void init() {
     try {
-      this.validator = new ValidatorFactory().getValidator(validatorType);
+      this.validator = ValidatorFactory.getValidator(validatorType);
     } catch (ValidatorNotFoundException exc) {
-      logger.warn("No Valid Validator Found. Will not be validating requests.");
+      logger.warn("No Valid Validator Found. Will not be validating requests...");
+      this.validator = null;
+    } catch (Exception exc) {
+      logger.warn("There was an error when initialising the validator {}.", validatorType, exc);
       this.validator = null;
     }
   }
@@ -100,9 +104,10 @@ public class RestSourceUserResource {
 
   @PostMapping("/users/{id}")
   public ResponseEntity updateDeviceUser(@Valid @PathVariable String id,
-      @RequestBody RestSourceUserPropertiesDTO restSourceUser) {
+      @RequestBody RestSourceUserPropertiesDTO restSourceUser,
+      @RequestParam(value = "validate", defaultValue = "false") Boolean isValidate) {
     logger.debug("Requesting to update rest source user");
-    if (validator != null && !validator
+    if (validator != null && isValidate && !validator
         .validateSubjectInProject(restSourceUser.getUserId(), restSourceUser.getProjectId())) {
       throw new ValidationFailedException(restSourceUser, validator);
     }

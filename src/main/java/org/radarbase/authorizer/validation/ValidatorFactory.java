@@ -6,7 +6,7 @@ import org.radarbase.authorizer.validation.exception.ValidatorNotFoundException;
 
 public class ValidatorFactory {
 
-  public Validator getValidator(String type) throws ValidatorNotFoundException {
+  public static Validator getValidator(String type) throws ValidatorNotFoundException {
     if (type == null) {
       return null;
     }
