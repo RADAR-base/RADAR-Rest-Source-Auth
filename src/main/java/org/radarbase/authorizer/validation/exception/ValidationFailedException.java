@@ -4,7 +4,7 @@ import org.radarbase.authorizer.validation.Validator;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+@ResponseStatus(value = HttpStatus.EXPECTATION_FAILED, reason = "Validation Failed for the Request.")
 public class ValidationFailedException extends RuntimeException {
 
   public ValidationFailedException(Object entity, Validator validator) {

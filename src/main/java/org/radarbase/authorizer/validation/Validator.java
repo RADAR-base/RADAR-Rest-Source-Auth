@@ -1,10 +1,8 @@
 package org.radarbase.authorizer.validation;
 
+import org.radarbase.authorizer.service.dto.RestSourceUserPropertiesDTO;
+
 public interface Validator {
 
-  boolean validateProject(String projectId);
-
-  boolean validateSubject(String subjectId);
-
-  boolean validateSubjectInProject(String subjectId, String projectId);
+  boolean validate(RestSourceUserPropertiesDTO projectId);
 }

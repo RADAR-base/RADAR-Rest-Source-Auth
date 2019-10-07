@@ -21,20 +21,17 @@ package org.radarbase.authorizer.webapp.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.validation.Valid;
 import org.radarbase.authorizer.service.RestSourceUserService;
 import org.radarbase.authorizer.service.dto.RestSourceUserPropertiesDTO;
 import org.radarbase.authorizer.service.dto.RestSourceUsers;
 import org.radarbase.authorizer.service.dto.TokenDTO;
 import org.radarbase.authorizer.validation.Validator;
-import org.radarbase.authorizer.validation.ValidatorFactory;
 import org.radarbase.authorizer.validation.exception.ValidationFailedException;
-import org.radarbase.authorizer.validation.exception.ValidatorNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,27 +44,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RestSourceUserResource {
 
+  private final RestSourceUserService restSourceUserService;
   private Logger logger = LoggerFactory.getLogger(RestSourceUserResource.class);
-
-  @Autowired
-  private RestSourceUserService restSourceUserService;
-
-  @Value("${validator}")
-  private String validatorType = "";
-
   private Validator validator;
 
-  @PostConstruct
-  private void init() {
-    try {
-      this.validator = ValidatorFactory.getValidator(validatorType);
-    } catch (ValidatorNotFoundException exc) {
-      logger.warn("No Valid Validator Found. Will not be validating requests...");
-      this.validator = null;
-    } catch (Exception exc) {
-      logger.warn("There was an error when initialising the validator {}.", validatorType, exc);
-      this.validator = null;
-    }
+  @Autowired
+  public RestSourceUserResource(
+      RestSourceUserService restSourceUserService,
+      Optional<Validator> validator) {
+    this.restSourceUserService = restSourceUserService;
+    this.validator = validator.orElse(null);
   }
 
   @PostMapping("/users")
@@ -107,8 +93,8 @@ public class RestSourceUserResource {
       @RequestBody RestSourceUserPropertiesDTO restSourceUser,
       @RequestParam(value = "validate", defaultValue = "false") Boolean isValidate) {
     logger.debug("Requesting to update rest source user");
-    if (validator != null && isValidate && !validator
-        .validateSubjectInProject(restSourceUser.getUserId(), restSourceUser.getProjectId())) {
+    if (validator != null && isValidate && !validator.validate(restSourceUser)) {
+      logger.warn("Validation Failed for: {}", restSourceUser);
       throw new ValidationFailedException(restSourceUser, validator);
     }
     return ResponseEntity
