@@ -1,10 +1,13 @@
 package org.radarbase.authorizer.service.dto.managementportal;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Project {
+
+  @JsonProperty("projectName")
   private String projectId;
 
   public String getProjectId() {
