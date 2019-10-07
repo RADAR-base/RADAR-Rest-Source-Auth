@@ -4,6 +4,7 @@ import {RestSourceUserService} from "../../services/rest-source-user.service";
 import {RestSourceUser} from "../../models/rest-source-user.model";
 import {SourceClientAuthorizationService} from "../../services/source-client-authorization.service";
 import {NgbDateAdapter, NgbDateNativeAdapter} from "@ng-bootstrap/ng-bootstrap";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'update-rest-source-user',
@@ -11,7 +12,7 @@ import {NgbDateAdapter, NgbDateNativeAdapter} from "@ng-bootstrap/ng-bootstrap";
   providers: [{provide: NgbDateAdapter, useClass: NgbDateNativeAdapter}]
 })
 export class UpdateRestSourceUserComponent implements OnInit {
-  errorMessage: string;
+  errorMessage?: string;
   restSourceUser: RestSourceUser;
   startDate: Date;
   endDate: Date;
@@ -35,8 +36,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
           this.errorMessage = 'Cannot retrieve current user details';
           window.setTimeout(() => this.router.navigate(['']), 5000);
         });
-      }
-      else {
+      } else {
         this.activatedRoute.queryParams.subscribe((params: Params) => {
           if (params.hasOwnProperty('error')) {
             this.errorMessage = params['error_description'];
@@ -56,9 +56,19 @@ export class UpdateRestSourceUserComponent implements OnInit {
     this.restSourceUserService.updateUser(this.restSourceUser).subscribe(() => {
         return this.router.navigate(['/users']);
       },
-      err => {
-        this.errorMessage = err.json._body;
-
+      (err: HttpErrorResponse) => {
+        if (err.error instanceof ErrorEvent) {
+          // A client-side or network error occurred. Handle it accordingly.
+          this.errorMessage = "Something went wrong. Please check your connection."
+        } else {
+          // The backend returned an unsuccessful response code.
+          // The response body may contain clues as to what went wrong,
+          this.errorMessage = `Backend Error: Status=${err.status}, 
+            Body: ${err.error.error}, ${err.error.message}`;
+          if(err.status == 417) {
+            this.errorMessage += " Please check the details are correct and try again.";
+          }
+        }
       });
   }
 
