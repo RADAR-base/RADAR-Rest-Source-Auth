@@ -4,11 +4,11 @@ import java.util.Collection;
 import org.radarbase.authorizer.service.dto.managementportal.Project;
 import org.radarbase.authorizer.service.dto.managementportal.Subject;
 
-public interface ManagementPortalClient {
+public interface ManagementPortalClient<S extends Subject, P extends Project> {
 
-  <T extends Subject> T getSubject(String subjectId);
+  S getSubject(String subjectId);
 
-  <T extends Project> T getProject(String projectId);
+  P getProject(String projectId);
 
   Collection<? extends Subject> getAllSubjects();
 
