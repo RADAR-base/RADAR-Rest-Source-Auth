@@ -10,7 +10,7 @@ public interface ManagementPortalClient<S extends Subject, P extends Project> {
 
   P getProject(String projectId);
 
-  Collection<? extends Subject> getAllSubjects();
+  Collection<S> getAllSubjects();
 
-  Collection<? extends Project> getAllProjects();
+  Collection<P> getAllProjects();
 }
