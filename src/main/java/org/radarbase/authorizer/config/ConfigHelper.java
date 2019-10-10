@@ -24,18 +24,18 @@ public class ConfigHelper {
     YAMLFactory yamlFactory = new YAMLFactory();
     try {
       YAMLParser yamlParser = yamlFactory.createParser(new File(path));
-      T managementPortalProperties = new ObjectMapper(yamlFactory)
+      T properties = new ObjectMapper(yamlFactory)
           .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
           .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
           .readValue(yamlParser, typeReference);
 
-      if (managementPortalProperties == null) {
+      if (properties == null) {
         LOGGER.error("No valid configurations available on configured path. Please "
             + "check the syntax and file name");
         throw new ConfigurationException(
-            "No valid management portal configs are provided" + ".");
+            "No valid configs are provided" + ".");
       }
-      return managementPortalProperties;
+      return properties;
     } catch (IOException e) {
       LOGGER.error("Could not successfully read config file at {}", path);
       throw new ConfigurationException("Could not successfully read config file at " + path);

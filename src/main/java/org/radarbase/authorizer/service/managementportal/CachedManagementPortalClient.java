@@ -190,6 +190,8 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
       if (response.isSuccessful() && response.body() != null) {
         return mapper.readValue(response.body().string(), t);
       } else {
+        LOGGER.warn("The Request was not successful: Status-{}, Body-{}", response.code(),
+            response.body() != null ? response.body().string() : "");
         return null;
       }
     } catch (TokenException exc) {
