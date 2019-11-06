@@ -12,4 +12,10 @@ public class ValidationFailedException extends RuntimeException {
         "Validation Failed for [" + entity + "] using Validator [" + validator.getClass().getName()
             + "].");
   }
+
+  public ValidationFailedException(Object entity, Validator validator, String reason) {
+    super(
+        "Validation Failed for [" + entity + "] using Validator [" + validator.getClass().getName()
+            + "] due to [" + reason + "].");
+  }
 }

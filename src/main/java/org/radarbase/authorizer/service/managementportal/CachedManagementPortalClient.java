@@ -1,5 +1,7 @@
 package org.radarbase.authorizer.service.managementportal;
 
+import static org.radarbase.authorizer.validation.ManagementPortalValidator.MP_VALIDATOR_PROPERTY_VALUE;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +33,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
-@ConditionalOnProperty(value = "validator", havingValue = "managementportal")
+@ConditionalOnProperty(value = "validator", havingValue = MP_VALIDATOR_PROPERTY_VALUE)
 public class CachedManagementPortalClient implements ManagementPortalClient<Subject, Project> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CachedManagementPortalClient.class);
@@ -101,7 +103,7 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
   }
 
   @Override
-  public Subject getSubject(String subjectId) {
+  public Subject getSubject(String subjectId) throws IOException, TokenException {
     // First check if need to refresh subjects cache
     if (isUpdateRequired()) {
       update();
@@ -117,17 +119,11 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
         .findFirst();
 
     // Try to get from MP if not present in cache.
-    return subject.orElseGet(() -> {
-      Subject subject1 = querySubject(subjectId);
-      if (subject1 != null) {
-        this.subjects.add(subject1);
-      }
-      return subject1;
-    });
+    return subject.orElse(querySubject(subjectId));
   }
 
   @Override
-  public Project getProject(String projectId) {
+  public Project getProject(String projectId) throws IOException, TokenException {
     if (isUpdateRequired()) {
       update();
       return this.projects.stream()
@@ -139,18 +135,11 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
         .filter(project1 -> project1.getProjectId().equals(projectId))
         .findFirst();
 
-    return project.orElseGet(() -> {
-          Project project1 = queryProject(projectId);
-          if (project1 != null) {
-            this.projects.add(project1);
-          }
-          return project1;
-        }
-    );
+    return project.orElse(queryProject(projectId));
   }
 
   @Override
-  public Set<Subject> getAllSubjects() {
+  public Set<Subject> getAllSubjects() throws IOException, TokenException {
     if (isUpdateRequired()) {
       update();
     }
@@ -158,70 +147,64 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
   }
 
   @Override
-  public Set<Project> getAllProjects() {
+  public Set<Project> getAllProjects() throws IOException, TokenException {
     if (isUpdateRequired()) {
       update();
     }
     return this.projects;
   }
 
-  private Subject querySubject(String subjectId) {
-    return queryEntity(
+  private Subject querySubject(String subjectId) throws IOException, TokenException {
+    Subject subject = queryEntity(
         properties.getBaseUrl() + "/api" + properties.getSubjectsPath() + "/" + subjectId,
         new TypeReference<Subject>() {
         });
+    this.subjects.add(subject);
+    return subject;
   }
 
-  private Project queryProject(String projectId) {
-    return queryEntity(
+  private Project queryProject(String projectId) throws IOException, TokenException {
+    Project project = queryEntity(
         properties.getBaseUrl() + "/api" + properties.getProjectsPath() + "/" + projectId,
         new TypeReference<Project>() {
         });
+
+    this.projects.add(project);
+    return project;
   }
 
-  private <T> T queryEntity(String url, TypeReference<T> t) {
-    try {
-      Request request = new Request.Builder()
-          .addHeader("Authorization", "Bearer " + oAuth2Client.getValidToken().getAccessToken())
-          .url(new URL(url))
-          .get()
-          .build();
-      Response response = httpClient.newCall(request).execute();
-      if (response.isSuccessful() && response.body() != null) {
-        return mapper.readValue(response.body().string(), t);
-      } else {
-        LOGGER.warn("The Request was not successful: Status-{}, Body-{}", response.code(),
-            response.body() != null ? response.body().string() : "");
-        return null;
-      }
-    } catch (TokenException exc) {
-      LOGGER.warn("Cannot get a valid token from Management Portal.", exc);
-      return null;
-    } catch (MalformedURLException exc) {
-      LOGGER.warn("URL is mis-configured.", exc);
-      return null;
-    } catch (IOException exc) {
-      LOGGER.warn("An error occurred while making HTTP request for {}.", t.getType().getTypeName(),
-          exc);
-      return null;
+  private <T> T queryEntity(String url, TypeReference<T> t)
+      throws TokenException, IOException {
+    Request request = new Request.Builder()
+        .addHeader("Authorization", "Bearer " + oAuth2Client.getValidToken().getAccessToken())
+        .url(new URL(url))
+        .get()
+        .build();
+    Response response = httpClient.newCall(request).execute();
+    if (response.isSuccessful() && response.body() != null) {
+      return mapper.readValue(response.body().string(), t);
+    } else {
+      throw new IOException(
+          "The Request was not successful: Status-" + response.code() + ", Body-" +
+              (response.body() != null ? response.body().string() : ""));
     }
   }
 
-  private Set<Subject> queryAllSubjects() {
+  private Set<Subject> queryAllSubjects() throws IOException, TokenException {
     // get subjects from MP
     return queryEntity(properties.getBaseUrl() + "/api" + properties.getSubjectsPath(),
         new TypeReference<Set<Subject>>() {
         });
   }
 
-  private Set<Project> queryAllProjects() {
+  private Set<Project> queryAllProjects() throws IOException, TokenException {
     // get projects from MP
     return queryEntity(properties.getBaseUrl() + "/api" + properties.getProjectsPath(),
         new TypeReference<Set<Project>>() {
         });
   }
 
-  synchronized private void update() {
+  synchronized private void update() throws IOException, TokenException {
     Set<Subject> subjects1 = queryAllSubjects();
     Set<Project> projects1 = queryAllProjects();
     this.subjects = subjects1 == null ? new HashSet<>() : subjects1;
