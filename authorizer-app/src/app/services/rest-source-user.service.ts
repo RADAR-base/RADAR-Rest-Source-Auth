@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs/internal/Observable";
 import {RestSourceUser} from "../models/rest-source-user.model";
@@ -10,27 +10,29 @@ import {environment} from "../../environments/environment";
 export class RestSourceUserService {
 
   private serviceUrl = environment.BACKEND_BASE_URL + "/users";
-  constructor(private http: HttpClient) { }
+
+  constructor(private http: HttpClient) {
+  }
 
   getAllUsers(): Observable<RestSourceUser[]> {
     return this.http.get<RestSourceUser[]>(this.serviceUrl);
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
-
-    return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser);
+    const params = new HttpParams().set("validate", String(environment.VALIDATE));
+    return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser, {params});
   }
 
   addAuthorizedUser(code: string, state: string): Observable<any> {
     const params = new HttpParams()
-      .set('code', code)
-      .set('state', state);
+    .set('code', code)
+    .set('state', state);
 
-    return this.http.post(this.serviceUrl ,params);
+    return this.http.post(this.serviceUrl, params);
   }
 
   getUserById(userId: string): Observable<RestSourceUser> {
-    return this.http.get(this.serviceUrl + '/' +userId);
+    return this.http.get(this.serviceUrl + '/' + userId);
   }
 
   deleteUser(userId: string): Observable<any> {

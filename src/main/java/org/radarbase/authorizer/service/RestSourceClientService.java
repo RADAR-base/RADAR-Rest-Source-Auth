@@ -19,7 +19,7 @@
 
 package org.radarbase.authorizer.service;
 
-import java.io.File;
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,17 +32,14 @@ import javax.naming.ConfigurationException;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.radarbase.authorizer.config.ConfigHelper;
 import org.radarbase.authorizer.config.RestSourceClientConfig;
 import org.radarbase.authorizer.config.RestSourceAuthorizerProperties;
 import org.radarbase.authorizer.service.dto.RestSourceAccessToken;
@@ -102,33 +99,17 @@ public class RestSourceClientService {
 
     private List<RestSourceClientConfig> loadDeviceClientConfigs(@NotNull String path) throws
             ConfigurationException {
-        LOGGER.info("Loading source client configs from {}", path);
-        YAMLFactory yamlFactory = new YAMLFactory();
-        try {
-            YAMLParser yamlParser = yamlFactory.createParser(new File(path));
-            MappingIterator<org.radarbase.authorizer.config.RestSourceClients> mappingIterator = new ObjectMapper(yamlFactory)
-                    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                    .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
-                    .readValues(yamlParser, org.radarbase.authorizer.config.RestSourceClients.class);
+        org.radarbase.authorizer.config.RestSourceClients restSourceClients =
+            ConfigHelper.loadPropertiesFromFile(path,
+                new TypeReference<org.radarbase.authorizer.config.RestSourceClients>() {});
 
-            if (mappingIterator.hasNext()) {
-                org.radarbase.authorizer.config.RestSourceClients restSourceClients = mappingIterator.next();
-                if (restSourceClients == null || restSourceClients.getRestSourceClients() == null) {
-                    LOGGER.error("No valid configurations available on configured path. Please "
-                            + "check the syntax and file name");
-                    throw new ConfigurationException(
-                            "No valid source-client configs are provided" + ".");
-                }
-                return restSourceClients.getRestSourceClients();
-            } else {
-                throw new ConfigurationException(
-                        "No valid source-client configs are provided" + ".");
-            }
-
-        } catch (IOException e) {
-            LOGGER.error("Could not successfully read config file at {}", path);
-            throw new ConfigurationException("Could not successfully read config file at " + path);
+        if (restSourceClients.getRestSourceClients() == null) {
+            LOGGER.error("No valid configurations available on configured path. Please "
+                    + "check the syntax and file name");
+            throw new ConfigurationException(
+                    "No valid source-client configs are provided" + ".");
         }
+        return restSourceClients.getRestSourceClients();
     }
 
 

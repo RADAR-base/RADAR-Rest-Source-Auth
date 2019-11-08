@@ -22,3 +22,11 @@ rest-source-authorizer:
     max-age: 1800
 
   source-clients-file-path: src/main/docker/etc/rest_source_clients_configs.yml
+
+  validator: managementportal
+  management-portal:
+    base-url: "http://localhost:8081"
+    projects-path: "/projects"
+    subjects-path: "/subjects"
+    oauth-client-id: "radar_rest_sources_auth"
+    oauth-client-secret: "secret"

@@ -48,7 +48,6 @@ public class RestSourceUserPropertiesDTO implements Serializable {
     // Date until when to collect data.
     private Instant endDate;
 
-
     private String sourceType;
 
     // is authorized by user
