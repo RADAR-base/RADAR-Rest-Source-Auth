@@ -35,7 +35,7 @@ ext {
 	description = 'RADAR Rest Source Authorizer handles authorization for data access from third party APIs for wearable devices or other connected sources.'
 
 	okhttp3Version = '3.13.1'
-	managementPortalVersion = '0.5.7'
+	managementPortalVersion = '0.5.8'
 }
 
 dependencies {

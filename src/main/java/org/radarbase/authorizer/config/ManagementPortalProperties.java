@@ -1,17 +1,23 @@
 package org.radarbase.authorizer.config;
 
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
 
 public class ManagementPortalProperties {
 
+  @NotNull
   private String baseUrl;
 
+  @NotNull
   private String projectsPath;
 
+  @NotNull
   private String subjectsPath;
 
+  @NotNull
   private String oauthClientId;
 
+  @NotNull
   private String oauthClientSecret;
 
   public String getBaseUrl() {
@@ -73,10 +79,5 @@ public class ManagementPortalProperties {
   @Override
   public int hashCode() {
     return Objects.hash(baseUrl, projectsPath, subjectsPath, oauthClientId, oauthClientSecret);
-  }
-
-  public boolean anyNull() {
-    return baseUrl == null || projectsPath == null || subjectsPath == null || oauthClientId == null
-        || oauthClientSecret == null;
   }
 }

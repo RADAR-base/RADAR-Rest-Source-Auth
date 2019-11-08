@@ -93,7 +93,7 @@ public class RestSourceUserResource {
       @RequestBody RestSourceUserPropertiesDTO restSourceUser,
       @RequestParam(value = "validate", defaultValue = "false") Boolean isValidate) {
     logger.debug("Requesting to update rest source user");
-    if (validator != null && isValidate && !validator.validate(restSourceUser)) {
+    if (isValidate && validator != null && !validator.validate(restSourceUser)) {
       logger.warn("Validation Failed for: {}", restSourceUser);
       throw new ValidationFailedException(restSourceUser, validator);
     }

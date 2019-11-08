@@ -16,7 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(value = "validator", havingValue = MP_VALIDATOR_PROPERTY_VALUE)
+@ConditionalOnProperty(value = "rest-source-authorizer.validator", havingValue = MP_VALIDATOR_PROPERTY_VALUE)
 public class ManagementPortalValidator implements Validator {
 
   public static final String MP_VALIDATOR_PROPERTY_VALUE = "managementportal";

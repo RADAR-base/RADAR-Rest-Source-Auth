@@ -31,6 +31,10 @@ public class RestSourceAuthorizerProperties {
 
     private String sourceClientsFilePath;
 
+    private String validator;
+
+    private ManagementPortalProperties managementPortal;
+
     public CorsConfiguration getCors() {
         return cors;
     }
@@ -45,6 +49,23 @@ public class RestSourceAuthorizerProperties {
 
     public void setSourceClientsFilePath(String sourceClientsFilePath) {
         this.sourceClientsFilePath = sourceClientsFilePath;
+    }
+
+    public String getValidator() {
+        return validator;
+    }
+
+    public void setValidator(String validator) {
+        this.validator = validator;
+    }
+
+    public ManagementPortalProperties getManagementPortal() {
+        return managementPortal;
+    }
+
+    public void setManagementPortal(
+        ManagementPortalProperties managementPortal) {
+        this.managementPortal = managementPortal;
     }
 
     @Override

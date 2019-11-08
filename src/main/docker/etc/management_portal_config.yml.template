@@ -1,5 +1,0 @@
-base_url: "http://localhost:8081"
-projects_path: "/projects"
-subjects_path: "/subjects"
-oauth_client_id: "radar_rest_sources_auth"
-oauth_client_secret: "secret"

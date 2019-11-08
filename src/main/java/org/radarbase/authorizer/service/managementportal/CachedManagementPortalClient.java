@@ -11,16 +11,13 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import javax.naming.ConfigurationException;
-import javax.validation.constraints.NotNull;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.radarbase.authorizer.config.ConfigHelper;
 import org.radarbase.authorizer.config.ManagementPortalProperties;
+import org.radarbase.authorizer.config.RestSourceAuthorizerProperties;
 import org.radarbase.authorizer.service.dto.managementportal.Project;
 import org.radarbase.authorizer.service.dto.managementportal.Subject;
 import org.radarcns.exception.TokenException;
@@ -28,12 +25,11 @@ import org.radarcns.oauth.OAuth2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
-@ConditionalOnProperty(value = "validator", havingValue = MP_VALIDATOR_PROPERTY_VALUE)
+@ConditionalOnProperty(value = "rest-source-authorizer.validator", havingValue = MP_VALIDATOR_PROPERTY_VALUE)
 public class CachedManagementPortalClient implements ManagementPortalClient<Subject, Project> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CachedManagementPortalClient.class);
@@ -52,24 +48,26 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
   private ObjectMapper mapper = new ObjectMapper();
 
   @Autowired
-  public CachedManagementPortalClient(@Value("${mp-config-file-path}") String mpConfigFilePath)
-      throws MalformedURLException, ConfigurationException {
+  public CachedManagementPortalClient(RestSourceAuthorizerProperties restSourceAuthorizerProperties)
+      throws MalformedURLException {
     subjects = new HashSet<>();
     projects = new HashSet<>();
     lastFetch = Instant.MIN;
-    init(mpConfigFilePath);
+    this.properties = restSourceAuthorizerProperties.getManagementPortal();
+    init();
   }
 
-  public CachedManagementPortalClient(@Value("${mp-config-file-path}") String mpConfigFilePath,
-      Duration expiry) throws MalformedURLException, ConfigurationException {
+  public CachedManagementPortalClient(ManagementPortalProperties managementPortalProperties,
+      Duration expiry) throws MalformedURLException {
     this.expiry = expiry;
     subjects = new HashSet<>();
     projects = new HashSet<>();
     lastFetch = Instant.MIN;
-    init(mpConfigFilePath);
+    this.properties = managementPortalProperties;
+    init();
   }
 
-  private void init(String mpConfigFilePath) throws ConfigurationException, MalformedURLException {
+  private void init() throws MalformedURLException {
 
     this.httpClient = new OkHttpClient.Builder()
         .connectTimeout(20, TimeUnit.SECONDS)
@@ -80,26 +78,11 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
     this.mapper = new ObjectMapper()
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-    this.properties = loadManagementPortalProperties(mpConfigFilePath);
     this.oAuth2Client = new OAuth2Client.Builder()
         .credentials(properties.getOauthClientId(), properties.getOauthClientSecret())
         .endpoint(new URL(properties.getBaseUrl()), "/oauth/token")
         .httpClient(httpClient)
         .build();
-  }
-
-  private ManagementPortalProperties loadManagementPortalProperties(@NotNull String path)
-      throws ConfigurationException {
-    ManagementPortalProperties properties = ConfigHelper
-        .loadPropertiesFromFile(path, new TypeReference<ManagementPortalProperties>() {
-        });
-
-    if (properties.anyNull()) {
-      throw new ConfigurationException(
-          "Some of the required properties were not defined in " + path);
-    }
-
-    return properties;
   }
 
   @Override
@@ -111,15 +94,13 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
           .filter(subject1 -> subject1.getSubjectId().equals(subjectId))
           .findFirst()
           .orElse(null);
+    } else {
+      // Try to find the subject in cache if not updated
+      return this.subjects.stream()
+          .filter(subject1 -> subject1.getSubjectId().equals(subjectId))
+          .findFirst()
+          .orElse(querySubject(subjectId));
     }
-
-    // Try to find the subject in cache if not updated
-    Optional<Subject> subject = this.subjects.stream()
-        .filter(subject1 -> subject1.getSubjectId().equals(subjectId))
-        .findFirst();
-
-    // Try to get from MP if not present in cache.
-    return subject.orElse(querySubject(subjectId));
   }
 
   @Override
@@ -130,12 +111,12 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
           .filter(project1 -> project1.getProjectId().equals(projectId))
           .findFirst()
           .orElse(null);
+    } else {
+      return this.projects.stream()
+          .filter(project1 -> project1.getProjectId().equals(projectId))
+          .findFirst()
+          .orElse(queryProject(projectId));
     }
-    Optional<Project> project = this.projects.stream()
-        .filter(project1 -> project1.getProjectId().equals(projectId))
-        .findFirst();
-
-    return project.orElse(queryProject(projectId));
   }
 
   @Override
