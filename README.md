@@ -26,7 +26,7 @@ java -jar radar-rest-sources-authorizer*.jar
 To build and run this application from Docker:
 ```$cmd
 
-docker build -t radarbase/radar-rest-source-auth-backend:latest .
+docker build -t radarbase/radar-rest-source-auth-backend:1.0.1 .
 
 docker run -p 8080:8080 radarbase/radar-rest-source-auth-backend:latest
 ```
