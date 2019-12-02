@@ -16,7 +16,9 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 group = 'org.radarcns'
-version = '1.0.1'
+
+version = '1.2.0'
+
 sourceCompatibility = 1.8
 
 repositories {
@@ -35,6 +37,7 @@ ext {
 	description = 'RADAR Rest Source Authorizer handles authorization for data access from third party APIs for wearable devices or other connected sources.'
 
 	okhttp3Version = '3.13.1'
+	managementPortalVersion = '0.5.8'
 }
 
 dependencies {
@@ -50,6 +53,7 @@ dependencies {
 	implementation('org.liquibase:liquibase-core')
 	implementation('org.springframework.session:spring-session-core')
 	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp3Version
+	implementation group: 'org.radarcns', name: 'oauth-client-util', version: managementPortalVersion
 	runtimeOnly('org.postgresql:postgresql')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
