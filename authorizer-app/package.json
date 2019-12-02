@@ -1,6 +1,6 @@
 {
   "name": "authorizer-app",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "description": "Simple app to authorize to collect data from third party services ",
   "repository": {
     "type": "git",
