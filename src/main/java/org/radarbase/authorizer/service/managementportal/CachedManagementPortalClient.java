@@ -21,11 +21,13 @@ import org.radarbase.authorizer.config.RestSourceAuthorizerProperties;
 import org.radarbase.authorizer.service.dto.managementportal.Project;
 import org.radarbase.authorizer.service.dto.managementportal.Subject;
 import org.radarcns.exception.TokenException;
+import org.radarcns.oauth.OAuth2AccessTokenDetails;
 import org.radarcns.oauth.OAuth2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -80,9 +82,30 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
 
     this.oAuth2Client = new OAuth2Client.Builder()
         .credentials(properties.getOauthClientId(), properties.getOauthClientSecret())
-        .endpoint(new URL(properties.getBaseUrl()), "/oauth/token")
+        .endpoint(new URL(properties.getBaseUrl()), this.properties.getTokenPath())
         .httpClient(httpClient)
         .build();
+
+    LOGGER.info(this.properties.toString());
+    LOGGER
+        .info("Trying to get a Token and check if it has required permissions at the endpoint: {}",
+            this.oAuth2Client.getTokenEndpoint());
+    try {
+      OAuth2AccessTokenDetails accessToken = this.oAuth2Client.getValidToken();
+      if (accessToken.getScope().contains("PROJECT.READ") && accessToken.getScope()
+          .contains("SUBJECT.READ")) {
+        LOGGER.info("The client has sufficient privileges. Proceeding normally...");
+      } else {
+        throw new IllegalStateException(
+            "The configured oAuth client [" + this.properties.getOauthClientId() + ", "
+                + this.properties.getOauthClientSecret()
+                + "] does not have sufficient privileges on Management portal."
+                + " Please update it on Management portal or use a different client.");
+      }
+    } catch (TokenException exc) {
+      throw new IllegalStateException(
+          "There was a problem getting the oAuth token from the server: " + exc);
+    }
   }
 
   @Override
@@ -137,7 +160,7 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
 
   private Subject querySubject(String subjectId) throws IOException, TokenException {
     Subject subject = queryEntity(
-        properties.getBaseUrl() + "/api" + properties.getSubjectsPath() + "/" + subjectId,
+        properties.getBaseUrl() + properties.getSubjectsPath() + "/" + subjectId,
         new TypeReference<Subject>() {
         });
     this.subjects.add(subject);
@@ -146,7 +169,7 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
 
   private Project queryProject(String projectId) throws IOException, TokenException {
     Project project = queryEntity(
-        properties.getBaseUrl() + "/api" + properties.getProjectsPath() + "/" + projectId,
+        properties.getBaseUrl() + properties.getProjectsPath() + "/" + projectId,
         new TypeReference<Project>() {
         });
 
@@ -157,7 +180,8 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
   private <T> T queryEntity(String url, TypeReference<T> t)
       throws TokenException, IOException {
     Request request = new Request.Builder()
-        .addHeader("Authorization", "Bearer " + oAuth2Client.getValidToken().getAccessToken())
+        .addHeader(HttpHeaders.AUTHORIZATION,
+            "Bearer " + oAuth2Client.getValidToken().getAccessToken())
         .url(new URL(url))
         .get()
         .build();
@@ -173,14 +197,14 @@ public class CachedManagementPortalClient implements ManagementPortalClient<Subj
 
   private Set<Subject> queryAllSubjects() throws IOException, TokenException {
     // get subjects from MP
-    return queryEntity(properties.getBaseUrl() + "/api" + properties.getSubjectsPath(),
+    return queryEntity(properties.getBaseUrl() + properties.getSubjectsPath(),
         new TypeReference<Set<Subject>>() {
         });
   }
 
   private Set<Project> queryAllProjects() throws IOException, TokenException {
     // get projects from MP
-    return queryEntity(properties.getBaseUrl() + "/api" + properties.getProjectsPath(),
+    return queryEntity(properties.getBaseUrl() + properties.getProjectsPath(),
         new TypeReference<Set<Project>>() {
         });
   }
