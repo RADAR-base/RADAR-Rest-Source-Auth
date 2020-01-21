@@ -30,3 +30,47 @@ docker build -t radarbase/radar-rest-source-auth-backend:1.0.1 .
 
 docker run -p 8080:8080 radarbase/radar-rest-source-auth-backend:latest
 ```
+
+## Validation
+
+There is validation available for the properties of the subject entered by the user. These are currenlty validated using the details from the Management portal. You can configure this according to your requirements as follows -
+
+### If don't need validation
+Add the `REST_SOURCE_AUTHORIZER_VALIDATOR` env var to your docker-compose service to disable validation-
+```yaml
+  radar-rest-sources-backend:
+    image: radarbase/radar-rest-source-auth-backend:1.2.1
+...
+    environment:
+...
+      - REST_SOURCE_AUTHORIZER_VALIDATOR=""
+    volumes:
+      - ./etc/rest-source-authorizer/:/app-includes/
+...
+
+```
+**Note: This will only disable backend validation. The frontend validation(based on Regex) will still exist.**
+
+### Enable validation using Management Portal
+
+#### First Create a new oAuth client in Management Portal
+To add new OAuth clients, you can add at runtime through the UI on Management Portal, or you can add them to the OAuth clients file referenced by the MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE configuration option. For more info, see [officail docs](https://github.com/RADAR-base/ManagementPortal#oauth-clients)
+
+#### Then add the following to your rest authoriser service
+Add the following env vars to your docker-compose service-
+```yaml
+  radar-rest-sources-backend:
+    image: radarbase/radar-rest-source-auth-backend:1.2.1
+...
+    environment:
+...
+      - REST_SOURCE_AUTHORIZER_VALIDATOR=managementportal
+      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_BASE_URL=http://managementportal-app:8080/managementportal/
+      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_ID=radar_rest_sources_auth
+      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_SECRET=secret
+    volumes:
+      - ./etc/rest-source-authorizer/:/app-includes/
+...
+```
+
+**Note**: Make sure to configure the client id and client secret as created in the Management portal

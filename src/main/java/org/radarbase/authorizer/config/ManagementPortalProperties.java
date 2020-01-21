@@ -20,6 +20,17 @@ public class ManagementPortalProperties {
   @NotNull
   private String oauthClientSecret;
 
+  @NotNull
+  private String tokenPath;
+
+  public String getTokenPath() {
+    return tokenPath;
+  }
+
+  public void setTokenPath(String tokenPath) {
+    this.tokenPath = tokenPath;
+  }
+
   public String getBaseUrl() {
     return baseUrl;
   }
@@ -79,5 +90,17 @@ public class ManagementPortalProperties {
   @Override
   public int hashCode() {
     return Objects.hash(baseUrl, projectsPath, subjectsPath, oauthClientId, oauthClientSecret);
+  }
+
+  @Override
+  public String toString() {
+    return "ManagementPortalProperties{" +
+        "baseUrl='" + baseUrl + '\'' +
+        ", projectsPath='" + projectsPath + '\'' +
+        ", subjectsPath='" + subjectsPath + '\'' +
+        ", oauthClientId='" + oauthClientId + '\'' +
+        ", oauthClientSecret='" + oauthClientSecret + '\'' +
+        ", tokenPath='" + tokenPath + '\'' +
+        '}';
   }
 }
