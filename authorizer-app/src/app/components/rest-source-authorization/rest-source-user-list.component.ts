@@ -1,7 +1,7 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
-import { RestSourceUser } from '../../models/rest-source-user.model';
-import { RestSourceUserService } from '../../services/rest-source-user.service';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import {RestSourceUser} from '../../models/rest-source-user.model';
+import {RestSourceUserService} from '../../services/rest-source-user.service';
 
 @Component({
   selector: 'rest-source-list',
@@ -10,8 +10,8 @@ import { RestSourceUserService } from '../../services/rest-source-user.service';
 })
 export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
-  displayedColumns = ['id', 'projectId', 'userId', 'sourceId', 'startDate',
-    'endDate', 'externalUserId', 'authorized', 'edit', 'delete'];
+  displayedColumns = ['id', 'version', 'projectId', 'userId', 'sourceId', 'startDate',
+    'endDate', 'externalUserId', 'authorized', 'edit', 'reset', 'delete'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -22,7 +22,8 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
   dataSource: MatTableDataSource<RestSourceUser>;
 
-  constructor(private restSourceUserService: RestSourceUserService) { }
+  constructor(private restSourceUserService: RestSourceUserService) {
+  }
 
   ngOnInit() {
     this.loadAllRestSourceUsers();
@@ -60,4 +61,9 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     });
   }
 
+  resetUser(restSourceUser: RestSourceUser) {
+    this.restSourceUserService.resetUser(restSourceUser.id).subscribe(() => {
+      this.loadAllRestSourceUsers();
+    })
+  }
 }

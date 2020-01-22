@@ -101,6 +101,12 @@ public class RestSourceUserResource {
         .ok(this.restSourceUserService.updateRestSourceUser(Long.valueOf(id), restSourceUser));
   }
 
+  @PostMapping("/users/{id}/reset")
+  public ResponseEntity resetDeviceUser(@Valid @PathVariable String id) {
+    logger.debug("Requesting to reset rest source user");
+    return ResponseEntity.ok(this.restSourceUserService.resetUser(Long.valueOf(id)));
+  }
+
   @DeleteMapping("/users/{id}")
   public ResponseEntity<Void> deleteDeviceUser(@Valid @PathVariable String id) {
     logger.debug("Requesting to delete rest source user");

@@ -15,6 +15,11 @@
           <mat-cell *matCellDef="let row"> {{row.id}} </mat-cell>
       </ng-container>
 
+      <ng-container matColumnDef="version">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Version </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{row.version}} </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="projectId">
           <mat-header-cell *matHeaderCellDef mat-sort-header> Project ID </mat-header-cell>
           <mat-cell *matCellDef="let row"> {{row.projectId}} </mat-cell>
@@ -54,6 +59,13 @@
         <mat-header-cell  *matHeaderCellDef > Edit </mat-header-cell>
         <mat-cell *matCellDef="let row">
             <button mat-raised-button color="primary" [routerLink]="['/users', row.id]">Edit</button>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="reset">
+        <mat-header-cell  *matHeaderCellDef > Reset </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <button mat-raised-button	color="warn" (click)="resetUser(row)">Reset</button>
         </mat-cell>
       </ng-container>
 

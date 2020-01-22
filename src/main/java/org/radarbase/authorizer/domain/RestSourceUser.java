@@ -45,6 +45,11 @@ public class RestSourceUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    // The version to be appended to ID for RESET of a user
+    // This should be updated whenever the user is RESET.
+    // By default this is null for backwards compatibility
+    private String version = null;
+
     // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String projectId;
 
@@ -104,6 +109,15 @@ public class RestSourceUser {
 
     public RestSourceUser id(Long id) {
         this.id = id;
+        return this;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public RestSourceUser version(String version) {
+        this.version = version;
         return this;
     }
 
