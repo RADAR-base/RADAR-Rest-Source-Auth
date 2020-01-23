@@ -50,6 +50,9 @@ public class RestSourceUser {
     // By default this is null for backwards compatibility
     private String version = null;
 
+    // The number of times a user has been reset
+    private long timesReset = 0;
+
     // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String projectId;
 
@@ -121,7 +124,16 @@ public class RestSourceUser {
         return this;
     }
 
-    public String getProjectId() {
+      public long getTimesReset() {
+      return timesReset;
+    }
+
+    public RestSourceUser setTimesReset(long timesReset) {
+      this.timesReset = timesReset;
+      return this;
+    }
+
+  public String getProjectId() {
         return projectId;
     }
 

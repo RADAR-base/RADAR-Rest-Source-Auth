@@ -3,3 +3,5 @@ databaseChangeLog:
        file: db/changelog/changes/00000000000000_initial_schema.xml
     - include:
        file: db/changelog/changes/00000000000001_update_schema.xml
+    - include:
+       file: db/changelog/changes/00000000000002_update_schema.xml

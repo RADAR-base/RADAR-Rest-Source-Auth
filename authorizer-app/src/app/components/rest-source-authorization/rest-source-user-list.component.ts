@@ -10,8 +10,8 @@ import {RestSourceUserService} from '../../services/rest-source-user.service';
 })
 export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
-  displayedColumns = ['id', 'version', 'projectId', 'userId', 'sourceId', 'startDate',
-    'endDate', 'externalUserId', 'authorized', 'edit', 'reset', 'delete'];
+  displayedColumns = ['id', 'projectId', 'userId', 'sourceId', 'startDate',
+    'endDate', 'externalUserId', 'authorized', 'version', 'edit', 'reset', 'delete'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;

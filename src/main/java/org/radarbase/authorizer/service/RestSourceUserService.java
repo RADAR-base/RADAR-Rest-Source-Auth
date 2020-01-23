@@ -206,7 +206,10 @@ public class RestSourceUserService {
       if (sourceUser.isPresent()) {
         RestSourceUser restSourceUserToSave = sourceUser.get();
         return new RestSourceUserPropertiesDTO(
-            restSourceUserRepository.save(restSourceUserToSave.version(Instant.now().toString())));
+            restSourceUserRepository.save(
+                restSourceUserToSave
+                    .version(Instant.now().toString())
+                    .setTimesReset(restSourceUserToSave.getTimesReset() + 1)));
       } else {
         throw new NotFoundException(
             "Unable to reset rest source user. RestSourceUser not found with " + "id "

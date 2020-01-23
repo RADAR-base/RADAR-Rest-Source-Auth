@@ -16,8 +16,12 @@
       </ng-container>
 
       <ng-container matColumnDef="version">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> Version </mat-header-cell>
-        <mat-cell *matCellDef="let row"> {{row.version}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Reset Info </mat-header-cell>
+        <mat-cell class="reset-info" *matCellDef="let row"> <p>
+          <strong>Version:</strong> {{row.version}}
+          <br> <strong>Times Reset:</strong> {{row.timesReset}}
+          </p>
+        </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="projectId">
@@ -72,7 +76,7 @@
       <ng-container matColumnDef="delete">
         <mat-header-cell  *matHeaderCellDef > Delete </mat-header-cell>
         <mat-cell *matCellDef="let row">
-            <button mat-raised-button	color="warn" (click)="removeDevice(row)">Delete</button>
+          <button mat-raised-button	color="warn" (click)="removeDevice(row)">Delete</button>
         </mat-cell>
       </ng-container>
 
