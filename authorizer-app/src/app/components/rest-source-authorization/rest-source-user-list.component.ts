@@ -114,6 +114,9 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
             Body: ${err.error.error}, ${err.error.message}`;
               }
             });
+        } else {
+          console.log('Resetting user...');
+          this.resetUser(user);
         }
       }
     );
