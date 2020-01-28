@@ -1,0 +1,12 @@
+mat-toolbar {
+  margin-bottom: 32px;
+}
+
+.title {
+  text-align: center !important;
+  flex: 1 1 auto;
+}
+
+.logo {
+  width: 50px;
+}
