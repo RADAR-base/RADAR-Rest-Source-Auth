@@ -6,5 +6,5 @@ export class RestSourceUser {
      startDate?: string;
      endDate?: string;
      externalUserId?: string;
-     authorized?: boolean
+     authorized?: boolean;
 }
