@@ -1,21 +1,33 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs/internal/Observable';
-import {RestSourceUser} from '../models/rest-source-user.model';
-import {environment} from '../../environments/environment';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+
+import { AuthService } from './auth.service';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/internal/Observable';
+import { RestSourceUser } from '../models/rest-source-user.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestSourceUserService {
-
   private serviceUrl = environment.BACKEND_BASE_URL + '/users';
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   getAllUsers(): Observable<RestSourceUser[]> {
-    return this.http.get<RestSourceUser[]>(this.serviceUrl);
+    return this.http.get(this.serviceUrl).pipe(map((res: any) => res.users));
+  }
+
+  getAllUsersByProjectIds(projectIds: string[]): Observable<RestSourceUser[]> {
+    return this.getAllUsers().pipe(
+      map(res => res.filter(user => projectIds.includes(user.projectId)))
+    );
+  }
+
+  getAllUsersFromAssignedProjects() {
+    const projects = this.authService.getUser().projects;
+    return this.getAllUsersByProjectIds(projects);
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
@@ -38,6 +50,4 @@ export class RestSourceUserService {
   deleteUser(userId: string): Observable<any> {
     return this.http.delete(this.serviceUrl + '/' + userId);
   }
-
-
 }

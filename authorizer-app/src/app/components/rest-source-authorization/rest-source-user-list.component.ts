@@ -1,5 +1,6 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
+
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
 
@@ -9,7 +10,7 @@ import { RestSourceUserService } from '../../services/rest-source-user.service';
   styleUrls: ['./rest-source-user-list.component.css']
 })
 export class RestSourceUserListComponent implements OnInit, AfterViewInit {
-
+  
   displayedColumns = ['id', 'projectId', 'userId', 'sourceId', 'startDate',
     'endDate', 'externalUserId', 'authorized', 'edit', 'delete'];
 
@@ -22,7 +23,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
   dataSource: MatTableDataSource<RestSourceUser>;
 
-  constructor(private restSourceUserService: RestSourceUserService) { }
+  constructor(private restSourceUserService: RestSourceUserService) {}
 
   ngOnInit() {
     this.loadAllRestSourceUsers();
@@ -45,13 +46,15 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   }
 
   private loadAllRestSourceUsers() {
-    this.restSourceUserService.getAllUsers().subscribe((data: any) => {
-        this.restSourceUsers = data.users;
+    this.restSourceUserService.getAllUsersFromAssignedProjects().subscribe(
+      (users: any) => {
+        this.restSourceUsers = users;
         this.dataSource.data = this.restSourceUsers;
       },
       () => {
         this.errorMessage = 'Cannot load registered users!';
-      });
+      }
+    );
   }
 
   removeDevice(restSourceUser: RestSourceUser) {
@@ -59,5 +62,4 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
       this.loadAllRestSourceUsers();
     });
   }
-
 }

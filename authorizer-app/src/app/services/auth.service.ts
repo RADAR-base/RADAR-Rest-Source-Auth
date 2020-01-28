@@ -14,27 +14,31 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  static getToken(): string {
-    return localStorage.getItem(storageItems.token);
-  }
-
-  static getUser(): User {
-    const user = localStorage.getItem(storageItems.user);
-    return JSON.parse(user);
-  }
-
   static basicCredentials(user: string, password: string): string {
     return 'Basic ' + btoa(`${user}:${password}`);
   }
 
+  static getToken(): string {
+    return localStorage.getItem(storageItems.token);
+  }
+
+  getUser(): User {
+    const user = localStorage.getItem(storageItems.user);
+    return JSON.parse(user);
+  }
+
   getAuthData(): AuthData {
     const token = AuthService.getToken();
-    const user = AuthService.getUser();
+    const user = this.getUser();
     return { token, user };
   }
 
   setAuthData({ token, user }) {
     localStorage.setItem(storageItems.token, token);
+    this.setUser(user);
+  }
+
+  setUser(user) {
     localStorage.setItem(storageItems.user, JSON.stringify(user));
   }
 
@@ -44,7 +48,10 @@ export class AuthService {
   }
 
   login(code) {
-    return this.authenticateUser(code).pipe(map(res => this.setAuthData(res)));
+    return this.authenticateUser(code).pipe(
+      map(res => this.setAuthData(res)),
+      map(() => this.getProjectsAssignedToUser(this.getUser()))
+    );
   }
 
   authenticateUser(code) {
@@ -83,5 +90,17 @@ export class AuthService {
       .set('grant_type', environment.AUTH.grant_type)
       .set('redirect_uri', window.location.href.split('?')[0])
       .set('code', code);
+  }
+
+  getProjectsAssignedToUser(user: User) {
+    return this.http
+      .get<any[]>(`${environment.API_URI}/users/${user.username}/projects`)
+      .subscribe(projects =>
+        this.setUser(
+          Object.assign({}, user, {
+            projects: projects.map(p => p.projectName)
+          })
+        )
+      );
   }
 }

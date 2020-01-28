@@ -13,7 +13,8 @@ export const environment = {
     scope:
       'SOURCETYPE.READ PROJECT.READ SOURCE.READ SUBJECT.READ MEASUREMENT.READ'
   },
-  AUTH_URI: 'http://localhost:8080/oauth'
+  AUTH_URI: 'http://localhost:8080/oauth',
+  API_URI: 'http://localhost:8080/api'
 };
 
 /*
