@@ -1,4 +1,4 @@
- .mat-sort-header-container {
+.mat-sort-header-container {
   align-items: center;
 }
 
@@ -16,4 +16,8 @@
   text-align: center;
   font-size: 16px;
   font-weight: bold;
+}
+
+.page-container {
+  text-align: center;
 }
