@@ -1,21 +1,15 @@
-import { AuthData, AuthResponse, User } from '../models/auth.model';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { AuthResponse, User } from '../models/auth.model';
 
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { map } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { storageItems } from '../enums/storage';
 
 @Injectable()
 export class AuthService {
-  DefaultRequestEncodedContentType = 'application/x-www-form-urlencoded';
-  TOKEN_URI = `${environment.AUTH_URI}/token`;
+  constructor() {}
 
-  constructor(private http: HttpClient) {}
-
-  static getToken(): string {
-    return localStorage.getItem(storageItems.token);
+  static getAccessToken(): string {
+    return localStorage.getItem(storageItems.accessToken);
   }
 
   static getUser(): User {
@@ -23,65 +17,36 @@ export class AuthService {
     return JSON.parse(user);
   }
 
-  static basicCredentials(user: string, password: string): string {
-    return 'Basic ' + btoa(`${user}:${password}`);
+  setAccessToken(token: string) {
+    localStorage.setItem(storageItems.accessToken, token);
   }
 
-  getAuthData(): AuthData {
-    const token = AuthService.getToken();
-    const user = AuthService.getUser();
-    return { token, user };
-  }
-
-  setAuthData({ token, user }) {
-    localStorage.setItem(storageItems.token, token);
+  setUser(user: User) {
     localStorage.setItem(storageItems.user, JSON.stringify(user));
   }
 
-  clearAuthData() {
-    localStorage.removeItem(storageItems.token);
+  clearAccessToken() {
+    localStorage.removeItem(storageItems.accessToken);
+  }
+
+  clearUser() {
     localStorage.removeItem(storageItems.user);
   }
 
-  login(code) {
-    return this.authenticateUser(code).pipe(map(res => this.setAuthData(res)));
+  clearAuth() {
+    this.clearAccessToken();
+    this.clearUser();
   }
 
-  authenticateUser(code) {
-    return this.http
-      .post<AuthResponse>(this.TOKEN_URI, this.getAuthParams(code), {
-        headers: this.getAuthHeaders()
-      })
-      .pipe(
-        map((response: any) => ({
-          token: response.access_token,
-          user: this.parseUser(response.sub, response.roles)
-        }))
-      );
+  authenticate(loginParams): Observable<any> {
+    throw new Error('AuthService method not implemented');
   }
 
-  parseUser(username: string, roles: string[]): User {
-    return { username: username, name: '', roles: roles };
+  requestAccessToken(params): Observable<AuthResponse> {
+    throw new Error('AuthService method not implemented');
   }
 
-  logout() {
-    return of(true);
-  }
-
-  getAuthHeaders() {
-    const basicCreds = AuthService.basicCredentials(
-      environment.AUTH.client_id,
-      environment.AUTH.client_secret
-    );
-    return new HttpHeaders()
-      .set('Authorization', basicCreds)
-      .set('Content-Type', this.DefaultRequestEncodedContentType);
-  }
-
-  getAuthParams(code?: string) {
-    return new HttpParams()
-      .set('grant_type', environment.AUTH.grant_type)
-      .set('redirect_uri', window.location.href.split('?')[0])
-      .set('code', code);
+  isAuthorized(): boolean {
+    throw new Error('AuthService method not implemented');
   }
 }

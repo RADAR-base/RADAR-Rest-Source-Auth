@@ -21,6 +21,7 @@ import { ErrorReportingComponent } from './components/rest-source-authorization/
 import { HttpClientModule } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
 import { LoginPageComponent } from './components/auth/login-page.component';
+import { ManagementPortalAuthService } from './services/management-portal-auth.service';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RestSourceUserListComponent } from './components/rest-source-authorization/rest-source-user-list.component';
@@ -99,13 +100,13 @@ const appRoutes: Routes = [
     MatIconModule,
     RouterModule.forRoot(appRoutes),
     NgbModule.forRoot(),
-    JwtModule.forRoot({ config: { tokenGetter: AuthService.getToken } })
+    JwtModule.forRoot({ config: { tokenGetter: AuthService.getAccessToken } })
   ],
   providers: [
     RestSourceUserService,
     SourceClientAuthorizationService,
     AuthGuard,
-    AuthService
+    { provide: AuthService, useClass: ManagementPortalAuthService }
   ],
   // entryComponents: [AddDeviceDialogComponent],
   bootstrap: [AppComponent]
