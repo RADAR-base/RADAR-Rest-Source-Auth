@@ -1,4 +1,4 @@
 export enum storageItems {
-  token = 'token',
+  accessToken = 'accessToken',
   user = 'user'
 }

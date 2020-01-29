@@ -1,5 +1,6 @@
-import { AuthService } from '../../../services/auth.service';
 import { Component, Input } from '@angular/core';
+
+import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,9 +13,8 @@ export class ToolbarComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-
   logoutHandler() {
-    this.authService.clearAuthData();
+    this.authService.clearAuth();
     this.router.navigate(['/login']);
   }
 }
