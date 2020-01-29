@@ -1,10 +1,10 @@
-import { HttpClient, HttpHandler } from "@angular/common/http";
+import { HttpClient, HttpHandler } from '@angular/common/http';
 
-import { JwtHelperService } from "@auth0/angular-jwt";
-import { ManagementPortalAuthService } from "./management-portal-auth.service";
-import { TestBed } from "@angular/core/testing";
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { ManagementPortalAuthService } from './management-portal-auth.service';
+import { TestBed } from '@angular/core/testing';
 
-describe("ManagementPortalAuthService", () => {
+describe('ManagementPortalAuthService', () => {
   beforeEach(() =>
     TestBed.configureTestingModule({
       providers: [
@@ -16,7 +16,7 @@ describe("ManagementPortalAuthService", () => {
     })
   );
 
-  it("should be created", () => {
+  it('should be created', () => {
     const service: ManagementPortalAuthService = TestBed.get(
       ManagementPortalAuthService
     );
