@@ -1,7 +1,6 @@
 <div>
   <ngb-alert *ngIf="errorMessage" type="danger" (close)="errorMessage = null">{{ errorMessage}}</ngb-alert>
-  <rest-source-user-registration-form></rest-source-user-registration-form>
-
+  
   <div>
     <mat-form-field>
       <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
