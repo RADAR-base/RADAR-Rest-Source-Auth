@@ -6,13 +6,11 @@ export const environment = {
   production: false,
   BACKEND_BASE_URL: 'http://localhost:8080',
   VALIDATE: false,
-  AUTH: {
-    grant_type: 'authorization_code',
-    client_id: 'radar_rest_sources_auth',
-    client_secret: 'secret',
-    scope:
-      'SOURCETYPE.READ PROJECT.READ SOURCE.READ SUBJECT.READ MEASUREMENT.READ'
-  },
+  AUTH_GRANT_TYPE: 'authorization_code',
+  AUTH_CLIENT_ID: 'radar_rest_sources_auth',
+  AUTH_CLIENT_SECRET: 'secret',
+  AUTH_CALLBACK_URL: 'http://localhost:8080/oauth/callback',
+  BASE_HREF: '/rest-sources/authorizer/',
   AUTH_URI: 'http://localhost:8080/oauth'
 };
 
