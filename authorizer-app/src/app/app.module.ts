@@ -1,16 +1,28 @@
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MatMomentDateModule
+} from '@angular/material-moment-adapter';
+import {
   MatButtonModule,
+  MatDatepickerModule,
+  MatDialogModule,
   MatFormFieldModule,
   MatIconModule,
   MatInputModule,
   MatMenuModule,
+  MatNativeDateModule,
   MatPaginatorModule,
   MatSortModule,
   MatTableModule,
   MatToolbarModule,
-  MatButtonModule, MatTooltipModule, MatDialogModule, MatNativeDateModule
+  MatTooltipModule
 } from '@angular/material';
+import {
+  RestSourceUserListComponent,
+  RestSourceUserListDeleteDialog,
+  RestSourceUserListResetDialog
+} from './components/rest-source-authorization/rest-source-user-list.component';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -25,17 +37,11 @@ import { LoginPageComponent } from './components/auth/login-page.component';
 import { ManagementPortalAuthService } from './services/management-portal-auth.service';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { RestSourceUserListComponent } from './components/rest-source-authorization/rest-source-user-list.component';
 import { RestSourceUserRegistrationFormComponent } from './components/rest-source-authorization/rest-source-user-registration-form.component';
 import { RestSourceUserService } from './services/rest-source-user.service';
 import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
-import {MatDatepickerModule} from "@angular/material/typings/esm5/datepicker";
-import {
-  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-  MatMomentDateModule
-} from "@angular/material-moment-adapter";
 
 const appRoutes: Routes = [
   {
@@ -112,7 +118,7 @@ const appRoutes: Routes = [
     MatIconModule,
     RouterModule.forRoot(appRoutes),
     NgbModule.forRoot(),
-    JwtModule.forRoot({ config: { tokenGetter: AuthService.getAccessToken } })
+    JwtModule.forRoot({ config: { tokenGetter: AuthService.getAccessToken } }),
     MatTooltipModule,
     MatDialogModule,
     MatDatepickerModule,
