@@ -50,6 +50,15 @@
           <mat-cell *matCellDef="let row"> {{row.authorized}} </mat-cell>
       </ng-container>
 
+      <ng-container matColumnDef="version">
+        <mat-header-cell *matHeaderCellDef> Reset Info </mat-header-cell>
+        <mat-cell class="reset-info" *matCellDef="let row"> <p>
+          <strong>Version:</strong> {{row.version}}
+          <br> <strong>Times Reset:</strong> {{row.timesReset}}
+        </p>
+        </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="edit">
         <mat-header-cell  *matHeaderCellDef > Edit </mat-header-cell>
         <mat-cell *matCellDef="let row">
@@ -57,10 +66,18 @@
         </mat-cell>
       </ng-container>
 
+      <ng-container matColumnDef="reset">
+        <mat-header-cell  *matHeaderCellDef > Reset </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <button mat-raised-button matTooltip="This will re-pull all the data for this user"
+                  color="warn" (click)="openResetDialog(row)">Reset</button>
+        </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="delete">
         <mat-header-cell  *matHeaderCellDef > Delete </mat-header-cell>
         <mat-cell *matCellDef="let row">
-            <button mat-raised-button	color="warn" (click)="removeDevice(row)">Delete</button>
+          <button mat-raised-button	color="warn" (click)="openDeleteDialog(row)">Delete</button>
         </mat-cell>
       </ng-container>
 
