@@ -1,6 +1,7 @@
 FROM node:10.16.3-alpine as builder
 
 ARG PROFILE="--prod"
+ARG BASE_HREF="BASE_HREF"
 
 RUN mkdir /app
 WORKDIR /app
@@ -10,7 +11,7 @@ RUN npm install
 
 COPY ./ /app/
 
-RUN $(npm bin)/ng build ${PROFILE}
+RUN $(npm bin)/ng build ${PROFILE} --base-href=${BASE_HREF}
 
 
 FROM nginx:1.17.3-alpine
