@@ -1,9 +1,9 @@
-import {Component, OnInit} from "@angular/core";
-import {RestSourceUserService} from "../../services/rest-source-user.service";
-import {PlatformLocation} from "@angular/common";
-import {SourceClientAuthorizationService} from "../../services/source-client-authorization.service";
-import {FormBuilder} from "@angular/forms";
-import {RestSourceClientDetails} from "../../models/source-client-details.model";
+import {Component, OnInit} from '@angular/core';
+import {RestSourceUserService} from '../../services/rest-source-user.service';
+import {PlatformLocation} from '@angular/common';
+import {SourceClientAuthorizationService} from '../../services/source-client-authorization.service';
+import {FormBuilder} from '@angular/forms';
+import {RestSourceClientDetails} from '../../models/source-client-details.model';
 
 @Component({
   selector: 'rest-source-user-registration-form',
@@ -32,7 +32,7 @@ export class RestSourceUserRegistrationFormComponent implements OnInit {
       data => {
         this.sourceTypes = data;
       }
-    )
+    );
   }
 
   createForm() {
@@ -49,7 +49,7 @@ export class RestSourceUserRegistrationFormComponent implements OnInit {
           + this.platformLocation.getBaseHrefFromDOM()
           + 'users:new';
       }
-    )
+    );
   }
 
 }

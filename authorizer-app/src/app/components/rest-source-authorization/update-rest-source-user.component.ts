@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params, Router} from '@angular/router';
-import {RestSourceUserService} from "../../services/rest-source-user.service";
-import {RestSourceUser} from "../../models/rest-source-user.model";
-import {SourceClientAuthorizationService} from "../../services/source-client-authorization.service";
-import {NgbDateAdapter, NgbDateNativeAdapter} from "@ng-bootstrap/ng-bootstrap";
-import {HttpErrorResponse} from "@angular/common/http";
+import {RestSourceUserService} from '../../services/rest-source-user.service';
+import {RestSourceUser} from '../../models/rest-source-user.model';
+import {SourceClientAuthorizationService} from '../../services/source-client-authorization.service';
+import {NgbDateAdapter, NgbDateNativeAdapter} from '@ng-bootstrap/ng-bootstrap';
+import {HttpErrorResponse} from '@angular/common/http';
 
 @Component({
   selector: 'update-rest-source-user',
@@ -59,14 +59,14 @@ export class UpdateRestSourceUserComponent implements OnInit {
       (err: HttpErrorResponse) => {
         if (err.error instanceof ErrorEvent) {
           // A client-side or network error occurred. Handle it accordingly.
-          this.errorMessage = "Something went wrong. Please check your connection."
+          this.errorMessage = 'Something went wrong. Please check your connection.';
         } else {
           // The backend returned an unsuccessful response code.
           // The response body may contain clues as to what went wrong,
-          this.errorMessage = `Backend Error: Status=${err.status}, 
+          this.errorMessage = `Backend Error: Status=${err.status},
             Body: ${err.error.error}, ${err.error.message}`;
-          if(err.status == 417) {
-            this.errorMessage += " Please check the details are correct and try again.";
+          if (err.status == 417) {
+            this.errorMessage += ' Please check the details are correct and try again.';
           }
         }
       });
@@ -82,7 +82,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
 
       },
       (err: Response) => {
-        this.errorMessage = 'Cannot retrieve current user details'
+        this.errorMessage = 'Cannot retrieve current user details';
         window.setTimeout(() => this.router.navigate(['']), 5000);
       });
   }

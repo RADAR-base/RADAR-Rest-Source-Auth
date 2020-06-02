@@ -1,15 +1,15 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from "@angular/common/http";
-import {Observable} from "rxjs/internal/Observable";
-import {RestSourceUser} from "../models/rest-source-user.model";
-import {environment} from "../../environments/environment";
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs/internal/Observable';
+import {RestSourceUser} from '../models/rest-source-user.model';
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestSourceUserService {
 
-  private serviceUrl = environment.BACKEND_BASE_URL + "/users";
+  private serviceUrl = environment.BACKEND_BASE_URL + '/users';
 
   constructor(private http: HttpClient) {
   }
@@ -19,7 +19,7 @@ export class RestSourceUserService {
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
-    const params = new HttpParams().set("validate", String(environment.VALIDATE));
+    const params = new HttpParams().set('validate', String(environment.VALIDATE));
     return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser, {params});
   }
 
