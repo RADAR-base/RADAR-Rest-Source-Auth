@@ -1,77 +1,219 @@
-version: "2"
+---
+version: '3.2'
+
 services:
 
-  webservice:
-    hostname: webservice
-    image: java
-    command: java -jar /app/fitbit-rest-service-0.1.0.jar
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./fitbit-rest-service/target:/app
-
-  zookeeper:
-    hostname: zookeeper
-    image: confluentinc/cp-zookeeper:4.1.1
+  #---------------------------------------------------------------------------#
+  # Zookeeper Cluster                                                         #
+  #---------------------------------------------------------------------------#
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:5.3.0
     environment:
+      ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
-      zk_id: "1"
+      ZOOKEEPER_TICK_TIME: 1000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
 
-  kafka:
-    hostname: kafka
-    image: confluentinc/cp-kafka:4.1.1
-    links:
-      - zookeeper
-    ports:
-      - "9092:9092"
+  zookeeper-2:
+    image: confluentinc/cp-zookeeper:5.3.0
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://:9092"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 1000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
 
-  schema_registry:
-    hostname: schema_registry
-    image: confluentinc/cp-schema-registry:4.1.1
-    links:
-      - kafka
-      - zookeeper
+  zookeeper-3:
+    image: confluentinc/cp-zookeeper:5.3.0
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 1000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+
+  #---------------------------------------------------------------------------#
+  # Kafka Cluster                                                             #
+  #---------------------------------------------------------------------------#
+  kafka-1:
+    image: confluentinc/cp-kafka:5.3.0
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS: 5000
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG4J_LOGGERS: kafka.producer.async.DefaultEventHandler=INFO,kafka.controller=INFO,state.change.logger=INFO
+      KAFKA_COMPRESSION_TYPE: lz4
+      KAFKA_INTER_BROKER_PROTOCOL_VERSION: "2.0"
+      KAFKA_LOG_MESSAGE_FORMAT_VERSION: "2.0"
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+
+  kafka-2:
+    image: confluentinc/cp-kafka:5.3.0
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS: 5000
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG4J_LOGGERS: kafka.producer.async.DefaultEventHandler=INFO,kafka.controller=INFO,state.change.logger=INFO
+      KAFKA_COMPRESSION_TYPE: lz4
+      KAFKA_INTER_BROKER_PROTOCOL_VERSION: "2.0"
+      KAFKA_LOG_MESSAGE_FORMAT_VERSION: "2.0"
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+
+  kafka-3:
+    image: confluentinc/cp-kafka:5.3.0
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS: 5000
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG4J_LOGGERS: kafka.producer.async.DefaultEventHandler=INFO,kafka.controller=INFO,state.change.logger=INFO
+      KAFKA_COMPRESSION_TYPE: lz4
+      KAFKA_INTER_BROKER_PROTOCOL_VERSION: "2.0"
+      KAFKA_LOG_MESSAGE_FORMAT_VERSION: "2.0"
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+
+  #---------------------------------------------------------------------------#
+  # Schema Registry                                                           #
+  #---------------------------------------------------------------------------#
+  schema-registry-1:
+    image: confluentinc/cp-schema-registry:5.3.0
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    restart: always
     ports:
       - "8081:8081"
     environment:
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry-1
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_AVRO_COMPATIBILITY_LEVEL: none
+      KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS: 5000
 
-  connect:
-    image: confluentinc/cp-kafka-connect:4.1.1
-    hostname: connect
+  #---------------------------------------------------------------------------#
+  # REST proxy                                                                #
+  #---------------------------------------------------------------------------#
+  rest-proxy-1:
+    image: confluentinc/cp-kafka-rest:5.3.0
     depends_on:
-      - webservice
-      - zookeeper
-      - kafka
-      - schema_registry
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - schema-registry-1
     ports:
-      - "8083:8083"
+      - "8082:8082"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: 'kafka:9092'
-      CONNECT_REST_ADVERTISED_HOST_NAME: connect
-      CONNECT_REST_PORT: 8083
-      CONNECT_GROUP_ID: compose-connect-group
-      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
-      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema_registry:8081'
-      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      # CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema_registry:8081'
-      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      CONNECT_PLUGIN_PATH: /jars
+      KAFKA_REST_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
+      KAFKA_REST_LISTENERS: http://0.0.0.0:8082
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema-registry-1:8081
+      KAFKA_REST_HOST_NAME: rest-proxy-1
+      KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS: 5000
+      KAFKA_AUTO_COMMIT_INTERVAL_MS: 300
+      KAFKA_REST_COMPRESSION_TYPE: lz4
+
+  #---------------------------------------------------------------------------#
+  # Management Portal                                                         #
+  #---------------------------------------------------------------------------#
+  managementportal-app:
+    image: radarbase/management-portal:0.5.8
+    depends_on:
+      - radarbase-postgresql
+    ports:
+      - "8090:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://radarbase-postgresql:5432/managementportal
+      SPRING_DATASOURCE_USERNAME: radarcns
+      SPRING_DATASOURCE_PASSWORD: radarcns
+      MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET: "testMe"
+      MANAGEMENTPORTAL_COMMON_BASE_URL: http://localhost:8080/managementportal
+      MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL: http://localhost:8080/managementportal
+      MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE: /mp-includes/config/oauth_client_details.csv
+      MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT: 'false'
+      MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS: 'radarbase-managementportal-ec'
+      JAVA_OPTS: -Xmx256m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
     volumes:
-      - ../../target:/jars
-      - ./config:/config
+      - ./docker/etc/managementportal/:/mp-includes/config
+
+  radarbase-postgresql:
+    image: radarbase/radarbase-postgres:latest
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=radarcns
+      - POSTGRES_PASSWORD=radarcns
+      - POSTGRES_MULTIPLE_DATABASES=managementportal,restsourceauthorizer
+
+
+  radar-rest-sources-backend:
+    image: radarbase/radar-rest-source-auth-backend:dev
+    build:
+      context: .
+    depends_on:
+      - radarbase-postgresql
+      - managementportal-app
+    ports:
+      - "8085:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://radarbase-postgresql:5432/restsourceauthorizer
+      - SPRING_DATASOURCE_USERNAME=radarcns
+      - SPRING_DATASOURCE_PASSWORD=radarcns
+      - REST_SOURCE_AUTHORIZER_SOURCE_CLIENTS_FILE_PATH=app-includes/rest_source_clients_configs.yml
+      - REST_SOURCE_AUTHORIZER_VALIDATOR=managementportal
+      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_BASE_URL=http://managementportal-app:8080/managementportal/
+      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_ID=radar_rest_sources_auth
+      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_SECRET=secret
+      - APP_SLEEP=10 # gives time for the database to boot before the application
+    volumes:
+      - ./docker/etc/rest-source-authorizer/:/app-includes/
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8080/users"]
+      interval: 1m30s
+      timeout: 5s
+      retries: 3
+
+  radar-rest-sources-authorizer:
+    image: radarbase/radar-rest-source-authorizer:dev
+    build:
+      context: authorizer-app
+      dockerfile: Dockerfile
+    depends_on:
+      - radar-rest-sources-backend
+      - radarbase-postgresql
+      - managementportal-app
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:80"]
+      interval: 1m30s
+      timeout: 5s
+      retries: 3

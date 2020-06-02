@@ -1,8 +1,8 @@
-FROM node:8.12.0-alpine as builder
+FROM node:10.16.3-alpine as builder
 
-ARG BASE_HREF="/rest-sources/authorizer/"
 ARG PROFILE="--prod"
 
+RUN mkdir /app
 WORKDIR /app
 
 COPY package*.json /app/
@@ -10,7 +10,7 @@ RUN npm install
 
 COPY ./ /app/
 
-RUN $(npm bin)/ng build ${PROFILE} --base-href=${BASE_HREF}
+RUN $(npm bin)/ng build ${PROFILE}
 
 
 FROM nginx:1.15.5-alpine
