@@ -4,7 +4,7 @@ ROOT_DIR=/usr/share/nginx/html
 
 # Replace env vars in JavaScript files
 echo "Replacing env vars in JS"
-for file in $ROOT_DIR/main.*.js* $ROOT_DIR/index.html $ROOT_DIR/polyfills.*.js* $ROOT_DIR/runtime.*.js*
+for file in $ROOT_DIR/main.*.js* $ROOT_DIR/index.html
 do
   echo "Processing $file ...";
 

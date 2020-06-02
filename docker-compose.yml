@@ -192,7 +192,7 @@ services:
       - REST_SOURCE_AUTHORIZER_SOURCE_CLIENTS_FILE_PATH=app-includes/rest_source_clients_configs.yml
       - REST_SOURCE_AUTHORIZER_VALIDATOR=managementportal
       - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_BASE_URL=http://managementportal-app:8080/managementportal/
-      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_ID=radar_rest_sources_auth
+      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_ID=radar_rest_sources_auth_backend
       - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_SECRET=secret
       - APP_SLEEP=10 # gives time for the database to boot before the application
     volumes:
@@ -212,6 +212,8 @@ services:
       - radar-rest-sources-backend
       - radarbase-postgresql
       - managementportal-app
+    ports:
+      - "8080:80"
     environment:
       BASE_HREF: "/rest-sources/authorizer"
       BACKEND_BASE_URL: "http://localhost:8080/upload/api/"
