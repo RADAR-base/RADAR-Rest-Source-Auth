@@ -39,5 +39,7 @@ export class RestSourceUserService {
     return this.http.delete(this.serviceUrl + '/' + userId);
   }
 
-
+  resetUser(userId: string): Observable<any> {
+    return this.http.post(this.serviceUrl + '/' + userId + '/reset', new HttpParams());
+  }
 }

@@ -8,7 +8,8 @@ import {
   MatPaginatorModule,
   MatSortModule,
   MatTableModule,
-  MatToolbarModule
+  MatToolbarModule,
+  MatButtonModule, MatTooltipModule, MatDialogModule, MatNativeDateModule
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -30,6 +31,11 @@ import { RestSourceUserService } from './services/rest-source-user.service';
 import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
+import {MatDatepickerModule} from "@angular/material/typings/esm5/datepicker";
+import {
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MatMomentDateModule
+} from "@angular/material-moment-adapter";
 
 const appRoutes: Routes = [
   {
@@ -81,7 +87,13 @@ const appRoutes: Routes = [
     ErrorReportingComponent,
     RestSourceUserListComponent,
     LoginPageComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    RestSourceUserListDeleteDialog,
+    RestSourceUserListResetDialog
+  ],
+  entryComponents: [
+    RestSourceUserListDeleteDialog,
+    RestSourceUserListResetDialog
   ],
   imports: [
     BrowserModule,
@@ -101,12 +113,18 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes),
     NgbModule.forRoot(),
     JwtModule.forRoot({ config: { tokenGetter: AuthService.getAccessToken } })
+    MatTooltipModule,
+    MatDialogModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatMomentDateModule
   ],
   providers: [
     RestSourceUserService,
     SourceClientAuthorizationService,
     AuthGuard,
-    { provide: AuthService, useClass: ManagementPortalAuthService }
+    { provide: AuthService, useClass: ManagementPortalAuthService },
+    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
   ],
   // entryComponents: [AddDeviceDialogComponent],
   bootstrap: [AppComponent]

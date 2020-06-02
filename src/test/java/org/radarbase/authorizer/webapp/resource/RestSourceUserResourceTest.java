@@ -73,7 +73,8 @@ public class RestSourceUserResourceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        RestSourceUserResource restSourceUserResource = new RestSourceUserResource();
+        RestSourceUserResource restSourceUserResource =
+                new RestSourceUserResource(restSourceUserService, null);
         ReflectionTestUtils.setField(restSourceUserResource, "restSourceUserService", restSourceUserService);
 
 

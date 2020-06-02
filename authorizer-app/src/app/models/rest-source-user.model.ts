@@ -1,5 +1,6 @@
 export class RestSourceUser {
-     id?: string ;
+     id?: string;
+     version?: string;
      projectId?: string;
      userId?: string;
      sourceId?: string;
@@ -7,4 +8,5 @@ export class RestSourceUser {
      endDate?: string;
      externalUserId?: string;
      authorized?: boolean;
+     timesReset?: number;
 }

@@ -33,6 +33,12 @@ public class RestSourceUserPropertiesDTO implements Serializable {
     // Unique user key
     private String id;
 
+    // Version to reset the user
+    private String version = null;
+
+    // The number of times a user has been reset
+    private long timesReset = 0;
+
     // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String projectId;
 
@@ -68,6 +74,8 @@ public class RestSourceUserPropertiesDTO implements Serializable {
         this.endDate = restSourceUser.getEndDate();
         this.startDate = restSourceUser.getStartDate();
         this.externalUserId = restSourceUser.getExternalUserId();
+        this.version = restSourceUser.getVersion();
+        this.timesReset = restSourceUser.getTimesReset();
     }
 
     public String getId() {
@@ -79,7 +87,25 @@ public class RestSourceUserPropertiesDTO implements Serializable {
         return this;
     }
 
-    public String getProjectId() {
+    public String getVersion() {
+        return version;
+    }
+
+    public RestSourceUserPropertiesDTO version(String version) {
+        this.version = version;
+        return this;
+    }
+
+    public long getTimesReset() {
+      return timesReset;
+    }
+
+    public RestSourceUserPropertiesDTO setTimesReset(long timesReset) {
+      this.timesReset = timesReset;
+      return this;
+    }
+
+  public String getProjectId() {
         return projectId;
     }
 

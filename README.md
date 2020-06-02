@@ -55,6 +55,10 @@ Add the `REST_SOURCE_AUTHORIZER_VALIDATOR` env var to your docker-compose servic
 
 #### First Create a new oAuth client in Management Portal
 To add new OAuth clients, you can add at runtime through the UI on Management Portal, or you can add them to the OAuth clients file referenced by the MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE configuration option. For more info, see [officail docs](https://github.com/RADAR-base/ManagementPortal#oauth-clients)
+The OAuth client should have the following properties-
+
+1. scope - `PROJECT.READ, SUBJECT.READ`
+2. grant_type - `client_credentials`
 
 #### Then add the following to your rest authoriser service
 Add the following env vars to your docker-compose service-

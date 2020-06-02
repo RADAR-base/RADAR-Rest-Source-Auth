@@ -72,6 +72,10 @@ export class UpdateRestSourceUserComponent implements OnInit {
       });
   }
 
+  private cancelUpdateUser() {
+    return this.router.navigate(['/users']);
+  }
+
   private addRestSourceUser(code: string, state: string) {
     this.restSourceUserService.addAuthorizedUser(code, state).subscribe(data => {
         this.restSourceUser = data;

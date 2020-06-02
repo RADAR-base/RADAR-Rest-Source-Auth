@@ -1,7 +1,9 @@
 version: '2'
 services:
     radar-rest-source-auth-backend:
-        image: radarbase/radar-rest-source-auth-backend:latest
+        image: radarbase/radar-rest-source-auth-backend:1.1.0
+        networks:
+          - default
         depends_on:
           - auth-postgresql
         environment:
@@ -14,15 +16,17 @@ services:
             - ./etc:/app-includes
     auth-postgresql:
         image: postgres:10.4-alpine
+        ports:
+          - "5432:5432"
         environment:
           - POSTGRES_USER=radarcns
           - POSTGRES_PASSWORD=radarcns
           - POSTGRES_DB=restsourceauth
-
-    radar-rest-source-authorizer:
-        image: radarbase/radar-rest-source-authorizer:latest
-        depends_on:
-          - radar-rest-source-auth-backend
-          - auth-postgresql
-        ports:
-          - "3000:80"
+#
+#    radar-rest-source-authorizer:
+#        image: radarbase/radar-rest-source-authorizer:latest
+#        depends_on:
+#          - radar-rest-source-auth-backend
+#          - auth-postgresql
+#        ports:
+#          - "3000:80"
