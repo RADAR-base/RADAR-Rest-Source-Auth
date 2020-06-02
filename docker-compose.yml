@@ -212,6 +212,15 @@ services:
       - radar-rest-sources-backend
       - radarbase-postgresql
       - managementportal-app
+    environment:
+      BASE_HREF: "/rest-sources/authorizer"
+      BACKEND_BASE_URL: "http://localhost:8080/upload/api/"
+      VALIDATE: "true"
+      AUTH_GRANT_TYPE: "authorization_code"
+      AUTH_CLIENT_ID: "radar_rest_sources_authorizer"
+      AUTH_CLIENT_SECRET: ""
+      AUTH_CALLBACK_URL: "http://localhost:8080/rest-sources/authorizer/login"
+      AUTH_URI: "http://localhost:8090/managementportal/oauth"
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:80"]
       interval: 1m30s
