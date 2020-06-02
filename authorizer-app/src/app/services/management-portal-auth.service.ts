@@ -47,8 +47,8 @@ export class ManagementPortalAuthService extends AuthService {
 
   getTokenRequestHeaders() {
     const basicCreds = this.getBasicCredentials(
-      environment.AUTH.client_id,
-      environment.AUTH.client_secret
+      environment.AUTH_CLIENT_ID,
+      environment.AUTH_CLIENT_SECRET
     );
     return new HttpHeaders()
       .set('Authorization', basicCreds)
@@ -57,7 +57,7 @@ export class ManagementPortalAuthService extends AuthService {
 
   getTokenRequestParams(code?: string) {
     return new HttpParams()
-      .set('grant_type', environment.AUTH.grant_type)
+      .set('grant_type', environment.AUTH_GRANT_TYPE)
       .set('redirect_uri', window.location.href.split('?')[0])
       .set('code', code);
   }
