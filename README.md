@@ -22,13 +22,11 @@ To run this application from source:
 ./gradlew build assemble
 java -jar radar-rest-sources-authorizer*.jar
 ```
+## Installation
+To install functional RADAR-base Rest-Sources Authorizer application with minimal dependencies from source, please use the `docker-compose.yml` under the root directory
 
-To build and run this application from Docker:
-```$cmd
-
-docker build -t radarbase/radar-rest-source-auth-backend:1.0.1 .
-
-docker run -p 8080:8080 radarbase/radar-rest-source-auth-backend:latest
+```bash
+docker-compose up -d --build
 ```
 
 ## Validation

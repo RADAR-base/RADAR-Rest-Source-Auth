@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class ManagementPortalAuthService extends AuthService {
   DefaultRequestContentType = 'application/x-www-form-urlencoded';
-  TOKEN_URI = `${environment.AUTH_URI}/token`;
+  TOKEN_URI = `${environment.authBaseUrl}/token`;
 
   constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
     super();
@@ -47,8 +47,8 @@ export class ManagementPortalAuthService extends AuthService {
 
   getTokenRequestHeaders() {
     const basicCreds = this.getBasicCredentials(
-      environment.AUTH.client_id,
-      environment.AUTH.client_secret
+      environment.appClientId,
+      environment.appClientSecret
     );
     return new HttpHeaders()
       .set('Authorization', basicCreds)
@@ -57,7 +57,7 @@ export class ManagementPortalAuthService extends AuthService {
 
   getTokenRequestParams(code?: string) {
     return new HttpParams()
-      .set('grant_type', environment.AUTH.grant_type)
+      .set('grant_type', environment.authorizationGrantType)
       .set('redirect_uri', window.location.href.split('?')[0])
       .set('code', code);
   }
