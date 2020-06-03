@@ -76,7 +76,7 @@ services:
 #    ports:
 #      - "8080:80"
     environment:
-      BASE_HREF: "/rest-sources/authorizer"
+      BASE_HREF: "/rest-sources/authorizer/"
       BACKEND_BASE_URL: "http://localhost:8080/rest-sources/backend"
       VALIDATE: "true"
       AUTH_GRANT_TYPE: "authorization_code"

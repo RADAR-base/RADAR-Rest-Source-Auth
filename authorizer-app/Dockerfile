@@ -1,6 +1,6 @@
 FROM node:10.16.3-alpine as builder
 
-ARG BASE_HREF="/rest-sources/authorizer/"
+ARG BASE_HREF="BASE_HREF"
 ARG PROFILE="--prod"
 
 RUN mkdir /app
