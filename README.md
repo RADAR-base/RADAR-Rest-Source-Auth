@@ -24,7 +24,7 @@ java -jar radar-rest-sources-authorizer*.jar
 ```
 ## Installation
 To install functional RADAR-base Rest-Sources Authorizer application with minimal dependencies from source, please use the `docker-compose.yml` under the root directory
-
+1. Copy the `docker/etc/rest-sources-authorizer/rest_source_clients_configs.yml.template` into `docker/etc/rest-sources-authorizer/rest_source_clients_configs.yml` and modify the `client_id` and `client_secret` with your Fitbit client application credentials.
 ```bash
 docker-compose up -d --build
 ```
