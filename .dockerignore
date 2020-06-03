@@ -4,3 +4,4 @@ out
 .gradle
 .git
 authorizer-app/*
+docker/

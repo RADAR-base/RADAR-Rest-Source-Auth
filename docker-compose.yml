@@ -10,8 +10,8 @@ services:
     image: radarbase/management-portal:0.5.8
     depends_on:
       - radarbase-postgresql
-    ports:
-      - "8090:8080"
+#    ports:
+#      - "8090:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://radarbase-postgresql:5432/managementportal
@@ -29,8 +29,8 @@ services:
 
   radarbase-postgresql:
     image: radarbase/radarbase-postgres:latest
-    ports:
-      - "5434:5432"
+#    ports:
+#      - "5434:5432"
     environment:
       - POSTGRES_USER=radarcns
       - POSTGRES_PASSWORD=radarcns
@@ -44,8 +44,8 @@ services:
     depends_on:
       - radarbase-postgresql
       - managementportal-app
-    ports:
-      - "8085:8080"
+#    ports:
+#      - "8085:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://radarbase-postgresql:5432/restsourceauthorizer
       - SPRING_DATASOURCE_USERNAME=radarcns
@@ -73,19 +73,30 @@ services:
       - radar-rest-sources-backend
       - radarbase-postgresql
       - managementportal-app
-    ports:
-      - "8080:80"
+#    ports:
+#      - "8080:80"
     environment:
       BASE_HREF: "/rest-sources/authorizer"
-      BACKEND_BASE_URL: "http://localhost:8085/"
+      BACKEND_BASE_URL: "http://localhost:8080/rest-sources/backend"
       VALIDATE: "true"
       AUTH_GRANT_TYPE: "authorization_code"
       AUTH_CLIENT_ID: "radar_rest_sources_authorizer"
       AUTH_CLIENT_SECRET: ""
       AUTH_CALLBACK_URL: "http://localhost:8080/rest-sources/authorizer/login"
-      AUTH_URI: "http://localhost:8090/managementportal/oauth"
+      AUTH_URI: "http://localhost:8080/managementportal/oauth"
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:80"]
       interval: 1m30s
       timeout: 5s
       retries: 3
+
+  webserver:
+    image: nginx:1.17.3-alpine
+    ports:
+      - "8080:8080"
+    depends_on:
+      - radar-rest-sources-backend
+      - managementportal-app
+      - radar-rest-sources-authorizer
+    volumes:
+      - ./docker/etc/webserver/nginx-proxy.conf:/etc/nginx/nginx.conf:ro

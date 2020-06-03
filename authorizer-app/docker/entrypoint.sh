@@ -3,6 +3,7 @@
 ROOT_DIR=/usr/share/nginx/html
 # Replace env vars in JavaScript files
 echo "Replacing env vars in JS"
+# So far, the main.*.js is the only file where the app is compiled into
 for file in $ROOT_DIR/main.*.js* $ROOT_DIR/index.html
 do
   echo "Processing $file ...";
