@@ -22,7 +22,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   authCodeSubscription: Subscription;
 
   ngOnInit() {
-    if (environment.AUTH_GRANT_TYPE == grantType.AUTHORIZATION_CODE) {
+    if (environment.authorizationGrantType == grantType.AUTHORIZATION_CODE) {
       this.loginWithAuthCode();
     }
   }
@@ -33,14 +33,14 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   loginHandler() {
-    if (environment.AUTH_GRANT_TYPE == grantType.AUTHORIZATION_CODE) {
+    if (environment.authorizationGrantType == grantType.AUTHORIZATION_CODE) {
       this.redirectToAuthRequestLink();
     }
   }
 
   redirectToAuthRequestLink() {
-    window.location.href = `${environment.AUTH_URI}/authorize?client_id=${
-      environment.AUTH_CLIENT_ID
+    window.location.href = `${environment.authBaseUrl}/authorize?client_id=${
+      environment.appClientId
     }&response_type=code&redirect_uri=${window.location.href.split('?')[0]}`;
   }
 

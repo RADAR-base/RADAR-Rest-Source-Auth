@@ -4,14 +4,14 @@
 
 export const environment = {
   production: false,
-  BACKEND_BASE_URL: 'http://localhost:8080',
-  VALIDATE: false,
-  AUTH_GRANT_TYPE: 'authorization_code',
-  AUTH_CLIENT_ID: 'radar_rest_sources_auth',
-  AUTH_CLIENT_SECRET: 'secret',
-  AUTH_CALLBACK_URL: 'http://localhost:8080/oauth/callback',
+  backendBaseUrl: 'http://localhost:8080',
+  doValidate: false,
+  authorizationGrantType: 'authorization_code',
+  appClientId: 'radar_rest_sources_auth',
+  appClientSecret: 'secret',
+  authCallbackUrl: 'http://localhost:8080/oauth/callback',
   BASE_HREF: '/rest-sources/authorizer/',
-  AUTH_URI: 'http://localhost:8080/oauth'
+  authBaseUrl: 'http://localhost:8080/oauth'
 };
 
 /*

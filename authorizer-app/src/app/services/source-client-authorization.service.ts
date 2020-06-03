@@ -8,7 +8,7 @@ import {environment} from '../../environments/environment';
   providedIn: 'root'
 })
 export class SourceClientAuthorizationService {
-  private serviceUrl = environment.BACKEND_BASE_URL;
+  private serviceUrl = environment.backendBaseUrl;
   constructor(private http: HttpClient) { }
 
   getDeviceTypes(): Observable<any> {

@@ -9,7 +9,7 @@ import {environment} from '../../environments/environment';
 })
 export class RestSourceUserService {
 
-  private serviceUrl = environment.BACKEND_BASE_URL + '/users';
+  private serviceUrl = environment.backendBaseUrl + '/users';
 
   constructor(private http: HttpClient) {
   }
@@ -19,7 +19,7 @@ export class RestSourceUserService {
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
-    const params = new HttpParams().set('validate', String(environment.VALIDATE));
+    const params = new HttpParams().set('validate', String(environment.doValidate));
     return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser, {params});
   }
 
