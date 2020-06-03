@@ -1,12 +1,24 @@
- .mat-sort-header-container {
+.mat-sort-header-container {
   align-items: center;
 }
 
 .mat-cell {
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
   align-content: center;
   text-align: center;
+  overflow: auto;
+}
+
+.reset-info {
+  margin-left: 5px;
+  margin-right: 5px;
+  align-content: center;
+  text-align: start;
+  overflow: auto;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  width: 60px;
 }
 
 .mat-header-cell {
@@ -16,4 +28,13 @@
   text-align: center;
   font-size: 16px;
   font-weight: bold;
+}
+
+.page-container {
+  text-align: center;
+}
+
+.mat-table {
+  width: 100%;
+  overflow: auto;
 }

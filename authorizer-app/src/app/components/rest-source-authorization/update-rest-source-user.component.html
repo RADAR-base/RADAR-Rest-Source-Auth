@@ -67,6 +67,10 @@
       </div>
     </div>
 
+    <button type="button" (click)="cancelUpdateUser()" class="btn btn-outline-primary"
+            style="margin-right: 16px">Cancel
+    </button>
+
     <button [disabled]="!userForm.valid" type="button" (click)="updateRestSourceUser()"
             class="btn btn-success">Submit
     </button>

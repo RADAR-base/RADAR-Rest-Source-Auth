@@ -1,53 +1,89 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { AppComponent } from './app.component';
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {HttpClientModule} from "@angular/common/http";
-import {RouterModule, Routes} from "@angular/router";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import {ErrorReportingComponent} from "./components/rest-source-authorization/error.component";
-import {RestSourceUserService} from "./services/rest-source-user.service";
-import {SourceClientAuthorizationService} from "./services/source-client-authorization.service";
-import {RestSourceUserListComponent} from "./components/rest-source-authorization/rest-source-user-list.component";
-import {RestSourceUserRegistrationFormComponent} from "./components/rest-source-authorization/rest-source-user-registration-form.component";
-import {UpdateRestSourceUserComponent} from "./components/rest-source-authorization/update-rest-source-user.component";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  MatPaginatorModule,
-  MatTableModule,
-  MatSortModule,
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MatMomentDateModule
+} from '@angular/material-moment-adapter';
+import {
+  MatButtonModule,
+  MatDatepickerModule,
+  MatDialogModule,
   MatFormFieldModule,
+  MatIconModule,
   MatInputModule,
-  MatButtonModule } from '@angular/material';
+  MatMenuModule,
+  MatNativeDateModule,
+  MatPaginatorModule,
+  MatSortModule,
+  MatTableModule,
+  MatToolbarModule,
+  MatTooltipModule
+} from '@angular/material';
+import {
+  RestSourceUserListComponent,
+  RestSourceUserListDeleteDialog,
+  RestSourceUserListResetDialog
+} from './components/rest-source-authorization/rest-source-user-list.component';
+import { RouterModule, Routes } from '@angular/router';
+
+import { AppComponent } from './app.component';
+import { AuthGuard } from './services/auth.guard';
+import { AuthService } from './services/auth.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
+import { ErrorReportingComponent } from './components/rest-source-authorization/error.component';
+import { HttpClientModule } from '@angular/common/http';
+import { JwtModule } from '@auth0/angular-jwt';
+import { LoginPageComponent } from './components/auth/login-page.component';
+import { ManagementPortalAuthService } from './services/management-portal-auth.service';
+import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { RestSourceUserRegistrationFormComponent } from './components/rest-source-authorization/rest-source-user-registration-form.component';
+import { RestSourceUserService } from './services/rest-source-user.service';
+import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
+import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
+import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
 
 const appRoutes: Routes = [
   {
     path: '',
     component: RestSourceUserListComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'login',
+    component: LoginPageComponent
   },
   {
     path: 'users',
     component: RestSourceUserListComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'users:new',
     component: UpdateRestSourceUserComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'users/:id',
     component: UpdateRestSourceUserComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'addAuthorizedUser',
-    component: RestSourceUserRegistrationFormComponent
+    component: RestSourceUserRegistrationFormComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'request-failed',
     component: ErrorReportingComponent,
+    canActivate: [AuthGuard]
   },
-
+  {
+    path: '**',
+    component: RestSourceUserListComponent,
+    canActivate: [AuthGuard]
+  }
 ];
-
 
 @NgModule({
   declarations: [
@@ -55,7 +91,15 @@ const appRoutes: Routes = [
     AppComponent,
     RestSourceUserRegistrationFormComponent,
     ErrorReportingComponent,
-    RestSourceUserListComponent
+    RestSourceUserListComponent,
+    LoginPageComponent,
+    ToolbarComponent,
+    RestSourceUserListDeleteDialog,
+    RestSourceUserListResetDialog
+  ],
+  entryComponents: [
+    RestSourceUserListDeleteDialog,
+    RestSourceUserListResetDialog
   ],
   imports: [
     BrowserModule,
@@ -69,14 +113,26 @@ const appRoutes: Routes = [
     MatInputModule,
     MatSortModule,
     MatButtonModule,
+    MatMenuModule,
+    MatToolbarModule,
+    MatIconModule,
     RouterModule.forRoot(appRoutes),
-    NgbModule.forRoot()
+    NgbModule.forRoot(),
+    JwtModule.forRoot({ config: { tokenGetter: AuthService.getAccessToken } }),
+    MatTooltipModule,
+    MatDialogModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatMomentDateModule
   ],
   providers: [
     RestSourceUserService,
-    SourceClientAuthorizationService
+    SourceClientAuthorizationService,
+    AuthGuard,
+    { provide: AuthService, useClass: ManagementPortalAuthService },
+    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
   ],
   // entryComponents: [AddDeviceDialogComponent],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

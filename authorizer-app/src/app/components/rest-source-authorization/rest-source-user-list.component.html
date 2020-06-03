@@ -1,74 +1,127 @@
-<div>
-  <ngb-alert *ngIf="errorMessage" type="danger" (close)="errorMessage = null">{{ errorMessage}}</ngb-alert>
+<toolbar [showMenu]="true"></toolbar>
+
+<div class="page-container">
+  <ngb-alert *ngIf="errorMessage" type="danger" (close)="errorMessage = null">{{
+    errorMessage
+  }}</ngb-alert>
   <rest-source-user-registration-form></rest-source-user-registration-form>
 
   <div>
     <mat-form-field>
-      <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+      <input
+        matInput
+        (keyup)="applyFilter($event.target.value)"
+        placeholder="Filter"
+      />
     </mat-form-field>
   </div>
   <div>
     <mat-table [dataSource]="dataSource" matSort>
-
       <ng-container matColumnDef="id">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Id </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.id}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Id
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.id }} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="projectId">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Project ID </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.projectId}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Project ID
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.projectId }} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="userId">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> User ID </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.userId}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          User ID
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.userId }} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="sourceId">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Source ID </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.sourceId}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Source ID
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.sourceId }} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="startDate">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Start Date </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.startDate}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Start Date
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.startDate }} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="endDate">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> End Date </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.endDate}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          End Date
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.endDate }} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="externalUserId">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> External User Id </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.externalUserId}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          External User Id
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.externalUserId }} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="authorized">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Authorized </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.authorized}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Authorized
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.authorized }} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="version">
+        <mat-header-cell *matHeaderCellDef> Reset Info </mat-header-cell>
+        <mat-cell class="reset-info" *matCellDef="let row"> <p>
+          <strong>Version:</strong> {{row.version}}
+          <br> <strong>Times Reset:</strong> {{row.timesReset}}
+        </p>
+        </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="edit">
-        <mat-header-cell  *matHeaderCellDef > Edit </mat-header-cell>
+        <mat-header-cell *matHeaderCellDef> Edit </mat-header-cell>
         <mat-cell *matCellDef="let row">
-            <button mat-raised-button color="primary" [routerLink]="['/users', row.id]">Edit</button>
+          <button
+            mat-raised-button
+            color="primary"
+            [routerLink]="['/users', row.id]"
+          >
+            Edit
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="reset">
+        <mat-header-cell  *matHeaderCellDef > Reset </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <button mat-raised-button matTooltip="This will re-pull all the data for this user"
+                  color="warn" (click)="openResetDialog(row)">Reset</button>
         </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="delete">
-        <mat-header-cell  *matHeaderCellDef > Delete </mat-header-cell>
+        <mat-header-cell *matHeaderCellDef> Delete </mat-header-cell>
         <mat-cell *matCellDef="let row">
-            <button mat-raised-button	color="warn" (click)="removeDevice(row)">Delete</button>
+          <button mat-raised-button	color="warn" (click)="openDeleteDialog(row)">
+            Delete
+          </button>
         </mat-cell>
       </ng-container>
 
-      <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayedColumns;">
-      </mat-row>
+      <mat-header-row
+        *matHeaderRowDef="displayedColumns; sticky: true"
+      ></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns"> </mat-row>
     </mat-table>
 
-  <mat-paginator [pageSize]="20" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
+    <mat-paginator
+      [pageSize]="20"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      showFirstLastButtons
+    ></mat-paginator>
   </div>
 </div>

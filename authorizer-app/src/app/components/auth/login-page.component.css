@@ -1,0 +1,14 @@
+.logo {
+  animation-name: fade-in;
+  animation-duration: 1s;
+  animation-fill-mode: both;
+}
+
+button {
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.btn-container {
+  text-align: center;
+}

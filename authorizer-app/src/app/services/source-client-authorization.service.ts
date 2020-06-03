@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs/internal/Observable";
-import {environment} from "../../environments/environment";
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs/internal/Observable';
+import {environment} from '../../environments/environment';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class SourceClientAuthorizationService {
-  private serviceUrl = environment.BACKEND_BASE_URL;
+  private serviceUrl = environment.backendBaseUrl;
   constructor(private http: HttpClient) { }
 
   getDeviceTypes(): Observable<any> {

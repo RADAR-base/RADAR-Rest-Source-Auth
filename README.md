@@ -22,13 +22,11 @@ To run this application from source:
 ./gradlew build assemble
 java -jar radar-rest-sources-authorizer*.jar
 ```
-
-To build and run this application from Docker:
-```$cmd
-
-docker build -t radarbase/radar-rest-source-auth-backend:1.0.1 .
-
-docker run -p 8080:8080 radarbase/radar-rest-source-auth-backend:latest
+## Installation
+To install functional RADAR-base Rest-Sources Authorizer application with minimal dependencies from source, please use the `docker-compose.yml` under the root directory
+1. Copy the `docker/etc/rest-sources-authorizer/rest_source_clients_configs.yml.template` into `docker/etc/rest-sources-authorizer/rest_source_clients_configs.yml` and modify the `client_id` and `client_secret` with your Fitbit client application credentials.
+```bash
+docker-compose up -d --build
 ```
 
 ## Validation
@@ -55,6 +53,10 @@ Add the `REST_SOURCE_AUTHORIZER_VALIDATOR` env var to your docker-compose servic
 
 #### First Create a new oAuth client in Management Portal
 To add new OAuth clients, you can add at runtime through the UI on Management Portal, or you can add them to the OAuth clients file referenced by the MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE configuration option. For more info, see [officail docs](https://github.com/RADAR-base/ManagementPortal#oauth-clients)
+The OAuth client should have the following properties-
+
+1. scope - `PROJECT.READ, SUBJECT.READ`
+2. grant_type - `client_credentials`
 
 #### Then add the following to your rest authoriser service
 Add the following env vars to your docker-compose service-

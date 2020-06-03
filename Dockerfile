@@ -15,7 +15,6 @@ FROM openjdk:8-jre-alpine
 
 # Add the war and changelogs files from build stage
 COPY --from=builder app/build/libs/*.jar /app.jar
-COPY --from=builder app/src/main/docker/ /app-includes
 
 EXPOSE 8080
 CMD echo "The application will start in ${APP_SLEEP}s..." && \
