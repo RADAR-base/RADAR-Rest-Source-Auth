@@ -16,7 +16,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 group = 'org.radarcns'
-version = '1.2.2-SNAPSHOT'
+version = '1.4.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
@@ -61,7 +61,7 @@ springBoot {
 }
 
 wrapper {
-	gradleVersion '5.2.1'
+	gradleVersion '6.5'
 }
 
 task downloadDependencies {

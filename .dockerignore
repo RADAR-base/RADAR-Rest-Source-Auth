@@ -5,3 +5,4 @@ out
 .git
 authorizer-app/*
 docker/
+RADAR-Rest-Source-Auth.iml
