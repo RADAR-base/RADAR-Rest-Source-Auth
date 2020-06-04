@@ -29,6 +29,8 @@ public class RestSourceAuthorizerProperties {
 
     private CorsConfiguration cors;
 
+    private AuthTokenValidatorConfig auth;
+
     private String sourceClientsFilePath;
 
     private String validator;
@@ -68,6 +70,14 @@ public class RestSourceAuthorizerProperties {
         this.managementPortal = managementPortal;
     }
 
+    public AuthTokenValidatorConfig getAuth() {
+        return auth;
+    }
+
+    public void setAuth(AuthTokenValidatorConfig auth) {
+        this.auth = auth;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -78,7 +88,8 @@ public class RestSourceAuthorizerProperties {
         }
         RestSourceAuthorizerProperties that = (RestSourceAuthorizerProperties) o;
         return Objects.equals(cors, that.cors)
-                && Objects.equals(sourceClientsFilePath, that.sourceClientsFilePath);
+                && Objects.equals(sourceClientsFilePath, that.sourceClientsFilePath)
+                && Objects.equals(auth, that.auth);
     }
 
     @Override

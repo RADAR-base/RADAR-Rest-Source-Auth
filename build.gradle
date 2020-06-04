@@ -48,6 +48,8 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-web')
 	compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml"
 	compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+	compile "org.springframework.boot:spring-boot-starter-security"
+	compile group: 'org.radarcns', name: 'radar-auth', version: '0.5.8'
 	implementation('org.liquibase:liquibase-core')
 	implementation('org.springframework.session:spring-session-core')
 	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp3Version
