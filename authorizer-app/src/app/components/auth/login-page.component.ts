@@ -1,8 +1,9 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { Subscription } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { grantType } from 'src/app/enums/grant-type';
 
@@ -11,46 +12,33 @@ import { grantType } from 'src/app/enums/grant-type';
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css']
 })
-export class LoginPageComponent implements OnInit, OnDestroy {
+export class LoginPageComponent implements OnDestroy {
+  authSubscription = new Subscription();
+  authType: string;
+  authTypes = grantType;
+  isLoaded = true;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
-  ) {}
-
-  routerSubscription: Subscription;
-  authCodeSubscription: Subscription;
-
-  ngOnInit() {
-    if (environment.authorizationGrantType == grantType.AUTHORIZATION_CODE) {
-      this.loginWithAuthCode();
-    }
+    private authService: AuthService,
+    private changeDetectorRef: ChangeDetectorRef
+  ) {
+    this.authType = environment.authorizationGrantType;
   }
 
   ngOnDestroy() {
-    this.authCodeSubscription.unsubscribe();
-    this.routerSubscription.unsubscribe();
+    this.authSubscription.unsubscribe();
   }
 
-  loginHandler() {
-    if (environment.authorizationGrantType == grantType.AUTHORIZATION_CODE) {
-      this.redirectToAuthRequestLink();
-    }
-  }
-
-  redirectToAuthRequestLink() {
-    window.location.href = `${environment.authBaseUrl}/authorize?client_id=${
-      environment.appClientId
-    }&response_type=code&redirect_uri=${window.location.href.split('?')[0]}`;
-  }
-
-  loginWithAuthCode() {
-    this.routerSubscription = this.route.queryParams.subscribe(params => {
-      if (params.code) {
-        this.authCodeSubscription = this.authService
-          .authenticate(params.code)
-          .subscribe(() => this.router.navigate(['/']));
-      }
-    });
+  authenticate(data) {
+    this.isLoaded = false;
+    this.changeDetectorRef.detectChanges();
+    this.authSubscription = this.authService
+      .authenticate(data)
+      .pipe(delay(1000))
+      .subscribe(() => {
+        this.router.navigate(['/']);
+      });
   }
 }

@@ -10,5 +10,18 @@ button {
 }
 
 .btn-container {
+  justify-content: center;
   text-align: center;
+}
+
+.loading {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.desc {
+  margin: 24px;
 }

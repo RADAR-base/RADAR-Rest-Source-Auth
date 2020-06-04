@@ -38,7 +38,7 @@ export class AuthService {
     this.clearUser();
   }
 
-  authenticate(loginParams): Observable<any> {
+  authenticate(loginParams?): Observable<any> {
     throw new Error('AuthService method not implemented');
   }
 

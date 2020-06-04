@@ -1,6 +1,17 @@
 <toolbar></toolbar>
 <div class="btn-container">
-  <button mat-raised-button (click)="loginHandler()">
-    LOG IN WITH MANAGEMENT PORTAL
-  </button>
+  <div [ngSwitch]="authType">
+    <mp-login
+      *ngSwitchCase="authTypes.AUTHORIZATION_CODE"
+      (authenticate)="authenticate($event)"
+      [queryParams]="route.queryParams | async"
+    ></mp-login>
+    <simple-login
+      *ngSwitchDefault
+      (authenticate)="authenticate($event)"
+    ></simple-login>
+  </div>
+  <div class="loading">
+    <mat-spinner *ngIf="!isLoaded" diameter="70"></mat-spinner>
+  </div>
 </div>

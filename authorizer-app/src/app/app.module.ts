@@ -1,4 +1,7 @@
+import { ActivatedRoute, Router, RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
   MatMomentDateModule
@@ -13,6 +16,7 @@ import {
   MatMenuModule,
   MatNativeDateModule,
   MatPaginatorModule,
+  MatProgressSpinnerModule,
   MatSortModule,
   MatTableModule,
   MatToolbarModule,
@@ -23,22 +27,21 @@ import {
   RestSourceUserListDeleteDialog,
   RestSourceUserListResetDialog
 } from './components/rest-source-authorization/rest-source-user-list.component';
-import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { AuthGuard } from './services/auth.guard';
 import { AuthService } from './services/auth.service';
+import { AuthServiceFactory } from './services/auth.service.factory';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorReportingComponent } from './components/rest-source-authorization/error.component';
-import { HttpClientModule } from '@angular/common/http';
-import { JwtModule } from '@auth0/angular-jwt';
 import { LoginPageComponent } from './components/auth/login-page.component';
-import { ManagementPortalAuthService } from './services/management-portal-auth.service';
+import { MpLoginComponent } from './components/auth/mp-login.component';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RestSourceUserRegistrationFormComponent } from './components/rest-source-authorization/rest-source-user-registration-form.component';
 import { RestSourceUserService } from './services/rest-source-user.service';
+import { SimpleLoginComponent } from './components/auth/simple-login.component';
 import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
@@ -93,6 +96,8 @@ const appRoutes: Routes = [
     ErrorReportingComponent,
     RestSourceUserListComponent,
     LoginPageComponent,
+    SimpleLoginComponent,
+    MpLoginComponent,
     ToolbarComponent,
     RestSourceUserListDeleteDialog,
     RestSourceUserListResetDialog
@@ -123,13 +128,18 @@ const appRoutes: Routes = [
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatMomentDateModule
+    MatMomentDateModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     RestSourceUserService,
     SourceClientAuthorizationService,
     AuthGuard,
-    { provide: AuthService, useClass: ManagementPortalAuthService },
+    {
+      provide: AuthService,
+      useFactory: AuthServiceFactory,
+      deps: [HttpClient, JwtHelperService]
+    },
     { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
   ],
   // entryComponents: [AddDeviceDialogComponent],
