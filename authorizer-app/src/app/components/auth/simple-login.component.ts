@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'simple-login',
-  templateUrl: './simple-login.component.html',
+  templateUrl: './login.component.html',
   styleUrls: ['./login-page.component.css']
 })
 export class SimpleLoginComponent {

@@ -12,7 +12,7 @@ import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'mp-login',
-  templateUrl: './mp-login.component.html',
+  templateUrl: './login.component.html',
   styleUrls: ['./login-page.component.css']
 })
 export class MpLoginComponent implements OnInit, OnDestroy {
