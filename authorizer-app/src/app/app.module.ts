@@ -1,6 +1,6 @@
 import { ActivatedRoute, Router, RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
@@ -45,6 +45,8 @@ import { SimpleLoginComponent } from './components/auth/simple-login.component';
 import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
+import { AuthInterceptor } from './auth.interceptor';
+import { ErrorInterceptor } from './error.interceptor';
 
 const appRoutes: Routes = [
   {
@@ -140,6 +142,8 @@ const appRoutes: Routes = [
       useFactory: AuthServiceFactory,
       deps: [HttpClient, JwtHelperService]
     },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
   ],
   // entryComponents: [AddDeviceDialogComponent],
