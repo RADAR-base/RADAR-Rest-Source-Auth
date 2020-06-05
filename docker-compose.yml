@@ -55,6 +55,7 @@ services:
       - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_BASE_URL=http://managementportal-app:8080/managementportal/
       - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_ID=radar_rest_sources_auth_backend
       - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_SECRET=secret
+      - LOGGING_LEVEL_ORG_RADARBASE_AUTHORIZER=DEBUG
       - APP_SLEEP=10 # gives time for the database to boot before the application
     volumes:
       - ./docker/etc/rest-source-authorizer/:/app-includes/
