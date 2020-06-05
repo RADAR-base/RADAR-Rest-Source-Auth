@@ -26,8 +26,9 @@ public class CustomWebSecurityConfigurerAdapter extends WebSecurityConfigurerAda
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.addFilterAfter(new JwtAuthenticationFilter(getTokenValidator()),
-                BasicAuthenticationFilter.class);
+        http.csrf().disable()
+                .addFilterAfter(new JwtAuthenticationFilter(getTokenValidator()),
+                        BasicAuthenticationFilter.class);
     }
 
     @Bean
