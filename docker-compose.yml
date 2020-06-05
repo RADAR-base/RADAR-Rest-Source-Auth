@@ -30,7 +30,7 @@ services:
   radarbase-postgresql:
     image: radarbase/radarbase-postgres:latest
 #    ports:
-#      - "5434:5432"
+#      - "5432:5432"
     environment:
       - POSTGRES_USER=radarcns
       - POSTGRES_PASSWORD=radarcns
@@ -59,7 +59,7 @@ services:
     volumes:
       - ./docker/etc/rest-source-authorizer/:/app-includes/
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:8080/users"]
+      test: ["CMD", "wget", "--spider", "http://localhost:8080/health"]
       interval: 1m30s
       timeout: 5s
       retries: 3
