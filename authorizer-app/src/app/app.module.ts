@@ -31,7 +31,7 @@ import { AuthService } from './services/auth.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorReportingComponent } from './components/rest-source-authorization/error.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
 import { LoginPageComponent } from './components/auth/login-page.component';
 import { ManagementPortalAuthService } from './services/management-portal-auth.service';
@@ -42,6 +42,8 @@ import { RestSourceUserService } from './services/rest-source-user.service';
 import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
+import { AuthInterceptor } from './auth.interceptor';
+import { ErrorInterceptor } from './error.interceptor';
 
 const appRoutes: Routes = [
   {
@@ -129,6 +131,8 @@ const appRoutes: Routes = [
     RestSourceUserService,
     SourceClientAuthorizationService,
     AuthGuard,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: AuthService, useClass: ManagementPortalAuthService },
     { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
   ],

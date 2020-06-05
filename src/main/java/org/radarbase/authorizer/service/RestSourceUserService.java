@@ -92,6 +92,7 @@ public class RestSourceUserService {
         }
         return new RestSourceUserPropertiesDTO(resultUser);
       } else {
+          log.error("Cannot get token a using authorization_code");
         throw new TokenException();
       }
     }
