@@ -28,7 +28,8 @@ To install functional RADAR-base Rest-Sources Authorizer application with minima
 ```bash
 docker-compose up -d --build
 ```
-
+You can find the Authorizer app running on `http://localhost:8080/rest-sources/authorizer/`
+You can find the Management Portal app running on `http://localhost:8080/managementportal/`
 ## Validation
 
 There is validation available for the properties of the subject entered by the user. These are currenlty validated using the details from the Management portal. You can configure this according to your requirements as follows -

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/restsourceauth
+    url: jdbc:postgresql://localhost:5432/restsourceauthorizer
     username: radarcns
     password: radarcns
     driver-class-name: org.postgresql.Driver
@@ -14,6 +14,10 @@ spring:
       write_dates_as_timestamps: false
 
 rest-source-authorizer:
+  auth:
+    resource-name: res_restAuthorizer
+    public-key-endpoints:
+      - http://managementportal-app:8080/managementportal/oauth/token_key
   cors:
     allowed-origins: '*'
     allowed-methods: GET, PUT, POST, DELETE, OPTIONS
@@ -21,13 +25,13 @@ rest-source-authorizer:
     allow-credentials: true
     max-age: 1800
 
-  source-clients-file-path: src/main/docker/etc/rest_source_clients_configs.yml
+  source-clients-file-path: docker/etc/rest-source-authorizer/rest_source_clients_configs.yml
 
   validator: managementportal
   management-portal:
-    base-url: "http://localhost:8081/"
+    base-url: "http://localhost:8090/managementportal/"
     projects-path: "api/projects"
     subjects-path: "api/subjects"
     token_path: "oauth/token"
-    oauth-client-id: "radar_rest_sources_auth"
+    oauth-client-id: "radar_rest_sources_auth_backend"
     oauth-client-secret: "secret"
