@@ -42,7 +42,8 @@ import { RestSourceUserService } from './services/rest-source-user.service';
 import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
-import { AuthInterceptor } from "./auth.interceptor";
+import { AuthInterceptor } from './auth.interceptor';
+import { ErrorInterceptor } from './error.interceptor';
 
 const appRoutes: Routes = [
   {
@@ -131,6 +132,7 @@ const appRoutes: Routes = [
     SourceClientAuthorizationService,
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: AuthService, useClass: ManagementPortalAuthService },
     { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
   ],
