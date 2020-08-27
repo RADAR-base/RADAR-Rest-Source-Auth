@@ -70,7 +70,6 @@ dependencies {
 }
 
 
-// config JVM target to 1.8 for kotlin compilation tasks
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
 }

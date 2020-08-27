@@ -28,8 +28,8 @@ val logger: Logger = LoggerFactory.getLogger("org.radarbase.authorizer.Main")
 
 fun main(args: Array<String>) {
     val config: Config = ConfigLoader.loadConfig("authorizer.yml", args)
-    val resources = ConfigLoader.loadResources(config.resourceConfig, config)
+    val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
 
-    val server = GrizzlyServer(config.baseUri, resources)
+    val server = GrizzlyServer(config.service.baseUri, resources)
     server.listen()
 }

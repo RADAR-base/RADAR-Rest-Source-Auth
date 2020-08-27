@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2018 The Hyve
+ *  * Copyright 2019 The Hyve
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -17,20 +17,12 @@
  *
  */
 
-package org.radarbase.authorizer.service.dto;
+package org.radarbase.authorizer.api
 
-import java.util.List;
+data class ProjectList(val projects: List<Project>)
 
-public class RestSourceClients {
+data class Project(val id: String,  val name: String? = null, val location: String? = null, val organization: String? = null, val description: String? = null)
 
-    private List<RestSourceClientDetailsDTO> sourceClients;
+data class UserList(val users: List<User>)
 
-    public List<RestSourceClientDetailsDTO> getSourceClients() {
-        return sourceClients;
-    }
-
-    public RestSourceClients sourceClients(List<RestSourceClientDetailsDTO> sourceClients) {
-        this.sourceClients = sourceClients;
-        return this;
-    }
-}
+data class User(val id: String, val projectId: String, val externalId: String? = null, val status: String)
