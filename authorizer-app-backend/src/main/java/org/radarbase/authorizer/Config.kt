@@ -7,9 +7,9 @@ import java.net.URI
 data class Config(
     val service: AuthorizerServiceConfig = AuthorizerServiceConfig(),
     val auth: AuthConfig = AuthConfig(),
-    val database: DatabaseConfig = DatabaseConfig()
+    val database: DatabaseConfig = DatabaseConfig(),
+    val restSourceClients: List<RestSourceClient> = emptyList()
 )
-
 
 data class AuthorizerServiceConfig(
     var baseUri: URI = URI.create("http://0.0.0.0:8080/rest-sources/backend/"),
@@ -31,10 +31,24 @@ data class AuthConfig(
 )
 
 data class DatabaseConfig(
-    var jdbcDriver: String? = "org.h2.Driver",
-    var jdbcUrl: String? = null,
-    var jdbcUser: String? = null,
-    var jdbcPassword: String? = null,
-    var hibernateDialect: String = "org.hibernate.dialect.PostgreSQLDialect",
-    var additionalPersistenceConfig: Map<String, String>? = null
+    val jdbcDriver: String? = "org.h2.Driver",
+    val jdbcUrl: String? = null,
+    val jdbcUser: String? = null,
+    val jdbcPassword: String? = null,
+    val hibernateDialect: String = "org.hibernate.dialect.PostgreSQLDialect",
+    val additionalPersistenceConfig: Map<String, String>? = null
+)
+
+data class RestSourceClient(
+    val sourceType: String,
+    val authorizationEndpoint: String,
+    val tokenEndpoint: String,
+    val clientId: String,
+    val clientSecret: String,
+    val grantType: String? = null,
+    val scope: String? = null
+)
+
+data class RestSourceClients(
+    val clients: List<RestSourceClient>
 )

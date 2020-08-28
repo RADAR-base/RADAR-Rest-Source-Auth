@@ -1,17 +1,63 @@
 package org.radarbase.authorizer.doa
 
 import org.radarbase.authorizer.api.Page
+import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.doa.entity.RestSourceUser
+import org.radarbase.jersey.exception.HttpBadGatewayException
+import java.time.Duration
+import java.time.Instant
 import javax.inject.Provider
 import javax.persistence.EntityManager
+import javax.persistence.Transient
 import javax.ws.rs.core.Context
 
 class RestSourceUserRepositoryImpl(
     @Context private var em: Provider<EntityManager>
 ) : RestSourceUserRepository {
-//  override fun create(user: RestSourceUser): RestSourceUser {
-//    TODO("Not yet implemented")
-//  }
+
+  override fun create(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = em.get().createTransaction {
+    val externalUserId = token.externalUserId ?: throw HttpBadGatewayException("Could not get externalId from token")
+
+    val queryString = "SELECT u FROM RestSourceUser u where u.sourceType = :sourceType AND u.externalUserId = :externalUserId"
+    val existingUser = createQuery(queryString, RestSourceUser::class.java)
+        .setParameter("sourceType", sourceType)
+        .setParameter("externalUserId", externalUserId)
+        .resultList.firstOrNull()
+
+    if(existingUser == null) {
+      RestSourceUser().apply {
+        this.authorized = true
+        this.externalUserId = externalUserId
+        this.sourceType = sourceType
+        this.startDate = Instant.now()
+        this.accessToken = token.accessToken
+        this.refreshToken = token.refreshToken
+        this.expiresIn = token.expiresIn
+        this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
+      }.also { persist(it) }
+    } else {
+      existingUser.apply {
+        this.accessToken = token.accessToken
+        this.refreshToken = token.refreshToken
+        this.expiresIn = token.expiresIn
+        this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
+      }.also { merge(it) }
+    }
+  }
+
+  override fun read(id: Long): RestSourceUser? = em.get().transact { find(RestSourceUser::class.java, id) }
+
+  override fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser = em.get().createTransaction {
+    existingUser.apply {
+      this.projectId = user.projectId
+        this.userId = user.userId
+        this.sourceId = user.sourceId
+        this.startDate = user.startDate
+        this.endDate = user.endDate
+    }.also { merge(it) }
+  }
+
 
   override fun query(page: Page, sourceType: String?, externalUserId: String?): Pair<List<RestSourceUser>, Page> {
     var queryString = "SELECT u FROM RestSourceUser u"
@@ -47,4 +93,7 @@ class RestSourceUserRepositoryImpl(
     }
   }
 
+  companion object {
+    private val expiryTimeMargin = Duration.ofMinutes(5)
+  }
 }

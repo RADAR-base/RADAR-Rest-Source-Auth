@@ -12,23 +12,21 @@ import javax.persistence.Transient
 @Entity
 @Table(name = "rest_source_user")
 class RestSourceUser : AbstractJpaPersistable<Long>() {
-  @Transient
-  private val EXPIRY_TIME_MARGIN = Duration.ofMinutes(5)
 
   // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
   @Column(name = "project_id")
-  lateinit var projectId: String
+  var projectId: String? = null
 
   // User ID to be used in org.radarcns.kafka.ObservationKey record keys
   @Column(name = "user_id")
-  lateinit var userId: String
+  var userId: String? = null
 
   // Source ID to be used in org.radarcns.kafka.ObservationKey record keys
   @Column(name = "source_id")
   var sourceId: String = UUID.randomUUID().toString()
 
   @Column(name = "source_type")
-  var sourceType: String? = null
+  lateinit var sourceType: String
 
   // Date from when to collect data.
   @Column(name = "start_date")

@@ -4,7 +4,7 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 
 
 class RestSourceUserMapper {
-    fun fromRestSourceUser(user: RestSourceUser) = RestSourceUserDTO(
+    fun fromEntity(user: RestSourceUser) = RestSourceUserDTO(
             id = user.id.toString(),
             projectId = user.projectId,
             userId = user.userId,
@@ -19,7 +19,7 @@ class RestSourceUserMapper {
     )
 
    fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
-      users = records.map(::fromRestSourceUser)
+      users = records.map(::fromEntity)
    )
 
 }
