@@ -19,14 +19,13 @@
 
 package org.radarbase.authorizer.doa
 
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.MappedSuperclass
+import javax.persistence.*
 
 @MappedSuperclass
 abstract class AbstractJpaPersistable<T : java.io.Serializable> {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     var id: T? = null
 
     override fun equals(other: Any?): Boolean {
