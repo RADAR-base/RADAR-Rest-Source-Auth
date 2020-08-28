@@ -19,6 +19,8 @@
 
 package org.radarbase.authorizer
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
 import org.slf4j.Logger
@@ -27,6 +29,8 @@ import org.slf4j.LoggerFactory
 val logger: Logger = LoggerFactory.getLogger("org.radarbase.authorizer.Main")
 
 fun main(args: Array<String>) {
+//    val mapper = ObjectMapper(YAMLFactory())
+//        .registerModule(KotlinModule())
     val config: Config = ConfigLoader.loadConfig("authorizer.yml", args)
     val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
 

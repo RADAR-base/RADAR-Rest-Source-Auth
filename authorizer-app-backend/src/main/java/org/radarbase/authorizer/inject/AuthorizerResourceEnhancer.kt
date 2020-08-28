@@ -7,14 +7,22 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import okhttp3.OkHttpClient
 import org.glassfish.jersey.internal.inject.AbstractBinder
+import org.glassfish.jersey.internal.inject.PerLookup
 import org.glassfish.jersey.server.ResourceConfig
 import org.radarbase.authorizer.Config
+import org.radarbase.authorizer.DatabaseConfig
+import org.radarbase.authorizer.api.RestSourceUserMapper
+import org.radarbase.authorizer.doa.RestSourceUserRepository
+import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
+import javax.persistence.EntityManager
+import javax.persistence.EntityManagerFactory
 import javax.ws.rs.ext.ContextResolver
 
-class UploadResourceEnhancer(private val config: Config): JerseyResourceEnhancer {
+class AuthorizerResourceEnhancer(private val config: Config): JerseyResourceEnhancer {
     private val client = OkHttpClient().newBuilder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
@@ -36,7 +44,7 @@ class UploadResourceEnhancer(private val config: Config): JerseyResourceEnhancer
             "org.radarbase.authorizer.exception",
             "org.radarbase.authorizer.filter",
             "org.radarbase.authorizer.lifecycle",
-            "org.radarbase.authorizer.resource")
+            "org.radarbase.authorizer.resources")
 
     override fun ResourceConfig.enhance() {
         register(ContextResolver { OBJECT_MAPPER })
@@ -46,6 +54,9 @@ class UploadResourceEnhancer(private val config: Config): JerseyResourceEnhancer
         // Bind instances. These cannot use any injects themselves
         bind(config)
                 .to(Config::class.java)
+
+        bind(config.database)
+            .to(DatabaseConfig::class.java)
 
         bind(client)
                 .to(OkHttpClient::class.java)
@@ -57,22 +68,22 @@ class UploadResourceEnhancer(private val config: Config): JerseyResourceEnhancer
 //                .to(CallbackManager::class.java)
 //                .`in`(Singleton::class.java)
 //
-//        // Bind factories.
-//        bindFactory(DoaEntityManagerFactoryFactory::class.java)
-//                .to(EntityManagerFactory::class.java)
-//                .`in`(Singleton::class.java)
-//
-//        bindFactory(DoaEntityManagerFactory::class.java)
-//                .to(EntityManager::class.java)
-//                .`in`(PerLookup::class.java)
+        // Bind factories.
+        bindFactory(DoaEntityManagerFactoryFactory::class.java)
+                .to(EntityManagerFactory::class.java)
+                .`in`(Singleton::class.java)
 
-//        bind(RecordMapperImpl::class.java)
-//                .to(RecordMapper::class.java)
-//                .`in`(Singleton::class.java)
-//
-//        bind(SourceTypeMapperImpl::class.java)
-//                .to(SourceTypeMapper::class.java)
-//                .`in`(Singleton::class.java)
+        bindFactory(DoaEntityManagerFactory::class.java)
+                .to(EntityManager::class.java)
+                .`in`(PerLookup::class.java)
+
+        bind(RestSourceUserMapper::class.java)
+                .to(RestSourceUserMapper::class.java)
+                .`in`(Singleton::class.java)
+
+        bind(RestSourceUserRepositoryImpl::class.java)
+                .to(RestSourceUserRepository::class.java)
+                .`in`(Singleton::class.java)
 //
 //        bind(RecordRepositoryImpl::class.java)
 //                .to(RecordRepository::class.java)

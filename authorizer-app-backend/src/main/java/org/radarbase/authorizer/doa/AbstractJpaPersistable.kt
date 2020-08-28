@@ -17,7 +17,7 @@
  *
  */
 
-package org.radarbase.upload.doa
+package org.radarbase.authorizer.doa
 
 import javax.persistence.GeneratedValue
 import javax.persistence.Id

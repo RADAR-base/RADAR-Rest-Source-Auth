@@ -1,9 +1,9 @@
 package org.radarbase.authorizer.api
 
-import org.radarbase.authorizer.doa.entitiy.RestSourceUser
+import org.radarbase.authorizer.doa.entity.RestSourceUser
 
 
-interface RestSourceUserMapper {
+class RestSourceUserMapper {
     fun fromRestSourceUser(user: RestSourceUser) = RestSourceUserDTO(
             id = user.id.toString(),
             projectId = user.projectId,
@@ -17,4 +17,9 @@ interface RestSourceUserMapper {
             version = user.version,
             timesReset = user.timesReset
     )
+
+   fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
+      users = records.map(::fromRestSourceUser)
+   )
+
 }

@@ -34,7 +34,7 @@ import javax.inject.Singleton
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
 class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> = listOf(
-            UploadResourceEnhancer(config),
+            AuthorizerResourceEnhancer(config),
             MPClientResourceEnhancer(),
             ConfigLoader.Enhancers.radar(AuthConfig(
                     managementPortalUrl = config.auth.managementPortalUrl,
