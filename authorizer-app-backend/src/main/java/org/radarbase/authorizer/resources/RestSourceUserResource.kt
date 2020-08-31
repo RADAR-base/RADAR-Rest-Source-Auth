@@ -38,22 +38,16 @@ class RestSourceUserResource(
   @GET
   fun query(
       @QueryParam("projectId") projectId: String?,
-      @QueryParam("userId") userId: String?,
-      @QueryParam("size") pageSize: Int?,
-      @DefaultValue("1") @QueryParam("page") pageNumber: Int,
       @QueryParam("sourceType") sourceType: String?,
-      @QueryParam("externalId") externalId: String?): RestSourceUsers {
-//    projectId
-//        ?: throw HttpBadRequestException("missing_project", "Required project ID not provided.")
+      @QueryParam("size") pageSize: Int?,
+      @DefaultValue("1") @QueryParam("page") pageNumber: Int): RestSourceUsers {
 
-//    if (userId != null) {
-//      auth.checkPermissionOnSubject(Permission.SUBJECT_READ, projectId, userId)
-//    } else {
-//      auth.checkPermissionOnProject(Permission.PROJECT_READ, projectId)
-//    }
+    if (projectId != null) {
+      auth.checkPermissionOnProject(Permission.PROJECT_READ, projectId)
+    }
 
     val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
-    val (records, page) = userRepository.query(queryPage)
+    val (records, page) = userRepository.query(queryPage, projectId, sourceType)
 
     return userMapper.fromRestSourceUsers(records, page)
   }

@@ -9,7 +9,6 @@ import java.time.Duration
 import java.time.Instant
 import javax.inject.Provider
 import javax.persistence.EntityManager
-import javax.persistence.Transient
 import javax.ws.rs.core.Context
 
 class RestSourceUserRepositoryImpl(
@@ -58,37 +57,54 @@ class RestSourceUserRepositoryImpl(
     }.also { merge(it) }
   }
 
-  override fun query(page: Page, sourceType: String?, externalUserId: String?): Pair<List<RestSourceUser>, Page> {
+  override fun query(page: Page, projectId: String?, sourceType: String?): Pair<List<RestSourceUser>, Page> {
     var queryString = "SELECT u FROM RestSourceUser u"
     var countQueryString = "SELECT count(u) FROM RestSourceUser u"
 
+    when {
+      projectId != null && sourceType != null -> {
+        queryString += " WHERE u.projectId = :projectId AND u.sourceType = :sourceType"
+        countQueryString += " WHERE u.projectId = :projectId AND u.sourceType = :sourceType"
+      }
+      projectId != null && sourceType == null -> {
+        queryString += " WHERE u.projectId = :projectId"
+        countQueryString += " WHERE u.projectId = :projectId"
+      }
+      projectId == null && sourceType != null -> {
+        queryString += " WHERE u.sourceType = :sourceType"
+        countQueryString += " WHERE u.sourceType = :sourceType"
+      }
+    }
 
     val actualPage = page.createValid(maximum = 100)
     return em.get().transact {
       val query = createQuery(queryString, RestSourceUser::class.java)
-//          .setParameter("projectId", projectId)
           .setFirstResult(actualPage.offset)
           .setMaxResults(actualPage.pageSize!!)
 
       val countQuery = createQuery(countQueryString)
-//          .setParameter("projectId", projectId)
 
-//      userId?.let {
-//        query.setParameter("userId", it)
-//        countQuery.setParameter("userId", it)
-//      }
-//      status?.let {
-//        query.setParameter("status", RecordStatus.valueOf(it))
-//        countQuery.setParameter("status", RecordStatus.valueOf(it))
-//      }
-//      sourceType?.let {
-//        query.setParameter("sourceType", it)
-//        countQuery.setParameter("sourceType", it)
-//      }
-      val records = query.resultList
+      when {
+        projectId != null && sourceType != null -> {
+          query.setParameter("projectId", projectId)
+          countQuery.setParameter("projectId", projectId)
+          query.setParameter("sourceType", sourceType)
+          countQuery.setParameter("sourceType", sourceType)
+        }
+        projectId != null && sourceType == null -> {
+          query.setParameter("projectId", projectId)
+          countQuery.setParameter("projectId", projectId)
+        }
+        projectId == null && sourceType != null -> {
+          query.setParameter("sourceType", sourceType)
+          countQuery.setParameter("sourceType", sourceType)
+        }
+      }
+
+      val users = query.resultList
       val count = countQuery.singleResult as Long
 
-      Pair(records, actualPage.copy(totalElements = count))
+      Pair(users, actualPage.copy(totalElements = count))
     }
   }
 
