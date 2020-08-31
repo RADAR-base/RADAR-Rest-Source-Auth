@@ -1,5 +1,6 @@
 package org.radarbase.authorizer.doa
 
+import org.radarbase.authorizer.logger
 import org.radarbase.jersey.exception.HttpInternalServerException
 import java.io.Closeable
 import javax.persistence.EntityManager
@@ -15,7 +16,7 @@ fun <T> EntityManager.transact(transactionOperation: EntityManager.() -> T) = cr
 /**
  * Start a transaction without committing it. If an exception occurs, the transaction is rolled back.
  */
-fun <T> EntityManager.createTransaction(transactionOperation: EntityManager.(CloseableTransaction) -> T): T {
+private fun <T> EntityManager.createTransaction(transactionOperation: EntityManager.(CloseableTransaction) -> T): T {
     val currentTransaction = transaction
             ?: throw HttpInternalServerException("transaction_not_found", "Cannot find a transaction from EntityManager")
 
@@ -28,7 +29,7 @@ fun <T> EntityManager.createTransaction(transactionOperation: EntityManager.(Clo
                 try {
                     transaction.commit()
                 } catch (ex: Exception) {
-//                    logger.error("Rolling back operation", ex)
+                    logger.error("Rolling back operation", ex)
                     if (currentTransaction.isActive) {
                         currentTransaction.rollback()
                     }
@@ -37,7 +38,7 @@ fun <T> EntityManager.createTransaction(transactionOperation: EntityManager.(Clo
             }
         })
     } catch (ex: Exception) {
-//        logger.error("Rolling back operation", ex)
+        logger.error("Rolling back operation", ex)
         if (currentTransaction.isActive) {
             currentTransaction.rollback()
         }

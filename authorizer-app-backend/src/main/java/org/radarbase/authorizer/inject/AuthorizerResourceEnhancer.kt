@@ -7,7 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import okhttp3.OkHttpClient
 import org.glassfish.jersey.internal.inject.AbstractBinder
-import org.glassfish.jersey.internal.inject.PerLookup
+import org.glassfish.jersey.process.internal.RequestScoped
 import org.glassfish.jersey.server.ResourceConfig
 import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.DatabaseConfig
@@ -78,7 +78,7 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
 
     bindFactory(DoaEntityManagerFactory::class.java)
         .to(EntityManager::class.java)
-        .`in`(PerLookup::class.java)
+        .`in`(RequestScoped::class.java)
 
     bind(RestSourceUserMapper::class.java)
         .to(RestSourceUserMapper::class.java)
