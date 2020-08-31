@@ -96,7 +96,6 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
         .to(RestSourceAuthorizationService::class.java)
         .`in`(Singleton::class.java)
 
-
   }
 
   companion object {

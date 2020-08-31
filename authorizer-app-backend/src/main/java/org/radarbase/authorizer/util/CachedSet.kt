@@ -17,7 +17,7 @@
  *
  */
 
-package org.radarbase.upload.util
+package org.radarbase.authorizer.util
 
 import java.time.Duration
 import java.time.Instant

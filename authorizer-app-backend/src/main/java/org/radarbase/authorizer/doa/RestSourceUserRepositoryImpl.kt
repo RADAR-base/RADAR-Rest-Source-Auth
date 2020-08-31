@@ -121,7 +121,6 @@ class RestSourceUserRepositoryImpl(
     }.also { merge(it) }
   }
 
-
   companion object {
     private val expiryTimeMargin = Duration.ofMinutes(5)
   }

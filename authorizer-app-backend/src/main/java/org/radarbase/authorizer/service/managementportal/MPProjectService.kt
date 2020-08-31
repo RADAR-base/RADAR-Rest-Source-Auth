@@ -23,9 +23,9 @@ import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.api.Project
 import org.radarbase.authorizer.api.User
 import org.radarbase.authorizer.service.RadarProjectService
+import org.radarbase.authorizer.util.CachedSet
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.exception.HttpNotFoundException
-import org.radarbase.upload.util.CachedSet
 import org.radarcns.auth.authorization.Permission
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap

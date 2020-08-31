@@ -12,9 +12,6 @@ interface RestSourceUserRepository {
   fun read(id: Long): RestSourceUser?
   fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser
   fun query(page: Page, projectId: String? = null, sourceType: String? = null): Pair<List<RestSourceUser>, Page>
-
-  //    fun findByExtenalId(sourceType: String, externalUserId: String) : RestSourceUser?
-//    fun findAllBySourceType(sourceType: String?): List<RestSourceUser>
   fun delete(user: RestSourceUser)
   fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?): RestSourceUser
 }
