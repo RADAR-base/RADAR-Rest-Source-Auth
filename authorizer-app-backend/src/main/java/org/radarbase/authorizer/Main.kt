@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2019 The Hyve
+ *  * Copyright 2020 The Hyve
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@
 
 package org.radarbase.authorizer
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
 import org.slf4j.Logger
@@ -29,11 +27,9 @@ import org.slf4j.LoggerFactory
 val logger: Logger = LoggerFactory.getLogger("org.radarbase.authorizer.Main")
 
 fun main(args: Array<String>) {
-//    val mapper = ObjectMapper(YAMLFactory())
-//        .registerModule(KotlinModule())
-    val config: Config = ConfigLoader.loadConfig("authorizer.yml", args)
-    val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
+  val config: Config = ConfigLoader.loadConfig("authorizer.yml", args)
+  val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
 
-    val server = GrizzlyServer(config.service.baseUri, resources)
-    server.listen()
+  val server = GrizzlyServer(config.service.baseUri, resources)
+  server.listen()
 }
