@@ -1,18 +1,18 @@
 package org.radarbase.authorizer.doa.entity
 
-import org.radarbase.authorizer.doa.AbstractJpaPersistable
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Table
-import javax.persistence.Transient
+import javax.persistence.*
 
 @Entity
 @Table(name = "rest_source_user")
-class RestSourceUser : AbstractJpaPersistable<Long>() {
+class RestSourceUser {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+  @SequenceGenerator(name = "sequenceGenerator", sequenceName = "rest_source_user_id_seq", initialValue = 1, allocationSize = 1)
+  var id: Long? = null
   // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
   @Column(name = "project_id")
   var projectId: String? = null
@@ -66,4 +66,19 @@ class RestSourceUser : AbstractJpaPersistable<Long>() {
   // The number of times a user has been reset
   @Column(name = "times_reset")
   var timesReset: Long = 0
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+
+    if (other == null || javaClass != other.javaClass) return false
+
+    other as RestSourceUser
+
+    return id != null && id == other.id
+  }
+
+  override fun hashCode(): Int = id.hashCode()
+
+  override fun toString() = "Entity of type ${this.javaClass.name} with id: $id"
+
 }
