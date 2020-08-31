@@ -58,7 +58,6 @@ class RestSourceUserRepositoryImpl(
     }.also { merge(it) }
   }
 
-
   override fun query(page: Page, sourceType: String?, externalUserId: String?): Pair<List<RestSourceUser>, Page> {
     var queryString = "SELECT u FROM RestSourceUser u"
     var countQueryString = "SELECT count(u) FROM RestSourceUser u"
@@ -95,6 +94,15 @@ class RestSourceUserRepositoryImpl(
 
   override fun delete(user: RestSourceUser) = em.get().transact {
     remove(merge(user))
+  }
+
+  override fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?) = em.get().transact {
+    user.apply {
+      this.version = Instant.now().toString()
+      this.timesReset += 1
+      this.startDate = startDate
+      this.endDate = endDate
+    }.also { merge(it) }
   }
 
 

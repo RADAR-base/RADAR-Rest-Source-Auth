@@ -4,6 +4,7 @@ import org.radarbase.authorizer.api.Page
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.doa.entity.RestSourceUser
+import java.time.Instant
 
 interface RestSourceUserRepository {
 
@@ -14,4 +15,5 @@ interface RestSourceUserRepository {
 //    fun findByExtenalId(sourceType: String, externalUserId: String) : RestSourceUser?
 //    fun findAllBySourceType(sourceType: String?): List<RestSourceUser>
     fun delete(user: RestSourceUser)
+    fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?): RestSourceUser
 }

@@ -80,8 +80,7 @@ class RestSourceUserResource(
   @Path("{id}")
   fun update(
       @PathParam("id") userId: Long,
-      user: RestSourceUserDTO,
-      @QueryParam("validate") validate: Boolean): RestSourceUserDTO {
+      user: RestSourceUserDTO): RestSourceUserDTO {
     val existingUser = validate(userId, user, Permission.SUBJECT_UPDATE)
 
     val updatedUser = userRepository.update(existingUser, user)
@@ -106,6 +105,17 @@ class RestSourceUserResource(
     }
     userRepository.delete(user)
     return Response.noContent().header("user-removed", userId).build()
+  }
+
+  @POST
+  @Path("{id}/reset")
+  fun reset(
+      @PathParam("id") userId: Long,
+      user: RestSourceUserDTO): RestSourceUserDTO {
+    val existingUser = validate(userId, user, Permission.SUBJECT_UPDATE)
+
+    val updatedUser = userRepository.reset(existingUser, user.startDate, user.endDate ?: existingUser.endDate)
+    return userMapper.fromEntity(updatedUser)
   }
 
   private fun validate(id: Long, user: RestSourceUserDTO, permission: Permission) : RestSourceUser {
