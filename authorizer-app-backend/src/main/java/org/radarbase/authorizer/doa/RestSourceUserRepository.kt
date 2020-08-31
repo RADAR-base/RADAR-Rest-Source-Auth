@@ -8,7 +8,7 @@ import java.time.Instant
 
 interface RestSourceUserRepository {
 
-    fun create(user: RestOauth2AccessToken, sourceType: String): RestSourceUser
+    fun createOrUpdate(user: RestOauth2AccessToken, sourceType: String): RestSourceUser
     fun read(id: Long): RestSourceUser?
     fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser
     fun query(page: Page, sourceType: String? = null, externalUserId: String? = null): Pair<List<RestSourceUser>, Page>

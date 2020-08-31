@@ -16,7 +16,7 @@ class RestSourceUserRepositoryImpl(
     @Context private var em: Provider<EntityManager>
 ) : RestSourceUserRepository {
 
-  override fun create(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = em.get().transact {
+  override fun createOrUpdate(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = em.get().transact {
     val externalUserId = token.externalUserId ?: throw HttpBadGatewayException("Could not get externalId from token")
 
     val queryString = "SELECT u FROM RestSourceUser u where u.sourceType = :sourceType AND u.externalUserId = :externalUserId"

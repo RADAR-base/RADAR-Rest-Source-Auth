@@ -50,8 +50,8 @@ data class RestSourceUsers(
 )
 
 class TokenDTO(
-    val accessToken: String? = null,
-    val expiresAt: Instant? = null
+    val accessToken: String?,
+    val expiresAt: Instant?
 )
 
 data class Page(

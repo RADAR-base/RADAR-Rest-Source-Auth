@@ -1,18 +1,14 @@
 package org.radarbase.authorizer.resources
 
-import org.radarbase.authorizer.api.Page
-import org.radarbase.authorizer.api.RestSourceUserDTO
-import org.radarbase.authorizer.api.RestSourceUserMapper
-import org.radarbase.authorizer.api.RestSourceUsers
+import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.logger
 import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
-import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
+import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
@@ -68,8 +64,8 @@ class RestSourceUserResource(
       @FormParam("code") code: String,
       @FormParam("state") state: String): Response {
     logger.info("code $code state $state")
-    val accessToken = authorizationService.requestAccessToken(code, sourceType= state)
-    val user = userRepository.create(accessToken, state)
+    val accessToken = authorizationService.requestAccessToken(code, sourceType = state)
+    val user = userRepository.createOrUpdate(accessToken, state)
 
     return Response.created(URI("users/${user.id}"))
         .entity(userMapper.fromEntity(user))
@@ -89,7 +85,7 @@ class RestSourceUserResource(
 
   @GET
   @Path("{id}")
-  fun readUser(@PathParam("id") userId: Long) : RestSourceUserDTO {
+  fun readUser(@PathParam("id") userId: Long): RestSourceUserDTO {
     val user = ensureUser(userId)
     auth.checkPermissionOnSubject(Permission.SUBJECT_READ, user.projectId, user.userId)
     return userMapper.fromEntity(user)
@@ -97,7 +93,7 @@ class RestSourceUserResource(
 
   @DELETE
   @Path("{id}")
-  fun deleteUser(@PathParam("id") userId: Long) : Response {
+  fun deleteUser(@PathParam("id") userId: Long): Response {
     val user = ensureUser(userId)
     auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
     if (user.accessToken != null) {
@@ -114,17 +110,42 @@ class RestSourceUserResource(
       user: RestSourceUserDTO): RestSourceUserDTO {
     val existingUser = validate(userId, user, Permission.SUBJECT_UPDATE)
 
-    val updatedUser = userRepository.reset(existingUser, user.startDate, user.endDate ?: existingUser.endDate)
+    val updatedUser = userRepository.reset(existingUser, user.startDate, user.endDate
+        ?: existingUser.endDate)
     return userMapper.fromEntity(updatedUser)
   }
 
-  private fun validate(id: Long, user: RestSourceUserDTO, permission: Permission) : RestSourceUser {
+  @GET
+  @Path("{id}/token")
+  fun requestToken(@PathParam("id") userId: Long): TokenDTO {
+    val user = ensureUser(userId)
+    auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
+    return TokenDTO(user.accessToken, user.expiresAt)
+  }
+
+  @POST
+  @Path("{id}/token")
+  fun refreshToken(@PathParam("id") userId: Long): TokenDTO {
+    val user = ensureUser(userId)
+    auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
+    val rft = user.refreshToken
+        ?: throw HttpConflictException("refresh_token_not_found", "No refresh-token found for user ${user.externalUserId} with source-type ${user.sourceType}")
+
+    val updatedUser = userRepository.createOrUpdate(authorizationService.refreshToken(rft, user.sourceType), user.sourceType)
+
+    return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt)
+  }
+
+  private fun validate(id: Long, user: RestSourceUserDTO, permission: Permission): RestSourceUser {
     val existingUser = ensureUser(id)
-    val projectId = user.projectId ?: throw HttpBadRequestException("missing_project_id", "project cannot be empty")
-    val userId = user.userId ?: throw HttpBadRequestException("missing_user_id", "subject-id/user-id cannot be empty")
+    val projectId = user.projectId
+        ?: throw HttpBadRequestException("missing_project_id", "project cannot be empty")
+    val userId = user.userId
+        ?: throw HttpBadRequestException("missing_user_id", "subject-id/user-id cannot be empty")
     auth.checkPermissionOnSubject(permission, projectId, userId)
 
-    projectService.projectUsers(projectId).find { it.id == userId } ?: throw HttpBadRequestException("user_not_found", "user $userId not found in project $projectId")
+    projectService.projectUsers(projectId).find { it.id == userId }
+        ?: throw HttpBadRequestException("user_not_found", "user $userId not found in project $projectId")
     return existingUser
   }
 
