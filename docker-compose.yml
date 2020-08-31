@@ -30,7 +30,9 @@ services:
   radarbase-postgresql:
     image: radarbase/radarbase-postgres:latest
 #    ports:
-#      - "5432:5432"
+#      - "5434:5432"
+#    volumes:
+#      - "./data/:/var/lib/postgresql/data/"
     environment:
       - POSTGRES_USER=radarcns
       - POSTGRES_PASSWORD=radarcns
