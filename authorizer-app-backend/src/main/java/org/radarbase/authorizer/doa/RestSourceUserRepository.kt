@@ -13,5 +13,5 @@ interface RestSourceUserRepository {
     fun query(page: Page, sourceType: String? = null, externalUserId: String? = null): Pair<List<RestSourceUser>, Page>
 //    fun findByExtenalId(sourceType: String, externalUserId: String) : RestSourceUser?
 //    fun findAllBySourceType(sourceType: String?): List<RestSourceUser>
-//    fun delete(user: RestSourceUser)
+    fun delete(user: RestSourceUser)
 }

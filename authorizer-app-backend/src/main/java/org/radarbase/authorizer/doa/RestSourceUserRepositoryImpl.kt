@@ -93,6 +93,11 @@ class RestSourceUserRepositoryImpl(
     }
   }
 
+  override fun delete(user: RestSourceUser) = em.get().transact {
+    remove(merge(user))
+  }
+
+
   companion object {
     private val expiryTimeMargin = Duration.ofMinutes(5)
   }

@@ -82,17 +82,37 @@ class RestSourceUserResource(
       @PathParam("id") userId: Long,
       user: RestSourceUserDTO,
       @QueryParam("validate") validate: Boolean): RestSourceUserDTO {
-    val existingUser = validate(userId, user)
+    val existingUser = validate(userId, user, Permission.SUBJECT_UPDATE)
 
     val updatedUser = userRepository.update(existingUser, user)
     return userMapper.fromEntity(updatedUser)
   }
 
-  fun validate(id: Long, user: RestSourceUserDTO) : RestSourceUser {
+  @GET
+  @Path("{id}")
+  fun readUser(@PathParam("id") userId: Long) : RestSourceUserDTO {
+    val user = ensureUser(userId)
+    auth.checkPermissionOnSubject(Permission.SUBJECT_READ, user.projectId, user.userId)
+    return userMapper.fromEntity(user)
+  }
+
+  @DELETE
+  @Path("{id}")
+  fun deleteUser(@PathParam("id") userId: Long) : Response {
+    val user = ensureUser(userId)
+    auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
+    if (user.accessToken != null) {
+      authorizationService.revokeToken(user.accessToken!!, user.sourceType)
+    }
+    userRepository.delete(user)
+    return Response.noContent().header("user-removed", userId).build()
+  }
+
+  private fun validate(id: Long, user: RestSourceUserDTO, permission: Permission) : RestSourceUser {
     val existingUser = ensureUser(id)
     val projectId = user.projectId ?: throw HttpBadRequestException("missing_project_id", "project cannot be empty")
     val userId = user.userId ?: throw HttpBadRequestException("missing_user_id", "subject-id/user-id cannot be empty")
-    auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, projectId, userId)
+    auth.checkPermissionOnSubject(permission, projectId, userId)
 
     projectService.projectUsers(projectId).find { it.id == userId } ?: throw HttpBadRequestException("user_not_found", "user $userId not found in project $projectId")
     return existingUser
