@@ -7,7 +7,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.slf4j.Logger

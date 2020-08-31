@@ -16,7 +16,8 @@ class RestSourceUserRepositoryImpl(
 ) : RestSourceUserRepository {
 
   override fun createOrUpdate(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = em.get().transact {
-    val externalUserId = token.externalUserId ?: throw HttpBadGatewayException("Could not get externalId from token")
+    val externalUserId = token.externalUserId
+        ?: throw HttpBadGatewayException("Could not get externalId from token")
 
     val queryString = "SELECT u FROM RestSourceUser u where u.sourceType = :sourceType AND u.externalUserId = :externalUserId"
     val existingUser = createQuery(queryString, RestSourceUser::class.java)
@@ -24,7 +25,7 @@ class RestSourceUserRepositoryImpl(
         .setParameter("externalUserId", externalUserId)
         .resultList.firstOrNull()
 
-    if(existingUser == null) {
+    if (existingUser == null) {
       RestSourceUser().apply {
         this.authorized = true
         this.externalUserId = externalUserId
@@ -50,10 +51,10 @@ class RestSourceUserRepositoryImpl(
   override fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser = em.get().transact {
     existingUser.apply {
       this.projectId = user.projectId
-        this.userId = user.userId
-        this.sourceId = user.sourceId
-        this.startDate = user.startDate
-        this.endDate = user.endDate
+      this.userId = user.userId
+      this.sourceId = user.sourceId
+      this.startDate = user.startDate
+      this.endDate = user.endDate
     }.also { merge(it) }
   }
 

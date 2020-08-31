@@ -1,6 +1,5 @@
 package org.radarbase.authorizer.doa.entity
 
-import java.time.Duration
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
@@ -13,6 +12,7 @@ class RestSourceUser {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
   @SequenceGenerator(name = "sequenceGenerator", sequenceName = "rest_source_user_id_seq", initialValue = 1, allocationSize = 1)
   var id: Long? = null
+
   // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
   @Column(name = "project_id")
   var projectId: String? = null

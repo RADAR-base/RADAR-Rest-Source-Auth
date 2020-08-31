@@ -1,13 +1,18 @@
 package org.radarbase.authorizer.resources
 
 import org.radarbase.authorizer.RestSourceClients
-import org.radarbase.authorizer.api.*
+import org.radarbase.authorizer.api.RestSourceClientMapper
+import org.radarbase.authorizer.api.ShareableClientDetail
+import org.radarbase.authorizer.api.ShareableClientDetails
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.exception.HttpNotFoundException
 import javax.annotation.Resource
 import javax.inject.Singleton
-import javax.ws.rs.*
+import javax.ws.rs.GET
+import javax.ws.rs.Path
+import javax.ws.rs.PathParam
+import javax.ws.rs.Produces
 import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
 
@@ -18,7 +23,7 @@ import javax.ws.rs.core.MediaType
 @Singleton
 class SourceClientResource(
     @Context private val restSourceClients: RestSourceClients,
-    @Context private val clientMapper : RestSourceClientMapper,
+    @Context private val clientMapper: RestSourceClientMapper,
     @Context private val auth: Auth
 ) {
 
@@ -36,6 +41,7 @@ class SourceClientResource(
   @GET
   @Path("{type}")
   fun client(@PathParam("type") type: String): ShareableClientDetail {
-    return sharableClientDetails.sourceClients.find { it.sourceType == type } ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
+    return sharableClientDetails.sourceClients.find { it.sourceType == type }
+        ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
   }
 }

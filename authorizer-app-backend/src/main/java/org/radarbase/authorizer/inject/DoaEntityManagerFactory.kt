@@ -26,22 +26,22 @@ import javax.persistence.EntityManagerFactory
 import javax.ws.rs.core.Context
 
 class DoaEntityManagerFactory(
-        @Context private val emf: EntityManagerFactory
+    @Context private val emf: EntityManagerFactory
 ) : DisposableSupplier<EntityManager> {
 
-    override fun get(): EntityManager {
-        logger.debug("Creating EntityManager...")
-        return emf.createEntityManager()
-    }
+  override fun get(): EntityManager {
+    logger.debug("Creating EntityManager...")
+    return emf.createEntityManager()
+  }
 
-    override fun dispose(instance: EntityManager?) {
-        instance?.let {
-            logger.debug("Disposing EntityManager")
-            it.close()
-        }
+  override fun dispose(instance: EntityManager?) {
+    instance?.let {
+      logger.debug("Disposing EntityManager")
+      it.close()
     }
+  }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(DoaEntityManagerFactory::class.java)
-    }
+  companion object {
+    private val logger = LoggerFactory.getLogger(DoaEntityManagerFactory::class.java)
+  }
 }
