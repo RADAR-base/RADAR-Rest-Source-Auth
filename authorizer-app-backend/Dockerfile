@@ -26,7 +26,7 @@ COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-
 COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/lib/* /usr/lib/
 COPY --from=builder /code/authorizer-app-backend/build/libs/authorizer-app-backend-*.jar /usr/lib/
 
-EXPOSE 8090
+EXPOSE 8085
 
 CMD ["authorizer-app-backend"]
 

@@ -1,6 +1,6 @@
 service:
   # Interval time in minutes for syncing projects and subjects.
-  baseUri: http://0.0.0.0:8080/rest-sources/backend/
+  baseUri: http://0.0.0.0:8085/rest-sources/backend/
   advertisedBaseUri: http://0.0.0.0:8080/rest-sources/backend/
   enableCors: true
 
@@ -18,3 +18,11 @@ database:
   jdbcUser: radarcns
   jdbcPassword: radarcns
   hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
+
+restSourceClients:
+  - sourceType: FitBit
+    authorizationEndpoint: https://www.fitbit.com/oauth2/authorize
+    tokenEndpoint: https://api.fitbit.com/oauth2/token
+    clientId: Fitbit-clientid
+    clientSecret: Fitbit-clientsecret
+    scope: activity heartrate sleep profile
