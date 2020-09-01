@@ -55,8 +55,8 @@ class RestSourceUserResource(
     @GET
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
     fun query(
-        @QueryParam("projectId") projectId: String?,
-        @QueryParam("sourceType") sourceType: String?,
+        @QueryParam("project-id") projectId: String?,
+        @QueryParam("source-type") sourceType: String?,
         @QueryParam("size") pageSize: Int?,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int): RestSourceUsers {
 
