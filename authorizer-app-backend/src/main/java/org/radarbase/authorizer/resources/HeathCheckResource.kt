@@ -17,7 +17,13 @@ class HealthCheckResource(
 ) {
     @GET
     fun check(): Response {
-        userRepository.query(Page(0, 1))
-        return Response.ok("Initialized dao and made a sample query...").build()
+        val status = try {
+            userRepository.query(Page(0, 1))
+            HealthStatus("UP")
+        } catch (ex: Throwable) {
+            HealthStatus("DOWN")
+        }
+        return Response.ok(status).build()
     }
+    data class HealthStatus(val status: String)
 }
