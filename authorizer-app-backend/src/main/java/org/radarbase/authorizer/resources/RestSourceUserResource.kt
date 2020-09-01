@@ -1,3 +1,19 @@
+/*
+ *  Copyright 2020 The Hyve
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.radarbase.authorizer.resources
 
 import org.radarbase.authorizer.api.*
@@ -7,6 +23,7 @@ import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
+import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
@@ -36,6 +53,7 @@ class RestSourceUserResource(
 ) {
 
     @GET
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
     fun query(
         @QueryParam("projectId") projectId: String?,
         @QueryParam("sourceType") sourceType: String?,
@@ -43,7 +61,7 @@ class RestSourceUserResource(
         @DefaultValue("1") @QueryParam("page") pageNumber: Int): RestSourceUsers {
 
         if (projectId != null) {
-            auth.checkPermissionOnProject(Permission.PROJECT_READ, projectId)
+            auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
         }
 
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
@@ -68,6 +86,7 @@ class RestSourceUserResource(
 
     @POST
     @Path("{id}")
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun update(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO): RestSourceUserDTO {
@@ -79,6 +98,7 @@ class RestSourceUserResource(
 
     @GET
     @Path("{id}")
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
     fun readUser(@PathParam("id") userId: Long): RestSourceUserDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_READ, user.projectId, user.userId)
@@ -87,6 +107,7 @@ class RestSourceUserResource(
 
     @DELETE
     @Path("{id}")
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun deleteUser(@PathParam("id") userId: Long): Response {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
@@ -99,6 +120,7 @@ class RestSourceUserResource(
 
     @POST
     @Path("{id}/reset")
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun reset(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO): RestSourceUserDTO {
@@ -111,6 +133,7 @@ class RestSourceUserResource(
 
     @GET
     @Path("{id}/token")
+    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.CREATE)
     fun requestToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
@@ -119,6 +142,7 @@ class RestSourceUserResource(
 
     @POST
     @Path("{id}/token")
+    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.CREATE)
     fun refreshToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
