@@ -44,9 +44,9 @@ class MPProjectService(@Context private val config: Config, @Context private val
         }
     }
 
-    override fun userProjects(auth: Auth): List<Project> {
+    override fun userProjects(auth: Auth, permission: Permission): List<Project> {
         return projects.get()
-            .filter { auth.token.hasPermissionOnProject(Permission.PROJECT_READ, it.id) }
+            .filter { auth.token.hasPermissionOnProject(permission, it.id) }
     }
 
     override fun project(projectId: String): Project = projects.find { it.id == projectId }

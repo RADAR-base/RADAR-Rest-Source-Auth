@@ -20,11 +20,13 @@ import org.radarbase.authorizer.api.Project
 import org.radarbase.authorizer.api.User
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.ProjectService
+import org.radarcns.auth.authorization.Permission
+import org.radarcns.auth.authorization.Permission.PROJECT_READ
 
 
 interface RadarProjectService : ProjectService {
     fun project(projectId: String): Project
-    fun userProjects(auth: Auth): List<Project>
+    fun userProjects(auth: Auth, permission: Permission = PROJECT_READ): List<Project>
     fun projectUsers(projectId: String): List<User>
     fun userByExternalId(projectId: String, externalUserId: String): User?
 }

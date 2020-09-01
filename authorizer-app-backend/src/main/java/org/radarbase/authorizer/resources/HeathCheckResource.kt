@@ -34,7 +34,7 @@ class HealthCheckResource(
     @GET
     fun check(): Response {
         val status = try {
-            userRepository.query(Page(0, 1))
+            userRepository.query(Page(0, 1), emptyList())
             HealthStatus("UP")
         } catch (ex: Throwable) {
             HealthStatus("DOWN")

@@ -71,26 +71,21 @@ class RestSourceUserRepositoryImpl(
             this.sourceId = user.sourceId
             this.startDate = user.startDate
             this.endDate = user.endDate
-        }.also { merge(it) }
+            merge(this)
+        }
     }
 
-    override fun query(page: Page, projectId: String?, sourceType: String?): Pair<List<RestSourceUser>, Page> {
-        var queryString = "SELECT u FROM RestSourceUser u"
-        var countQueryString = "SELECT count(u) FROM RestSourceUser u"
+    override fun query(
+            page: Page,
+            projects: List<String>,
+            sourceType: String?
+    ): Pair<List<RestSourceUser>, Page> {
+        var queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId IN (:projects)"
+        var countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId IN (:projects)"
 
-        when {
-            projectId != null && sourceType != null -> {
-                queryString += " WHERE u.projectId = :projectId AND u.sourceType = :sourceType"
-                countQueryString += " WHERE u.projectId = :projectId AND u.sourceType = :sourceType"
-            }
-            projectId != null && sourceType == null -> {
-                queryString += " WHERE u.projectId = :projectId"
-                countQueryString += " WHERE u.projectId = :projectId"
-            }
-            projectId == null && sourceType != null -> {
-                queryString += " WHERE u.sourceType = :sourceType"
-                countQueryString += " WHERE u.sourceType = :sourceType"
-            }
+        if (sourceType != null) {
+            queryString += " AND u.sourceType = :sourceType"
+            countQueryString += " AND u.sourceType = :sourceType"
         }
 
         val actualPage = page.createValid(maximum = 100)
@@ -101,21 +96,12 @@ class RestSourceUserRepositoryImpl(
 
             val countQuery = createQuery(countQueryString)
 
-            when {
-                projectId != null && sourceType != null -> {
-                    query.setParameter("projectId", projectId)
-                    countQuery.setParameter("projectId", projectId)
-                    query.setParameter("sourceType", sourceType)
-                    countQuery.setParameter("sourceType", sourceType)
-                }
-                projectId != null && sourceType == null -> {
-                    query.setParameter("projectId", projectId)
-                    countQuery.setParameter("projectId", projectId)
-                }
-                projectId == null && sourceType != null -> {
-                    query.setParameter("sourceType", sourceType)
-                    countQuery.setParameter("sourceType", sourceType)
-                }
+            query.setParameter("projects", projects)
+            countQuery.setParameter("projects", projects)
+
+            if (sourceType != null) {
+                query.setParameter("sourceType", sourceType)
+                countQuery.setParameter("sourceType", sourceType)
             }
 
             val users = query.resultList
