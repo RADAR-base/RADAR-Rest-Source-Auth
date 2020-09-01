@@ -5,7 +5,7 @@ FROM gradle:6.6.1-jdk11 as builder
 RUN mkdir /code
 WORKDIR /code
 
-COPY ./build.gradle.kts ./settings.gradle.kts /code/
+COPY ./build.gradle.kts ./settings.gradle.kts ./gradle.properties /code/
 COPY authorizer-app-backend/build.gradle.kts  /code/authorizer-app-backend/
 RUN gradle :authorizer-app-backend:downloadDependencies
 
