@@ -4,9 +4,9 @@ plugins {
     java
     application
     kotlin("jvm")
-    id("org.jetbrains.kotlin.plugin.noarg") version "1.3.61"
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.3.61"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.61"
+    id("org.jetbrains.kotlin.plugin.noarg")
+    id("org.jetbrains.kotlin.plugin.jpa")
+    id("org.jetbrains.kotlin.plugin.allopen")
 }
 
 
@@ -15,14 +15,19 @@ application {
 }
 
 project.extra.apply {
-    set("okhttpVersion", "4.2.0")
-    set("radarJerseyVersion", "0.2.3")
-    set("jacksonVersion", "2.10.2")
-    set("slf4jVersion", "1.7.27")
+    set("okhttpVersion", "4.8.1")
+    set("radarJerseyVersion", "0.2.4")
+    set("jacksonVersion", "2.11.2")
+    set("slf4jVersion", "1.7.30")
     set("logbackVersion", "1.2.3")
     set("grizzlyVersion", "2.4.4")
-    set("jerseyVersion", "2.30")
-    set("hibernateVersion", "5.4.10.Final")
+    set("jerseyVersion", "2.31")
+    set("hibernateVersion", "5.4.20.Final")
+    set("postgresVersion", "42.2.16")
+    set("liquibaseVersion", "3.10.2")
+    set("h2Version", "1.4.200")
+    set("junitVersion", "5.6.2")
+    set("mockitoKotlinVersion", "2.2.0")
     set("githubRepoName", "RADAR-base/RADAR-Rest-Source-Auth")
     set("githubUrl", "https://github.com/RADAR-base/RADAR-Rest-Source-Auth.git")
     set("issueUrl", "https://github.com/RADAR-base/RADAR-Rest-Source-Auth/issues")
@@ -42,6 +47,7 @@ repositories {
 
 dependencies {
     api(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
 
     implementation("org.radarbase:radar-jersey:${project.extra["radarJerseyVersion"]}")
 
@@ -53,21 +59,20 @@ dependencies {
 
     implementation("org.hibernate:hibernate-core:${project.extra["hibernateVersion"]}")
     implementation("org.hibernate:hibernate-c3p0:${project.extra["hibernateVersion"]}")
-    implementation("org.liquibase:liquibase-core:3.5.3")
+    implementation("org.liquibase:liquibase-core:${project.extra["liquibaseVersion"]}")
 
     implementation("com.squareup.okhttp3:okhttp:${project.extra["okhttpVersion"]}")
 
-    runtimeOnly("com.h2database:h2:1.4.199")
-    runtimeOnly("org.postgresql:postgresql:42.2.5")
+    runtimeOnly("com.h2database:h2:${project.extra["h2Version"]}")
+    runtimeOnly("org.postgresql:postgresql:${project.extra["postgresVersion"]}")
     runtimeOnly("ch.qos.logback:logback-classic:${project.extra["logbackVersion"]}")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:${project.extra["junitVersion"]}")
     testImplementation("org.hamcrest:hamcrest-all:1.3")
-    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:${project.extra["mockitoKotlinVersion"]}")
 
     testImplementation("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:${project.extra["jerseyVersion"]}")
 }
-
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"

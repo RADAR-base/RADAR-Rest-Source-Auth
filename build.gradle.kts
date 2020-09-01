@@ -1,7 +1,3 @@
-plugins {
-    kotlin("jvm") version "1.4.0" apply false
-}
-
 subprojects {
     group = "org.radarbase"
     version = "2.0-SNAPSHOT"
