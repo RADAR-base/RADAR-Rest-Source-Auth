@@ -33,31 +33,31 @@ import javax.inject.Singleton
 
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
 class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFactory {
-  override fun createEnhancers(): List<JerseyResourceEnhancer> = listOf(
-      AuthorizerResourceEnhancer(config),
-      MPClientResourceEnhancer(),
-      ConfigLoader.Enhancers.radar(AuthConfig(
-          managementPortalUrl = config.auth.managementPortalUrl,
-          jwtResourceName = config.auth.jwtResourceName)),
-      ConfigLoader.Enhancers.managementPortal,
-      ConfigLoader.Enhancers.generalException,
-      ConfigLoader.Enhancers.httpException)
+    override fun createEnhancers(): List<JerseyResourceEnhancer> = listOf(
+        AuthorizerResourceEnhancer(config),
+        MPClientResourceEnhancer(),
+        ConfigLoader.Enhancers.radar(AuthConfig(
+            managementPortalUrl = config.auth.managementPortalUrl,
+            jwtResourceName = config.auth.jwtResourceName)),
+        ConfigLoader.Enhancers.managementPortal,
+        ConfigLoader.Enhancers.generalException,
+        ConfigLoader.Enhancers.httpException)
 
-  class MPClientResourceEnhancer : JerseyResourceEnhancer {
-    override fun enhanceBinder(binder: AbstractBinder) {
-      binder.apply {
-        bind(MPClient::class.java)
-            .to(MPClient::class.java)
-            .`in`(Singleton::class.java)
+    class MPClientResourceEnhancer : JerseyResourceEnhancer {
+        override fun enhanceBinder(binder: AbstractBinder) {
+            binder.apply {
+                bind(MPClient::class.java)
+                    .to(MPClient::class.java)
+                    .`in`(Singleton::class.java)
 
-        bind(ProjectServiceWrapper::class.java)
-            .to(ProjectService::class.java)
-            .`in`(Singleton::class.java)
+                bind(ProjectServiceWrapper::class.java)
+                    .to(ProjectService::class.java)
+                    .`in`(Singleton::class.java)
 
-        bind(MPProjectService::class.java)
-            .to(RadarProjectService::class.java)
-            .`in`(Singleton::class.java)
-      }
+                bind(MPProjectService::class.java)
+                    .to(RadarProjectService::class.java)
+                    .`in`(Singleton::class.java)
+            }
+        }
     }
-  }
 }

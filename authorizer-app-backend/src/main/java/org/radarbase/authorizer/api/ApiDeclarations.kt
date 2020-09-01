@@ -40,9 +40,9 @@ class RestSourceUserDTO(
     val isAuthorized: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0) : Serializable {
-  companion object {
-    private const val serialVersionUID = 1L
-  }
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 }
 
 data class RestSourceUsers(
@@ -58,22 +58,22 @@ data class Page(
     val pageNumber: Int = 1,
     val pageSize: Int? = null,
     val totalElements: Long? = null) {
-  val offset: Int
-    get() = (this.pageNumber - 1) * this.pageSize!!
+    val offset: Int
+        get() = (this.pageNumber - 1) * this.pageSize!!
 
-  fun createValid(maximum: Int? = null): Page {
-    val imposedNumber = pageNumber.coerceAtLeast(1)
+    fun createValid(maximum: Int? = null): Page {
+        val imposedNumber = pageNumber.coerceAtLeast(1)
 
-    val imposedSize = if (maximum != null) {
-      require(maximum >= 1) { "Maximum page size should be at least 1" }
-      pageSize?.coerceAtLeast(1)?.coerceAtMost(maximum) ?: maximum
-    } else {
-      pageSize?.coerceAtLeast(1)
+        val imposedSize = if (maximum != null) {
+            require(maximum >= 1) { "Maximum page size should be at least 1" }
+            pageSize?.coerceAtLeast(1)?.coerceAtMost(maximum) ?: maximum
+        } else {
+            pageSize?.coerceAtLeast(1)
+        }
+        return if (imposedNumber == pageNumber && imposedSize == pageSize) {
+            this
+        } else {
+            copy(pageNumber = imposedNumber, pageSize = imposedSize)
+        }
     }
-    return if (imposedNumber == pageNumber && imposedSize == pageSize) {
-      this
-    } else {
-      copy(pageNumber = imposedNumber, pageSize = imposedSize)
-    }
-  }
 }

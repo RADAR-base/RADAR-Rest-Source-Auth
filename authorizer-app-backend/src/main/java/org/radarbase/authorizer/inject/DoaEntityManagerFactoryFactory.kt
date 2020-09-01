@@ -33,41 +33,41 @@ import javax.persistence.Persistence
 import javax.ws.rs.core.Context
 
 class DoaEntityManagerFactoryFactory(@Context config: DatabaseConfig) : DisposableSupplier<EntityManagerFactory> {
-  @Suppress("UNCHECKED_CAST")
-  private val configMap = (
-      mapOf(
-          "javax.persistence.jdbc.driver" to config.jdbcDriver,
-          "javax.persistence.jdbc.url" to config.jdbcUrl,
-          "javax.persistence.jdbc.user" to config.jdbcUser,
-          "javax.persistence.jdbc.password" to config.jdbcPassword,
-          "hibernate.dialect" to config.hibernateDialect)
-          + (config.additionalPersistenceConfig ?: emptyMap()))
-      .filterValues { it != null } as Map<String, String>
+    @Suppress("UNCHECKED_CAST")
+    private val configMap = (
+        mapOf(
+            "javax.persistence.jdbc.driver" to config.jdbcDriver,
+            "javax.persistence.jdbc.url" to config.jdbcUrl,
+            "javax.persistence.jdbc.user" to config.jdbcUser,
+            "javax.persistence.jdbc.password" to config.jdbcPassword,
+            "hibernate.dialect" to config.hibernateDialect)
+            + (config.additionalPersistenceConfig ?: emptyMap()))
+        .filterValues { it != null } as Map<String, String>
 
-  override fun get(): EntityManagerFactory {
-    logger.info("Initializing EntityManagerFactory with config: $configMap")
-    return Persistence.createEntityManagerFactory("org.radarbase.authorizer.doa", configMap)
-        .also { initializeDatabase(it) }
-  }
-
-  private fun initializeDatabase(emf: EntityManagerFactory) {
-    logger.info("Initializing Liquibase")
-    val connection = emf.createEntityManager().unwrap(SessionImpl::class.java).connection()
-    try {
-      val database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(JdbcConnection(connection))
-      val liquibase = Liquibase("db/changelog/changes/db.changelog-master.xml", ClassLoaderResourceAccessor(), database)
-      liquibase.update("test")
-    } catch (e: LiquibaseException) {
-      logger.error("Failed to initialize database", e)
+    override fun get(): EntityManagerFactory {
+        logger.info("Initializing EntityManagerFactory with config: $configMap")
+        return Persistence.createEntityManagerFactory("org.radarbase.authorizer.doa", configMap)
+            .also { initializeDatabase(it) }
     }
-  }
 
-  override fun dispose(instance: EntityManagerFactory?) {
-    logger.info("Disposing EntityManagerFactory")
-    instance?.close()
-  }
+    private fun initializeDatabase(emf: EntityManagerFactory) {
+        logger.info("Initializing Liquibase")
+        val connection = emf.createEntityManager().unwrap(SessionImpl::class.java).connection()
+        try {
+            val database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(JdbcConnection(connection))
+            val liquibase = Liquibase("db/changelog/changes/db.changelog-master.xml", ClassLoaderResourceAccessor(), database)
+            liquibase.update("test")
+        } catch (e: LiquibaseException) {
+            logger.error("Failed to initialize database", e)
+        }
+    }
 
-  companion object {
-    private val logger = LoggerFactory.getLogger(DoaEntityManagerFactoryFactory::class.java)
-  }
+    override fun dispose(instance: EntityManagerFactory?) {
+        logger.info("Disposing EntityManagerFactory")
+        instance?.close()
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(DoaEntityManagerFactoryFactory::class.java)
+    }
 }

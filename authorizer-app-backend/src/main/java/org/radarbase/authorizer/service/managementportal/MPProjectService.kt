@@ -33,39 +33,39 @@ import java.util.concurrent.ConcurrentMap
 import javax.ws.rs.core.Context
 
 class MPProjectService(@Context private val config: Config, @Context private val mpClient: MPClient) : RadarProjectService {
-  private val projects = CachedSet(
-      Duration.ofMinutes(config.service.syncProjectsIntervalMin),
-      Duration.ofMinutes(1)) {
-    mpClient.readProjects()
-  }
-
-  private val participants: ConcurrentMap<String, CachedSet<User>> = ConcurrentHashMap()
-
-  override fun ensureProject(projectId: String) {
-    if (projects.find { it.id == projectId } == null) {
-      throw HttpNotFoundException("project_not_found", "Project $projectId not found in Management Portal.")
-    }
-  }
-
-  override fun userProjects(auth: Auth): List<Project> {
-    return projects.get()
-        .filter { auth.token.hasPermissionOnProject(Permission.PROJECT_READ, it.id) }
-  }
-
-  override fun project(projectId: String): Project = projects.find { it.id == projectId }
-      ?: throw HttpNotFoundException("project_not_found", "Project $projectId not found in Management Portal.")
-
-  override fun projectUsers(projectId: String): List<User> {
-    val projectParticipants = participants.computeIfAbsent(projectId) {
-      CachedSet(Duration.ofMinutes(config.service.syncParticipantsIntervalMin), Duration.ofMinutes(1)) {
-        mpClient.readParticipants(projectId)
-      }
+    private val projects = CachedSet(
+        Duration.ofMinutes(config.service.syncProjectsIntervalMin),
+        Duration.ofMinutes(1)) {
+        mpClient.readProjects()
     }
 
-    return projectParticipants.get().toList()
-  }
+    private val participants: ConcurrentMap<String, CachedSet<User>> = ConcurrentHashMap()
 
-  override fun userByExternalId(projectId: String, externalUserId: String): User? =
-      projectUsers(projectId).find { it.externalId == externalUserId }
+    override fun ensureProject(projectId: String) {
+        if (projects.find { it.id == projectId } == null) {
+            throw HttpNotFoundException("project_not_found", "Project $projectId not found in Management Portal.")
+        }
+    }
+
+    override fun userProjects(auth: Auth): List<Project> {
+        return projects.get()
+            .filter { auth.token.hasPermissionOnProject(Permission.PROJECT_READ, it.id) }
+    }
+
+    override fun project(projectId: String): Project = projects.find { it.id == projectId }
+        ?: throw HttpNotFoundException("project_not_found", "Project $projectId not found in Management Portal.")
+
+    override fun projectUsers(projectId: String): List<User> {
+        val projectParticipants = participants.computeIfAbsent(projectId) {
+            CachedSet(Duration.ofMinutes(config.service.syncParticipantsIntervalMin), Duration.ofMinutes(1)) {
+                mpClient.readParticipants(projectId)
+            }
+        }
+
+        return projectParticipants.get().toList()
+    }
+
+    override fun userByExternalId(projectId: String, externalUserId: String): User? =
+        projectUsers(projectId).find { it.externalId == externalUserId }
 
 }

@@ -15,9 +15,9 @@ import javax.ws.rs.core.Response
 class HealthCheckResource(
     @Context private var userRepository: RestSourceUserRepository
 ) {
-  @GET
-  fun check(): Response {
-    userRepository.query(Page(0, 1))
-    return Response.ok("Initialized dao and made a sample query...").build()
-  }
+    @GET
+    fun check(): Response {
+        userRepository.query(Page(0, 1))
+        return Response.ok("Initialized dao and made a sample query...").build()
+    }
 }

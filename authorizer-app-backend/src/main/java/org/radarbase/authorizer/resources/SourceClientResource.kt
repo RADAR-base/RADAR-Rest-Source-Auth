@@ -27,21 +27,21 @@ class SourceClientResource(
     @Context private val auth: Auth
 ) {
 
-  private val sourceTypes = restSourceClients.clients.map { it.sourceType }
+    private val sourceTypes = restSourceClients.clients.map { it.sourceType }
 
-  private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
+    private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
 
-  @GET
-  fun clients(): ShareableClientDetails = sharableClientDetails
+    @GET
+    fun clients(): ShareableClientDetails = sharableClientDetails
 
-  @GET
-  @Path("type")
-  fun types(): List<String> = sourceTypes
+    @GET
+    @Path("type")
+    fun types(): List<String> = sourceTypes
 
-  @GET
-  @Path("{type}")
-  fun client(@PathParam("type") type: String): ShareableClientDetail {
-    return sharableClientDetails.sourceClients.find { it.sourceType == type }
-        ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
-  }
+    @GET
+    @Path("{type}")
+    fun client(@PathParam("type") type: String): ShareableClientDetail {
+        return sharableClientDetails.sourceClients.find { it.sourceType == type }
+            ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
+    }
 }

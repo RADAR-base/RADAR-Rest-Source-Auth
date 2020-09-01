@@ -29,19 +29,19 @@ class DoaEntityManagerFactory(
     @Context private val emf: EntityManagerFactory
 ) : DisposableSupplier<EntityManager> {
 
-  override fun get(): EntityManager {
-    logger.debug("Creating EntityManager...")
-    return emf.createEntityManager()
-  }
-
-  override fun dispose(instance: EntityManager?) {
-    instance?.let {
-      logger.debug("Disposing EntityManager")
-      it.close()
+    override fun get(): EntityManager {
+        logger.debug("Creating EntityManager...")
+        return emf.createEntityManager()
     }
-  }
 
-  companion object {
-    private val logger = LoggerFactory.getLogger(DoaEntityManagerFactory::class.java)
-  }
+    override fun dispose(instance: EntityManager?) {
+        instance?.let {
+            logger.debug("Disposing EntityManager")
+            it.close()
+        }
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(DoaEntityManagerFactory::class.java)
+    }
 }

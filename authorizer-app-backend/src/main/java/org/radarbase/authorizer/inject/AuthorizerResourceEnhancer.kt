@@ -26,83 +26,83 @@ import javax.persistence.EntityManagerFactory
 import javax.ws.rs.ext.ContextResolver
 
 class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnhancer {
-  private val client = OkHttpClient().newBuilder()
-      .connectTimeout(10, TimeUnit.SECONDS)
-      .writeTimeout(10, TimeUnit.SECONDS)
-      .readTimeout(30, TimeUnit.SECONDS)
-      .build()
+    private val client = OkHttpClient().newBuilder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
 
-  private val restSourceClients = RestSourceClients(config.restSourceClients)
+    private val restSourceClients = RestSourceClients(config.restSourceClients)
 
-  override val classes: Array<Class<*>>
-    get() {
-      return if (config.service.enableCors == true) {
-        arrayOf(
-            ConfigLoader.Filters.logResponse,
-            ConfigLoader.Filters.cors)
-      } else {
-        arrayOf(
-            ConfigLoader.Filters.logResponse)
-      }
+    override val classes: Array<Class<*>>
+        get() {
+            return if (config.service.enableCors == true) {
+                arrayOf(
+                    ConfigLoader.Filters.logResponse,
+                    ConfigLoader.Filters.cors)
+            } else {
+                arrayOf(
+                    ConfigLoader.Filters.logResponse)
+            }
+        }
+
+    override val packages: Array<String> = arrayOf(
+        "org.radarbase.authorizer.exception",
+        "org.radarbase.authorizer.resources")
+
+    override fun ResourceConfig.enhance() {
+        register(ContextResolver { OBJECT_MAPPER })
     }
 
-  override val packages: Array<String> = arrayOf(
-      "org.radarbase.authorizer.exception",
-      "org.radarbase.authorizer.resources")
+    override fun AbstractBinder.enhance() {
+        // Bind instances. These cannot use any injects themselves
+        bind(config)
+            .to(Config::class.java)
 
-  override fun ResourceConfig.enhance() {
-    register(ContextResolver { OBJECT_MAPPER })
-  }
+        bind(config.database)
+            .to(DatabaseConfig::class.java)
 
-  override fun AbstractBinder.enhance() {
-    // Bind instances. These cannot use any injects themselves
-    bind(config)
-        .to(Config::class.java)
+        bind(restSourceClients)
+            .to(RestSourceClients::class.java)
 
-    bind(config.database)
-        .to(DatabaseConfig::class.java)
+        bind(client)
+            .to(OkHttpClient::class.java)
 
-    bind(restSourceClients)
-        .to(RestSourceClients::class.java)
+        bind(OBJECT_MAPPER)
+            .to(ObjectMapper::class.java)
 
-    bind(client)
-        .to(OkHttpClient::class.java)
+        // Bind factories.
+        bindFactory(DoaEntityManagerFactoryFactory::class.java)
+            .to(EntityManagerFactory::class.java)
+            .`in`(Singleton::class.java)
 
-    bind(OBJECT_MAPPER)
-        .to(ObjectMapper::class.java)
+        bindFactory(DoaEntityManagerFactory::class.java)
+            .to(EntityManager::class.java)
+            .`in`(RequestScoped::class.java)
 
-    // Bind factories.
-    bindFactory(DoaEntityManagerFactoryFactory::class.java)
-        .to(EntityManagerFactory::class.java)
-        .`in`(Singleton::class.java)
+        bind(RestSourceUserMapper::class.java)
+            .to(RestSourceUserMapper::class.java)
+            .`in`(Singleton::class.java)
 
-    bindFactory(DoaEntityManagerFactory::class.java)
-        .to(EntityManager::class.java)
-        .`in`(RequestScoped::class.java)
+        bind(RestSourceClientMapper::class.java)
+            .to(RestSourceClientMapper::class.java)
+            .`in`(Singleton::class.java)
 
-    bind(RestSourceUserMapper::class.java)
-        .to(RestSourceUserMapper::class.java)
-        .`in`(Singleton::class.java)
+        bind(RestSourceUserRepositoryImpl::class.java)
+            .to(RestSourceUserRepository::class.java)
+            .`in`(Singleton::class.java)
 
-    bind(RestSourceClientMapper::class.java)
-        .to(RestSourceClientMapper::class.java)
-        .`in`(Singleton::class.java)
+        bind(RestSourceAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .`in`(Singleton::class.java)
 
-    bind(RestSourceUserRepositoryImpl::class.java)
-        .to(RestSourceUserRepository::class.java)
-        .`in`(Singleton::class.java)
+    }
 
-    bind(RestSourceAuthorizationService::class.java)
-        .to(RestSourceAuthorizationService::class.java)
-        .`in`(Singleton::class.java)
-
-  }
-
-  companion object {
-    private val OBJECT_MAPPER: ObjectMapper = ObjectMapper()
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .registerModule(JavaTimeModule())
-        .registerModule(KotlinModule())
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-  }
+    companion object {
+        private val OBJECT_MAPPER: ObjectMapper = ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .registerModule(JavaTimeModule())
+            .registerModule(KotlinModule())
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+    }
 }

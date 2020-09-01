@@ -25,21 +25,21 @@ class ProjectResource(
     @Context private val auth: Auth
 ) {
 
-  @GET
-  @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ)
-  fun projects() = ProjectList(projectService.userProjects(auth))
+    @GET
+    @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ)
+    fun projects() = ProjectList(projectService.userProjects(auth))
 
-  @GET
-  @Path("{projectId}/users")
-  @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ, "projectId")
-  fun users(@PathParam("projectId") projectId: String): UserList {
-    return UserList(projectService.projectUsers(projectId))
-  }
+    @GET
+    @Path("{projectId}/users")
+    @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ, "projectId")
+    fun users(@PathParam("projectId") projectId: String): UserList {
+        return UserList(projectService.projectUsers(projectId))
+    }
 
-  @GET
-  @Path("{projectId}")
-  @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ, "projectId")
-  fun project(@PathParam("projectId") projectId: String): Project {
-    return projectService.project(projectId)
-  }
+    @GET
+    @Path("{projectId}")
+    @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ, "projectId")
+    fun project(@PathParam("projectId") projectId: String): Project {
+        return projectService.project(projectId)
+    }
 }
