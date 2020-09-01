@@ -10,7 +10,7 @@ An application to get authorization from users to access their data through 3rd 
 
 ## APIs to be used by REST Source-Connectors
 `RADAR REST Source-Connectors` can use the APIs as follows.
- 1. To get all configured users for a particular source-type use `GET */users?sourceType={source-type}` .
+ 1. To get all configured users for a particular source-type use `GET */users?source-type={source-type}` .
  2. To get details of a particular user use `GET */users/{id}`.
  3. To get the token details of a particular user use `GET */users/{id}/token`.
  4. To refresh the token of a particular user use `POST /users/{id}/token`.
