@@ -1,22 +1,32 @@
 # Build stage
-FROM openjdk:8-jdk-alpine as builder
+FROM gradle:6.6.1-jdk11 as builder
 
-WORKDIR /app
-COPY gradlew /app/
-COPY gradle/wrapper gradle/wrapper
-COPY gradle gradle
-COPY build.gradle settings.gradle /app/
-RUN ./gradlew --version downloadDependencies
 
-COPY src src
-RUN ./gradlew assemble
-# Run stage
-FROM openjdk:8-jre-alpine
+RUN mkdir /code
+WORKDIR /code
 
-# Add the war and changelogs files from build stage
-COPY --from=builder app/build/libs/*.jar /app.jar
+COPY ./build.gradle.kts ./settings.gradle.kts /code/
+COPY authorizer-app-backend/build.gradle.kts  /code/authorizer-app-backend/
+RUN gradle :authorizer-app-backend:downloadDependencies
 
-EXPOSE 8080
-CMD echo "The application will start in ${APP_SLEEP}s..." && \
-    sleep ${APP_SLEEP} && \
-    java -Djava.security.egd=file:/dev/./urandom -jar /app.jar
+COPY authorizer-app-backend/src /code/authorizer-app-backend/src
+
+RUN gradle -Dkotlin.compiler.execution.strategy="in-process" -Dorg.gradle.parallel=false -Pkotlin.incremental=false :authorizer-app-backend:distTar \
+    && cd authorizer-app-backend/build/distributions \
+    && tar xf *.tar \
+    && rm *.tar authorizer-app-backend-*/lib/authorizer-app-backend-*.jar
+
+FROM openjdk:11-jre-slim
+
+MAINTAINER @nivemaham @blootsvoets
+
+LABEL description="RADAR-base rest sources authorizer backend application"
+
+COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/bin/* /usr/bin/
+COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/lib/* /usr/lib/
+COPY --from=builder /code/authorizer-app-backend/build/libs/authorizer-app-backend-*.jar /usr/lib/
+
+EXPOSE 8090
+
+CMD ["authorizer-app-backend"]
+
