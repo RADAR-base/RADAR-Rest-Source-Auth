@@ -50,15 +50,17 @@ class RestSourceUserRepositoryImpl(
                 this.accessToken = token.accessToken
                 this.refreshToken = token.refreshToken
                 this.expiresIn = token.expiresIn
-                this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
-            }.also { persist(it) }
+                this.expiresAt = startDate.plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
+                persist(this)
+            }
         } else {
             existingUser.apply {
                 this.accessToken = token.accessToken
                 this.refreshToken = token.refreshToken
                 this.expiresIn = token.expiresIn
                 this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
-            }.also { merge(it) }
+                merge(this)
+            }
         }
     }
 
