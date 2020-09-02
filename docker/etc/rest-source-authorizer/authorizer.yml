@@ -14,7 +14,7 @@ auth:
 
 database:
   jdbcDriver: org.postgresql.Driver
-  jdbcUrl: jdbc:postgresql://radarbase-postgresql:5432/uploadconnector
+  jdbcUrl: jdbc:postgresql://radarbase-postgresql:5432/restsourceauthorizer
   jdbcUser: radarcns
   jdbcPassword: radarcns
   hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
