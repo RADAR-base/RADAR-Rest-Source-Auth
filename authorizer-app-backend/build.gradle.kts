@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    java
     application
     kotlin("jvm")
     id("org.jetbrains.kotlin.plugin.noarg")
@@ -16,16 +15,12 @@ application {
 
 project.extra.apply {
     set("okhttpVersion", "4.8.1")
-    set("radarJerseyVersion", "0.2.4")
+    set("radarJerseyVersion", "0.3.0-SNAPSHOT")
     set("jacksonVersion", "2.11.2")
     set("slf4jVersion", "1.7.30")
     set("logbackVersion", "1.2.3")
-    set("grizzlyVersion", "2.4.4")
     set("jerseyVersion", "2.31")
-    set("hibernateVersion", "5.4.20.Final")
-    set("postgresVersion", "42.2.16")
     set("liquibaseVersion", "3.10.2")
-    set("h2Version", "1.4.200")
     set("junitVersion", "5.6.2")
     set("mockitoKotlinVersion", "2.2.0")
     set("githubRepoName", "RADAR-base/RADAR-Rest-Source-Auth")
@@ -50,6 +45,7 @@ dependencies {
     implementation(kotlin("reflect"))
 
     implementation("org.radarbase:radar-jersey:${project.extra["radarJerseyVersion"]}")
+    implementation("org.radarbase:radar-jersey-hibernate:${project.extra["radarJerseyVersion"]}")
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${project.extra["jacksonVersion"]}")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${project.extra["jacksonVersion"]}")
@@ -57,14 +53,8 @@ dependencies {
 
     implementation("org.slf4j:slf4j-api:${project.extra["slf4jVersion"]}")
 
-    implementation("org.hibernate:hibernate-core:${project.extra["hibernateVersion"]}")
-    implementation("org.hibernate:hibernate-c3p0:${project.extra["hibernateVersion"]}")
-    implementation("org.liquibase:liquibase-core:${project.extra["liquibaseVersion"]}")
-
     implementation("com.squareup.okhttp3:okhttp:${project.extra["okhttpVersion"]}")
 
-    runtimeOnly("com.h2database:h2:${project.extra["h2Version"]}")
-    runtimeOnly("org.postgresql:postgresql:${project.extra["postgresVersion"]}")
     runtimeOnly("ch.qos.logback:logback-classic:${project.extra["logbackVersion"]}")
 
     testImplementation("org.junit.jupiter:junit-jupiter:${project.extra["junitVersion"]}")

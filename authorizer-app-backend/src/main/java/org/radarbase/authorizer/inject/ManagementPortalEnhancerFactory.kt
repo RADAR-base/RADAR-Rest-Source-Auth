@@ -18,6 +18,7 @@ package org.radarbase.authorizer.inject
 
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.radarbase.authorizer.Config
+import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.managementportal.MPClient
 import org.radarbase.authorizer.service.managementportal.MPProjectService
@@ -26,6 +27,7 @@ import org.radarbase.jersey.auth.ProjectService
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.EnhancerFactory
 import org.radarbase.jersey.config.JerseyResourceEnhancer
+import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 import javax.inject.Singleton
 
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
@@ -34,27 +36,31 @@ class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFact
         AuthorizerResourceEnhancer(config),
         MPClientResourceEnhancer(),
         ConfigLoader.Enhancers.radar(AuthConfig(
-            managementPortalUrl = config.auth.managementPortalUrl,
-            jwtResourceName = config.auth.jwtResourceName)),
+                managementPortalUrl = config.auth.managementPortalUrl,
+                jwtResourceName = config.auth.jwtResourceName,
+        )),
+        HibernateResourceEnhancer(config.database.copy(
+                managedClasses = listOf(
+                        RestSourceUser::class.qualifiedName!!,
+                )
+        )),
         ConfigLoader.Enhancers.managementPortal,
         ConfigLoader.Enhancers.generalException,
         ConfigLoader.Enhancers.httpException)
 
     class MPClientResourceEnhancer : JerseyResourceEnhancer {
-        override fun enhanceBinder(binder: AbstractBinder) {
-            binder.apply {
-                bind(MPClient::class.java)
-                    .to(MPClient::class.java)
-                    .`in`(Singleton::class.java)
+        override fun AbstractBinder.enhance() {
+            bind(MPClient::class.java)
+                .to(MPClient::class.java)
+                .`in`(Singleton::class.java)
 
-                bind(ProjectServiceWrapper::class.java)
-                    .to(ProjectService::class.java)
-                    .`in`(Singleton::class.java)
+            bind(ProjectServiceWrapper::class.java)
+                .to(ProjectService::class.java)
+                .`in`(Singleton::class.java)
 
-                bind(MPProjectService::class.java)
-                    .to(RadarProjectService::class.java)
-                    .`in`(Singleton::class.java)
-            }
+            bind(MPProjectService::class.java)
+                .to(RadarProjectService::class.java)
+                .`in`(Singleton::class.java)
         }
     }
 }

@@ -21,6 +21,7 @@ import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
+import org.radarbase.jersey.hibernate.HibernateRepository
 import java.time.Duration
 import java.time.Instant
 import javax.inject.Provider
@@ -28,10 +29,10 @@ import javax.persistence.EntityManager
 import javax.ws.rs.core.Context
 
 class RestSourceUserRepositoryImpl(
-    @Context private var em: Provider<EntityManager>
-) : RestSourceUserRepository {
+    @Context em: Provider<EntityManager>
+) : RestSourceUserRepository, HibernateRepository(em) {
 
-    override fun createOrUpdate(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = em.get().transact {
+    override fun createOrUpdate(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = transact {
         val externalUserId = token.externalUserId
             ?: throw HttpBadGatewayException("Could not get externalId from token")
 
@@ -64,9 +65,9 @@ class RestSourceUserRepositoryImpl(
         }
     }
 
-    override fun read(id: Long): RestSourceUser? = em.get().transact { find(RestSourceUser::class.java, id) }
+    override fun read(id: Long): RestSourceUser? = transact { find(RestSourceUser::class.java, id) }
 
-    override fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser = em.get().transact {
+    override fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser = transact {
         existingUser.apply {
             this.projectId = user.projectId
             this.userId = user.userId
@@ -91,7 +92,7 @@ class RestSourceUserRepositoryImpl(
         }
 
         val actualPage = page.createValid(maximum = 100)
-        return em.get().transact {
+        return transact {
             val query = createQuery(queryString, RestSourceUser::class.java)
                 .setFirstResult(actualPage.offset)
                 .setMaxResults(actualPage.pageSize!!)
@@ -113,11 +114,11 @@ class RestSourceUserRepositoryImpl(
         }
     }
 
-    override fun delete(user: RestSourceUser) = em.get().transact {
+    override fun delete(user: RestSourceUser) = transact {
         remove(merge(user))
     }
 
-    override fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?) = em.get().transact {
+    override fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?) = transact {
         user.apply {
             this.version = Instant.now().toString()
             this.timesReset += 1

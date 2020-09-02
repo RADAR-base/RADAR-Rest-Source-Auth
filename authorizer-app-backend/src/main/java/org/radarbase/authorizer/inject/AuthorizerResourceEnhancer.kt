@@ -23,10 +23,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import okhttp3.OkHttpClient
 import org.glassfish.jersey.internal.inject.AbstractBinder
-import org.glassfish.jersey.process.internal.RequestScoped
 import org.glassfish.jersey.server.ResourceConfig
 import org.radarbase.authorizer.Config
-import org.radarbase.authorizer.DatabaseConfig
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
@@ -37,8 +35,6 @@ import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
-import javax.persistence.EntityManager
-import javax.persistence.EntityManagerFactory
 import javax.ws.rs.ext.ContextResolver
 
 class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnhancer {
@@ -75,9 +71,6 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
         bind(config)
             .to(Config::class.java)
 
-        bind(config.database)
-            .to(DatabaseConfig::class.java)
-
         bind(restSourceClients)
             .to(RestSourceClients::class.java)
 
@@ -86,15 +79,6 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
 
         bind(OBJECT_MAPPER)
             .to(ObjectMapper::class.java)
-
-        // Bind factories.
-        bindFactory(DoaEntityManagerFactoryFactory::class.java)
-            .to(EntityManagerFactory::class.java)
-            .`in`(Singleton::class.java)
-
-        bindFactory(DoaEntityManagerFactory::class.java)
-            .to(EntityManager::class.java)
-            .`in`(RequestScoped::class.java)
 
         bind(RestSourceUserMapper::class.java)
             .to(RestSourceUserMapper::class.java)
