@@ -37,11 +37,11 @@ class MPClient(
         @Context config: Config,
         @Context private val auth: Auth,
         @Context private val objectMapper: ObjectMapper,
+        @Context private val httpClient: OkHttpClient
 ) {
     private val clientId: String = config.auth.clientId
     private val clientSecret: String = config.auth.clientSecret
         ?: throw IllegalArgumentException("Cannot configure managementportal client without client secret")
-    private val httpClient = OkHttpClient()
     private val baseUrl: HttpUrl = config.auth.managementPortalUrl.toHttpUrlOrNull()
         ?: throw MalformedURLException("Cannot parse base URL ${config.auth.managementPortalUrl} as an URL")
     private val projectListReader = objectMapper.readerFor(object : TypeReference<List<ProjectDto>>() {})
@@ -59,7 +59,7 @@ class MPClient(
         }
 
     private fun ensureToken(): String {
-        var localToken = validToken
+        val localToken = validToken
 
         return if (localToken != null) {
             localToken
@@ -74,11 +74,11 @@ class MPClient(
                 header("Authorization", Credentials.basic(clientId, clientSecret))
             }.build()
 
-            val result = httpClient.requestValue<RestOauth2AccessToken>(request, tokenReader)
-            localToken = result.accessToken
-            expiration = Instant.now() + Duration.ofSeconds(result.expiresIn.toLong()) - Duration.ofMinutes(5)
-            token = localToken
-            localToken
+            httpClient.requestValue<RestOauth2AccessToken>(request, tokenReader).let {
+                expiration = Instant.now() + Duration.ofSeconds(it.expiresIn.toLong()) - Duration.ofMinutes(5)
+                token = it.accessToken
+                it.accessToken
+            }
         }
     }
 
@@ -120,9 +120,18 @@ class MPClient(
             }
     }
 
-    data class SubjectDto(val login: String, val externalId: String? = null, val status: String = "DEACTIVATED", val attributes: Map<String, String> = mapOf())
+    data class SubjectDto(
+            val login: String,
+            val externalId: String? = null,
+            val status: String = "DEACTIVATED",
+            val attributes: Map<String, String> = mapOf())
 
-    data class ProjectDto(@JsonProperty("projectName") val id: String, @JsonProperty("humanReadableProjectName") val name: String? = null, val location: String? = null, val organization: String? = null, val description: String? = null)
+    data class ProjectDto(
+            @JsonProperty("projectName") val id: String,
+            @JsonProperty("humanReadableProjectName") val name: String? = null,
+            val location: String? = null,
+            val organization: String? = null,
+            val description: String? = null)
 
     companion object {
         private val logger = LoggerFactory.getLogger(MPClient::class.java)

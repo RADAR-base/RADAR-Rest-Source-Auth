@@ -63,7 +63,6 @@ class RestSourceAuthorizationService(
     fun revokeToken(accessToken: String, sourceType: String): Boolean {
         val form = FormBody.Builder().add("token", accessToken).build();
         logger.info("Requesting to revoke access token");
-
         return httpClient.request(post(form, sourceType))
     }
 
