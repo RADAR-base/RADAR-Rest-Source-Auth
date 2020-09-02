@@ -95,7 +95,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   }
 
   resetUser(restSourceUser: RestSourceUser) {
-    this.restSourceUserService.resetUser(restSourceUser.id).subscribe(() => {
+    this.restSourceUserService.resetUser(restSourceUser).subscribe(() => {
       this.loadAllRestSourceUsers();
     });
   }
@@ -117,33 +117,8 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe((user: RestSourceUser) => {
-      if (
-        user.startDate != restSourceUser.startDate ||
-        user.endDate != restSourceUser.endDate
-      ) {
-        console.log('Updating user details...');
-        this.restSourceUserService.updateUser(user).subscribe(
-          () => {
-            console.log('Resetting user...');
-            this.resetUser(user);
-          },
-          (err: HttpErrorResponse) => {
-            if (err.error instanceof ErrorEvent) {
-              // A client-side or network error occurred. Handle it accordingly.
-              this.errorMessage =
-                'Something went wrong. Please check your connection.';
-            } else {
-              // The backend returned an unsuccessful response code.
-              // The response body may contain clues as to what went wrong,
-              this.errorMessage = `Backend Error: Status=${err.status}, 
-            Body: ${err.error.error}, ${err.error.message}`;
-            }
-          }
-        );
-      } else {
-        console.log('Resetting user...');
+        console.log('Resetting user...', user);
         this.resetUser(user);
-      }
     });
   }
 }
