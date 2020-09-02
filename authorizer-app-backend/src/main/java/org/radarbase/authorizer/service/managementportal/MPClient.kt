@@ -18,32 +18,35 @@ package org.radarbase.authorizer.service.managementportal
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.api.Project
+import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.User
+import org.radarbase.authorizer.util.requestValue
 import org.radarbase.jersey.auth.Auth
-import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.slf4j.LoggerFactory
 import java.net.MalformedURLException
 import java.time.Duration
 import java.time.Instant
 import javax.ws.rs.core.Context
 
-class MPClient(@Context config: Config, @Context private val auth: Auth) {
+class MPClient(
+        @Context config: Config,
+        @Context private val auth: Auth,
+        @Context private val objectMapper: ObjectMapper,
+) {
     private val clientId: String = config.auth.clientId
     private val clientSecret: String = config.auth.clientSecret
         ?: throw IllegalArgumentException("Cannot configure managementportal client without client secret")
     private val httpClient = OkHttpClient()
     private val baseUrl: HttpUrl = config.auth.managementPortalUrl.toHttpUrlOrNull()
         ?: throw MalformedURLException("Cannot parse base URL ${config.auth.managementPortalUrl} as an URL")
-    private val mapper = jacksonObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    private val projectListReader = mapper.readerFor(object : TypeReference<List<ProjectDto>>() {})
-    private val userListReader = mapper.readerFor(object : TypeReference<List<SubjectDto>>() {})
+    private val projectListReader = objectMapper.readerFor(object : TypeReference<List<ProjectDto>>() {})
+    private val userListReader = objectMapper.readerFor(object : TypeReference<List<SubjectDto>>() {})
+    private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
 
     private var token: String? = null
     private var expiration: Instant? = null
@@ -71,10 +74,9 @@ class MPClient(@Context config: Config, @Context private val auth: Auth) {
                 header("Authorization", Credentials.basic(clientId, clientSecret))
             }.build()
 
-            val result = mapper.readTree(execute(request))
-            localToken = result["access_token"].asText()
-                ?: throw HttpBadGatewayException("ManagementPortal did not provide an access token")
-            expiration = Instant.now() + Duration.ofSeconds(result["expires_in"].asLong()) - Duration.ofMinutes(5)
+            val result = httpClient.requestValue<RestOauth2AccessToken>(request, tokenReader)
+            localToken = result.accessToken
+            expiration = Instant.now() + Duration.ofSeconds(result.expiresIn.toLong()) - Duration.ofMinutes(5)
             token = localToken
             localToken
         }
@@ -87,7 +89,7 @@ class MPClient(@Context config: Config, @Context private val auth: Auth) {
             header("Authorization", "Bearer ${ensureToken()}")
         }.build()
 
-        return projectListReader.readValue<List<ProjectDto>>(execute(request))
+        return httpClient.requestValue<List<ProjectDto>>(request, projectListReader)
             .map {
                 Project(
                     id = it.id,
@@ -96,18 +98,6 @@ class MPClient(@Context config: Config, @Context private val auth: Auth) {
                     organization = it.organization,
                     description = it.description)
             }
-    }
-
-    private fun execute(request: Request): String {
-        return httpClient.newCall(request).execute().use { response ->
-            if (response.isSuccessful) {
-                response.body?.string()
-                    ?: throw HttpBadGatewayException("ManagementPortal did not provide a result")
-            } else {
-                logger.error("Cannot connect to managementportal ", response.code)
-                throw HttpBadGatewayException("Cannot connect to managementportal : Response-code ${response.code}")
-            }
-        }
     }
 
     fun readParticipants(projectId: String): List<User> {
@@ -120,7 +110,7 @@ class MPClient(@Context config: Config, @Context private val auth: Auth) {
             header("Authorization", "Bearer ${ensureToken()}")
         }.build()
 
-        return userListReader.readValue<List<SubjectDto>>(execute(request))
+        return httpClient.requestValue<List<SubjectDto>>(request, userListReader)
             .map {
                 User(
                     id = it.login,
