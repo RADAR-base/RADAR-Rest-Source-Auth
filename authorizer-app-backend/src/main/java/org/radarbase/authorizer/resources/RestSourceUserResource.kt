@@ -21,6 +21,8 @@ import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.util.StateStore
+import org.radarbase.authorizer.util.StateStore.State.Companion.toState
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
@@ -49,6 +51,7 @@ class RestSourceUserResource(
     @Context private val userMapper: RestSourceUserMapper,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val projectService: RadarProjectService,
+    @Context private val stateStore: StateStore,
     @Context private val auth: Auth
 ) {
 
@@ -83,9 +86,11 @@ class RestSourceUserResource(
     fun create(
         @FormParam("code") code: String,
         @FormParam("state") state: String): Response {
-        logger.info("code $code state $state")
-        val accessToken = authorizationService.requestAccessToken(code, sourceType = state)
-        val user = userRepository.createOrUpdate(accessToken, state)
+        logger.info("Authorizing with code $code state $state")
+        val state = toState(string = state)
+        if (!stateStore.isValid(state)) throw HttpBadRequestException("state_not_found", "State has expired or not found")
+        val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
+        val user = userRepository.createOrUpdate(accessToken, state.sourceType)
 
         return Response.created(URI("users/${user.id}"))
             .entity(userMapper.fromEntity(user))

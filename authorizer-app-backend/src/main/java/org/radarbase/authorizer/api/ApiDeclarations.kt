@@ -37,7 +37,8 @@ data class ShareableClientDetail(
     val tokenEndpoint: String,
     val grantType: String?,
     val clientId: String,
-    val scope: String?
+    val scope: String?,
+    val state: String? = null,
 )
 
 data class ShareableClientDetails(

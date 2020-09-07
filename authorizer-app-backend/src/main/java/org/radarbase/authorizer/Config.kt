@@ -33,7 +33,8 @@ data class AuthorizerServiceConfig(
     var resourceConfig: Class<out EnhancerFactory> = ManagementPortalEnhancerFactory::class.java,
     var enableCors: Boolean? = false,
     var syncProjectsIntervalMin: Long = 30,
-    var syncParticipantsIntervalMin: Long = 30
+    var syncParticipantsIntervalMin: Long = 30,
+    val stateStoreExpiryInMin: Long = 5
 )
 
 data class AuthConfig(
