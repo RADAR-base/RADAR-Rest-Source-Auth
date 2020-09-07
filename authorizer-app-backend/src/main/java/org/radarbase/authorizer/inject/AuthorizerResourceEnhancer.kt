@@ -38,12 +38,6 @@ import javax.inject.Singleton
 import javax.ws.rs.ext.ContextResolver
 
 class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnhancer {
-    private val client = OkHttpClient().newBuilder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .writeTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
-
     private val restSourceClients = RestSourceClients(config.restSourceClients)
 
     override val classes: Array<Class<*>>
@@ -62,10 +56,6 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
         "org.radarbase.authorizer.exception",
         "org.radarbase.authorizer.resources")
 
-    override fun ResourceConfig.enhance() {
-        register(ContextResolver { OBJECT_MAPPER })
-    }
-
     override fun AbstractBinder.enhance() {
         // Bind instances. These cannot use any injects themselves
         bind(config)
@@ -73,12 +63,6 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
 
         bind(restSourceClients)
             .to(RestSourceClients::class.java)
-
-        bind(client)
-            .to(OkHttpClient::class.java)
-
-        bind(OBJECT_MAPPER)
-            .to(ObjectMapper::class.java)
 
         bind(RestSourceUserMapper::class.java)
             .to(RestSourceUserMapper::class.java)
@@ -96,13 +80,5 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
             .to(RestSourceAuthorizationService::class.java)
             .`in`(Singleton::class.java)
 
-    }
-
-    companion object {
-        private val OBJECT_MAPPER: ObjectMapper = ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            .registerModule(JavaTimeModule())
-            .registerModule(KotlinModule())
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     }
 }

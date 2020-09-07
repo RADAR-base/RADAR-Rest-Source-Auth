@@ -19,7 +19,6 @@ package org.radarbase.authorizer.resources
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -27,6 +26,7 @@ import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

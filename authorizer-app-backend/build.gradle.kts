@@ -65,7 +65,11 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions {
+        jvmTarget = "11"
+        apiVersion = "1.4"
+        languageVersion = "1.4"
+    }
 }
 
 tasks.withType<Test> {

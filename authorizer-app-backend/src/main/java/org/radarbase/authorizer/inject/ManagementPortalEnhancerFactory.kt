@@ -16,51 +16,41 @@
 
 package org.radarbase.authorizer.inject
 
-import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.service.RadarProjectService
-import org.radarbase.authorizer.service.managementportal.MPClient
-import org.radarbase.authorizer.service.managementportal.MPProjectService
 import org.radarbase.jersey.auth.AuthConfig
-import org.radarbase.jersey.auth.ProjectService
+import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.EnhancerFactory
 import org.radarbase.jersey.config.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
-import javax.inject.Singleton
 
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
 class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFactory {
-    override fun createEnhancers(): List<JerseyResourceEnhancer> = listOf(
-        AuthorizerResourceEnhancer(config),
-        MPClientResourceEnhancer(),
-        ConfigLoader.Enhancers.radar(AuthConfig(
-                managementPortalUrl = config.auth.managementPortalUrl,
+    override fun createEnhancers(): List<JerseyResourceEnhancer> {
+        val authConfig = AuthConfig(
+                managementPortal = MPConfig(
+                        url = config.auth.managementPortalUrl,
+                        clientId = config.auth.clientId,
+                        clientSecret = config.auth.clientSecret,
+                        syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
+                        syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
+                ),
                 jwtResourceName = config.auth.jwtResourceName,
-        )),
-        HibernateResourceEnhancer(config.database.copy(
+        )
+        val dbConfig = config.database.copy(
                 managedClasses = listOf(
                         RestSourceUser::class.qualifiedName!!,
                 )
-        )),
-        ConfigLoader.Enhancers.managementPortal,
-        ConfigLoader.Enhancers.generalException,
-        ConfigLoader.Enhancers.httpException)
-
-    class MPClientResourceEnhancer : JerseyResourceEnhancer {
-        override fun AbstractBinder.enhance() {
-            bind(MPClient::class.java)
-                .to(MPClient::class.java)
-                .`in`(Singleton::class.java)
-
-            bind(ProjectServiceWrapper::class.java)
-                .to(ProjectService::class.java)
-                .`in`(Singleton::class.java)
-
-            bind(MPProjectService::class.java)
-                .to(RadarProjectService::class.java)
-                .`in`(Singleton::class.java)
-        }
+        )
+        return listOf(
+                AuthorizerResourceEnhancer(config),
+                ConfigLoader.Enhancers.radar(authConfig),
+                ConfigLoader.Enhancers.health,
+                HibernateResourceEnhancer(dbConfig),
+                ConfigLoader.Enhancers.managementPortal(authConfig),
+                ConfigLoader.Enhancers.generalException,
+                ConfigLoader.Enhancers.httpException,
+        )
     }
 }
