@@ -1,12 +1,6 @@
-export class RestSourceUser {
+export class RestSourceProject {
      id?: string;
      version?: string;
-     projectId?: string;
-     userId?: string;
-     sourceId?: string;
-     startDate?: string;
-     endDate?: string;
-     externalUserId?: string;
-     authorized?: boolean;
-     timesReset?: number;
+     description ?: string;
+     location ?: string;
 }
