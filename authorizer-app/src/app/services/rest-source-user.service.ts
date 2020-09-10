@@ -3,6 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs/internal/Observable';
 import {RestSourceUser} from '../models/rest-source-user.model';
 import {environment} from '../../environments/environment';
+import {RestSourceProject} from "../models/rest-source-project.model";
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,14 @@ export class RestSourceUserService {
 
   getAllUsers(): Observable<RestSourceUser[]> {
     return this.http.get<RestSourceUser[]>(this.serviceUrl);
+  }
+
+  getAllUsersOfProject(projectId: string): Observable<RestSourceUser[]> {
+    return this.http.get<RestSourceUser[]>(environment.backendBaseUrl + '/users?project-id='+projectId);
+  }
+
+  getAllProjects(): Observable<RestSourceProject[]> {
+    return this.http.get<RestSourceProject[]>(environment.backendBaseUrl + '/projects');
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
