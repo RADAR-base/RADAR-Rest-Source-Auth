@@ -1,25 +1,21 @@
 import {
   AfterViewInit,
   Component,
-  Inject,
   OnInit,
   ViewChild
 } from '@angular/core';
 import {
-  MAT_DIALOG_DATA,
-  MatDatepickerInputEvent,
   MatDialog,
-  MatDialogRef,
   MatPaginator,
   MatSort,
   MatTableDataSource
 } from '@angular/material';
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
-import { FormControl } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
-import * as moment from 'moment';
-import deepcopy from 'ts-deepcopy';
+import {RestSourceProject} from "../../models/rest-source-project.model";
+import {ActivatedRoute, Router} from "@angular/router";
+import {RestSourceUserListDeleteDialog} from "./rest-source-user-list-delete-dialog.component";
+import {RestSourceUserListResetDialog} from "./rest-source-user-list-reset-dialog.component";
 
 @Component({
   selector: 'rest-source-list',
@@ -27,19 +23,14 @@ import deepcopy from 'ts-deepcopy';
   styleUrls: ['./rest-source-user-list.component.css']
 })
 export class RestSourceUserListComponent implements OnInit, AfterViewInit {
-  displayedColumns = [
+  columnsToDisplay = [
     'id',
-    'projectId',
     'userId',
-    'sourceId',
+    'externalUserId',
     'startDate',
     'endDate',
-    'externalUserId',
     'authorized',
-    'version',
-    'edit',
-    'reset',
-    'delete'
+    'actions'
   ];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -47,18 +38,28 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
   errorMessage: string;
   restSourceUsers: RestSourceUser[];
-  public isCollapsed = true;
+  restSourceProjects: RestSourceProject[];
+  selectedProject: string = ''
 
   dataSource: MatTableDataSource<RestSourceUser>;
 
   constructor(
     private restSourceUserService: RestSourceUserService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+
   ) {}
 
   ngOnInit() {
-    this.loadAllRestSourceUsers();
+    this.selectedProject = this.activatedRoute.snapshot.queryParams.project;
+
+    this.loadAllRestSourceProjects()
     this.dataSource = new MatTableDataSource(this.restSourceUsers);
+    this.dataSource.filterPredicate = function(data, filter: string): boolean {
+      return data.id.toLowerCase().includes(filter) || data.userId.toLowerCase().includes(filter) || data.externalUserId.toString().includes(filter);
+    };
+    this.onChangeProject(this.selectedProject)
   }
 
   /**
@@ -74,6 +75,8 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     filterValue = filterValue.trim(); // Remove whitespace
     filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
     this.dataSource.filter = filterValue;
+
+
   }
 
   private loadAllRestSourceUsers() {
@@ -84,6 +87,29 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
       },
       () => {
         this.errorMessage = 'Cannot load registered users!';
+      }
+    );
+  }
+
+  private loadAllRestSourceUsersOfProject(projectId: string) {
+    this.restSourceUserService.getAllUsersOfProject(projectId).subscribe(
+      (data: any) => {
+        this.restSourceUsers = data.users;
+        this.dataSource.data = this.restSourceUsers;
+      },
+      () => {
+        this.errorMessage = 'Cannot load registered users!';
+      }
+    );
+  }
+
+  private loadAllRestSourceProjects() {
+    this.restSourceUserService.getAllProjects().subscribe(
+      (data: any) => {
+        this.restSourceProjects = data.projects;
+      },
+      () => {
+        this.errorMessage = 'Cannot load projects!';
       }
     );
   }
@@ -106,8 +132,10 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(user => {
-      console.log('Deleting user...');
-      this.removeDevice(user);
+      if(user){
+        console.log('Deleting user...',user);
+        this.removeDevice(user);
+      }
     });
   }
 
@@ -117,56 +145,20 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe((user: RestSourceUser) => {
+      if(user){
         console.log('Resetting user...', user);
         this.resetUser(user);
+      }
     });
   }
-}
 
-@Component({
-  selector: 'rest-source-user-list-delete-dialog',
-  templateUrl: 'rest-source-user-list-delete-dialog.html'
-})
-export class RestSourceUserListDeleteDialog {
-  constructor(
-    public dialogRef: MatDialogRef<RestSourceUserListDeleteDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: RestSourceUser
-  ) {}
-
-  closeDeleteDialog(): void {
-    this.dialogRef.close();
-  }
-}
-
-@Component({
-  selector: 'rest-source-user-list-reset-dialog',
-  templateUrl: 'rest-source-user-list-reset-dialog.html'
-})
-export class RestSourceUserListResetDialog {
-  startDateFormControl: FormControl;
-  endDateFormControl: FormControl;
-
-  // Stores a copy of the data so as to not modify the original content
-  dataCopy: RestSourceUser;
-
-  constructor(
-    public dialogRef: MatDialogRef<RestSourceUserListDeleteDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: RestSourceUser
-  ) {
-    this.startDateFormControl = new FormControl(moment(this.data.startDate));
-    this.endDateFormControl = new FormControl(moment(this.data.endDate));
-    this.dataCopy = deepcopy(this.data);
+  onChangeProject(projectId: string) {
+    this.selectedProject = projectId
+    if(projectId !== ''){
+      this.loadAllRestSourceUsersOfProject(projectId)
+      this.applyFilter("")
+    }
+    this.router.navigate(['/users'], {queryParams: {project: this.selectedProject}});
   }
 
-  closeResetDialog(): void {
-    this.dialogRef.close();
-  }
-
-  updateStartDateValue(event: MatDatepickerInputEvent<any>) {
-    this.dataCopy.startDate = event.value.toISOString();
-  }
-
-  updateEndDateValue(event: MatDatepickerInputEvent<any>) {
-    this.dataCopy.endDate = event.value.toISOString();
-  }
 }
