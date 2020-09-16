@@ -3,7 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs/internal/Observable';
 import {RestSourceUser} from '../models/rest-source-user.model';
 import {environment} from '../../environments/environment';
-import {RestSourceProject} from "../models/rest-source-project.model";
+import {RadarProject} from "../models/rest-source-project.model";
 
 @Injectable({
   providedIn: 'root'
@@ -23,13 +23,16 @@ export class RestSourceUserService {
     return this.http.get<RestSourceUser[]>(environment.backendBaseUrl + '/users?project-id='+projectId);
   }
 
-  getAllProjects(): Observable<RestSourceProject[]> {
-    return this.http.get<RestSourceProject[]>(environment.backendBaseUrl + '/projects');
+  getAllProjects(): Observable<RadarProject[]> {
+    return this.http.get<RadarProject[]>(environment.backendBaseUrl + '/projects');
+  }
+
+  getAllSubjectsOfProjects(projectId: string): Observable<RadarProject[]> {
+    return this.http.get<RadarProject[]>(environment.backendBaseUrl + '/projects/' + projectId +'/users');
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
-    const params = new HttpParams().set('validate', String(environment.doValidate));
-    return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser, {params});
+    return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser);
   }
 
   addAuthorizedUser(code: string, state: string): Observable<any> {

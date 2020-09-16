@@ -12,7 +12,7 @@ import {
 } from '@angular/material';
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
-import {RestSourceProject} from "../../models/rest-source-project.model";
+import {RadarProject} from "../../models/rest-source-project.model";
 import {ActivatedRoute, Router} from "@angular/router";
 import {RestSourceUserListDeleteDialog} from "./rest-source-user-list-delete-dialog.component";
 import {RestSourceUserListResetDialog} from "./rest-source-user-list-reset-dialog.component";
@@ -38,7 +38,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
   errorMessage: string;
   restSourceUsers: RestSourceUser[];
-  restSourceProjects: RestSourceProject[];
+  restSourceProjects: RadarProject[];
   selectedProject: string = ''
 
   dataSource: MatTableDataSource<RestSourceUser>;

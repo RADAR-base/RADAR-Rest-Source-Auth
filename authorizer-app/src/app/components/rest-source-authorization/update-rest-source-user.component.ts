@@ -9,8 +9,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
 import { SourceClientAuthorizationService } from '../../services/source-client-authorization.service';
-import {RestSourceProject} from "../../models/rest-source-project.model";
-import {Location} from '@angular/common';
+import { RadarProject, RadarSubject } from '../../models/rest-source-project.model';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'update-rest-source-user',
@@ -24,8 +24,8 @@ export class UpdateRestSourceUserComponent implements OnInit {
   startDate: Date;
   endDate: Date;
   restSourceUser: RestSourceUser;
-  restSourceUsers: any[] = [];
-  restSourceProjects: RestSourceProject[] = [];
+  subjects: RadarSubject[] = [];
+  restSourceProjects: RadarProject[] = [];
 
   constructor(
     private restSourceUserService: RestSourceUserService,
@@ -44,11 +44,13 @@ export class UpdateRestSourceUserComponent implements OnInit {
       if (params.hasOwnProperty('id')) {
         this.restSourceUserService.getUserById(params['id']).subscribe(
           user => {
+            console.log("user ", user)
             this.restSourceUser = user;
+            console.log("rest user ", this.restSourceUser)
             this.isEditing = true;
             this.startDate = new Date(this.restSourceUser.startDate);
             this.endDate = new Date(this.restSourceUser.endDate);
-            this.onChangeProject(this.restSourceUser.projectId)
+            // this.onChangeProject(this.restSourceUser.projectId)
           },
           (err: Response) => {
             console.log('Cannot retrieve current user details', err)
@@ -85,7 +87,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
     }
     this.restSourceUserService.updateUser(this.restSourceUser).subscribe(
       () => {
-        return this.router.navigate(['/users']);
+        return this.router.navigate(['/users'], {queryParams: {project: this.restSourceUser.projectId}});
       },
       (err: HttpErrorResponse) => {
         if (err.error instanceof ErrorEvent) {
@@ -133,16 +135,15 @@ export class UpdateRestSourceUserComponent implements OnInit {
   }
 
   onChangeProject(projectId: string) {
-    if(projectId === ''){
-    }else{
-      this.loadAllRestSourceUsersOfProject(projectId)
+    if(projectId){
+      this.loadAllSubjectsOfProject(projectId)
     }
   }
 
-  private loadAllRestSourceUsersOfProject(projectId: string) {
-    this.restSourceUserService.getAllUsersOfProject(projectId).subscribe(
+  private loadAllSubjectsOfProject(projectId: string) {
+    this.restSourceUserService.getAllSubjectsOfProjects(projectId).subscribe(
       (data: any) => {
-        this.restSourceUsers = data.users;
+        this.subjects = data.users;
       },
       () => {
         this.errorMessage = 'Cannot load registered users!';
