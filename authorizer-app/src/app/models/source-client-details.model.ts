@@ -5,4 +5,5 @@ export class RestSourceClientDetails {
   scope?: string;
   redirectUrl?: string;
   grantType?: string;
+  state: string
 }

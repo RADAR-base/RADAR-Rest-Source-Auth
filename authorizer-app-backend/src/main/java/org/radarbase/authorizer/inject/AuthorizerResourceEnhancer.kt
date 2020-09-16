@@ -17,6 +17,7 @@
 package org.radarbase.authorizer.inject
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -33,8 +34,10 @@ import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import javax.persistence.EntityManager
@@ -49,6 +52,8 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
         .build()
 
     private val restSourceClients = RestSourceClients(config.restSourceClients)
+
+    private val stateStore = StateStore(Duration.ofMinutes(config.service.stateStoreExpiryInMin))
 
     override val classes: Array<Class<*>>
         get() {
@@ -87,6 +92,9 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
         bind(OBJECT_MAPPER)
             .to(ObjectMapper::class.java)
 
+        bind(stateStore)
+            .to(StateStore::class.java)
+
         // Bind factories.
         bindFactory(DoaEntityManagerFactoryFactory::class.java)
             .to(EntityManagerFactory::class.java)
@@ -116,9 +124,10 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
 
     companion object {
         private val OBJECT_MAPPER: ObjectMapper = ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            .registerModule(JavaTimeModule())
-            .registerModule(KotlinModule())
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .registerModule(JavaTimeModule())
+                .registerModule(KotlinModule())
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 }

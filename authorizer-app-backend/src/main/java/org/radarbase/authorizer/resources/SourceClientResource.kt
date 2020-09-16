@@ -20,6 +20,7 @@ import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.ShareableClientDetail
 import org.radarbase.authorizer.api.ShareableClientDetails
+import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
@@ -42,6 +43,7 @@ import javax.ws.rs.core.MediaType
 class SourceClientResource(
     @Context private val restSourceClients: RestSourceClients,
     @Context private val clientMapper: RestSourceClientMapper,
+    @Context private val stateStore: StateStore,
     @Context private val auth: Auth
 ) {
 
@@ -63,6 +65,7 @@ class SourceClientResource(
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun client(@PathParam("type") type: String): ShareableClientDetail {
         return sharableClientDetails.sourceClients.find { it.sourceType == type }
+                ?.copy( state = stateStore.generateState(type).toString())
             ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
     }
 }
