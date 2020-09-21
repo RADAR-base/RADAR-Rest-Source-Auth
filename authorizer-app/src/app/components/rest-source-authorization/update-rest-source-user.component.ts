@@ -114,10 +114,9 @@ export class UpdateRestSourceUserComponent implements OnInit {
         this.onChangeProject(data.projectId)
         this.restSourceUser = data;
       },
-      (err: Response) => {
-        console.log('Cannot retrieve current user details', err)
-        this.errorMessage = 'Cannot retrieve current user details';
-        window.setTimeout(() => this.router.navigate(['']), 5000);
+      (err: HttpErrorResponse) => {
+        this.errorMessage = err.statusText + " : " + err.error.error_description
+        window.setTimeout(() => this.router.navigate(['']), 10000);
       }
     );
   }
