@@ -87,7 +87,7 @@ class RestSourceUserResource(
         @FormParam("code") code: String,
         @FormParam("state") reqState: String): Response {
         logger.info("Authorizing with code $code state $reqState")
-        val state = toState(string = reqState)
+        val state = reqState.toState()
         if (!stateStore.isValid(state)) throw HttpBadRequestException("state_not_found", "State has expired or not found")
         val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
         val user = userRepository.createOrUpdate(accessToken, state.sourceType)

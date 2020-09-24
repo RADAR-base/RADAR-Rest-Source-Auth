@@ -19,36 +19,45 @@ package org.radarbase.authorizer.util
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.ThreadLocalRandom
 
-class StateStore(expiryTime: Duration = Duration.ofMinutes(5)) {
-
-    private val expiryTime = expiryTime
-    private val stateExpiry = mutableMapOf<State, Instant>()
+class StateStore(
+        private val expiryTime: Duration = Duration.ofMinutes(5)
+) {
+    private val stateExpiry: ConcurrentMap<State, Instant> = ConcurrentHashMap()
 
     fun generateState(sourceType: String): State {
-        val randomBytes = ByteArray(6)
-        ThreadLocalRandom.current().nextBytes(randomBytes)
-        val uniqueId: String = STATE_ENCODER.encodeToString(randomBytes)
-        val state = State(uniqueId, sourceType)
+        val state = State(sourceType)
         stateExpiry[state] = Instant.now().plus(expiryTime)
         return state
     }
 
     fun isValid(state: State): Boolean {
         val expired: Instant? = stateExpiry.remove(state)
-        return expired != null && expired.isAfter(Instant.now())
+        return expired?.isAfter(Instant.now()) == true
     }
 
     companion object {
         private val STATE_ENCODER: Base64.Encoder = Base64.getUrlEncoder().withoutPadding()
+
+        private fun ByteArray.randomize(): ByteArray = apply {
+            ThreadLocalRandom.current().nextBytes(this)
+        }
+
+        private fun ByteArray.encodeToBase64(): String = STATE_ENCODER.encodeToString(this)
     }
 
     data class State(val uuid: String, val sourceType: String) {
+        constructor(sourceType: String, numRandomBytes: Int = 6) : this(
+                ByteArray(numRandomBytes).randomize().encodeToBase64(), sourceType)
+
         override fun toString() = "state=$uuid&sourceType=$sourceType"
+
         companion object {
-            fun toState(string: String) : State {
-                val map = string.split("&")
+            fun String.toState(): State {
+                val map = split("&")
                 return State(map[0].split("=")[1], map[1].split("=")[1])
             }
         }
