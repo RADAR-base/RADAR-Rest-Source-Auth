@@ -19,7 +19,6 @@ package org.radarbase.authorizer.resources
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.authorizer.util.StateStore.State.Companion.toState
@@ -29,6 +28,7 @@ import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -87,7 +87,7 @@ class RestSourceUserResource(
         @FormParam("code") code: String,
         @FormParam("state") reqState: String): Response {
         logger.info("Authorizing with code $code state $reqState")
-        val state = toState(string = reqState)
+        val state = reqState.toState()
         if (!stateStore.isValid(state)) throw HttpBadRequestException("state_not_found", "State has expired or not found")
         val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
         val user = userRepository.createOrUpdate(accessToken, state.sourceType)
@@ -180,7 +180,7 @@ class RestSourceUserResource(
         return existingUser
     }
 
-    fun ensureUser(userId: Long): RestSourceUser {
+    private fun ensureUser(userId: Long): RestSourceUser {
         return userRepository.read(userId)
             ?: throw HttpNotFoundException("user_not_found", "Rest-Source-User with ID $userId does not exist")
     }
