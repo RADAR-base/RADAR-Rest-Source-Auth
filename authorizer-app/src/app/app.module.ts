@@ -20,8 +20,6 @@ import {
 } from '@angular/material';
 import {
   RestSourceUserListComponent,
-  RestSourceUserListDeleteDialog,
-  RestSourceUserListResetDialog
 } from './components/rest-source-authorization/rest-source-user-list.component';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -44,6 +42,8 @@ import { ToolbarComponent } from './components/shared/toolbar/toolbar.component'
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
 import { AuthInterceptor } from './auth.interceptor';
 import { ErrorInterceptor } from './error.interceptor';
+import {RestSourceUserListDeleteDialog} from "./components/rest-source-authorization/rest-source-user-list-delete-dialog.component";
+import {RestSourceUserListResetDialog} from "./components/rest-source-authorization/rest-source-user-list-reset-dialog.component";
 
 const appRoutes: Routes = [
   {
@@ -96,8 +96,8 @@ const appRoutes: Routes = [
     RestSourceUserListComponent,
     LoginPageComponent,
     ToolbarComponent,
-    RestSourceUserListDeleteDialog,
-    RestSourceUserListResetDialog
+    RestSourceUserListResetDialog,
+    RestSourceUserListDeleteDialog
   ],
   entryComponents: [
     RestSourceUserListDeleteDialog,

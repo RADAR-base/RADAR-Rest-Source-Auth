@@ -42,41 +42,43 @@ class RestSourceAuthorizationService(
         val authorizationConfig = configMap[sourceType]
             ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
 
-        val form = FormBody.Builder()
-            .add("code", code)
-            .add("grant_type", "authorization_code")
-            .add("client_id", authorizationConfig.clientId)
-            .build();
+        val form = FormBody.Builder().apply {
+            add("code", code)
+            add("grant_type", "authorization_code")
+            add("client_id", authorizationConfig.clientId)
+        }.build()
         logger.info("Requesting access token with authorization code")
         return httpClient.requestJson(post(form, sourceType), tokenReader)
     }
 
-
     fun refreshToken(refreshToken: String, sourceType: String): RestOauth2AccessToken {
-        val form = FormBody.Builder()
-            .add("grant_type", "refresh_token")
-            .add("refresh_token", refreshToken)
-            .build();
+        val form = FormBody.Builder().apply {
+            add("grant_type", "refresh_token")
+            add("refresh_token", refreshToken)
+        }.build()
         logger.info("Requesting to refreshToken")
         return httpClient.requestJson(post(form, sourceType), tokenReader)
     }
 
-
     fun revokeToken(accessToken: String, sourceType: String): Boolean {
-        val form = FormBody.Builder().add("token", accessToken).build();
+        val form = FormBody.Builder().add("token", accessToken).build()
         logger.info("Requesting to revoke access token");
-
         return httpClient.request(post(form, sourceType))
     }
 
     private fun post(form: FormBody, sourceType: String): Request {
         val authorizationConfig = configMap[sourceType]
-            ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
+            ?: throw HttpBadRequestException(
+                    "client-config-not-found", "Cannot find client configurations for source-type $sourceType")
+
+        val credentials = Credentials.basic(
+                authorizationConfig.clientId,
+                authorizationConfig.clientSecret)
 
         return Request.Builder().apply {
             url(authorizationConfig.tokenEndpoint)
             post(form)
-            header("Authorization", Credentials.basic(authorizationConfig.clientId, authorizationConfig.clientSecret))
+            header("Authorization", credentials)
             header("Content-Type", "application/x-www-form-urlencoded")
             header("Accept", "application/json")
         }.build()

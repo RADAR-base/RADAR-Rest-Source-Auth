@@ -20,6 +20,8 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.util.StateStore
+import org.radarbase.authorizer.util.StateStore.State.Companion.toState
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
@@ -49,6 +51,7 @@ class RestSourceUserResource(
     @Context private val userMapper: RestSourceUserMapper,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val projectService: RadarProjectService,
+    @Context private val stateStore: StateStore,
     @Context private val auth: Auth
 ) {
 
@@ -82,10 +85,12 @@ class RestSourceUserResource(
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     fun create(
         @FormParam("code") code: String,
-        @FormParam("state") state: String): Response {
-        logger.info("code $code state $state")
-        val accessToken = authorizationService.requestAccessToken(code, sourceType = state)
-        val user = userRepository.createOrUpdate(accessToken, state)
+        @FormParam("state") reqState: String): Response {
+        logger.info("Authorizing with code $code state $reqState")
+        val state = toState(string = reqState)
+        if (!stateStore.isValid(state)) throw HttpBadRequestException("state_not_found", "State has expired or not found")
+        val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
+        val user = userRepository.createOrUpdate(accessToken, state.sourceType)
 
         return Response.created(URI("users/${user.id}"))
             .entity(userMapper.fromEntity(user))
@@ -175,7 +180,7 @@ class RestSourceUserResource(
         return existingUser
     }
 
-    fun ensureUser(userId: Long): RestSourceUser {
+    private fun ensureUser(userId: Long): RestSourceUser {
         return userRepository.read(userId)
             ?: throw HttpNotFoundException("user_not_found", "Rest-Source-User with ID $userId does not exist")
     }

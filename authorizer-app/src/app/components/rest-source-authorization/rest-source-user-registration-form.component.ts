@@ -16,14 +16,14 @@ export class RestSourceUserRegistrationFormComponent implements OnInit {
 
   sourceTypes: string[];
   sourceClientDetail: RestSourceClientDetails;
-
+  showForm: boolean = false
 
   constructor(private restSourceUserService: RestSourceUserService,
               private sourceClientAuthorizationService: SourceClientAuthorizationService,
               private fb: FormBuilder,
               private platformLocation: PlatformLocation
   ) {
-    this.createForm();
+
 
   }
 
@@ -31,18 +31,32 @@ export class RestSourceUserRegistrationFormComponent implements OnInit {
     this.sourceClientAuthorizationService.getDeviceTypes().subscribe(
       data => {
         this.sourceTypes = data;
+        this.createForm();
+        this.intiSourceClientDetails()
       }
     );
   }
 
   createForm() {
     this.sourceTypeForm = this.fb.group({
-      selectedDeviceType: '',
+      selectedDeviceType: this.sourceTypes[0],
     });
+    this.showForm = true
   }
 
   onChange(sourceType: any) {
     this.sourceClientAuthorizationService.getSourceClientAuthDetails(sourceType).subscribe(
+      data => {
+        this.sourceClientDetail = data;
+        this.callbackUrl = window.location.origin
+          + this.platformLocation.getBaseHrefFromDOM()
+          + 'users:new';
+      }
+    );
+  }
+
+  intiSourceClientDetails() {
+    this.sourceClientAuthorizationService.getSourceClientAuthDetails(this.sourceTypes[0]).subscribe(
       data => {
         this.sourceClientDetail = data;
         this.callbackUrl = window.location.origin

@@ -22,6 +22,7 @@ import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.hibernate.HibernateRepository
+import org.radarbase.jersey.exception.HttpConflictException
 import java.time.Duration
 import java.time.Instant
 import javax.inject.Provider
@@ -42,26 +43,22 @@ class RestSourceUserRepositoryImpl(
             .setParameter("externalUserId", externalUserId)
             .resultList.firstOrNull()
 
-        if (existingUser == null) {
-            RestSourceUser().apply {
-                this.authorized = true
-                this.externalUserId = externalUserId
-                this.sourceType = sourceType
-                this.startDate = Instant.now()
-                this.accessToken = token.accessToken
-                this.refreshToken = token.refreshToken
-                this.expiresIn = token.expiresIn
-                this.expiresAt = startDate.plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
-                persist(this)
-            }
-        } else {
-            existingUser.apply {
-                this.accessToken = token.accessToken
-                this.refreshToken = token.refreshToken
-                this.expiresIn = token.expiresIn
-                this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
-                merge(this)
-            }
+        if (existingUser != null) {
+            throw HttpConflictException("external-id-exists", "External-user-id ${existingUser.externalUserId} " +
+                    "for source-type ${existingUser.sourceType} is already in use by user ${existingUser.userId}." +
+                    " Please remove the existing user to continue or update existing user.")
+        }
+
+        RestSourceUser().apply {
+            this.authorized = true
+            this.externalUserId = externalUserId
+            this.sourceType = sourceType
+            this.startDate = Instant.now()
+            this.accessToken = token.accessToken
+            this.refreshToken = token.refreshToken
+            this.expiresIn = token.expiresIn
+            this.expiresAt = startDate.plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
+            persist(this)
         }
     }
 

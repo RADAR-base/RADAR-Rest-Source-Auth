@@ -16,14 +16,7 @@
 
 package org.radarbase.authorizer.inject
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import okhttp3.OkHttpClient
 import org.glassfish.jersey.internal.inject.AbstractBinder
-import org.glassfish.jersey.server.ResourceConfig
 import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestSourceClientMapper
@@ -31,14 +24,16 @@ import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 import javax.inject.Singleton
-import javax.ws.rs.ext.ContextResolver
 
 class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnhancer {
     private val restSourceClients = RestSourceClients(config.restSourceClients)
+
+    private val stateStore = StateStore(Duration.ofMinutes(config.service.stateStoreExpiryInMin))
 
     override val classes: Array<Class<*>>
         get() {
@@ -63,6 +58,9 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
 
         bind(restSourceClients)
             .to(RestSourceClients::class.java)
+
+        bind(stateStore)
+            .to(StateStore::class.java)
 
         bind(RestSourceUserMapper::class.java)
             .to(RestSourceUserMapper::class.java)
