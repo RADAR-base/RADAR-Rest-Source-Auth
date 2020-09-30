@@ -23,6 +23,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.util.request
 import org.radarbase.jersey.util.requestJson
@@ -51,13 +52,22 @@ class RestSourceAuthorizationService(
         return httpClient.requestJson(post(form, sourceType), tokenReader)
     }
 
-    fun refreshToken(refreshToken: String, sourceType: String): RestOauth2AccessToken {
+    fun refreshToken(refreshToken: String, sourceType: String): RestOauth2AccessToken? {
         val form = FormBody.Builder().apply {
             add("grant_type", "refresh_token")
             add("refresh_token", refreshToken)
         }.build()
         logger.info("Requesting to refreshToken")
-        return httpClient.requestJson(post(form, sourceType), tokenReader)
+        val request = post(form, sourceType)
+        return httpClient.newCall(request).execute().use { response ->
+            when (response.code) {
+                200 -> response.body?.byteStream()
+                        ?.let { tokenReader.readValue<RestOauth2AccessToken>(it) }
+                        ?: throw HttpBadGatewayException("Service $sourceType did not provide a result")
+                400, 401, 403 -> null
+                else -> throw HttpBadGatewayException("Cannot connect to ${request.url}: HTTP status ${response.code}")
+            }
+        }
     }
 
     fun revokeToken(accessToken: String, sourceType: String): Boolean {

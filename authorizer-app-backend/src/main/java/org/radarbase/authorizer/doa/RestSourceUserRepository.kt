@@ -23,7 +23,8 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import java.time.Instant
 
 interface RestSourceUserRepository {
-    fun createOrUpdate(token: RestOauth2AccessToken, sourceType: String): RestSourceUser
+    fun create(token: RestOauth2AccessToken, sourceType: String): RestSourceUser
+    fun updateToken(token: RestOauth2AccessToken?, userId: Long): RestSourceUser
     fun read(id: Long): RestSourceUser?
     fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser
     fun query(page: Page, projects: List<String>, sourceType: String? = null): Pair<List<RestSourceUser>, Page>
