@@ -23,6 +23,7 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.exception.HttpConflictException
+import org.radarbase.jersey.exception.HttpNotFoundException
 import java.time.Duration
 import java.time.Instant
 import javax.inject.Provider
@@ -33,7 +34,7 @@ class RestSourceUserRepositoryImpl(
     @Context em: Provider<EntityManager>
 ) : RestSourceUserRepository, HibernateRepository(em) {
 
-    override fun createOrUpdate(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = transact {
+    override fun create(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = transact {
         val externalUserId = token.externalUserId
             ?: throw HttpBadGatewayException("Could not get externalId from token")
 
@@ -59,6 +60,31 @@ class RestSourceUserRepositoryImpl(
             this.expiresIn = token.expiresIn
             this.expiresAt = startDate.plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
             persist(this)
+        }
+    }
+
+    override fun updateToken(token: RestOauth2AccessToken?, userId: Long): RestSourceUser = transact {
+        val existingUser = find(RestSourceUser::class.java, userId)
+                ?: throw HttpNotFoundException("user_not_found", "User with ID $userId does not exist")
+
+        if (token == null) {
+            existingUser.apply {
+                this.authorized = false
+                this.accessToken = null
+                this.refreshToken = null
+                this.expiresIn = null
+                this.expiresAt = null
+                merge(this)
+            }
+        } else {
+            existingUser.apply {
+                this.authorized = true
+                this.accessToken = token.accessToken
+                this.refreshToken = token.refreshToken
+                this.expiresIn = token.expiresIn
+                this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
+                merge(this)
+            }
         }
     }
 

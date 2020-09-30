@@ -25,8 +25,8 @@ import org.radarbase.authorizer.util.StateStore.State.Companion.toState
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
+import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
-import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.radarcns.auth.authorization.Permission
@@ -90,7 +90,7 @@ class RestSourceUserResource(
         val state = reqState.toState()
         if (!stateStore.isValid(state)) throw HttpBadRequestException("state_not_found", "State has expired or not found")
         val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
-        val user = userRepository.createOrUpdate(accessToken, state.sourceType)
+        val user = userRepository.create(accessToken, state.sourceType)
 
         return Response.created(URI("users/${user.id}"))
             .entity(userMapper.fromEntity(user))
@@ -150,6 +150,9 @@ class RestSourceUserResource(
     fun requestToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
+        if (!user.authorized) {
+            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
+        }
         return TokenDTO(user.accessToken, user.expiresAt)
     }
 
@@ -159,11 +162,18 @@ class RestSourceUserResource(
     fun refreshToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
+        if (!user.authorized) {
+            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
+        }
         val rft = user.refreshToken
-            ?: throw HttpConflictException("refresh_token_not_found", "No refresh-token found for user ${user.externalUserId} with source-type ${user.sourceType}")
+                ?: throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
 
-        val updatedUser = userRepository.createOrUpdate(authorizationService.refreshToken(rft, user.sourceType), user.sourceType)
+        val token = authorizationService.refreshToken(rft, user.sourceType)
+        val updatedUser = userRepository.updateToken(token, userId)
 
+        if (!updatedUser.authorized) {
+            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid. Invalidated user authorization.")
+        }
         return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt)
     }
 
