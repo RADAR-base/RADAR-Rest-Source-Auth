@@ -7,10 +7,10 @@ service:
 auth:
   # Management Portal URL
   managementPortalUrl: https://radar-test.thehyve.net/managementportal/
-  # OAuth2 Client id of more-promasys-sync application
+  # OAuth2 Client id of rest source auth application
   clientId: radar_rest_sources_auth
-  # OAuth2 Client Secret of more_promasys_sync_client client
-  clientSecret: "Zq26$hGv*%rFepCH"
+  # OAuth2 Client Secret of rest source auth client
+  clientSecret: <MP_CLIENT_SECRET>
 
 database:
   driver: org.postgresql.Driver
@@ -23,6 +23,6 @@ restSourceClients:
   - sourceType: FitBit
     authorizationEndpoint: https://www.fitbit.com/oauth2/authorize
     tokenEndpoint: https://api.fitbit.com/oauth2/token
-    clientId: 22DLWQ
-    clientSecret: 6f796c1c84eaace12f50f610900cbf2a
+    clientId: <CLIENT_ID>
+    clientSecret: <CLIENT_SECRET>
     scope: activity heartrate sleep profile

@@ -17,9 +17,11 @@
 package org.radarbase.authorizer
 
 import org.radarbase.authorizer.inject.ManagementPortalEnhancerFactory
+import org.radarbase.jersey.config.ConfigLoader.copyEnv
 import org.radarbase.jersey.config.EnhancerFactory
 import org.radarbase.jersey.hibernate.config.DatabaseConfig
 import java.net.URI
+import java.util.*
 
 data class Config(
     val service: AuthorizerServiceConfig = AuthorizerServiceConfig(),
@@ -52,11 +54,15 @@ data class RestSourceClient(
     val sourceType: String,
     val authorizationEndpoint: String,
     val tokenEndpoint: String,
-    val clientId: String,
-    val clientSecret: String,
+    val clientId: String? = null,
+    val clientSecret: String? = null,
     val grantType: String? = null,
     val scope: String? = null
-)
+) {
+    fun withEnv(): RestSourceClient = this
+            .copyEnv("${sourceType.toUpperCase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
+            .copyEnv("${sourceType.toUpperCase(Locale.US)}_CLIENT_SECRET") { copy(clientSecret = it) }
+}
 
 data class RestSourceClients(
     val clients: List<RestSourceClient>

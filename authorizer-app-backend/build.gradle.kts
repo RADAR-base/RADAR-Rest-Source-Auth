@@ -15,7 +15,7 @@ application {
 
 project.extra.apply {
     set("okhttpVersion", "4.8.1")
-    set("radarJerseyVersion", "0.3.0")
+    set("radarJerseyVersion", "0.3.1")
     set("jacksonVersion", "2.11.2")
     set("slf4jVersion", "1.7.30")
     set("logbackVersion", "1.2.3")

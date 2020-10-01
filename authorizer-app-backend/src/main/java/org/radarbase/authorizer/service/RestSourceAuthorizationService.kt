@@ -42,11 +42,12 @@ class RestSourceAuthorizationService(
     fun requestAccessToken(code: String, sourceType: String): RestOauth2AccessToken {
         val authorizationConfig = configMap[sourceType]
             ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
+        val clientId = checkNotNull(authorizationConfig.clientId)
 
         val form = FormBody.Builder().apply {
             add("code", code)
             add("grant_type", "authorization_code")
-            add("client_id", authorizationConfig.clientId)
+            add("client_id", clientId)
         }.build()
         logger.info("Requesting access token with authorization code")
         return httpClient.requestJson(post(form, sourceType), tokenReader)
@@ -82,8 +83,8 @@ class RestSourceAuthorizationService(
                     "client-config-not-found", "Cannot find client configurations for source-type $sourceType")
 
         val credentials = Credentials.basic(
-                authorizationConfig.clientId,
-                authorizationConfig.clientSecret)
+                checkNotNull(authorizationConfig.clientId),
+                checkNotNull(authorizationConfig.clientSecret))
 
         return Request.Builder().apply {
             url(authorizationConfig.tokenEndpoint)

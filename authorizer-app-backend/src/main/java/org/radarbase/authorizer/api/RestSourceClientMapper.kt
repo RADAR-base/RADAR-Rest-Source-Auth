@@ -20,7 +20,7 @@ import org.radarbase.authorizer.RestSourceClient
 
 class RestSourceClientMapper {
     private fun fromSourceClientConfig(client: RestSourceClient) = ShareableClientDetail(
-        clientId = client.clientId,
+        clientId = requireNotNull(client.clientId) { "Client ID of sourceType ${client.sourceType} not specified" },
         sourceType = client.sourceType,
         scope = client.scope,
         authorizationEndpoint = client.authorizationEndpoint,

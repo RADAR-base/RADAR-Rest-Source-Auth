@@ -31,9 +31,13 @@ import java.time.Duration
 import javax.inject.Singleton
 
 class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnhancer {
-    private val restSourceClients = RestSourceClients(config.restSourceClients)
-
     private val stateStore = StateStore(Duration.ofMinutes(config.service.stateStoreExpiryInMin))
+    private val restSourceClients = RestSourceClients(config.restSourceClients
+            .map { it.withEnv() }
+            .onEach {
+                requireNotNull(it.clientId) { "Client ID of ${it.sourceType} is missing" }
+                requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
+            })
 
     override val classes: Array<Class<*>>
         get() {
