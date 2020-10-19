@@ -33,7 +33,7 @@
 
   <div class="form-group" *ngIf="restSourceUser.projectId">
     <label for="userId">User ID:</label>
-    <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" #userId="ngModel" [disabled]="isEditing">
+    <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" [disabled]="isEditing">
       <option [selected]="true" value="">Select a user</option>
       <option [value]="user.id" *ngFor="let user of subjects">{{user.id}}</option>
     </select>

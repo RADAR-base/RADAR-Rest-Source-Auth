@@ -47,6 +47,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
             console.log("user ", user)
             this.restSourceUser = user;
             console.log("rest user ", this.restSourceUser)
+            this.subjects = [{id: this.restSourceUser.userId}]
             this.isEditing = true;
             this.startDate = new Date(this.restSourceUser.startDate);
             this.endDate = new Date(this.restSourceUser.endDate);
