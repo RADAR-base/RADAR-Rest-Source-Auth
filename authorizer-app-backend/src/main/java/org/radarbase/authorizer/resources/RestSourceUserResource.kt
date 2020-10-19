@@ -33,6 +33,7 @@ import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
+import java.time.Instant
 import javax.annotation.Resource
 import javax.inject.Singleton
 import javax.ws.rs.*
@@ -153,6 +154,10 @@ class RestSourceUserResource(
         if (!user.authorized) {
             throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
         }
+        // refresh token if current token is already expired.
+        if (Instant.now().isAfter(user.expiresAt)) {
+            return refreshToken(userId, user)
+        }
         return TokenDTO(user.accessToken, user.expiresAt)
     }
 
@@ -162,6 +167,10 @@ class RestSourceUserResource(
     fun refreshToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
+        return refreshToken(userId, user)
+    }
+
+    private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {
         if (!user.authorized) {
             throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
         }

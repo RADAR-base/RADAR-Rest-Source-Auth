@@ -16,14 +16,14 @@ auth:
 
 database:
   # JDBC Driver of the database used for persistence
-  jdbcDriver: org.postgresql.Driver
+  driver: org.postgresql.Driver
   # JBDC database connection url
-  jdbcUrl: jdbc:postgresql://radarbase-postgresql:5432/restsourceauthorizer
+  url: jdbc:postgresql://radarbase-postgresql:5432/restsourceauthorizer
   # Database username
-  jdbcUser: radarcns
+  user: radarcns
   # Database password
-  jdbcPassword: radarcns
-  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
+  password: radarcns
+  dialect: org.hibernate.dialect.PostgreSQLDialect
 
 restSourceClients:
   # List of rest-source types and properties e.g FitBit, Garmin

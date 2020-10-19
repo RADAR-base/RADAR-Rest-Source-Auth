@@ -75,20 +75,6 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     filterValue = filterValue.trim(); // Remove whitespace
     filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
     this.dataSource.filter = filterValue;
-
-
-  }
-
-  private loadAllRestSourceUsers() {
-    this.restSourceUserService.getAllUsers().subscribe(
-      (data: any) => {
-        this.restSourceUsers = data.users;
-        this.dataSource.data = this.restSourceUsers;
-      },
-      () => {
-        this.errorMessage = 'Cannot load registered users!';
-      }
-    );
   }
 
   private loadAllRestSourceUsersOfProject(projectId: string) {
@@ -116,13 +102,13 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
   removeDevice(restSourceUser: RestSourceUser) {
     this.restSourceUserService.deleteUser(restSourceUser.id).subscribe(() => {
-      this.loadAllRestSourceUsers();
+      this.loadAllRestSourceUsersOfProject(this.selectedProject)
     });
   }
 
   resetUser(restSourceUser: RestSourceUser) {
     this.restSourceUserService.resetUser(restSourceUser).subscribe(() => {
-      this.loadAllRestSourceUsers();
+      this.loadAllRestSourceUsersOfProject(this.selectedProject)
     });
   }
 
