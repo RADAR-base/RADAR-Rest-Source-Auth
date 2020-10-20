@@ -151,13 +151,11 @@ class RestSourceUserResource(
     fun requestToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
-        if (!user.authorized) {
-            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
-        }
         // refresh token if current token is already expired.
-        if (Instant.now().isAfter(user.expiresAt)) {
+        if (!user.hasValidToken()) {
             return refreshToken(userId, user)
         }
+
         return TokenDTO(user.accessToken, user.expiresAt)
     }
 
