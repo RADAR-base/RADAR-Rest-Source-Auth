@@ -151,12 +151,12 @@ class RestSourceUserResource(
     fun requestToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
-        // refresh token if current token is already expired.
-        if (!user.hasValidToken()) {
-            return refreshToken(userId, user)
+        return if (user.hasValidToken()) {
+            TokenDTO(user.accessToken, user.expiresAt)
+        } else {
+            // refresh token if current token is already expired.
+            refreshToken(userId, user)
         }
-
-        return TokenDTO(user.accessToken, user.expiresAt)
     }
 
     @POST
