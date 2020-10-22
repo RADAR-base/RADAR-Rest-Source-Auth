@@ -55,6 +55,7 @@ class RestSourceUserDTO(
     val endDate: Instant? = null,
     val sourceType: String,
     val isAuthorized: Boolean = false,
+    val hasValidToken: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0) : Serializable {
     companion object {

@@ -26,6 +26,7 @@ class RestSourceUserMapper {
         userId = user.userId,
         sourceId = user.sourceId,
         isAuthorized = user.authorized,
+        hasValidToken = user.hasValidToken(),
         sourceType = user.sourceType,
         endDate = user.endDate,
         startDate = user.startDate,

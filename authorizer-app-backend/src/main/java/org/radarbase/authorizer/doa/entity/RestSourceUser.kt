@@ -97,4 +97,5 @@ class RestSourceUser {
 
     override fun toString() = "Entity of type ${this.javaClass.name} with id: $id"
 
+    fun hasValidToken(): Boolean = this.authorized && this.accessToken != null && Instant.now().isBefore(this.expiresAt)
 }

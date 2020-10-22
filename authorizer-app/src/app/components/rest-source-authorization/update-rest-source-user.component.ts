@@ -78,6 +78,10 @@ export class UpdateRestSourceUserComponent implements OnInit {
         'Please select Start Date and End Date';
       return;
     }
+    if (this.endDate <= this.startDate) {
+      this.errorMessage = 'Please set the end date later than the start date.'
+      return;
+    }
     try{
       this.restSourceUser.startDate = this.startDate.toISOString();
       this.restSourceUser.endDate = this.endDate.toISOString();
