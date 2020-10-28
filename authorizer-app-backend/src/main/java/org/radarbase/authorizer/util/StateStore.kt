@@ -38,16 +38,18 @@ class StateStore(
     }
 
     fun generate(sourceType: String): State {
-        val stateId = generateSequence { ByteArray(8).randomize().encodeToBase64() }
-                .first { store.containsKey(it) }
-        val state = State(stateId, sourceType, Instant.now() + expiryTime)
-        store[stateId] = state
-        return state
+        return generateSequence { ByteArray(8).randomize().encodeToBase64() }
+                .mapNotNull {
+                    val state = State(it, sourceType, Instant.now() + expiryTime)
+                    val existingValue = store.putIfAbsent(it, state)
+                    if (existingValue == null) state else null
+                }
+                .first()
     }
 
     operator fun get(stateId: String): State? = store.remove(stateId)
 
-    fun clean() {
+    private fun clean() {
         val now = Instant.now()
         store.keys.forEach { k ->
             store.compute(k) { _, v ->
