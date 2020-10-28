@@ -67,6 +67,6 @@ class SourceClientResource(
         val sourceType = sharableClientDetails.sourceClients.find { it.sourceType == type }
                 ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
 
-        return sourceType.copy(state = stateStore.generate(type).toString())
+        return sourceType.copy(state = stateStore.generate(type).stateId)
     }
 }
