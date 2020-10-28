@@ -21,7 +21,6 @@ import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
-import org.radarbase.authorizer.util.StateStore.State.Companion.toState
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
@@ -33,7 +32,6 @@ import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
-import java.time.Instant
 import javax.annotation.Resource
 import javax.inject.Singleton
 import javax.ws.rs.*
@@ -86,10 +84,10 @@ class RestSourceUserResource(
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     fun create(
         @FormParam("code") code: String,
-        @FormParam("state") reqState: String): Response {
-        logger.info("Authorizing with code $code state $reqState")
-        val state = reqState.toState()
-        if (!stateStore.isValid(state)) throw HttpBadRequestException("state_not_found", "State has expired or not found")
+        @FormParam("state") stateId: String): Response {
+        logger.info("Authorizing with code $code state $stateId")
+        val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
+        if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
         val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
         val user = userRepository.create(accessToken, state.sourceType)
 
