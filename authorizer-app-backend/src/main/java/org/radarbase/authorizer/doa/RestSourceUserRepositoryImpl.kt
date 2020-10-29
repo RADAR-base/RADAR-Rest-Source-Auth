@@ -85,7 +85,7 @@ class RestSourceUserRepositoryImpl(
                 ?: throw HttpNotFoundException("user_not_found", "User with ID $userId does not exist")
 
         existingUser.apply {
-            setToken(null)
+            setToken(token)
             merge(this)
         }
     }
