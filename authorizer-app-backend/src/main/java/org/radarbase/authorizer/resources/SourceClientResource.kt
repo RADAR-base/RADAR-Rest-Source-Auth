@@ -16,10 +16,13 @@
 
 package org.radarbase.authorizer.resources
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import okhttp3.OkHttpClient
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.ShareableClientDetail
 import org.radarbase.authorizer.api.ShareableClientDetails
+import org.radarbase.authorizer.service.RestSourceAuthorizationServiceFactory
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -28,10 +31,7 @@ import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarcns.auth.authorization.Permission
 import javax.annotation.Resource
 import javax.inject.Singleton
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.Produces
+import javax.ws.rs.*
 import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
 
@@ -51,6 +51,8 @@ class SourceClientResource(
 
     private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
 
+    private val authorizationServiceFactory: RestSourceAuthorizationServiceFactory = RestSourceAuthorizationServiceFactory(restSourceClients, httpClient = OkHttpClient(), objectMapper = ObjectMapper(), stateStore = stateStore)
+
     @GET
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun clients(): ShareableClientDetails = sharableClientDetails
@@ -69,4 +71,17 @@ class SourceClientResource(
 
         return sourceType.copy(state = stateStore.generate(type).stateId)
     }
+
+    @GET
+    @Path("{type}/auth-endpoint")
+    @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
+    fun getAuthEndpoint(@PathParam("type") type: String, @QueryParam("callbackUrl") callbackUrl: String): String {
+        RestSourceUserResource.logger.info("Getting auth endpoint")
+        val result = authorizationServiceFactory.getAuthorizationService(type).getAuthorizationEndpointWithParams(type, callbackUrl)
+
+        return result;
+    }
+
+
+
 }

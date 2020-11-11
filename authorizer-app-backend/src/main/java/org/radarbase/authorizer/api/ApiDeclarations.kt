@@ -31,9 +31,16 @@ data class RestOauth2AccessToken(
     @JsonProperty("user_id") var externalUserId: String? = null)
 
 data class RestOauth1AccessToken(
-    @JsonProperty("oauth_token") var accessToken: String,
-    @JsonProperty("oauth_token_secret") var refreshToken: String? = null,
+    @JsonProperty("oauth_token") var token: String,
+    @JsonProperty("oauth_token_secret") var tokenSecret: String? = null,
     @JsonProperty("oauth_verifier") var tokenVerifier: String? = null
+)
+
+data class RequestTokenPayload(
+        var code: String? = null,
+        var requestToken: String? = null,
+        var requestTokenVerifier: String? = null,
+        var state: String?= null
 )
 
 data class ShareableClientDetail(

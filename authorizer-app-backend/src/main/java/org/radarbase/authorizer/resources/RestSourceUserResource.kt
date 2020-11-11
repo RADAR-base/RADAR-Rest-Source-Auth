@@ -16,10 +16,13 @@
 
 package org.radarbase.authorizer.resources
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import okhttp3.OkHttpClient
+import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.service.RestSourceAuthorizationServiceFactory
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -46,13 +49,16 @@ import javax.ws.rs.core.Response
 @Authenticated
 @Singleton
 class RestSourceUserResource(
-    @Context private val userRepository: RestSourceUserRepository,
-    @Context private val userMapper: RestSourceUserMapper,
-    @Context private val authorizationService: RestSourceAuthorizationService,
-    @Context private val projectService: RadarProjectService,
-    @Context private val stateStore: StateStore,
-    @Context private val auth: Auth
-) {
+        @Context private val userRepository: RestSourceUserRepository,
+        @Context private val userMapper: RestSourceUserMapper,
+        @Context private val projectService: RadarProjectService,
+        @Context private val stateStore: StateStore,
+        @Context private val auth: Auth,
+        @Context private val restSourceClients: RestSourceClients,
+        @Context private val clientMapper: RestSourceClientMapper
+        ) {
+
+    private val authorizationServiceFactory: RestSourceAuthorizationServiceFactory = RestSourceAuthorizationServiceFactory(restSourceClients, httpClient = OkHttpClient(), objectMapper = ObjectMapper(), stateStore = stateStore)
 
     @GET
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
@@ -81,18 +87,19 @@ class RestSourceUserResource(
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.APPLICATION_JSON)
     fun create(
-        @FormParam("code") code: String,
-        @FormParam("state") stateId: String): Response {
-        logger.info("Authorizing with code $code state $stateId")
+        payload: RequestTokenPayload): Response {
+        val stateId = payload?.state
+        logger.info("Authorizing with payload $payload state $stateId")
         val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
         if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
-        val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
-        val user = userRepository.create(accessToken, state.sourceType)
+        val sourceType = state.sourceType
+        val accessToken = authorizationServiceFactory.getAuthorizationService(sourceType).requestAccessToken(payload, sourceType)
+        val user = accessToken?.let { userRepository.create(it, state.sourceType) }
 
-        return Response.created(URI("users/${user.id}"))
-            .entity(userMapper.fromEntity(user))
+        return Response.created(URI("users/${user?.id}"))
+            .entity(user?.let { userMapper.fromEntity(it) })
             .build()
     }
 
@@ -124,7 +131,7 @@ class RestSourceUserResource(
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
         if (user.accessToken != null) {
-            authorizationService.revokeToken(user.accessToken!!, user.sourceType)
+            authorizationServiceFactory.getAuthorizationService(user.sourceType).revokeToken(user.accessToken!!, user.sourceType)
         }
         userRepository.delete(user)
         return Response.noContent().header("user-removed", userId).build()
@@ -173,7 +180,7 @@ class RestSourceUserResource(
         val rft = user.refreshToken
                 ?: throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
 
-        val token = authorizationService.refreshToken(rft, user.sourceType)
+        val token = authorizationServiceFactory.getAuthorizationService(user.sourceType).refreshToken(rft, user.sourceType)
         val updatedUser = userRepository.updateToken(token, userId)
 
         if (!updatedUser.authorized) {

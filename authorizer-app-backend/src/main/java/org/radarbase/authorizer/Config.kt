@@ -58,7 +58,8 @@ data class RestSourceClient(
     val clientId: String? = null,
     val clientSecret: String? = null,
     val grantType: String? = null,
-    val scope: String? = null
+    val scope: String? = null,
+    val state: String? = null
 ) {
     fun withEnv(): RestSourceClient = this
             .copyEnv("${sourceType.toUpperCase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
