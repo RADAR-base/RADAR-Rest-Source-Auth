@@ -52,6 +52,7 @@ data class AuthConfig(
 
 data class RestSourceClient(
     val sourceType: String,
+    val preAuthorizationEndpoint: String?,
     val authorizationEndpoint: String,
     val tokenEndpoint: String,
     val clientId: String? = null,

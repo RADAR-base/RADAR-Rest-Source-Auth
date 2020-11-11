@@ -23,9 +23,10 @@ class RestSourceClientMapper {
         clientId = requireNotNull(client.clientId) { "Client ID of sourceType ${client.sourceType} not specified" },
         sourceType = client.sourceType,
         scope = client.scope,
+        preAuthorizationEndpoint = client.preAuthorizationEndpoint,
         authorizationEndpoint = client.authorizationEndpoint,
         tokenEndpoint = client.tokenEndpoint,
-        grantType = client.grantType,
+        grantType = client.grantType
     )
 
     fun fromSourceClientConfigs(clientConfigs: List<RestSourceClient>) = ShareableClientDetails(

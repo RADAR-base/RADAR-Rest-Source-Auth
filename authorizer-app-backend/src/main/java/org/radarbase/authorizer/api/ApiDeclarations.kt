@@ -30,15 +30,21 @@ data class RestOauth2AccessToken(
     @JsonProperty("token_type") var tokenType: String? = null,
     @JsonProperty("user_id") var externalUserId: String? = null)
 
+data class RestOauth1AccessToken(
+    @JsonProperty("oauth_token") var accessToken: String,
+    @JsonProperty("oauth_token_secret") var refreshToken: String? = null,
+    @JsonProperty("oauth_verifier") var tokenVerifier: String? = null
+)
 
 data class ShareableClientDetail(
     val sourceType: String,
+    val preAuthorizationEndpoint: String?,
     val authorizationEndpoint: String,
     val tokenEndpoint: String,
     val grantType: String?,
     val clientId: String,
     val scope: String?,
-    val state: String? = null,
+    val state: String? = null
 )
 
 data class ShareableClientDetails(
