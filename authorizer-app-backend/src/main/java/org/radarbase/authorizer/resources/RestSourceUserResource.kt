@@ -90,13 +90,15 @@ class RestSourceUserResource(
     @Consumes(MediaType.APPLICATION_JSON)
     fun create(
         payload: RequestTokenPayload): Response {
+        logger.info("Authorizing with payload $payload")
         val stateId = payload?.state
-        logger.info("Authorizing with payload $payload state $stateId")
-        val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
-        if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
-        val sourceType = state.sourceType
+        if(stateId != null) {
+            val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
+            if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
+        }
+        val sourceType = payload.sourceType
         val accessToken = authorizationServiceFactory.getAuthorizationService(sourceType).requestAccessToken(payload, sourceType)
-        val user = accessToken?.let { userRepository.create(it, state.sourceType) }
+        val user = accessToken?.let { userRepository.create(it, sourceType) }
 
         return Response.created(URI("users/${user?.id}"))
             .entity(user?.let { userMapper.fromEntity(it) })

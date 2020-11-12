@@ -29,12 +29,21 @@ class RestSourceAuthorizationServiceFactory(
         @Context private val stateStore: StateStore
         ) {
 
+    private val oAuth1RestAuthorizationService = OAuth1RestSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper)
+    private val oAuth2RestAuthorizationService = OAuth2RestSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper, this.stateStore)
+
     fun getAuthorizationService(sourceType: String): RestSourceAuthorizationService {
-        when(sourceType) {
-            "Garmin" -> return OAuth1RestSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper)
-            "FitBit" -> return OAuth2RestSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper, this.stateStore)
-            else -> return OAuth2RestSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper, this.stateStore)
+        val type = SourceType.values().find { it.type == sourceType }
+        return when (type) {
+            SourceType.GARMIN -> oAuth1RestAuthorizationService
+            SourceType.FITBIT -> oAuth2RestAuthorizationService
+            else -> oAuth2RestAuthorizationService
         }
+    }
+
+    enum class SourceType(val type: String) {
+        GARMIN("Garmin"),
+        FITBIT("Fitbit")
     }
 
 }

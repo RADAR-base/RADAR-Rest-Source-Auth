@@ -51,8 +51,9 @@ class OAuth1RestSourceAuthorizationService(
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
 
         var params = this.getCommonAuthParamsBuilder(authConfig)
-                .queryParam("oauth_token", payload.requestToken)
-                .queryParam("oauth_verifier", payload.requestTokenVerifier)
+                .queryParam("oauth_token", payload.oauth_token)
+                .queryParam("oauth_verifier", payload.oauth_verifier)
+
         val tokens = this.requestToken(params, authConfig.tokenEndpoint, authConfig.clientSecret)
         logger.info("Requesting access token..")
         return tokens?.let { mapToOauth2(it) }
@@ -120,22 +121,17 @@ class OAuth1RestSourceAuthorizationService(
     }
 
     fun getOAuthSignature(params: UriBuilder, url: String?, clientSecret: String?): String {
-        val method = "POST";
-        val paramsString = params.build().toString().substring(1)
-        val signatureBaseBuilder = StringBuilder()
-        signatureBaseBuilder.append(method)
-                .append("&")
-                .append(URLEncoder.encode(url))
-                .append("&")
-                .append(URLEncoder.encode(paramsString))
-        val signatureBase = signatureBaseBuilder.toString()
-        val key = clientSecret + "&";
+        val method = "POST"
+        val encodedUrl = URLEncoder.encode(url)
+        val encodedParams = URLEncoder.encode(params.build().toString().substring(1))
+        var signatureBase = "$method&$encodedUrl&$encodedParams"
+        var key = "$clientSecret&"
         val signatureEncoded = URLEncoder.encode(this.encodeSHA(key, signatureBase))
         return signatureEncoded;
     }
 
-    fun generateNonce(): String {
-        return Math.floor(Math.random() * 10000000000).toString();
+    fun generateNonce(): Int {
+        return Math.floor(Math.random() * 1000000000).toInt();
     }
 
     fun encodeSHA(key: String, plaintext: String): String?{

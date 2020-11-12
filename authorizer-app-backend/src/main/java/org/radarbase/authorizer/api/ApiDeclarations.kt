@@ -37,10 +37,11 @@ data class RestOauth1AccessToken(
 )
 
 data class RequestTokenPayload(
+        var sourceType: String,
         var code: String? = null,
-        var requestToken: String? = null,
-        var requestTokenVerifier: String? = null,
-        var state: String?= null
+        var state: String?= null,
+        var oauth_token: String? = null,
+        var oauth_verifier: String? = null
 )
 
 data class ShareableClientDetail(
