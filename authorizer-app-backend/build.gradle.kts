@@ -86,10 +86,9 @@ allOpen {
 }
 
 tasks.register("downloadDependencies") {
-    configurations["runtimeClasspath"].files
-    configurations["compileClasspath"].files
-
     doLast {
+        configurations["runtimeClasspath"].files
+        configurations["compileClasspath"].files
         println("Downloaded all dependencies")
     }
 }
