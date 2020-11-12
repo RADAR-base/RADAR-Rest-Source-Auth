@@ -30,7 +30,7 @@ class RestSourceUserMapper(
         userId = user.userId,
         humanReadableUserId = projectService.getUser(user.projectId!!, user.userId!!)
             ?.let { mpUser ->
-                mpUser.attributes["Human-readable-id"]
+                mpUser.attributes["Human-readable-identifier"]
                     ?.takeIf { it.isNotBlank() && it != "null" }
                     ?: mpUser.externalId
             },
