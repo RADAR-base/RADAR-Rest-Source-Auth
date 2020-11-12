@@ -19,3 +19,14 @@ export interface User {
   name: string;
   roles: string[];
 }
+export interface RequestTokenPayload {
+  code?: string;
+  oauth_token?: string;
+  oauth_verifier?: string;
+  state?: string;
+}
+
+export interface AuthorizationEndpoint {
+  url: string;
+  tokens?;
+}

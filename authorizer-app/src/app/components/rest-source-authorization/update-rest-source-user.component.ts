@@ -4,20 +4,22 @@ import {
   NgbDateAdapter,
   NgbDateNativeAdapter
 } from '@ng-bootstrap/ng-bootstrap';
+import {
+  RadarProject,
+  RadarSubject
+} from '../../models/rest-source-project.model';
 
 import { HttpErrorResponse } from '@angular/common/http';
+import { Location } from '@angular/common';
+import { RequestTokenPayload } from 'src/app/models/auth.model';
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
-import { SourceClientAuthorizationService } from '../../services/source-client-authorization.service';
-import { RadarProject, RadarSubject } from '../../models/rest-source-project.model';
-import { Location } from '@angular/common';
 
 @Component({
   selector: 'update-rest-source-user',
   templateUrl: './update-rest-source-user.component.html',
   providers: [{ provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }]
 })
-
 export class UpdateRestSourceUserComponent implements OnInit {
   isEditing = false;
   errorMessage?: string;
@@ -29,32 +31,31 @@ export class UpdateRestSourceUserComponent implements OnInit {
 
   constructor(
     private restSourceUserService: RestSourceUserService,
-    private sourceClientAuthorizationService: SourceClientAuthorizationService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private _location: Location
   ) {}
 
   ngOnInit() {
-    this.loadAllRestSourceProjects()
+    this.loadAllRestSourceProjects();
   }
 
-  initialize(){
+  initialize() {
     this.activatedRoute.params.subscribe(params => {
       if (params.hasOwnProperty('id')) {
         this.restSourceUserService.getUserById(params['id']).subscribe(
           user => {
-            console.log("user ", user)
+            console.log('user ', user);
             this.restSourceUser = user;
-            console.log("rest user ", this.restSourceUser)
-            this.subjects = [{id: this.restSourceUser.userId}]
+            console.log('rest user ', this.restSourceUser);
+            this.subjects = [{ id: this.restSourceUser.userId }];
             this.isEditing = true;
             this.startDate = new Date(this.restSourceUser.startDate);
             this.endDate = new Date(this.restSourceUser.endDate);
             // this.onChangeProject(this.restSourceUser.projectId)
           },
           (err: Response) => {
-            console.log('Cannot retrieve current user details', err)
+            console.log('Cannot retrieve current user details', err);
             this.errorMessage = 'Cannot retrieve current user details';
             window.setTimeout(() => this.router.navigate(['']), 5000);
           }
@@ -65,34 +66,38 @@ export class UpdateRestSourceUserComponent implements OnInit {
             this.errorMessage = params['error_description'];
           } else {
             this.errorMessage = null;
-            this.addRestSourceUser(params['code'], params['state']);
+            this.handleAuthRedirect(params);
           }
         });
       }
     });
   }
 
+  handleAuthRedirect(params) {
+    this.addRestSourceUser(params);
+  }
+
   updateRestSourceUser() {
-    if(!this.endDate || !this.startDate){
-      this.errorMessage =
-        'Please select Start Date and End Date';
+    if (!this.endDate || !this.startDate) {
+      this.errorMessage = 'Please select Start Date and End Date';
       return;
     }
     if (this.endDate <= this.startDate) {
-      this.errorMessage = 'Please set the end date later than the start date.'
+      this.errorMessage = 'Please set the end date later than the start date.';
       return;
     }
-    try{
+    try {
       this.restSourceUser.startDate = this.startDate.toISOString();
       this.restSourceUser.endDate = this.endDate.toISOString();
-    }catch(err){
-      this.errorMessage =
-        'Please enter valid Start Date and End Date';
+    } catch (err) {
+      this.errorMessage = 'Please enter valid Start Date and End Date';
       return;
     }
     this.restSourceUserService.updateUser(this.restSourceUser).subscribe(
       () => {
-        return this.router.navigate(['/users'], {queryParams: {project: this.restSourceUser.projectId}});
+        return this.router.navigate(['/users'], {
+          queryParams: { project: this.restSourceUser.projectId }
+        });
       },
       (err: HttpErrorResponse) => {
         if (err.error instanceof ErrorEvent) {
@@ -113,14 +118,15 @@ export class UpdateRestSourceUserComponent implements OnInit {
     );
   }
 
-  private addRestSourceUser(code: string, state: string) {
-    this.restSourceUserService.addAuthorizedUser(code, state).subscribe(
+  private addRestSourceUser(payload: RequestTokenPayload) {
+    this.restSourceUserService.addAuthorizedUser(payload).subscribe(
       data => {
-        this.onChangeProject(data.projectId)
+        this.onChangeProject(data.projectId);
         this.restSourceUser = data;
       },
       (err: HttpErrorResponse) => {
-        this.errorMessage = err.statusText + " : " + err.error.error_description
+        this.errorMessage =
+          err.statusText + ' : ' + err.error.error_description;
         window.setTimeout(() => this.router.navigate(['']), 10000);
       }
     );
@@ -130,7 +136,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
     this.restSourceUserService.getAllProjects().subscribe(
       (data: any) => {
         this.restSourceProjects = data.projects;
-        this.initialize()
+        this.initialize();
       },
       () => {
         this.errorMessage = 'Cannot load projects!';
@@ -139,8 +145,8 @@ export class UpdateRestSourceUserComponent implements OnInit {
   }
 
   onChangeProject(projectId: string) {
-    if(projectId){
-      this.loadAllSubjectsOfProject(projectId)
+    if (projectId) {
+      this.loadAllSubjectsOfProject(projectId);
     }
   }
 
