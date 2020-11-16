@@ -49,6 +49,7 @@ class RestSourceUserDTO(
     val id: String?,
     val projectId: String?,
     val userId: String?,
+    val humanReadableUserId: String?,
     val sourceId: String,
     val externalUserId: String,
     val startDate: Instant,
