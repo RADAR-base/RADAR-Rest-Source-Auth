@@ -9,7 +9,8 @@
 
 <div *ngIf="restSourceUser" class="container col-md-4">
   <h3 *ngIf="!isEditing">Enter details for User</h3>
-  <h3 *ngIf="isEditing">Edit details for User</h3>
+  <!-- <h3 *ngIf="isEditing">Edit details for User</h3> -->
+  <h3 *ngIf="isEditing">Details for User</h3>
   <div class="form-group">
     <label for="externalUserId">External User ID:</label>
     <input class="form-control" name="externalUserId" disabled type="text"
@@ -49,8 +50,10 @@
     <label for="startDate">Start Date:</label>
     <div class="input-group" placement="top"
          ngbTooltip="Start date to collect data from this source">
+      <!-- <input id="startDate" class="form-control" placeholder="yyyy-mm-dd"
+        required name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker"> -->
       <input id="startDate" class="form-control" placeholder="yyyy-mm-dd"
-             required name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker">
+        required name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker" [disabled]="isEditing">
       <div class="input-group-append">
         <button class="btn btn-outline-secondary calendar" (click)="e.toggle()"
                 type="button"></button>
@@ -62,8 +65,10 @@
     <label for="endDate">End Date:</label>
     <div class="input-group" placement="top"
          ngbTooltip="End date to collect data from this source">
+      <!-- <input id="endDate" class="form-control" placeholder="yyyy-mm-dd"
+             required name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker"> -->
       <input id="endDate" class="form-control" placeholder="yyyy-mm-dd"
-             required name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker">
+        required name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker" [disabled]="isEditing">
       <div class="input-group-append">
         <button class="btn btn-outline-secondary calendar" (click)="d.toggle()"
                 type="button"></button>
@@ -86,14 +91,17 @@
   <button *ngIf="!isEditing" type="button" (click)="cancelUpdateUser()" class="btn btn-outline-primary"
           style="margin-right: 16px">Cancel
   </button>
-  <button *ngIf="isEditing" type="button" (click)="backClicked()" class="btn btn-outline-primary"
+  <!-- <button *ngIf="isEditing" type="button" (click)="backClicked()" class="btn btn-outline-primary"
           style="margin-right: 16px">Cancel
+  </button> -->
+  <button *ngIf="isEditing" type="button" (click)="backClicked()" class="btn btn-outline-primary"
+          style="margin-right: 16px">Back
   </button>
 
   <button *ngIf="!isEditing && restSourceUser.projectId" type="button" (click)="updateRestSourceUser()"
                    class="btn btn-success">Submit
   </button>
-  <button *ngIf="isEditing && restSourceUser.projectId" type="button" (click)="updateRestSourceUser()"
+  <!-- <button *ngIf="isEditing && restSourceUser.projectId" type="button" (click)="updateRestSourceUser()"
           class="btn btn-success">Save
-  </button>
+  </button> -->
 </div>
