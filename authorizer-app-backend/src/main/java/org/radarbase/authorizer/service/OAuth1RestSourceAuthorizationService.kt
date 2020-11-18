@@ -17,10 +17,7 @@
 package org.radarbase.authorizer.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import okhttp3.Headers
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.*
 import org.radarbase.authorizer.RestSourceClient
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
@@ -76,8 +73,21 @@ class OAuth1RestSourceAuthorizationService(
                 .queryParam("oauth_version", "1.0")
         val signature = this.getOAuthSignature(params.clone(), url, authConfig.clientSecret, user.refreshToken)
         val headers = this.getPreAuthHeaders(params, signature)
+        val urlWithParams = UriBuilder.fromUri(url).replaceQuery(headers).build().toString()
 
-        return false
+        val req: Request = Request.Builder()
+                .url(urlWithParams)
+                .header("Authorization", headers)
+                .method("DELETE", null)
+                .build()
+
+        return httpClient.newCall(req).execute().use { response ->
+            when (response.code) {
+                200 -> true
+                400, 401, 403 -> false
+                else -> throw HttpBadGatewayException("Cannot connect to ${url}: HTTP status ${response.code}")
+            }
+        }
     }
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {

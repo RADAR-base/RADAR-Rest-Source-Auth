@@ -13,6 +13,7 @@ import { environment } from '../../environments/environment';
 export class RestSourceUserService {
   private serviceUrl = environment.backendBaseUrl + '/users';
   AUTH_ENDPOINT_PARAMS_STORAGE_KEY = 'auth_endpoint_params';
+  CLIENT_SOURCE_TYPES = { FITBIT: 'FitBit', GARMIN: 'Garmin' };
 
   constructor(private http: HttpClient) {}
 
@@ -71,6 +72,8 @@ export class RestSourceUserService {
   }
 
   getSourceTypeFromAuthPayload(payload: RequestTokenPayload) {
-    return payload.code ? 'Fitbit' : 'Garmin';
+    return payload.code
+      ? this.CLIENT_SOURCE_TYPES.FITBIT
+      : this.CLIENT_SOURCE_TYPES.GARMIN;
   }
 }
