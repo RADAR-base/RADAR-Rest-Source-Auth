@@ -12,6 +12,7 @@ import { environment } from '../../environments/environment';
 })
 export class RestSourceUserService {
   private serviceUrl = environment.backendBaseUrl + '/users';
+  AUTH_ENDPOINT_PARAMS_STORAGE_KEY = 'auth_endpoint_params';
 
   constructor(private http: HttpClient) {}
 
@@ -42,8 +43,19 @@ export class RestSourceUserService {
   }
 
   addAuthorizedUser(payload: RequestTokenPayload): Observable<any> {
-    payload = Object.assign({}, payload, { sourceType: 'Garmin' });
-    return this.http.post(this.serviceUrl, payload, { responseType: 'json' });
+    const sourceType = this.getSourceTypeFromAuthPayload(payload);
+    const redirectParams = JSON.parse(
+      localStorage.getItem(this.AUTH_ENDPOINT_PARAMS_STORAGE_KEY)
+    );
+    const newPayload = Object.assign(
+      {},
+      payload,
+      { sourceType },
+      redirectParams
+    );
+    return this.http.post(this.serviceUrl, newPayload, {
+      responseType: 'json'
+    });
   }
 
   getUserById(userId: string): Observable<RestSourceUser> {
@@ -56,5 +68,9 @@ export class RestSourceUserService {
 
   resetUser(user: RestSourceUser): Observable<any> {
     return this.http.post(this.serviceUrl + '/' + user.id + '/reset', user);
+  }
+
+  getSourceTypeFromAuthPayload(payload: RequestTokenPayload) {
+    return payload.code ? 'Fitbit' : 'Garmin';
   }
 }
