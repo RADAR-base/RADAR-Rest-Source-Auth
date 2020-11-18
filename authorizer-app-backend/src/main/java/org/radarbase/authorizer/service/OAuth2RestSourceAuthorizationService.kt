@@ -24,6 +24,7 @@ import okhttp3.Request
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpBadRequestException
@@ -57,28 +58,28 @@ class OAuth2RestSourceAuthorizationService(
         return httpClient.requestJson(post(form, sourceType), tokenReader)
     }
 
-    override fun refreshToken(refreshToken: String, sourceType: String): RestOauth2AccessToken? {
+    override fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? {
         val form = FormBody.Builder().apply {
             add("grant_type", "refresh_token")
-            add("refresh_token", refreshToken)
+            user.refreshToken?.let { add("refresh_token", it) }
         }.build()
         logger.info("Requesting to refreshToken")
-        val request = post(form, sourceType)
+        val request = post(form, user.sourceType)
         return httpClient.newCall(request).execute().use { response ->
             when (response.code) {
                 200 -> response.body?.byteStream()
                         ?.let { tokenReader.readValue<RestOauth2AccessToken>(it) }
-                        ?: throw HttpBadGatewayException("Service $sourceType did not provide a result")
+                        ?: throw HttpBadGatewayException("Service ${user.sourceType} did not provide a result")
                 400, 401, 403 -> null
                 else -> throw HttpBadGatewayException("Cannot connect to ${request.url}: HTTP status ${response.code}")
             }
         }
     }
 
-    override fun revokeToken(accessToken: String, sourceType: String): Boolean {
-        val form = FormBody.Builder().add("token", accessToken).build()
+    override fun revokeToken(user: RestSourceUser): Boolean {
+        val form = FormBody.Builder().add("token", user.accessToken!!).build()
         logger.info("Requesting to revoke access token");
-        return httpClient.request(post(form, sourceType))
+        return httpClient.request(post(form, user.sourceType))
     }
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {

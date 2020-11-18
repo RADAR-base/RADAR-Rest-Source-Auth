@@ -17,6 +17,7 @@
 package org.radarbase.authorizer.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -24,7 +25,9 @@ import org.radarbase.authorizer.RestSourceClient
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth1AccessToken
+import org.radarbase.authorizer.api.RestOauth1UserId
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.slf4j.Logger
@@ -49,23 +52,31 @@ class OAuth1RestSourceAuthorizationService(
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken? {
         val authConfig = configMap[sourceType]
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
-
+        logger.info("Requesting access token..")
         var params = this.getCommonAuthParamsBuilder(authConfig)
                 .queryParam("oauth_token", payload.oauth_token)
                 .queryParam("oauth_verifier", payload.oauth_verifier)
+                .queryParam("oauth_version", "1.0")
 
-        val tokens = this.requestToken(params, authConfig.tokenEndpoint, authConfig.clientSecret)
-        logger.info("Requesting access token..")
-        return tokens?.let { mapToOauth2(it) }
+        val tokens = this.requestToken(params, authConfig.tokenEndpoint, authConfig.clientSecret, payload.oauth_token_secret)
+        return tokens?.let { mapToOauth2(it, sourceType) }
     }
 
-    override fun refreshToken(refreshToken: String, sourceType: String): RestOauth2AccessToken? {
-       // TODO
-        return null
+    override fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? {
+        return user.accessToken?.let { RestOauth2AccessToken(it, user.refreshToken) }
     }
 
-    override fun revokeToken(accessToken: String, sourceType: String): Boolean {
-        // TODO
+    override fun revokeToken(user: RestSourceUser): Boolean {
+        val authConfig = configMap[user.sourceType]
+                ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type ${user.sourceType}")
+        val url = "https://healthapi.garmin.com/wellness-api/rest/user/registration"
+
+        var params = this.getCommonAuthParamsBuilder(authConfig)
+                .queryParam("oauth_token", user.accessToken)
+                .queryParam("oauth_version", "1.0")
+        val signature = this.getOAuthSignature(params.clone(), url, authConfig.clientSecret, user.refreshToken)
+        val headers = this.getPreAuthHeaders(params, signature)
+
         return false
     }
 
@@ -73,17 +84,18 @@ class OAuth1RestSourceAuthorizationService(
         val authConfig = configMap[sourceType]
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
 
-        var params = this.getCommonAuthParamsBuilder(authConfig)
-        val tokens = this.requestToken(params, authConfig.preAuthorizationEndpoint, authConfig.clientSecret)
+        var params = this.getCommonAuthParamsBuilder(authConfig).queryParam("oauth_version", "1.0");
+        val tokens = this.requestToken(params, authConfig.preAuthorizationEndpoint, authConfig.clientSecret, "")
         return UriBuilder.fromUri(authConfig.authorizationEndpoint)
                 .queryParam("oauth_token", tokens?.token)
+                .queryParam("oauth_token_secret", tokens?.tokenSecret)
                 .queryParam("oauth_callback", callBackUrl)
                 .build().toString()
     }
 
-    fun requestToken(params: UriBuilder, tokenEndpoint: String?, clientSecret: String?): RestOauth1AccessToken? {
+    fun requestToken(params: UriBuilder, tokenEndpoint: String?, clientSecret: String?, tokenSecret: String?): RestOauth1AccessToken? {
         val url = tokenEndpoint
-        val signature = this.getOAuthSignature(params.clone(), url, clientSecret)
+        val signature = this.getOAuthSignature(params.clone(), url, clientSecret, tokenSecret)
         val headers = this.getPreAuthHeaders(params, signature)
 
         val urlWithParams = UriBuilder.fromUri(url).replaceQuery(headers).build().toString()
@@ -117,15 +129,14 @@ class OAuth1RestSourceAuthorizationService(
                 .queryParam("oauth_nonce", nonce)
                 .queryParam("oauth_signature_method", "HMAC-SHA1")
                 .queryParam("oauth_timestamp", time)
-                .queryParam("oauth_version", "1.0");
     }
 
-    fun getOAuthSignature(params: UriBuilder, url: String?, clientSecret: String?): String {
+    fun getOAuthSignature(params: UriBuilder, url: String?, clientSecret: String?, tokenSecret: String?): String {
         val method = "POST"
         val encodedUrl = URLEncoder.encode(url)
         val encodedParams = URLEncoder.encode(params.build().toString().substring(1))
         var signatureBase = "$method&$encodedUrl&$encodedParams"
-        var key = "$clientSecret&"
+        var key = "$clientSecret&$tokenSecret"
         val signatureEncoded = URLEncoder.encode(this.encodeSHA(key, signatureBase))
         return signatureEncoded;
     }
@@ -151,8 +162,8 @@ class OAuth1RestSourceAuthorizationService(
         return "{\"$params\"}"
     }
 
-    fun mapToOauth2(tokens: RestOauth1AccessToken): RestOauth2AccessToken {
-        return RestOauth2AccessToken(tokens.token, tokens.tokenSecret)
+    fun mapToOauth2(tokens: RestOauth1AccessToken, sourceType: String): RestOauth2AccessToken {
+        return RestOauth2AccessToken(tokens.token, tokens.tokenSecret, Integer.MAX_VALUE,"", UUID.randomUUID().toString())
     }
 
     companion object {

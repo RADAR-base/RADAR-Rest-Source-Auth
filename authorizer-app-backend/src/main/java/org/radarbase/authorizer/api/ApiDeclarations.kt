@@ -36,12 +36,17 @@ data class RestOauth1AccessToken(
     @JsonProperty("oauth_verifier") var tokenVerifier: String? = null
 )
 
+data class RestOauth1UserId(
+        var userId: String
+)
+
 data class RequestTokenPayload(
         var sourceType: String,
         var code: String? = null,
         var state: String?= null,
         var oauth_token: String? = null,
-        var oauth_verifier: String? = null
+        var oauth_verifier: String? = null,
+        var oauth_token_secret: String? = null
 )
 
 data class ShareableClientDetail(

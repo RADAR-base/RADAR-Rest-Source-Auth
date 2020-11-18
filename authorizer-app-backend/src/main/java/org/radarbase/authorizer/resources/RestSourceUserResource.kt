@@ -133,7 +133,7 @@ class RestSourceUserResource(
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
         if (user.accessToken != null) {
-            authorizationServiceFactory.getAuthorizationService(user.sourceType).revokeToken(user.accessToken!!, user.sourceType)
+            authorizationServiceFactory.getAuthorizationService(user.sourceType).revokeToken(user)
         }
         userRepository.delete(user)
         return Response.noContent().header("user-removed", userId).build()
@@ -182,7 +182,7 @@ class RestSourceUserResource(
         val rft = user.refreshToken
                 ?: throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
 
-        val token = authorizationServiceFactory.getAuthorizationService(user.sourceType).refreshToken(rft, user.sourceType)
+        val token = authorizationServiceFactory.getAuthorizationService(user.sourceType).refreshToken(user)
         val updatedUser = userRepository.updateToken(token, userId)
 
         if (!updatedUser.authorized) {
