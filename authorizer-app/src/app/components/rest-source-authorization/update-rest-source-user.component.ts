@@ -51,6 +51,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
             this.startDate = new Date(this.restSourceUser.startDate);
             this.endDate = new Date(this.restSourceUser.endDate);
             // this.onChangeProject(this.restSourceUser.projectId)
+            this.loadAllSubjectsOfProject(user.projectId);
           },
           (err: Response) => {
             console.log('Cannot retrieve current user details', err)

@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>Reset User in project {{data.projectId}}?</h1>
 <div mat-dialog-content>
-  <p>This will pull all the data for the user (project: {{data.projectId}}, user-id: {{data.userId}} with external-user-id: {{data.externalUserId}}) again in the specified date range.</p>
+  <p>This will pull all the data for the user (project: {{data.projectId}}, user-id: {{data.externalId? data.externalId : data.userId}} with external-user-id: {{data.serviceUserId}}) again in the specified date range.</p>
   <p>Are you sure you want to continue resetting?
   <p>If yes, please proceed by pressing the <b>Ok</b> button.</p>
   <br>

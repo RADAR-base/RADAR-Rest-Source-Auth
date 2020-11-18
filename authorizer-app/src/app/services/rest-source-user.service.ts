@@ -27,8 +27,8 @@ export class RestSourceUserService {
     return this.http.get<RadarProject[]>(environment.backendBaseUrl + '/projects');
   }
 
-  getAllSubjectsOfProjects(projectId: string): Observable<RadarProject[]> {
-    return this.http.get<RadarProject[]>(environment.backendBaseUrl + '/projects/' + projectId +'/users');
+  getAllSubjectsOfProjects(projectId: string): Observable<RestSourceUser[]> {
+    return this.http.get<RestSourceUser[]>(environment.backendBaseUrl + '/projects/' + projectId + '/users');
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
