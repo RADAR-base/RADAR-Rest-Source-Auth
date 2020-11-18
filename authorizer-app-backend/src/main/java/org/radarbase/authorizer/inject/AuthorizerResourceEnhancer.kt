@@ -27,11 +27,9 @@ import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
-import java.time.Duration
 import javax.inject.Singleton
 
 class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnhancer {
-    private val stateStore = StateStore(Duration.ofMinutes(config.service.stateStoreExpiryInMin))
     private val restSourceClients = RestSourceClients(config.restSourceClients
             .map { it.withEnv() }
             .onEach {
@@ -63,8 +61,9 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
         bind(restSourceClients)
             .to(RestSourceClients::class.java)
 
-        bind(stateStore)
-            .to(StateStore::class.java)
+        bind(StateStore::class.java)
+                .to(StateStore::class.java)
+                .`in`(Singleton::class.java)
 
         bind(RestSourceUserMapper::class.java)
             .to(RestSourceUserMapper::class.java)

@@ -16,27 +16,46 @@
 
 package org.radarbase.authorizer.util
 
+import org.radarbase.authorizer.Config
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
-import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.*
+import javax.ws.rs.core.Context
 
 class StateStore(
-        private val expiryTime: Duration = Duration.ofMinutes(5)
+        @Context config: Config,
+        @Context private val executor: ScheduledExecutorService
 ) {
-    private val stateExpiry: ConcurrentMap<State, Instant> = ConcurrentHashMap()
+    private val expiryTime = Duration.ofMinutes(config.service.stateStoreExpiryInMin)
+    private val store: ConcurrentHashMap<String, State> = ConcurrentHashMap()
 
-    fun generateState(sourceType: String): State {
-        val state = State(sourceType)
-        stateExpiry[state] = Instant.now().plus(expiryTime)
-        return state
+    init {
+        executor.scheduleAtFixedRate(::clean,
+                config.service.stateStoreExpiryInMin * 3,
+                config.service.stateStoreExpiryInMin * 3,
+                TimeUnit.MINUTES)
     }
 
-    fun isValid(state: State): Boolean {
-        val expired: Instant? = stateExpiry.remove(state)
-        return expired?.isAfter(Instant.now()) == true
+    fun generate(sourceType: String): State {
+        return generateSequence { ByteArray(8).randomize().encodeToBase64() }
+                .mapNotNull {
+                    val state = State(it, sourceType, Instant.now() + expiryTime)
+                    val existingValue = store.putIfAbsent(it, state)
+                    if (existingValue == null) state else null
+                }
+                .first()
+    }
+
+    operator fun get(stateId: String): State? = store.remove(stateId)
+
+    private fun clean() {
+        val now = Instant.now()
+        store.keys.forEach { k ->
+            store.compute(k) { _, v ->
+                if (v != null && now < v.expiresAt) v else null
+            }
+        }
     }
 
     companion object {
@@ -49,17 +68,8 @@ class StateStore(
         private fun ByteArray.encodeToBase64(): String = STATE_ENCODER.encodeToString(this)
     }
 
-    data class State(val uuid: String, val sourceType: String) {
-        constructor(sourceType: String, numRandomBytes: Int = 6) : this(
-                ByteArray(numRandomBytes).randomize().encodeToBase64(), sourceType)
-
-        override fun toString() = "state=$uuid&sourceType=$sourceType"
-
-        companion object {
-            fun String.toState(): State {
-                val map = split("&")
-                return State(map[0].split("=")[1], map[1].split("=")[1])
-            }
-        }
+    data class State(val stateId: String, val sourceType: String, val expiresAt: Instant) {
+        val isValid: Boolean
+            get() = Instant.now() < expiresAt
     }
 }
