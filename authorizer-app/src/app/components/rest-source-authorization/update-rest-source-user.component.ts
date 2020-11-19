@@ -36,26 +36,23 @@ export class UpdateRestSourceUserComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadAllRestSourceProjects()
+    this.loadAllRestSourceProjects();
   }
 
-  initialize(){
+  initialize() {
     this.activatedRoute.params.subscribe(params => {
       if (params.hasOwnProperty('id')) {
         this.restSourceUserService.getUserById(params['id']).subscribe(
           user => {
-            console.log("user ", user)
             this.restSourceUser = user;
-            console.log("rest user ", this.restSourceUser)
-            this.subjects = [{id: this.restSourceUser.userId}]
+            this.subjects = [{id: this.restSourceUser.userId}];
             this.isEditing = true;
             this.startDate = new Date(this.restSourceUser.startDate);
             this.endDate = new Date(this.restSourceUser.endDate);
-            // this.onChangeProject(this.restSourceUser.projectId)
             this.loadAllSubjectsOfProject(user.projectId);
           },
           (err: Response) => {
-            console.log('Cannot retrieve current user details', err)
+            console.log('Cannot retrieve current user details', err);
             this.errorMessage = 'Cannot retrieve current user details';
             window.setTimeout(() => this.router.navigate(['']), 5000);
           }
@@ -74,19 +71,19 @@ export class UpdateRestSourceUserComponent implements OnInit {
   }
 
   updateRestSourceUser() {
-    if(!this.endDate || !this.startDate){
+    if (!this.endDate || !this.startDate) {
       this.errorMessage =
         'Please select Start Date and End Date';
       return;
     }
     if (this.endDate <= this.startDate) {
-      this.errorMessage = 'Please set the end date later than the start date.'
+      this.errorMessage = 'Please set the end date later than the start date.';
       return;
     }
-    try{
+    try {
       this.restSourceUser.startDate = this.startDate.toISOString();
       this.restSourceUser.endDate = this.endDate.toISOString();
-    }catch(err){
+    } catch (err) {
       this.errorMessage =
         'Please enter valid Start Date and End Date';
       return;
@@ -117,11 +114,11 @@ export class UpdateRestSourceUserComponent implements OnInit {
   private addRestSourceUser(code: string, state: string) {
     this.restSourceUserService.addAuthorizedUser(code, state).subscribe(
       data => {
-        this.onChangeProject(data.projectId)
+        this.onChangeProject(data.projectId);
         this.restSourceUser = data;
       },
       (err: HttpErrorResponse) => {
-        this.errorMessage = err.statusText + " : " + err.error.error_description
+        this.errorMessage = err.statusText + ' : ' + err.error.error_description;
         window.setTimeout(() => this.router.navigate(['']), 10000);
       }
     );
@@ -131,7 +128,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
     this.restSourceUserService.getAllProjects().subscribe(
       (data: any) => {
         this.restSourceProjects = data.projects;
-        this.initialize()
+        this.initialize();
       },
       () => {
         this.errorMessage = 'Cannot load projects!';
@@ -140,8 +137,8 @@ export class UpdateRestSourceUserComponent implements OnInit {
   }
 
   onChangeProject(projectId: string) {
-    if(projectId){
-      this.loadAllSubjectsOfProject(projectId)
+    if (projectId) {
+      this.loadAllSubjectsOfProject(projectId);
     }
   }
 
@@ -149,6 +146,15 @@ export class UpdateRestSourceUserComponent implements OnInit {
     this.restSourceUserService.getAllSubjectsOfProjects(projectId).subscribe(
       (data: any) => {
         this.subjects = data.users;
+        let withExternalId = this.subjects.filter(s => s.externalId);
+        let withoutExternalId = this.subjects.filter(s => !s.externalId);
+        withExternalId = withExternalId.sort((a, b) => {
+          return (a.externalId < b.externalId) ? -1 : 1;
+        });
+        withoutExternalId = withoutExternalId.sort((a, b) => {
+          return (a.id < b.id) ? -1 : 1;
+        });
+        this.subjects = [...withExternalId, ...withoutExternalId];
       },
       () => {
         this.errorMessage = 'Cannot load registered users!';

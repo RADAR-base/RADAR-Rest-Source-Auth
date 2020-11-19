@@ -11,7 +11,7 @@
   <h3 *ngIf="!isEditing">Enter details for User</h3>
   <h3 *ngIf="isEditing">Details for User</h3>
   <div class="form-group">
-    <label for="externalUserId">External User ID:</label>
+    <label for="externalUserId">Service User ID:</label>
     <input class="form-control" name="externalUserId" disabled type="text"
            [(ngModel)]="restSourceUser.serviceUserId" id="externalUserId">
   </div>
@@ -33,9 +33,9 @@
 
   <div class="form-group" *ngIf="restSourceUser.projectId">
     <label for="userId">User ID:</label>
-    <select class="form-control" id="userId" [(ngModel)]="restSourceUser.externalId ? restSourceUser.externalId : restSourceUser.userId" #userId="ngModel" [disabled]="isEditing">
+    <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" #userId="ngModel" [disabled]="isEditing">
       <option [selected]="true" value="">Select a user</option>
-      <option *ngFor="let user of subjects" [value]="user.externalId ? user.externalId : user.id">{{user.externalId? user.externalId : user.id}}</option>
+      <option *ngFor="let user of subjects" [value]="user.id">{{user.externalId}} ({{(user.id | slice:0:8) + '...'}})</option>
     </select>
   </div>
 
