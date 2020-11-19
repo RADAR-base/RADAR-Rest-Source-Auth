@@ -39,7 +39,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   errorMessage: string;
   restSourceUsers: RestSourceUser[];
   restSourceProjects: RadarProject[];
-  selectedProject: string = ''
+  selectedProject = '';
 
   dataSource: MatTableDataSource<RestSourceUser>;
 
@@ -54,12 +54,14 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.selectedProject = this.activatedRoute.snapshot.queryParams.project;
 
-    this.loadAllRestSourceProjects()
+    this.loadAllRestSourceProjects();
     this.dataSource = new MatTableDataSource(this.restSourceUsers);
     this.dataSource.filterPredicate = function(data, filter: string): boolean {
-      return data.id.toLowerCase().includes(filter) || data.userId.toLowerCase().includes(filter) || data.externalUserId.toString().includes(filter);
+      return data.id.toLowerCase().includes(filter) ||
+        data.userId.toLowerCase().includes(filter) ||
+        data.externalId.toString().includes(filter);
     };
-    this.onChangeProject(this.selectedProject)
+    this.onChangeProject(this.selectedProject);
   }
 
   /**
