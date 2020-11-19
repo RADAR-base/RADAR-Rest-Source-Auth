@@ -21,7 +21,6 @@ import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
-import org.radarbase.authorizer.util.StateStore.State.Companion.toState
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
@@ -85,10 +84,10 @@ class RestSourceUserResource(
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     fun create(
         @FormParam("code") code: String,
-        @FormParam("state") reqState: String): Response {
-        logger.info("Authorizing with code $code state $reqState")
-        val state = reqState.toState()
-        if (!stateStore.isValid(state)) throw HttpBadRequestException("state_not_found", "State has expired or not found")
+        @FormParam("state") stateId: String): Response {
+        logger.info("Authorizing with code $code state $stateId")
+        val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
+        if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
         val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
         val user = userRepository.create(accessToken, state.sourceType)
 
@@ -150,10 +149,12 @@ class RestSourceUserResource(
     fun requestToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
-        if (!user.authorized) {
-            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
+        return if (user.hasValidToken()) {
+            TokenDTO(user.accessToken, user.expiresAt)
+        } else {
+            // refresh token if current token is already expired.
+            refreshToken(userId, user)
         }
-        return TokenDTO(user.accessToken, user.expiresAt)
     }
 
     @POST
@@ -162,6 +163,10 @@ class RestSourceUserResource(
     fun refreshToken(@PathParam("id") userId: Long): TokenDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
+        return refreshToken(userId, user)
+    }
+
+    private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {
         if (!user.authorized) {
             throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
         }

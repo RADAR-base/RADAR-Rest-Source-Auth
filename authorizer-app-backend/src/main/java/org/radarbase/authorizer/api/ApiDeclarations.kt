@@ -49,12 +49,14 @@ class RestSourceUserDTO(
     val id: String?,
     val projectId: String?,
     val userId: String?,
+    val humanReadableUserId: String?,
     val sourceId: String,
     val externalUserId: String,
     val startDate: Instant,
     val endDate: Instant? = null,
     val sourceType: String,
     val isAuthorized: Boolean = false,
+    val hasValidToken: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0) : Serializable {
     companion object {

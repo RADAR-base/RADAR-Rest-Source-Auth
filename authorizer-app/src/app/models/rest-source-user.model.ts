@@ -12,5 +12,6 @@ export class RestSourceUser {
      externalUserId?: string;
      sourceType?: string;
      isAuthorized?: boolean;
+     hasValidToken?: boolean;
      timesReset?: number;
 }
