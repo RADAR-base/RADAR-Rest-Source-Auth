@@ -82,23 +82,21 @@ class OAuth1RestSourceAuthorizationService(
         val authConfig = configMap[user.sourceType]
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type ${user.sourceType}")
         val url = "https://healthapi.garmin.com/wellness-api/rest/user/registration"
-
         var params = this.getCommonAuthParamsBuilder(authConfig)
                 .queryParam(OAUTH_ACCESS_TOKEN, user.accessToken)
                 .queryParam(OAUTH_VERSION, OAUTH_VERSION_VALUE)
-        val signature = this.getOAuthSignature("POST", params.clone(), url, authConfig.clientSecret, user.refreshToken)
-        val headers = this.getPreAuthHeaders(params, signature)
-        val urlWithParams = UriBuilder.fromUri(url).replaceQuery(headers).build().toString()
+        val signature = this.getOAuthSignature("DELETE", params.clone(), url, authConfig.clientSecret, user.refreshToken)
+        val headers = this.getPreAuthHeaders(params, signature).replace("&", "\",").replace("=", "=\"").plus("\"")
 
         val req: Request = Request.Builder()
-                .url(urlWithParams)
-                .header("Authorization", headers)
+                .url(url)
+                .header("Authorization", "OAuth $headers")
                 .method("DELETE", null)
                 .build()
 
         return httpClient.newCall(req).execute().use { response ->
             when (response.code) {
-                200 -> true
+                200, 204 -> true
                 400, 401, 403 -> false
                 else -> throw HttpBadGatewayException("Cannot connect to ${url}: HTTP status ${response.code}")
             }
@@ -201,15 +199,14 @@ class OAuth1RestSourceAuthorizationService(
         val url = "https://healthapi.garmin.com/wellness-api/rest/user/id"
 
         var params = this.getCommonAuthParamsBuilder(authConfig)
-                .queryParam("oauth_token", tokens.token)
-                .queryParam("oauth_version", "1.0")
+                .queryParam(OAUTH_ACCESS_TOKEN, tokens.token)
+                .queryParam(OAUTH_VERSION, OAUTH_VERSION_VALUE)
         val signature = this.getOAuthSignature("GET", params.clone(), url, authConfig.clientSecret, tokens.tokenSecret)
         val headers = this.getPreAuthHeaders(params, signature).replace("&", "\",").replace("=", "=\"").plus("\"")
 
         val req: Request = Request.Builder()
                 .url(url)
                 .header("Authorization", "OAuth $headers")
-                .header("Accept", "application/json")
                 .method("GET", null)
                 .build()
 
