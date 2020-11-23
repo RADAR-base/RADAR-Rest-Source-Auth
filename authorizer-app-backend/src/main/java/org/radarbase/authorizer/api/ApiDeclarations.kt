@@ -37,7 +37,7 @@ data class RestOauth1AccessToken(
 )
 
 data class RestOauth1UserId(
-        var userId: String
+        @JsonProperty("userId") var userId: String
 )
 
 data class RequestTokenPayload(
