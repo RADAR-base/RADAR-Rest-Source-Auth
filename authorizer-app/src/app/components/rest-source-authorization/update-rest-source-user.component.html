@@ -26,7 +26,7 @@
     <label for="projectId">Project ID:</label>
     <select class="form-control" id="projectId" [(ngModel)]="restSourceUser.projectId" #projectId="ngModel" [disabled]="isEditing"
             (change)="onChangeProject($event.target.value)">
-      <option [selected]="true" value="">Select a project</option>
+      <option [selected]="true" [ngValue]="null">Select a project</option>
       <option [value]="project.id" *ngFor="let project of restSourceProjects">{{project.id}}</option>
     </select>
   </div>
@@ -34,7 +34,7 @@
   <div class="form-group" *ngIf="restSourceUser.projectId">
     <label for="userId">User ID:</label>
     <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" #userId="ngModel" [disabled]="isEditing">
-      <option [selected]="true" value="">Select a user</option>
+      <option [selected]="true" [ngValue]="null">Select a user</option>
       <option *ngFor="let user of subjects" [value]="user.id">{{user.externalId}} ({{(user.id | slice:0:8) + '...'}})</option>
     </select>
   </div>
