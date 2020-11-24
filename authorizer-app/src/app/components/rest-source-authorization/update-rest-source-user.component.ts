@@ -60,7 +60,8 @@ export class UpdateRestSourceUserComponent implements OnInit {
       } else {
         this.activatedRoute.queryParams.subscribe((params: Params) => {
           if (params.hasOwnProperty('error')) {
-            this.errorMessage = params['error_description'];
+            this.errorMessage = 'Access Denied';
+            window.setTimeout(() => this.router.navigate(['']), 5000);
           } else {
             this.errorMessage = null;
             this.addRestSourceUser(params['code'], params['state']);
