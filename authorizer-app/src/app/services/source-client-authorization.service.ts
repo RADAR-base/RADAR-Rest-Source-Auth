@@ -10,6 +10,7 @@ import { map } from 'rxjs/operators';
 export class SourceClientAuthorizationService {
   private serviceUrl = environment.backendBaseUrl;
   AUTH_ENDPOINT_PARAMS_STORAGE_KEY = 'auth_endpoint_params';
+  AUTH_SOURCE_TYPE_STORAGE_KEY = 'auth_source_type';
 
   constructor(private http: HttpClient) {}
 
@@ -34,9 +35,14 @@ export class SourceClientAuthorizationService {
     return this.http.get(url, { responseType: 'text' }).pipe(
       map(url => {
         this.storeAuthorizationEndpointParams(url);
+        this.storeSourceType(sourceType);
         return url;
       })
     );
+  }
+
+  storeSourceType(type) {
+    localStorage.setItem(this.AUTH_SOURCE_TYPE_STORAGE_KEY, type);
   }
 
   storeAuthorizationEndpointParams(url) {

@@ -13,7 +13,7 @@ import { environment } from '../../environments/environment';
 export class RestSourceUserService {
   private serviceUrl = environment.backendBaseUrl + '/users';
   AUTH_ENDPOINT_PARAMS_STORAGE_KEY = 'auth_endpoint_params';
-  CLIENT_SOURCE_TYPES = { FITBIT: 'FitBit', GARMIN: 'Garmin' };
+  AUTH_SOURCE_TYPE_STORAGE_KEY = 'auth_source_type';
 
   constructor(private http: HttpClient) {}
 
@@ -44,7 +44,7 @@ export class RestSourceUserService {
   }
 
   addAuthorizedUser(payload: RequestTokenPayload): Observable<any> {
-    const sourceType = this.getSourceTypeFromAuthPayload(payload);
+    const sourceType = localStorage.getItem(this.AUTH_SOURCE_TYPE_STORAGE_KEY);
     const redirectParams = JSON.parse(
       localStorage.getItem(this.AUTH_ENDPOINT_PARAMS_STORAGE_KEY)
     );
@@ -69,11 +69,5 @@ export class RestSourceUserService {
 
   resetUser(user: RestSourceUser): Observable<any> {
     return this.http.post(this.serviceUrl + '/' + user.id + '/reset', user);
-  }
-
-  getSourceTypeFromAuthPayload(payload: RequestTokenPayload) {
-    return payload.code
-      ? this.CLIENT_SOURCE_TYPES.FITBIT
-      : this.CLIENT_SOURCE_TYPES.GARMIN;
   }
 }
