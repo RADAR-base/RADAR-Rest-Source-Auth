@@ -44,22 +44,39 @@ class RestSourceUserRepositoryImpl(
             .setParameter("externalUserId", externalUserId)
             .resultList.firstOrNull()
 
-        if (existingUser != null) {
-            throw HttpConflictException("external-id-exists", "External-user-id ${existingUser.externalUserId} " +
+        when {
+            existingUser == null -> RestSourceUser().apply {
+                this.externalUserId = externalUserId
+                this.sourceType = sourceType
+                this.startDate = Instant.now()
+                setToken(token)
+                persist(this)
+            }
+            // Do not override existing user, except if it is not fully specified
+            existingUser.projectId != null -> throw HttpConflictException("external-id-exists", "External-user-id ${existingUser.externalUserId} " +
                     "for source-type ${existingUser.sourceType} is already in use by user ${existingUser.userId}." +
                     " Please remove the existing user to continue or update existing user.")
+            else -> existingUser.apply {
+                this.startDate = Instant.now()
+                setToken(token)
+                merge(this)
+            }
         }
+    }
 
-        RestSourceUser().apply {
+    private fun RestSourceUser.setToken(token: RestOauth2AccessToken?) {
+        if (token != null) {
             this.authorized = true
-            this.externalUserId = externalUserId
-            this.sourceType = sourceType
-            this.startDate = Instant.now()
             this.accessToken = token.accessToken
             this.refreshToken = token.refreshToken
             this.expiresIn = token.expiresIn
-            this.expiresAt = startDate.plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
-            persist(this)
+            this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()) - expiryTimeMargin
+        } else {
+            this.authorized = false
+            this.accessToken = null
+            this.refreshToken = null
+            this.expiresIn = null
+            this.expiresAt = null
         }
     }
 
@@ -67,24 +84,9 @@ class RestSourceUserRepositoryImpl(
         val existingUser = find(RestSourceUser::class.java, userId)
                 ?: throw HttpNotFoundException("user_not_found", "User with ID $userId does not exist")
 
-        if (token == null) {
-            existingUser.apply {
-                this.authorized = false
-                this.accessToken = null
-                this.refreshToken = null
-                this.expiresIn = null
-                this.expiresAt = null
-                merge(this)
-            }
-        } else {
-            existingUser.apply {
-                this.authorized = true
-                this.accessToken = token.accessToken
-                this.refreshToken = token.refreshToken
-                this.expiresIn = token.expiresIn
-                this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
-                merge(this)
-            }
+        existingUser.apply {
+            setToken(token)
+            merge(this)
         }
     }
 
