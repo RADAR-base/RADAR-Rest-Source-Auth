@@ -25,6 +25,7 @@ class RestSourceClientMapper {
         scope = client.scope,
         preAuthorizationEndpoint = client.preAuthorizationEndpoint,
         authorizationEndpoint = client.authorizationEndpoint,
+        deRegistrationEndpoint = client.deRegistrationEndpoint,
         tokenEndpoint = client.tokenEndpoint,
         grantType = client.grantType
     )

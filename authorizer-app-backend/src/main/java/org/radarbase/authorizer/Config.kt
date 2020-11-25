@@ -54,6 +54,7 @@ data class RestSourceClient(
     val sourceType: String,
     val preAuthorizationEndpoint: String?,
     val authorizationEndpoint: String,
+    val deRegistrationEndpoint: String?,
     val tokenEndpoint: String,
     val clientId: String? = null,
     val clientSecret: String? = null,
