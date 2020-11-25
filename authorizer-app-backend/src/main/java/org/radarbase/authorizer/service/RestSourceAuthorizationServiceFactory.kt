@@ -29,7 +29,7 @@ class RestSourceAuthorizationServiceFactory(
         @Context private val stateStore: StateStore
         ) {
 
-    private val oAuth1RestAuthorizationService = OAuth1RestSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper)
+    private val oAuth1RestAuthorizationService = GarminSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper)
     private val oAuth2RestAuthorizationService = OAuth2RestSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper, this.stateStore)
 
     fun getAuthorizationService(sourceType: String): RestSourceAuthorizationService {
