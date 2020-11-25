@@ -45,19 +45,6 @@ open class OAuth1RestSourceAuthorizationService(
     private val configMap = restSourceClients.clients.map { it.sourceType to it }.toMap()
     private val tokenReader = objectMapper.readerFor(RestOauth1AccessToken::class.java)
 
-    private val OAUTH_CONSUMER_KEY = "oauth_consumer_key"
-    private val OAUTH_NONCE = "oauth_nonce"
-    private val OAUTH_SIGNATURE = "oauth_signature"
-    private val OAUTH_SIGNATURE_METHOD = "oauth_signature_method"
-    private val OAUTH_SIGNATURE_METHOD_VALUE = "HMAC-SHA1"
-    private val OAUTH_TIMESTAMP = "oauth_timestamp"
-    private val OAUTH_ACCESS_TOKEN = "oauth_token"
-    private val OAUTH_VERSION = "oauth_version"
-    private val OAUTH_VERSION_VALUE = "1.0"
-    private val OAUTH_VERIFIER = "oauth_verifier"
-    private val OAUTH_ACCESS_TOKEN_SECRET = "oauth_token_secret"
-    private val OAUTH_CALLBACK = "oauth_callback"
-
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken? {
         val authConfig = configMap[sourceType]
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
@@ -126,7 +113,7 @@ open class OAuth1RestSourceAuthorizationService(
         val req: Request = Request.Builder()
                 .url(url)
                 .header("Authorization", "OAuth $headers")
-                .method(method, RequestBody.create(null, ""))
+                .method(method, if (method == "POST") RequestBody.create(null, "") else null)
                 .build()
         return req
 
@@ -178,6 +165,19 @@ open class OAuth1RestSourceAuthorizationService(
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(OAuth1RestSourceAuthorizationService::class.java)
+
+        const val OAUTH_CONSUMER_KEY = "oauth_consumer_key"
+        const val OAUTH_NONCE = "oauth_nonce"
+        const val OAUTH_SIGNATURE = "oauth_signature"
+        const val OAUTH_SIGNATURE_METHOD = "oauth_signature_method"
+        const val OAUTH_SIGNATURE_METHOD_VALUE = "HMAC-SHA1"
+        const val OAUTH_TIMESTAMP = "oauth_timestamp"
+        const val OAUTH_ACCESS_TOKEN = "oauth_token"
+        const val OAUTH_VERSION = "oauth_version"
+        const val OAUTH_VERSION_VALUE = "1.0"
+        const val OAUTH_VERIFIER = "oauth_verifier"
+        const val OAUTH_ACCESS_TOKEN_SECRET = "oauth_token_secret"
+        const val OAUTH_CALLBACK = "oauth_callback"
     }
 
 }
