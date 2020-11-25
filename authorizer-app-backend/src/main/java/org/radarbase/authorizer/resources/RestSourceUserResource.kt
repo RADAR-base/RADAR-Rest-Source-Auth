@@ -175,6 +175,18 @@ class RestSourceUserResource(
         return refreshToken(userId, user)
     }
 
+     @POST
+     @Path("{id}/deregister")
+     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
+     fun reportDeregistration(
+             @PathParam("id") userId: Long): RestSourceUserDTO {
+         val existingUser = ensureUser(userId)
+         val user = userMapper.fromEntity(existingUser)
+         user.isAuthorized = false
+         val updatedUser = userRepository.update(existingUser, user)
+         return userMapper.fromEntity(updatedUser)
+     }
+
     private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {
         if (!user.authorized) {
             throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")

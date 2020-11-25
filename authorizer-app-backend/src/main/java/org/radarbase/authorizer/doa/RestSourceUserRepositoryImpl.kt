@@ -97,6 +97,7 @@ class RestSourceUserRepositoryImpl(
             this.sourceId = user.sourceId
             this.startDate = user.startDate
             this.endDate = user.endDate
+            this.authorized = user.isAuthorized
             merge(this)
         }
     }

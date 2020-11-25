@@ -61,13 +61,13 @@ open class OAuth1RestSourceAuthorizationService(
     override fun revokeToken(user: RestSourceUser): Boolean {
         val authConfig = configMap[user.sourceType]
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type ${user.sourceType}")
-        val req = createRequest("DELETE", authConfig.deRegistrationEndpoint!!, RestOauth1AccessToken(user.accessToken!!, user.refreshToken), user.sourceType)
+        val req = createRequest("DELETE", authConfig.deregistrationEndpoint!!, RestOauth1AccessToken(user.accessToken!!, user.refreshToken), user.sourceType)
 
         return httpClient.newCall(req).execute().use { response ->
             when (response.code) {
                 200, 204 -> true
                 400, 401, 403 -> false
-                else -> throw HttpBadGatewayException("Cannot connect to ${authConfig.deRegistrationEndpoint}: HTTP status ${response.code}")
+                else -> throw HttpBadGatewayException("Cannot connect to ${authConfig.deregistrationEndpoint}: HTTP status ${response.code}")
             }
         }
     }
