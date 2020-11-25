@@ -14,14 +14,14 @@ application {
 }
 
 project.extra.apply {
-    set("okhttpVersion", "4.8.1")
-    set("radarJerseyVersion", "0.3.1")
-    set("jacksonVersion", "2.11.2")
+    set("okhttpVersion", "4.9.0")
+    set("radarJerseyVersion", "0.4.2.1")
+    set("jacksonVersion", "2.11.3")
     set("slf4jVersion", "1.7.30")
     set("logbackVersion", "1.2.3")
-    set("jerseyVersion", "2.31")
+    set("jerseyVersion", "2.32")
     set("liquibaseVersion", "3.10.2")
-    set("junitVersion", "5.6.2")
+    set("junitVersion", "5.7.0")
     set("mockitoKotlinVersion", "2.2.0")
     set("githubRepoName", "RADAR-base/RADAR-Rest-Source-Auth")
     set("githubUrl", "https://github.com/RADAR-base/RADAR-Rest-Source-Auth.git")
@@ -86,10 +86,9 @@ allOpen {
 }
 
 tasks.register("downloadDependencies") {
-    configurations["runtimeClasspath"].files
-    configurations["compileClasspath"].files
-
     doLast {
+        configurations["runtimeClasspath"].files
+        configurations["compileClasspath"].files
         println("Downloaded all dependencies")
     }
 }
