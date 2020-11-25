@@ -17,13 +17,23 @@
 package org.radarbase.authorizer.api
 
 import org.radarbase.authorizer.doa.entity.RestSourceUser
+import org.radarbase.jersey.service.managementportal.RadarProjectService
+import javax.ws.rs.core.Context
 
 
-class RestSourceUserMapper {
+class RestSourceUserMapper(
+    @Context private val projectService: RadarProjectService,
+) {
     fun fromEntity(user: RestSourceUser) = RestSourceUserDTO(
         id = user.id.toString(),
         projectId = user.projectId,
         userId = user.userId,
+        humanReadableUserId = projectService.getUser(user.projectId!!, user.userId!!)
+            ?.let { mpUser ->
+                mpUser.attributes["Human-readable-identifier"]
+                    ?.takeIf { it.isNotBlank() && it != "null" }
+                    ?: mpUser.externalId
+            },
         sourceId = user.sourceId,
         isAuthorized = user.authorized,
         hasValidToken = user.hasValidToken(),
