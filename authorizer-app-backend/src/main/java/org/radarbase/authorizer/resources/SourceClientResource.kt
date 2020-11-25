@@ -23,6 +23,7 @@ import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.ShareableClientDetail
 import org.radarbase.authorizer.api.ShareableClientDetails
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
+import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -44,14 +45,11 @@ class SourceClientResource(
     @Context private val restSourceClients: RestSourceClients,
     @Context private val clientMapper: RestSourceClientMapper,
     @Context private val stateStore: StateStore,
-    @Context private val auth: Auth
+    @Context private val auth: Auth,
+    @Context private val authorizationService: RestSourceAuthorizationService
 ) {
-
     private val sourceTypes = restSourceClients.clients.map { it.sourceType }
-
     private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
-
-    private val authorizationService = DelegatedRestSourceAuthorizationService(restSourceClients, httpClient = OkHttpClient(), objectMapper = ObjectMapper(), stateStore = stateStore)
 
     @GET
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)

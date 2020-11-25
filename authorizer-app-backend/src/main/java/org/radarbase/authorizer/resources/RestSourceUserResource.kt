@@ -23,6 +23,7 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
+import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -55,10 +56,9 @@ class RestSourceUserResource(
         @Context private val stateStore: StateStore,
         @Context private val auth: Auth,
         @Context private val restSourceClients: RestSourceClients,
-        @Context private val clientMapper: RestSourceClientMapper
+        @Context private val clientMapper: RestSourceClientMapper,
+        @Context private val authorizationService: RestSourceAuthorizationService
         ) {
-
-    private val authorizationService = DelegatedRestSourceAuthorizationService(restSourceClients, httpClient = OkHttpClient(), objectMapper = ObjectMapper(), stateStore = stateStore)
 
     @GET
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)

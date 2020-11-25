@@ -18,6 +18,7 @@ package org.radarbase.authorizer.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.OkHttpClient
+import org.glassfish.hk2.api.IterableProvider
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
@@ -29,14 +30,14 @@ class DelegatedRestSourceAuthorizationService(
         @Context private val restSourceClients: RestSourceClients,
         @Context private val httpClient: OkHttpClient,
         @Context private val objectMapper: ObjectMapper,
-        @Context private val stateStore: StateStore
+        @Context private val stateStore: StateStore,
+        @Context private val namedServices: IterableProvider<RestSourceAuthorizationService>
 ): RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper) {
 
     fun delegate(sourceType: String): RestSourceAuthorizationService {
-        val type = SourceType.values().find { it.type == sourceType }
-        return when (type) {
-            SourceType.GARMIN -> GarminSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper)
-            SourceType.FITBIT -> OAuth2RestSourceAuthorizationService(this.restSourceClients, this.httpClient, this.objectMapper, this.stateStore)
+        return when (sourceType) {
+            GARMIN_AUTH -> namedServices.named(GARMIN_AUTH).get()
+            FITBIT_AUTH -> namedServices.named(FITBIT_AUTH).get()
             else -> throw IllegalStateException()
         }
     }
@@ -56,12 +57,6 @@ class DelegatedRestSourceAuthorizationService(
     companion object {
         const val GARMIN_AUTH = "Garmin"
         const val FITBIT_AUTH = "FitBit"
-
-        enum class SourceType(val type: String) {
-            GARMIN("Garmin"),
-            FITBIT("FitBit")
-        }
     }
-
 
 }
