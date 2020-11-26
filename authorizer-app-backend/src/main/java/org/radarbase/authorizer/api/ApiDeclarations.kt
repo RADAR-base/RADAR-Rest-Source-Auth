@@ -52,6 +52,7 @@ data class RequestTokenPayload(
 data class ShareableClientDetail(
     val sourceType: String,
     val preAuthorizationEndpoint: String?,
+    val deregistrationEndpoint: String?,
     val authorizationEndpoint: String,
     val tokenEndpoint: String,
     val grantType: String?,
@@ -74,7 +75,7 @@ class RestSourceUserDTO(
     val startDate: Instant,
     val endDate: Instant? = null,
     val sourceType: String,
-    val isAuthorized: Boolean = false,
+    var isAuthorized: Boolean = false,
     val hasValidToken: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0) : Serializable {
