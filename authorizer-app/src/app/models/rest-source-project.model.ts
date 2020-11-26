@@ -9,5 +9,6 @@ export class RadarSubject {
   id?: string;
   projectId?: string;
   externalId?: string;
-  status?: string
+  status?: string;
+  humanReadableUserId?: string;
 }

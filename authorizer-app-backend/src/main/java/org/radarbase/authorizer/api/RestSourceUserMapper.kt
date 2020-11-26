@@ -24,26 +24,28 @@ import javax.ws.rs.core.Context
 class RestSourceUserMapper(
     @Context private val projectService: RadarProjectService,
 ) {
-    fun fromEntity(user: RestSourceUser) = RestSourceUserDTO(
-        id = user.id.toString(),
-        projectId = user.projectId,
-        userId = user.userId,
-        humanReadableUserId = projectService.getUser(user.projectId!!, user.userId!!)
-            ?.let { mpUser ->
-                mpUser.attributes["Human-readable-identifier"]
-                    ?.takeIf { it.isNotBlank() && it != "null" }
-                    ?: mpUser.externalId
-            },
-        sourceId = user.sourceId,
-        isAuthorized = user.authorized,
-        hasValidToken = user.hasValidToken(),
-        sourceType = user.sourceType,
-        endDate = user.endDate,
-        startDate = user.startDate,
-        externalUserId = user.externalUserId,
-        version = user.version,
-        timesReset = user.timesReset
-    )
+    fun fromEntity(user: RestSourceUser): RestSourceUserDTO {
+        val mpUser = user.projectId?.let { p ->
+            user.userId?.let { u -> projectService.getUser(p, u) }
+        }
+        return RestSourceUserDTO(
+            id = user.id.toString(),
+            projectId = user.projectId,
+            userId = user.userId,
+            humanReadableUserId = mpUser?.attributes?.get("Human-readable-identifier")
+                    ?.takeIf { it.isNotBlank() && it != "null" },
+            externalId = mpUser?.externalId,
+            sourceId = user.sourceId,
+            isAuthorized = user.authorized,
+            hasValidToken = user.hasValidToken(),
+            sourceType = user.sourceType,
+            endDate = user.endDate,
+            startDate = user.startDate,
+            serviceUserId = user.externalUserId,
+            version = user.version,
+            timesReset = user.timesReset
+        )
+    }
 
     fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
         users = records.map(::fromEntity)

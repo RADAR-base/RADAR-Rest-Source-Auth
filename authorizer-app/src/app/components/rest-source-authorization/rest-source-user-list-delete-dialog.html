@@ -1,7 +1,8 @@
 <h1 mat-dialog-title>WARNING!</h1>
 <div mat-dialog-content>
-  <p>Are you sure you want to delete the user with- <strong>id:</strong> {{data.id}},
-    <strong>user-id:</strong> {{data.userId}} and <strong>project-id:</strong> {{data.projectId}}?
+  <p>Are you sure you want to delete the user with ID: <strong>{{data.id}}</strong>,
+    User ID: <strong>{{data.externalId}} ({{data.userId}})</strong>
+    and Project ID: <strong>{{data.projectId}}</strong>?
   </p>
 </div>
 <div mat-dialog-actions>

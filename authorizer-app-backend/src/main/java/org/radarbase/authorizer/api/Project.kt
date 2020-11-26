@@ -28,7 +28,7 @@ fun MPProject.toProject() = Project(
         name = name,
         location = location,
         organization = organization,
-        description = description,
+        description = description
 )
 
 data class UserList(val users: List<User>)
@@ -39,5 +39,5 @@ fun MPUser.toUser() = User(
         id = id,
         projectId = checkNotNull(projectId) { "User must have a project ID" },
         externalId = externalId,
-        status = status,
+        status = status
 )

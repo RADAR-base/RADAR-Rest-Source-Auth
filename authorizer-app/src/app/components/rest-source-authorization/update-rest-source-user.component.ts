@@ -45,14 +45,12 @@ export class UpdateRestSourceUserComponent implements OnInit {
       if (params.hasOwnProperty('id')) {
         this.restSourceUserService.getUserById(params['id']).subscribe(
           user => {
-            console.log('user ', user);
             this.restSourceUser = user;
-            console.log('rest user ', this.restSourceUser);
             this.subjects = [{ id: this.restSourceUser.userId }];
             this.isEditing = true;
             this.startDate = new Date(this.restSourceUser.startDate);
             this.endDate = new Date(this.restSourceUser.endDate);
-            // this.onChangeProject(this.restSourceUser.projectId)
+            this.loadAllSubjectsOfProject(user.projectId);
           },
           (err: Response) => {
             console.log('Cannot retrieve current user details', err);
@@ -63,7 +61,8 @@ export class UpdateRestSourceUserComponent implements OnInit {
       } else {
         this.activatedRoute.queryParams.subscribe((params: Params) => {
           if (params.hasOwnProperty('error')) {
-            this.errorMessage = params['error_description'];
+            this.errorMessage = 'Access Denied';
+            window.setTimeout(() => this.router.navigate(['']), 5000);
           } else {
             this.errorMessage = null;
             this.handleAuthRedirect(params);
@@ -154,6 +153,15 @@ export class UpdateRestSourceUserComponent implements OnInit {
     this.restSourceUserService.getAllSubjectsOfProjects(projectId).subscribe(
       (data: any) => {
         this.subjects = data.users;
+        let withExternalId = this.subjects.filter(s => s.externalId);
+        let withoutExternalId = this.subjects.filter(s => !s.externalId);
+        withExternalId = withExternalId.sort((a, b) => {
+          return a.externalId < b.externalId ? -1 : 1;
+        });
+        withoutExternalId = withoutExternalId.sort((a, b) => {
+          return a.id < b.id ? -1 : 1;
+        });
+        this.subjects = [...withExternalId, ...withoutExternalId];
       },
       () => {
         this.errorMessage = 'Cannot load registered users!';

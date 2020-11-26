@@ -33,8 +33,8 @@ export class RestSourceUserService {
     );
   }
 
-  getAllSubjectsOfProjects(projectId: string): Observable<RadarProject[]> {
-    return this.http.get<RadarProject[]>(
+  getAllSubjectsOfProjects(projectId: string): Observable<RestSourceUser[]> {
+    return this.http.get<RestSourceUser[]>(
       environment.backendBaseUrl + '/projects/' + projectId + '/users'
     );
   }
