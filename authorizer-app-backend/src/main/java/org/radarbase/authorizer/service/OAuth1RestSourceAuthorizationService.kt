@@ -78,10 +78,11 @@ open class OAuth1RestSourceAuthorizationService(
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
 
         val tokens = this.requestToken(authConfig.preAuthorizationEndpoint, RestOauth1AccessToken(""), sourceType)
-        val params = mutableMapOf<String, String?>()
-        params[OAUTH_ACCESS_TOKEN] = tokens?.token
-        params[OAUTH_ACCESS_TOKEN_SECRET] = tokens?.tokenSecret
-        params[OAUTH_CALLBACK] = callBackUrl
+        val params = mutableMapOf<String, String?>(
+            OAUTH_ACCESS_TOKEN to tokens?.token,
+            OAUTH_ACCESS_TOKEN_SECRET to tokens?.tokenSecret,
+            OAUTH_CALLBACK to callBackUrl
+        )
 
         return Url(authConfig.authorizationEndpoint, params).getUrl()
     }
@@ -105,7 +106,7 @@ open class OAuth1RestSourceAuthorizationService(
     fun createRequest(method: String, url: String, tokens: RestOauth1AccessToken, sourceType: String): Request {
         val authConfig = configMap[sourceType]
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type ${sourceType}")
-        var params = this.getCommonAuthParams(authConfig, tokens.token, tokens.tokenVerifier)
+        var params = this.getAuthParams(authConfig, tokens.token, tokens.tokenVerifier)
         val signature = OauthSignature(url, params, method, authConfig.clientSecret, tokens.tokenSecret).getEncodedSignature()
         params[OAUTH_SIGNATURE] = signature
         val headers = mapToList(params)
@@ -119,16 +120,15 @@ open class OAuth1RestSourceAuthorizationService(
 
     }
 
-    private fun getCommonAuthParams(authConfig: RestSourceClient, accessToken: String?, tokenVerifier: String?): MutableMap<String, String?> {
-        val params = mutableMapOf<String, String?>()
-        params[OAUTH_CONSUMER_KEY] = authConfig.clientId
-        params[OAUTH_NONCE] = this.generateNonce()
-        params[OAUTH_SIGNATURE_METHOD] = OAUTH_SIGNATURE_METHOD_VALUE
-        params[OAUTH_TIMESTAMP] = Instant.now().epochSecond.toString()
-        params[OAUTH_ACCESS_TOKEN] = accessToken
-        params[OAUTH_VERIFIER] = tokenVerifier
-        params[OAUTH_VERSION] = OAUTH_VERSION_VALUE
-        return params
+    private fun getAuthParams(authConfig: RestSourceClient, accessToken: String?, tokenVerifier: String?): MutableMap<String, String?> {
+       return mutableMapOf<String, String?>(
+            OAUTH_CONSUMER_KEY to authConfig.clientId,
+            OAUTH_NONCE to this.generateNonce(),
+            OAUTH_SIGNATURE_METHOD to OAUTH_SIGNATURE_METHOD_VALUE,
+            OAUTH_TIMESTAMP to Instant.now().epochSecond.toString(),
+            OAUTH_ACCESS_TOKEN to accessToken,
+            OAUTH_VERIFIER to tokenVerifier,
+            OAUTH_VERSION to OAUTH_VERSION_VALUE)
     }
 
     open fun getExternalId(tokens: RestOauth1AccessToken, sourceType: String): String? {
