@@ -35,7 +35,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   errorMessage: string;
   restSourceUsers: RestSourceUser[];
   restSourceProjects: RadarProject[];
-  selectedProject: string = '';
+  selectedProject = '';
 
   dataSource: MatTableDataSource<RestSourceUser>;
 
@@ -55,7 +55,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
       return (
         data.id.toLowerCase().includes(filter) ||
         data.userId.toLowerCase().includes(filter) ||
-        data.externalUserId.toString().includes(filter)
+        data.externalId.toString().includes(filter)
       );
     };
     this.onChangeProject(this.selectedProject);
