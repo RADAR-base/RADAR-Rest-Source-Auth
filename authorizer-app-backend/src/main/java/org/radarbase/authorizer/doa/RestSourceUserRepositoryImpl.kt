@@ -144,9 +144,10 @@ class RestSourceUserRepositoryImpl(
         sourceType: String?
     ): List<RestSourceUser> {
         var queryString = "SELECT u FROM RestSourceUser u WHERE"
+        queryString += " u.endDate < CURRENT_TIMESTAMP"
 
         if (sourceType != null) {
-            queryString += " u.sourceType = :sourceType"
+            queryString += " AND u.sourceType = :sourceType"
         }
 
         return transact {
