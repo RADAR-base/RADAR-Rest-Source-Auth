@@ -181,10 +181,7 @@ class RestSourceUserResource(
      fun reportDeregistration(
              @PathParam("id") userId: Long): RestSourceUserDTO {
          val existingUser = ensureUser(userId)
-         val user = userMapper.fromEntity(existingUser)
-         user.isAuthorized = false
-         val updatedUser = userRepository.update(existingUser, user)
-         return userMapper.fromEntity(updatedUser)
+         return userMapper.fromEntity(authorizationService.deRegisterUser(existingUser))
      }
 
     private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {

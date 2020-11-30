@@ -96,6 +96,10 @@ class OAuth2RestSourceAuthorizationService(
                 .build().toString()
     }
 
+    override fun deRegisterUser(user: RestSourceUser): RestSourceUser {
+        throw HttpBadRequestException("", "Not available for auth type")
+    }
+
     private fun post(form: FormBody, sourceType: String): Request {
         val authorizationConfig = configMap[sourceType]
             ?: throw HttpBadRequestException(
