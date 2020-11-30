@@ -27,7 +27,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import javax.ws.rs.core.Context
 
-open class GarminSourceAuthorizationService(
+class GarminSourceAuthorizationService(
     @Context private val restSourceClients: RestSourceClients,
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper
@@ -35,6 +35,8 @@ open class GarminSourceAuthorizationService(
     val GARMIN_USER_ID_ENDPOINT = "https://healthapi.garmin.com/wellness-api/rest/user/id"
 
     override fun getExternalId(tokens: RestOauth1AccessToken, sourceType: String): String? {
+        // Garmin does not provide the service/external id with the token payload, so an additional
+        // request to pull the external id is needed.
         val req = createRequest("GET", GARMIN_USER_ID_ENDPOINT, tokens, sourceType)
         return httpClient.newCall(req).execute().use { response ->
             when (response.code) {
@@ -45,11 +47,6 @@ open class GarminSourceAuthorizationService(
                 else -> throw HttpBadGatewayException("Cannot connect to ${GARMIN_USER_ID_ENDPOINT}: HTTP status ${response.code}")
             }
         }
-    }
-
-    override fun mapToOauth2(tokens: RestOauth1AccessToken, sourceType: String): RestOauth2AccessToken {
-        // This maps the OAuth1 properties to OAuth2 for backwards compatibility
-        return RestOauth2AccessToken(tokens.token, tokens.tokenSecret, Integer.MAX_VALUE,"", getExternalId(tokens, sourceType))
     }
 
     companion object {

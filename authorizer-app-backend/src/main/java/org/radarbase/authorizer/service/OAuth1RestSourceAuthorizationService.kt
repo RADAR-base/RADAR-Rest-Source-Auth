@@ -24,7 +24,6 @@ import org.radarbase.authorizer.RestSourceClient
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth1AccessToken
-import org.radarbase.authorizer.api.RestOauth1UserId
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.OauthSignature
@@ -34,10 +33,9 @@ import org.radarbase.jersey.exception.HttpBadRequestException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.util.*
 import javax.ws.rs.core.Context
 
-open class OAuth1RestSourceAuthorizationService(
+abstract class OAuth1RestSourceAuthorizationService(
     @Context private val restSourceClients: RestSourceClients,
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper
@@ -131,10 +129,6 @@ open class OAuth1RestSourceAuthorizationService(
             OAUTH_VERSION to OAUTH_VERSION_VALUE)
     }
 
-    open fun getExternalId(tokens: RestOauth1AccessToken, sourceType: String): String? {
-        return UUID.randomUUID().toString()
-    }
-
     fun generateNonce(): String {
         return Math.floor(Math.random() * 1000000000).toInt().toString();
     }
@@ -146,14 +140,17 @@ open class OAuth1RestSourceAuthorizationService(
         return "{\"$params\"}"
     }
 
-    open fun mapToOauth2(tokens: RestOauth1AccessToken, sourceType: String): RestOauth2AccessToken {
-        // This maps the OAuth1 properties to OAuth2 for backwards compatibility
+    fun mapToOauth2(tokens: RestOauth1AccessToken, sourceType: String): RestOauth2AccessToken {
+        // This maps the OAuth1 properties to OAuth2 for backwards compatibility in the repository
+        // Also, an additional request for getting the external ID is made here to pull the external id
         return RestOauth2AccessToken(tokens.token, tokens.tokenSecret, Integer.MAX_VALUE,"", getExternalId(tokens, sourceType))
     }
 
     fun mapToHeaderFormattedList(map: MutableMap<String, String?>): String {
         return map.map {(k, v) -> "$k=\"$v\""}.joinToString()
     }
+
+    abstract fun getExternalId(tokens: RestOauth1AccessToken, sourceType: String): String?
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(OAuth1RestSourceAuthorizationService::class.java)
