@@ -28,6 +28,8 @@ interface RestSourceAuthorizationService {
 
     fun revokeToken(user: RestSourceUser): Boolean
 
+    fun deRegisterUser(user: RestSourceUser): RestSourceUser
+
     fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String
 
 }

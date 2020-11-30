@@ -25,6 +25,8 @@ import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.api.RestSourceUserMapper
+import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.OauthSignature
 import org.radarbase.authorizer.util.Url
@@ -38,8 +40,10 @@ import javax.ws.rs.core.Context
 abstract class OAuth1RestSourceAuthorizationService(
     @Context private val restSourceClients: RestSourceClients,
     @Context private val httpClient: OkHttpClient,
-    @Context private val objectMapper: ObjectMapper
-): RestSourceAuthorizationService {
+    @Context private val objectMapper: ObjectMapper,
+    @Context private val userRepository: RestSourceUserRepository,
+    @Context private val userMapper: RestSourceUserMapper
+    ): RestSourceAuthorizationService {
     private val configMap = restSourceClients.clients.map { it.sourceType to it }.toMap()
     private val tokenReader = objectMapper.readerFor(RestOauth1AccessToken::class.java)
 
@@ -68,6 +72,13 @@ abstract class OAuth1RestSourceAuthorizationService(
                 else -> throw HttpBadGatewayException("Cannot connect to ${authConfig.deregistrationEndpoint}: HTTP status ${response.code}")
             }
         }
+    }
+
+    override fun deRegisterUser(user: RestSourceUser): RestSourceUser {
+        revokeToken(user)
+        val userDTO = userMapper.fromEntity(user)
+        userDTO.isAuthorized = false
+        return userRepository.update(user, userDTO)
     }
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {

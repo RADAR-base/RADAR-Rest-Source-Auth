@@ -22,8 +22,9 @@ import org.glassfish.jersey.process.internal.RequestScope
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth1UserId
-import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
+import org.radarbase.authorizer.api.RestSourceUserMapper
+import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -35,8 +36,9 @@ class GarminSourceAuthorizationService(
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
     @Context private val userRepository: RestSourceUserRepository,
+    @Context private val userMapper: RestSourceUserMapper,
     @Context private val requestScope: RequestScope
-): OAuth1RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper) {
+): OAuth1RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper, userRepository, userMapper) {
     val GARMIN_USER_ID_ENDPOINT = "https://healthapi.garmin.com/wellness-api/rest/user/id"
     val DEREGISTER_CHECK_PERIOD = 5000L
 
@@ -66,8 +68,7 @@ class GarminSourceAuthorizationService(
     fun checkForUsersWithElapsedEndDateAndDeregister() {
         requestScope.runInScope(Runnable {
             val users = userRepository.queryAllWithElapsedEndDate(GARMIN_AUTH)
-            users.forEach { user -> revokeToken(user) }
-            logger.info(users.toString())
+            users.forEach { user -> deRegisterUser(user) }
         })
     }
 

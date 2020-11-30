@@ -47,6 +47,9 @@ class DelegatedRestSourceAuthorizationService(
     override fun revokeToken(user: RestSourceUser): Boolean =
             delegate(user.sourceType).revokeToken(user)
 
+    override fun deRegisterUser(user: RestSourceUser): RestSourceUser =
+        delegate(user.sourceType).deRegisterUser(user)
+
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String =
             delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
 
