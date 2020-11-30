@@ -76,7 +76,7 @@ abstract class OAuth1RestSourceAuthorizationService(
                 ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
 
         val tokens = this.requestToken(authConfig.preAuthorizationEndpoint, RestOauth1AccessToken(""), sourceType)
-        val params = mutableMapOf<String, String?>(
+        val params = mapOf<String, String?>(
             OAUTH_ACCESS_TOKEN to tokens?.token,
             OAUTH_ACCESS_TOKEN_SECRET to tokens?.tokenSecret,
             OAUTH_CALLBACK to callBackUrl
