@@ -109,7 +109,7 @@ open class OAuth1RestSourceAuthorizationService(
         var params = this.getAuthParams(authConfig, tokens.token, tokens.tokenVerifier)
         val signature = OauthSignature(url, params, method, authConfig.clientSecret, tokens.tokenSecret).getEncodedSignature()
         params[OAUTH_SIGNATURE] = signature
-        val headers = mapToList(params)
+        val headers = mapToHeaderFormattedList(params)
 
         val req: Request = Request.Builder()
                 .url(url)
@@ -151,16 +151,8 @@ open class OAuth1RestSourceAuthorizationService(
         return RestOauth2AccessToken(tokens.token, tokens.tokenSecret, Integer.MAX_VALUE,"", getExternalId(tokens, sourceType))
     }
 
-    fun mapToList(map: MutableMap<String, String?>): String {
-        val sb = StringBuilder()
-        for ((key, value) in map) {
-            if (value.isNullOrEmpty()) continue
-            if (sb.length > 0) {
-                sb.append(',')
-            }
-            sb.append(key).append("=\"").append(value).append('"')
-        }
-        return sb.toString()
+    fun mapToHeaderFormattedList(map: MutableMap<String, String?>): String {
+        return map.map {(k, v) -> "$k=\"$v\""}.joinToString()
     }
 
     companion object {
