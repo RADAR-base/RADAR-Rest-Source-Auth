@@ -27,12 +27,8 @@ import org.radarbase.authorizer.util.StateStore
 import javax.ws.rs.core.Context
 
 class DelegatedRestSourceAuthorizationService(
-        @Context private val restSourceClients: RestSourceClients,
-        @Context private val httpClient: OkHttpClient,
-        @Context private val objectMapper: ObjectMapper,
-        @Context private val stateStore: StateStore,
         @Context private val namedServices: IterableProvider<RestSourceAuthorizationService>
-): RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper) {
+): RestSourceAuthorizationService {
 
     fun delegate(sourceType: String): RestSourceAuthorizationService {
         return when (sourceType) {

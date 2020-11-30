@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import javax.ws.rs.core.Context
 
-open class GarminSourceAuthorizationService(
+class GarminSourceAuthorizationService(
     @Context private val restSourceClients: RestSourceClients,
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
@@ -47,21 +47,18 @@ open class GarminSourceAuthorizationService(
     }
 
     override fun getExternalId(tokens: RestOauth1AccessToken, sourceType: String): String? {
+        // Garmin does not provide the service/external id with the token payload, so an additional
+        // request to pull the external id is needed.
         val req = createRequest("GET", GARMIN_USER_ID_ENDPOINT, tokens, sourceType)
         return httpClient.newCall(req).execute().use { response ->
             when (response.code) {
                 200 -> response.body?.byteStream()
                         ?.let {  objectMapper.readerFor(RestOauth1UserId::class.java).readValue<RestOauth1UserId>(it).userId }
                         ?: throw HttpBadGatewayException("Service did not provide a result")
-                400, 401, 403 -> null
+                400, 401, 403 -> throw HttpBadGatewayException("Service was unable to fetch the external ID")
                 else -> throw HttpBadGatewayException("Cannot connect to ${GARMIN_USER_ID_ENDPOINT}: HTTP status ${response.code}")
             }
         }
-    }
-
-    override fun mapToOauth2(tokens: RestOauth1AccessToken, sourceType: String): RestOauth2AccessToken {
-        // This maps the OAuth1 properties to OAuth2 for backwards compatibility
-        return RestOauth2AccessToken(tokens.token, tokens.tokenSecret, Integer.MAX_VALUE,"", getExternalId(tokens, sourceType))
     }
 
     fun checkForUsersWithElapsedEndDateAndDeregister() {

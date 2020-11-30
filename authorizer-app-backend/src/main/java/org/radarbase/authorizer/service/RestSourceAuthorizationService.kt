@@ -16,31 +16,18 @@
 
 package org.radarbase.authorizer.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import okhttp3.OkHttpClient
-import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import javax.ws.rs.core.Context
 
-abstract open class RestSourceAuthorizationService(
-    @Context private val restSourceClients: RestSourceClients,
-    @Context private val httpClient: OkHttpClient,
-    @Context private val objectMapper: ObjectMapper
-) {
+interface RestSourceAuthorizationService {
 
-    abstract fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken?
+    fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken?
 
-    abstract fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
+    fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
 
-    abstract fun revokeToken(user: RestSourceUser): Boolean
+    fun revokeToken(user: RestSourceUser): Boolean
 
-    abstract fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String
+    fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String
 
-    companion object {
-        val logger: Logger = LoggerFactory.getLogger(RestSourceAuthorizationService::class.java)
-    }
 }

@@ -15,7 +15,7 @@ data class OauthSignature(
 
     fun getEncodedSignature(): String {
         val encodedUrl = URLEncoder.encode(this.endPoint)
-        val encodedParams = URLEncoder.encode(mapToQuery(this.params))
+        val encodedParams = URLEncoder.encode(mapToQueryFormat(this.params))
         var signatureBase = "$method&$encodedUrl&$encodedParams"
         var key = "${this.clientSecret.orEmpty()}&${this.tokenSecret.orEmpty()}"
         val signatureEncoded = URLEncoder.encode(this.encodeSHA(key, signatureBase))
@@ -32,16 +32,8 @@ data class OauthSignature(
         return result;
     }
 
-    fun mapToQuery(map: MutableMap<String, String?>): String {
-        val sb = StringBuilder()
-        for ((key, value) in map) {
-            if (value.isNullOrEmpty()) continue
-            if (sb.length > 0) {
-                sb.append('&')
-            }
-            sb.append(key).append('=').append(value)
-        }
-        return sb.toString()
+    fun mapToQueryFormat(map: MutableMap<String, String?>): String {
+        return map.map {(k, v) -> "$k=$v" }.joinToString(separator = "&")
     }
 }
 
