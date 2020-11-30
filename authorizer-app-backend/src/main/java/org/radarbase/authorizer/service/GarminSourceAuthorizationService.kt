@@ -18,10 +18,10 @@ package org.radarbase.authorizer.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.OkHttpClient
+import org.glassfish.jersey.process.internal.RequestScope
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth1UserId
-import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.jersey.exception.HttpBadGatewayException
@@ -34,12 +34,14 @@ class GarminSourceAuthorizationService(
     @Context private val restSourceClients: RestSourceClients,
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
-    @Context private val userRepository: RestSourceUserRepository
+    @Context private val userRepository: RestSourceUserRepository,
+    @Context private val requestScope: RequestScope
 ): OAuth1RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper) {
     val GARMIN_USER_ID_ENDPOINT = "https://healthapi.garmin.com/wellness-api/rest/user/id"
-    val DEREGISTER_CHECK_PERIOD = 100000L
+    val DEREGISTER_CHECK_PERIOD = 5000L
 
     init {
+        // This schedules a task that periodically checks users with elapsed end dates and deregisters them.
         val task = object : TimerTask() {
             override fun run() = checkForUsersWithElapsedEndDateAndDeregister()
         }
@@ -62,8 +64,11 @@ class GarminSourceAuthorizationService(
     }
 
     fun checkForUsersWithElapsedEndDateAndDeregister() {
-        val users = userRepository.queryAllWithElapsedEndDate(GARMIN_AUTH)
-        users.forEach { user -> revokeToken(user) }
+        requestScope.runInScope(Runnable {
+            val users = userRepository.queryAllWithElapsedEndDate(GARMIN_AUTH)
+            users.forEach { user -> revokeToken(user) }
+            logger.info(users.toString())
+        })
     }
 
     companion object {
