@@ -43,7 +43,7 @@ class GarminSourceAuthorizationService(
                 200 -> response.body?.byteStream()
                         ?.let {  objectMapper.readerFor(RestOauth1UserId::class.java).readValue<RestOauth1UserId>(it).userId }
                         ?: throw HttpBadGatewayException("Service did not provide a result")
-                400, 401, 403 -> null
+                400, 401, 403 -> throw HttpBadGatewayException("Service was unable to fetch the external ID")
                 else -> throw HttpBadGatewayException("Cannot connect to ${GARMIN_USER_ID_ENDPOINT}: HTTP status ${response.code}")
             }
         }
