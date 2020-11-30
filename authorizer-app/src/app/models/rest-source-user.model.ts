@@ -3,10 +3,15 @@ export class RestSourceUser {
      version?: string;
      projectId?: string;
      userId?: string;
+     humanReadableUserId?: string;
+     serviceUserId?: string;
+     externalId?: string;
      sourceId?: string;
      startDate?: string;
      endDate?: string;
      externalUserId?: string;
-     authorized?: boolean;
+     sourceType?: string;
+     isAuthorized?: boolean;
+     hasValidToken?: boolean;
      timesReset?: number;
 }

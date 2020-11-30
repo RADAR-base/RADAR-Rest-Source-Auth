@@ -1,0 +1,28 @@
+service:
+  # Interval time in minutes for syncing projects and subjects.
+  baseUri: http://0.0.0.0:8085/rest-sources/backend/
+  advertisedBaseUri: http://0.0.0.0:8080/rest-sources/backend/
+  enableCors: true
+
+auth:
+  # Management Portal URL
+  managementPortalUrl: https://radar-test.thehyve.net/managementportal/
+  # OAuth2 Client id of rest source auth application
+  clientId: radar_rest_sources_auth
+  # OAuth2 Client Secret of rest source auth client
+  clientSecret: <MP_CLIENT_SECRET>
+
+database:
+  driver: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:5432/managementportal
+  user: radar
+  password: radar_test
+  dialect: org.hibernate.dialect.PostgreSQLDialect
+
+restSourceClients:
+  - sourceType: FitBit
+    authorizationEndpoint: https://www.fitbit.com/oauth2/authorize
+    tokenEndpoint: https://api.fitbit.com/oauth2/token
+    clientId: <CLIENT_ID>
+    clientSecret: <CLIENT_SECRET>
+    scope: activity heartrate sleep profile

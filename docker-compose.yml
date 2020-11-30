@@ -29,8 +29,10 @@ services:
 
   radarbase-postgresql:
     image: radarbase/radarbase-postgres:latest
+#    volumes:
+#      - "./data/:/var/lib/postgresql/data/"
 #    ports:
-#      - "5432:5432"
+#      - "5434:5432"
     environment:
       - POSTGRES_USER=radarcns
       - POSTGRES_PASSWORD=radarcns
@@ -41,24 +43,15 @@ services:
     image: radarbase/radar-rest-source-auth-backend:dev
     build:
       context: .
+      dockerfile: authorizer-app-backend/Dockerfile
     depends_on:
       - radarbase-postgresql
       - managementportal-app
 #    ports:
-#      - "8085:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://radarbase-postgresql:5432/restsourceauthorizer
-      - SPRING_DATASOURCE_USERNAME=radarcns
-      - SPRING_DATASOURCE_PASSWORD=radarcns
-      - REST_SOURCE_AUTHORIZER_SOURCE_CLIENTS_FILE_PATH=app-includes/rest_source_clients_configs.yml
-      - REST_SOURCE_AUTHORIZER_VALIDATOR=managementportal
-      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_BASE_URL=http://managementportal-app:8080/managementportal/
-      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_ID=radar_rest_sources_auth_backend
-      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_SECRET=secret
-      - LOGGING_LEVEL_ORG_RADARBASE_AUTHORIZER=DEBUG
-      - APP_SLEEP=10 # gives time for the database to boot before the application
+#      - "8085:8085"
     volumes:
-      - ./docker/etc/rest-source-authorizer/:/app-includes/
+      - ./docker/etc/rest-source-authorizer/authorizer.yml:/etc/authorizer-app-backend/authorizer.yml
+    command: ["authorizer-app-backend", "/etc/authorizer-app-backend/authorizer.yml"]
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:8080/health"]
       interval: 1m30s
