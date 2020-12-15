@@ -145,8 +145,10 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     if(projectId && projectId !== ''){
       this.loadAllRestSourceUsersOfProject(projectId)
       this.applyFilter("")
+      this.router.navigate(['/users'], {queryParams: {project: this.selectedProject}});
+    } else {
+      this.router.navigate(['/users']);
     }
-    this.router.navigate(['/users'], {queryParams: {project: this.selectedProject}});
   }
 
 }
