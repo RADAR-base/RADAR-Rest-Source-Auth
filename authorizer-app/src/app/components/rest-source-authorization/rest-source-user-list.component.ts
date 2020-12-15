@@ -142,7 +142,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
   onChangeProject(projectId: string) {
     this.selectedProject = projectId
-    if(projectId !== ''){
+    if(projectId && projectId !== ''){
       this.loadAllRestSourceUsersOfProject(projectId)
       this.applyFilter("")
     }
