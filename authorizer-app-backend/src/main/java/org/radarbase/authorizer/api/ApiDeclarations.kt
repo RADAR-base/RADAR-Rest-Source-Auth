@@ -67,6 +67,7 @@ data class ShareableClientDetails(
 
 class RestSourceUserDTO(
     val id: String?,
+    val createdAt: Instant,
     val projectId: String?,
     val userId: String?,
     val humanReadableUserId: String?,
