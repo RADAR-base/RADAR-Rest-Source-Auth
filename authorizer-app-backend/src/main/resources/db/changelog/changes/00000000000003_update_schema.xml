@@ -8,7 +8,7 @@
 
     <changeSet author="pauline" id="addCreatedAt">
         <addColumn tableName="rest_source_user">
-            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+            <column name="created_at" type="timestamp" defaultValue="null" value="null">
                 <constraints nullable="true" />
             </column>
         </addColumn>
