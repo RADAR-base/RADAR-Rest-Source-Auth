@@ -143,8 +143,11 @@ class RestSourceUserRepositoryImpl(
     override fun queryAllWithElapsedEndDate(
         sourceType: String?
     ): List<RestSourceUser> {
-        var queryString = "SELECT u FROM RestSourceUser u WHERE"
-        queryString += " u.endDate < CURRENT_TIMESTAMP"
+        var queryString = """
+               SELECT u
+               FROM RestSourceUser u
+               WHERE u.endDate < CURRENT_TIMESTAMP
+        """.trimIndent()
 
         if (sourceType != null) {
             queryString += " AND u.sourceType = :sourceType"
@@ -155,8 +158,7 @@ class RestSourceUserRepositoryImpl(
             if (sourceType != null) {
                 query.setParameter("sourceType", sourceType)
             }
-            val users = query.resultList
-            users
+            query.resultList
         }
     }
 
