@@ -150,7 +150,7 @@ class RestSourceUserRepositoryImpl(
         var queryString = """
                SELECT u
                FROM RestSourceUser u
-               WHERE u.endDate < CURRENT_TIMESTAMP
+               WHERE u.endDate < CURRENT_TIMESTAMP - INTERVAL '14 days'
         """.trimIndent()
 
         if (sourceType != null) {
