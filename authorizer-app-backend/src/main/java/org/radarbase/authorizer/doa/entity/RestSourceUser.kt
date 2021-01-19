@@ -32,6 +32,10 @@ class RestSourceUser {
         allocationSize = 1)
     var id: Long? = null
 
+    // Date when the user is created
+    @Column(name = "created_at")
+    var createdAt: Instant? = Instant.now()
+
     // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
     @Column(name = "project_id")
     var projectId: String? = null
