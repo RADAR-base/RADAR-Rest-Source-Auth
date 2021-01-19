@@ -21,9 +21,9 @@ import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
-import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.radarbase.jersey.hibernate.HibernateRepository
 import java.time.Duration
 import java.time.Instant
 import javax.inject.Provider
@@ -53,9 +53,12 @@ class RestSourceUserRepositoryImpl(
                 persist(this)
             }
             // Do not override existing user, except if it is not fully specified
-            existingUser.projectId != null -> throw HttpConflictException("external-id-exists", "External-user-id ${existingUser.externalUserId} " +
+            existingUser.projectId != null -> throw HttpConflictException(
+                "external-id-exists",
+                "External-user-id ${existingUser.externalUserId} " +
                     "for source-type ${existingUser.sourceType} is already in use by user ${existingUser.userId}." +
-                    " Please remove the existing user to continue or update existing user.")
+                    " Please remove the existing user to continue or update existing user.",
+            )
             else -> existingUser.apply {
                 this.startDate = Instant.now()
                 setToken(token)
@@ -82,7 +85,7 @@ class RestSourceUserRepositoryImpl(
 
     override fun updateToken(token: RestOauth2AccessToken?, userId: Long): RestSourceUser = transact {
         val existingUser = find(RestSourceUser::class.java, userId)
-                ?: throw HttpNotFoundException("user_not_found", "User with ID $userId does not exist")
+            ?: throw HttpNotFoundException("user_not_found", "User with ID $userId does not exist")
 
         existingUser.apply {
             setToken(token)
@@ -105,9 +108,9 @@ class RestSourceUserRepositoryImpl(
     }
 
     override fun query(
-            page: Page,
-            projects: List<String>,
-            sourceType: String?
+        page: Page,
+        projects: List<String>,
+        sourceType: String?
     ): Pair<List<RestSourceUser>, Page> {
         var queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId IN (:projects)"
         var countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId IN (:projects)"
