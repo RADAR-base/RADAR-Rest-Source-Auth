@@ -65,7 +65,7 @@ class SourceClientResource(
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun client(@PathParam("type") type: String): ShareableClientDetail {
         val sourceType = sharableClientDetails.sourceClients.find { it.sourceType == type }
-                ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
+            ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
 
         return sourceType.copy(state = stateStore.generate(type).stateId)
     }

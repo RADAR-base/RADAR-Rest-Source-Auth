@@ -29,28 +29,28 @@ import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
         val authConfig = AuthConfig(
-                managementPortal = MPConfig(
-                        url = config.auth.managementPortalUrl,
-                        clientId = config.auth.clientId,
-                        clientSecret = config.auth.clientSecret,
-                        syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
-                        syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
-                ),
-                jwtResourceName = config.auth.jwtResourceName,
+            managementPortal = MPConfig(
+                url = config.auth.managementPortalUrl,
+                clientId = config.auth.clientId,
+                clientSecret = config.auth.clientSecret,
+                syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
+                syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
+            ),
+            jwtResourceName = config.auth.jwtResourceName,
         )
         val dbConfig = config.database.copy(
-                managedClasses = listOf(
-                        RestSourceUser::class.qualifiedName!!,
-                )
+            managedClasses = listOf(
+                RestSourceUser::class.qualifiedName!!,
+            )
         )
         return listOf(
-                AuthorizerResourceEnhancer(config),
-                ConfigLoader.Enhancers.radar(authConfig),
-                ConfigLoader.Enhancers.health,
-                HibernateResourceEnhancer(dbConfig),
-                ConfigLoader.Enhancers.managementPortal(authConfig),
-                ConfigLoader.Enhancers.generalException,
-                ConfigLoader.Enhancers.httpException,
+            AuthorizerResourceEnhancer(config),
+            ConfigLoader.Enhancers.radar(authConfig),
+            ConfigLoader.Enhancers.health,
+            HibernateResourceEnhancer(dbConfig),
+            ConfigLoader.Enhancers.managementPortal(authConfig),
+            ConfigLoader.Enhancers.generalException,
+            ConfigLoader.Enhancers.httpException,
         )
     }
 }

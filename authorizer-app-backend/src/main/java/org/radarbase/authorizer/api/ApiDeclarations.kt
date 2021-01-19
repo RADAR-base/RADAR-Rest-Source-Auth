@@ -21,15 +21,14 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import java.time.Instant
 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class RestOauth2AccessToken(
     @JsonProperty("access_token") var accessToken: String,
     @JsonProperty("refresh_token") var refreshToken: String? = null,
     @JsonProperty("expires_in") var expiresIn: Int = 0,
     @JsonProperty("token_type") var tokenType: String? = null,
-    @JsonProperty("user_id") var externalUserId: String? = null)
-
+    @JsonProperty("user_id") var externalUserId: String? = null,
+)
 
 data class ShareableClientDetail(
     val sourceType: String,
@@ -59,7 +58,8 @@ class RestSourceUserDTO(
     val isAuthorized: Boolean = false,
     val hasValidToken: Boolean = false,
     val version: String? = null,
-    val timesReset: Long = 0) : Serializable {
+    val timesReset: Long = 0,
+) : Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -77,7 +77,8 @@ class TokenDTO(
 data class Page(
     val pageNumber: Int = 1,
     val pageSize: Int? = null,
-    val totalElements: Long? = null) {
+    val totalElements: Long? = null,
+) {
     val offset: Int
         get() = (this.pageNumber - 1) * this.pageSize!!
 

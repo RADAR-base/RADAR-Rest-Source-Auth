@@ -60,14 +60,15 @@ class RestSourceUserResource(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
         @QueryParam("size") pageSize: Int?,
-        @DefaultValue("1") @QueryParam("page") pageNumber: Int): RestSourceUsers {
+        @DefaultValue("1") @QueryParam("page") pageNumber: Int,
+    ): RestSourceUsers {
 
         val projects = if (projectId != null) {
             auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
             listOf(projectId)
         } else {
             projectService.userProjects(auth, Permission.SUBJECT_READ)
-                    .map { it.id }
+                .map { it.id }
         }
 
         if (projects.isEmpty()) return RestSourceUsers(emptyList())
@@ -75,16 +76,20 @@ class RestSourceUserResource(
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
         val (records, page) = userRepository.query(queryPage, projects, sourceType)
 
-        return userMapper.fromRestSourceUsers(records.filter {
-            auth.token.hasPermissionOnSubject(Permission.SUBJECT_READ, it.projectId, it.userId)
-        }, page)
+        return userMapper.fromRestSourceUsers(
+            records.filter {
+                auth.token.hasPermissionOnSubject(Permission.SUBJECT_READ, it.projectId, it.userId)
+            },
+            page,
+        )
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     fun create(
         @FormParam("code") code: String,
-        @FormParam("state") stateId: String): Response {
+        @FormParam("state") stateId: String,
+    ): Response {
         logger.info("Authorizing with code $code state $stateId")
         val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
         if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
@@ -101,7 +106,8 @@ class RestSourceUserResource(
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun update(
         @PathParam("id") userId: Long,
-        user: RestSourceUserDTO): RestSourceUserDTO {
+        user: RestSourceUserDTO,
+    ): RestSourceUserDTO {
         val existingUser = validate(userId, user, Permission.SUBJECT_UPDATE)
 
         val updatedUser = userRepository.update(existingUser, user)
@@ -135,11 +141,15 @@ class RestSourceUserResource(
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun reset(
         @PathParam("id") userId: Long,
-        user: RestSourceUserDTO): RestSourceUserDTO {
+        user: RestSourceUserDTO,
+    ): RestSourceUserDTO {
         val existingUser = validate(userId, user, Permission.SUBJECT_UPDATE)
 
-        val updatedUser = userRepository.reset(existingUser, user.startDate, user.endDate
-            ?: existingUser.endDate)
+        val updatedUser = userRepository.reset(
+            existingUser,
+            user.startDate,
+            user.endDate ?: existingUser.endDate,
+        )
         return userMapper.fromEntity(updatedUser)
     }
 
@@ -171,7 +181,7 @@ class RestSourceUserResource(
             throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
         }
         val rft = user.refreshToken
-                ?: throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
+            ?: throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
 
         val token = authorizationService.refreshToken(rft, user.sourceType)
         val updatedUser = userRepository.updateToken(token, userId)

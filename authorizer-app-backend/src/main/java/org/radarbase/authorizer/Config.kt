@@ -60,8 +60,8 @@ data class RestSourceClient(
     val scope: String? = null
 ) {
     fun withEnv(): RestSourceClient = this
-            .copyEnv("${sourceType.toUpperCase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
-            .copyEnv("${sourceType.toUpperCase(Locale.US)}_CLIENT_SECRET") { copy(clientSecret = it) }
+        .copyEnv("${sourceType.toUpperCase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
+        .copyEnv("${sourceType.toUpperCase(Locale.US)}_CLIENT_SECRET") { copy(clientSecret = it) }
 }
 
 data class RestSourceClients(

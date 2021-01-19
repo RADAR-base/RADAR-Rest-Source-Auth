@@ -6,8 +6,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.noarg")
     id("org.jetbrains.kotlin.plugin.jpa")
     id("org.jetbrains.kotlin.plugin.allopen")
+    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
 }
-
 
 application {
     mainClassName = "org.radarbase.authorizer.MainKt"
@@ -29,7 +29,6 @@ project.extra.apply {
     set("website", "http://radar-base.org")
     set("description", "RADAR Rest Source Authorizer handles authorization for data access from third party APIs for wearable devices or other connected sources.")
 }
-
 
 repositories {
     jcenter()
