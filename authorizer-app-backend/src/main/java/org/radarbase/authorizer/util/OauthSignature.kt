@@ -6,11 +6,11 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 data class OauthSignature(
-        var endPoint: String,
-        var params: MutableMap<String, String?>,
-        var method: String,
-        var clientSecret: String?,
-        var tokenSecret: String?
+    var endPoint: String,
+    var params: MutableMap<String, String?>,
+    var method: String,
+    var clientSecret: String?,
+    var tokenSecret: String?,
 ) {
 
     fun getEncodedSignature(): String {
@@ -22,17 +22,17 @@ data class OauthSignature(
         return signatureEncoded;
     }
 
-    fun encodeSHA(key: String, plaintext: String): String?{
+    fun encodeSHA(key: String, plaintext: String): String? {
         val result: String;
-        val signingKey = SecretKeySpec(key.toByteArray(),"HmacSHA1");
+        val signingKey = SecretKeySpec(key.toByteArray(), "HmacSHA1");
         val mac = Mac.getInstance("HmacSHA1");
         mac.init(signingKey);
-        val rawHmac= mac.doFinal(plaintext.toByteArray());
+        val rawHmac = mac.doFinal(plaintext.toByteArray());
         result = Base64.getEncoder().encodeToString(rawHmac);
         return result;
     }
 
-    fun Map<String, String?>.toQueryFormat(): String = this.map {(k, v) -> "$k=$v" }.joinToString("&")
+    fun Map<String, String?>.toQueryFormat(): String = this.map { (k, v) -> "$k=$v" }.joinToString("&")
 }
 
 

@@ -21,7 +21,13 @@ import org.radarbase.jersey.service.managementportal.MPUser
 
 data class ProjectList(val projects: List<Project>)
 
-data class Project(val id: String, val name: String? = null, val location: String? = null, val organization: String? = null, val description: String? = null)
+data class Project(
+    val id: String,
+    val name: String? = null,
+    val location: String? = null,
+    val organization: String? = null,
+    val description: String? = null,
+)
 
 fun MPProject.toProject() = Project(
     id = id,

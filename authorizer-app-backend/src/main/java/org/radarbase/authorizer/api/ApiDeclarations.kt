@@ -27,25 +27,27 @@ data class RestOauth2AccessToken(
     @JsonProperty("refresh_token") var refreshToken: String? = null,
     @JsonProperty("expires_in") var expiresIn: Int = 0,
     @JsonProperty("token_type") var tokenType: String? = null,
-    @JsonProperty("user_id") var externalUserId: String? = null),
+    @JsonProperty("user_id") var externalUserId: String? = null,
+)
+
 
 data class RestOauth1AccessToken(
     @JsonProperty("oauth_token") var token: String,
     @JsonProperty("oauth_token_secret") var tokenSecret: String? = null,
-    @JsonProperty("oauth_verifier") var tokenVerifier: String? = null
+    @JsonProperty("oauth_verifier") var tokenVerifier: String? = null,
 )
 
 data class RestOauth1UserId(
-        @JsonProperty("userId") var userId: String
+    @JsonProperty("userId") var userId: String,
 )
 
 data class RequestTokenPayload(
-        var sourceType: String,
-        var code: String? = null,
-        var state: String?= null,
-        var oauth_token: String? = null,
-        var oauth_verifier: String? = null,
-        var oauth_token_secret: String? = null
+    var sourceType: String,
+    var code: String? = null,
+    var state: String? = null,
+    var oauth_token: String? = null,
+    var oauth_verifier: String? = null,
+    var oauth_token_secret: String? = null,
 )
 
 data class ShareableClientDetail(
@@ -57,11 +59,11 @@ data class ShareableClientDetail(
     val grantType: String?,
     val clientId: String,
     val scope: String?,
-    val state: String? = null
+    val state: String? = null,
 )
 
 data class ShareableClientDetails(
-    val sourceClients: List<ShareableClientDetail>
+    val sourceClients: List<ShareableClientDetail>,
 )
 
 class RestSourceUserDTO(
@@ -86,12 +88,12 @@ class RestSourceUserDTO(
 }
 
 data class RestSourceUsers(
-    val users: List<RestSourceUserDTO>
+    val users: List<RestSourceUserDTO>,
 )
 
 class TokenDTO(
     val accessToken: String?,
-    val expiresAt: Instant?
+    val expiresAt: Instant?,
 )
 
 data class Page(

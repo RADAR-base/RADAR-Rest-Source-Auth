@@ -16,19 +16,15 @@
 
 package org.radarbase.authorizer.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import okhttp3.OkHttpClient
 import org.glassfish.hk2.api.IterableProvider
-import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.util.StateStore
 import javax.ws.rs.core.Context
 
 class DelegatedRestSourceAuthorizationService(
-        @Context private val namedServices: IterableProvider<RestSourceAuthorizationService>
-): RestSourceAuthorizationService {
+    @Context private val namedServices: IterableProvider<RestSourceAuthorizationService>,
+) : RestSourceAuthorizationService {
 
     fun delegate(sourceType: String): RestSourceAuthorizationService {
         return when (sourceType) {
@@ -39,19 +35,19 @@ class DelegatedRestSourceAuthorizationService(
     }
 
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken =
-         delegate(sourceType).requestAccessToken(payload, sourceType)
+        delegate(sourceType).requestAccessToken(payload, sourceType)
 
     override fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? =
-            delegate(user.sourceType).refreshToken(user)
+        delegate(user.sourceType).refreshToken(user)
 
     override fun revokeToken(user: RestSourceUser): Boolean =
-            delegate(user.sourceType).revokeToken(user)
+        delegate(user.sourceType).revokeToken(user)
 
     override fun deRegisterUser(user: RestSourceUser): RestSourceUser =
         delegate(user.sourceType).deRegisterUser(user)
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String =
-            delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
+        delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
 
     companion object {
         const val GARMIN_AUTH = "Garmin"

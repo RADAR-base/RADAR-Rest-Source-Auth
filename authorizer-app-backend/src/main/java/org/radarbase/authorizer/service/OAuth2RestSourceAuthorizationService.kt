@@ -36,17 +36,18 @@ import javax.ws.rs.core.Context
 import javax.ws.rs.core.UriBuilder
 
 class OAuth2RestSourceAuthorizationService(
-        @Context private val restSourceClients: RestSourceClients,
-        @Context private val httpClient: OkHttpClient,
-        @Context private val objectMapper: ObjectMapper,
-        @Context private val stateStore: StateStore
-): RestSourceAuthorizationService {
+    @Context private val restSourceClients: RestSourceClients,
+    @Context private val httpClient: OkHttpClient,
+    @Context private val objectMapper: ObjectMapper,
+    @Context private val stateStore: StateStore,
+) : RestSourceAuthorizationService {
     private val configMap = restSourceClients.clients.map { it.sourceType to it }.toMap()
     private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
 
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
         val authorizationConfig = configMap[sourceType]
-            ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
+            ?: throw HttpBadRequestException("client-config-not-found",
+                "Cannot find client configurations for source-type $sourceType")
         val clientId = checkNotNull(authorizationConfig.clientId)
 
         val form = FormBody.Builder().apply {
@@ -68,8 +69,8 @@ class OAuth2RestSourceAuthorizationService(
         return httpClient.newCall(request).execute().use { response ->
             when (response.code) {
                 200 -> response.body?.byteStream()
-                        ?.let { tokenReader.readValue<RestOauth2AccessToken>(it) }
-                        ?: throw HttpBadGatewayException("Service ${user.sourceType} did not provide a result")
+                    ?.let { tokenReader.readValue<RestOauth2AccessToken>(it) }
+                    ?: throw HttpBadGatewayException("Service ${user.sourceType} did not provide a result")
                 400, 401, 403 -> null
                 else -> throw HttpBadGatewayException("Cannot connect to ${request.url}: HTTP status ${response.code}")
             }
@@ -84,16 +85,17 @@ class OAuth2RestSourceAuthorizationService(
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {
         val authConfig = configMap[sourceType]
-                ?: throw HttpBadRequestException("client-config-not-found", "Cannot find client configurations for source-type $sourceType")
+            ?: throw HttpBadRequestException("client-config-not-found",
+                "Cannot find client configurations for source-type $sourceType")
 
         val stateId = stateStore.generate(sourceType).stateId
         return UriBuilder.fromUri(authConfig.authorizationEndpoint)
-                .queryParam("response_type", "code")
-                .queryParam("client_id", authConfig.clientId)
-                .queryParam("state", stateId)
-                .queryParam("scope", authConfig.scope)
-                .queryParam("prompt", "login")
-                .build().toString()
+            .queryParam("response_type", "code")
+            .queryParam("client_id", authConfig.clientId)
+            .queryParam("state", stateId)
+            .queryParam("scope", authConfig.scope)
+            .queryParam("prompt", "login")
+            .build().toString()
     }
 
     override fun deRegisterUser(user: RestSourceUser): RestSourceUser {
@@ -103,11 +105,11 @@ class OAuth2RestSourceAuthorizationService(
     private fun post(form: FormBody, sourceType: String): Request {
         val authorizationConfig = configMap[sourceType]
             ?: throw HttpBadRequestException(
-                    "client-config-not-found", "Cannot find client configurations for source-type $sourceType")
+                "client-config-not-found", "Cannot find client configurations for source-type $sourceType")
 
         val credentials = Credentials.basic(
-                checkNotNull(authorizationConfig.clientId),
-                checkNotNull(authorizationConfig.clientSecret))
+            checkNotNull(authorizationConfig.clientId),
+            checkNotNull(authorizationConfig.clientSecret))
 
         return Request.Builder().apply {
             url(authorizationConfig.tokenEndpoint)

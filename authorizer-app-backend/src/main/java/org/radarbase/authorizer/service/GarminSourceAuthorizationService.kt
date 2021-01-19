@@ -33,19 +33,21 @@ class GarminSourceAuthorizationService(
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
     @Context private val userRepository: RestSourceUserRepository,
-    @Context private val userMapper: RestSourceUserMapper
-): OAuth1RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper, userRepository, userMapper) {
+    @Context private val userMapper: RestSourceUserMapper,
+) : OAuth1RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper, userRepository, userMapper) {
     val GARMIN_USER_ID_ENDPOINT = "https://healthapi.garmin.com/wellness-api/rest/user/id"
 
-        override fun RestOauth1AccessToken.getExternalId(sourceType: String): String? {
+    override fun RestOauth1AccessToken.getExternalId(sourceType: String): String? {
         // Garmin does not provide the service/external id with the token payload, so an additional
         // request to pull the external id is needed.
         val req = createRequest("GET", GARMIN_USER_ID_ENDPOINT, this, sourceType)
         return httpClient.newCall(req).execute().use { response ->
             when (response.code) {
                 200 -> response.body?.byteStream()
-                        ?.let {  objectMapper.readerFor(RestOauth1UserId::class.java).readValue<RestOauth1UserId>(it).userId }
-                        ?: throw HttpBadGatewayException("Service did not provide a result")
+                    ?.let {
+                        objectMapper.readerFor(RestOauth1UserId::class.java).readValue<RestOauth1UserId>(it).userId
+                    }
+                    ?: throw HttpBadGatewayException("Service did not provide a result")
                 400, 401, 403 -> throw HttpBadGatewayException("Service was unable to fetch the external ID")
                 else -> throw HttpBadGatewayException("Cannot connect to ${GARMIN_USER_ID_ENDPOINT}: HTTP status ${response.code}")
             }

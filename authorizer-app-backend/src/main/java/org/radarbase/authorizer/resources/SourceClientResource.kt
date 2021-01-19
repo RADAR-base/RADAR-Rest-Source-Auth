@@ -45,7 +45,7 @@ class SourceClientResource(
     @Context private val clientMapper: RestSourceClientMapper,
     @Context private val stateStore: StateStore,
     @Context private val auth: Auth,
-    @Context private val authorizationService: RestSourceAuthorizationService
+    @Context private val authorizationService: RestSourceAuthorizationService,
 ) {
     private val sourceTypes = restSourceClients.clients.map { it.sourceType }
     private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
