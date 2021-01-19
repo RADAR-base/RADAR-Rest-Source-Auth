@@ -51,7 +51,7 @@ class OAuth2RestSourceAuthorizationService(
         val clientId = checkNotNull(authorizationConfig.clientId)
 
         val form = FormBody.Builder().apply {
-            payload?.code?.let { add("code", it) }
+            payload.code?.let { add("code", it) }
             add("grant_type", "authorization_code")
             add("client_id", clientId)
         }.build()

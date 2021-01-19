@@ -68,7 +68,7 @@ abstract class OAuth1RestSourceAuthorizationService(
     }
 
     override fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? {
-        return user.accessToken?.let { RestOauth2AccessToken(it, user.refreshToken) }
+        return user.refreshToken?.let { RestOauth2AccessToken(it, user.refreshToken) }
     }
 
     override fun revokeToken(user: RestSourceUser): Boolean {
