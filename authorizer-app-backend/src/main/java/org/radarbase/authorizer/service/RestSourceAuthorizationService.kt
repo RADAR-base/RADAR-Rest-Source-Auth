@@ -62,7 +62,8 @@ class RestSourceAuthorizationService(
         val request = post(form, sourceType)
         return httpClient.newCall(request).execute().use { response ->
             when (response.code) {
-                200 -> response.body?.byteStream()
+                200 ->
+                    response.body?.byteStream()
                         ?.let { tokenReader.readValue<RestOauth2AccessToken>(it) }
                         ?: throw HttpBadGatewayException("Service $sourceType did not provide a result")
                 400, 401, 403 -> null
@@ -72,19 +73,24 @@ class RestSourceAuthorizationService(
     }
 
     fun revokeToken(accessToken: String, sourceType: String): Boolean {
-        val form = FormBody.Builder().add("token", accessToken).build()
-        logger.info("Requesting to revoke access token");
+        val form = FormBody.Builder()
+            .add("token", accessToken)
+            .build()
+        logger.info("Requesting to revoke access token")
         return httpClient.request(post(form, sourceType))
     }
 
     private fun post(form: FormBody, sourceType: String): Request {
         val authorizationConfig = configMap[sourceType]
             ?: throw HttpBadRequestException(
-                    "client-config-not-found", "Cannot find client configurations for source-type $sourceType")
+                "client-config-not-found",
+                "Cannot find client configurations for source-type $sourceType"
+            )
 
         val credentials = Credentials.basic(
-                checkNotNull(authorizationConfig.clientId),
-                checkNotNull(authorizationConfig.clientSecret))
+            checkNotNull(authorizationConfig.clientId),
+            checkNotNull(authorizationConfig.clientSecret),
+        )
 
         return Request.Builder().apply {
             url(authorizationConfig.tokenEndpoint)
