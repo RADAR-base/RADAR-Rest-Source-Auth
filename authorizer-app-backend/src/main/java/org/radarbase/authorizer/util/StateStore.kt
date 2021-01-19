@@ -47,7 +47,7 @@ class StateStore(
                 .first()
     }
 
-    operator fun get(stateId: String?): State? = store.remove(stateId)
+    operator fun get(stateId: String): State? = store.remove(stateId)
 
     private fun clean() {
         val now = Instant.now()
