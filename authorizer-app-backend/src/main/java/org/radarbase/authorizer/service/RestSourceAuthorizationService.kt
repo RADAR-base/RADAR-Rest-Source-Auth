@@ -22,7 +22,7 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 
 interface RestSourceAuthorizationService {
 
-    fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken?
+    fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken
 
     fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
 

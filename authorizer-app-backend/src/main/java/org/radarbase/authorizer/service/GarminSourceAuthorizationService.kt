@@ -21,7 +21,6 @@ import okhttp3.OkHttpClient
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth1UserId
-import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.jersey.exception.HttpBadGatewayException
@@ -38,10 +37,10 @@ class GarminSourceAuthorizationService(
 ): OAuth1RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper, userRepository, userMapper) {
     val GARMIN_USER_ID_ENDPOINT = "https://healthapi.garmin.com/wellness-api/rest/user/id"
 
-    override fun getExternalId(tokens: RestOauth1AccessToken, sourceType: String): String? {
+        override fun RestOauth1AccessToken.getExternalId(sourceType: String): String? {
         // Garmin does not provide the service/external id with the token payload, so an additional
         // request to pull the external id is needed.
-        val req = createRequest("GET", GARMIN_USER_ID_ENDPOINT, tokens, sourceType)
+        val req = createRequest("GET", GARMIN_USER_ID_ENDPOINT, this, sourceType)
         return httpClient.newCall(req).execute().use { response ->
             when (response.code) {
                 200 -> response.body?.byteStream()

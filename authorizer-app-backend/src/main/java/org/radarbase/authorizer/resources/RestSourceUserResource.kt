@@ -58,7 +58,7 @@ class RestSourceUserResource(
         @Context private val restSourceClients: RestSourceClients,
         @Context private val clientMapper: RestSourceClientMapper,
         @Context private val authorizationService: RestSourceAuthorizationService
-        ) {
+) {
 
     @GET
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
@@ -98,7 +98,7 @@ class RestSourceUserResource(
         }
         val sourceType = payload.sourceType
         val accessToken = authorizationService.requestAccessToken(payload, sourceType)
-        val user = accessToken?.let { userRepository.create(it, sourceType) }
+        val user = userRepository.create(accessToken, sourceType)
 
         return Response.created(URI("users/${user?.id}"))
             .entity(user?.let { userMapper.fromEntity(it) })

@@ -40,7 +40,7 @@ class OAuth2RestSourceAuthorizationService(
         @Context private val httpClient: OkHttpClient,
         @Context private val objectMapper: ObjectMapper,
         @Context private val stateStore: StateStore
-        ): RestSourceAuthorizationService {
+): RestSourceAuthorizationService {
     private val configMap = restSourceClients.clients.map { it.sourceType to it }.toMap()
     private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
 
