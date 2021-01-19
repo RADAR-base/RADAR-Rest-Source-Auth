@@ -16,13 +16,10 @@
 
 package org.radarbase.authorizer.resources
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import okhttp3.OkHttpClient
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.ShareableClientDetail
 import org.radarbase.authorizer.api.ShareableClientDetails
-import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
@@ -30,6 +27,8 @@ import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarcns.auth.authorization.Permission
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import javax.annotation.Resource
 import javax.inject.Singleton
 import javax.ws.rs.*
@@ -74,12 +73,11 @@ class SourceClientResource(
     @Path("{type}/auth-endpoint")
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun getAuthEndpoint(@PathParam("type") type: String, @QueryParam("callbackUrl") callbackUrl: String): String {
-        RestSourceUserResource.logger.info("Getting auth endpoint")
-        val result = authorizationService.getAuthorizationEndpointWithParams(type, callbackUrl)
-
-        return result;
+        return authorizationService.getAuthorizationEndpointWithParams(type, callbackUrl);
     }
 
-
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(SourceClientResource::class.java)
+    }
 
 }
