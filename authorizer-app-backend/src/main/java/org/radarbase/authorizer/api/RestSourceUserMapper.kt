@@ -29,6 +29,7 @@ class RestSourceUserMapper(
         }
         return RestSourceUserDTO(
             id = user.id.toString(),
+            createdAt = user.createdAt,
             projectId = user.projectId,
             userId = user.userId,
             humanReadableUserId = mpUser?.attributes?.get("Human-readable-identifier")

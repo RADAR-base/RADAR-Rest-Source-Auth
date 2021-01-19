@@ -18,14 +18,20 @@ package org.radarbase.authorizer.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.OkHttpClient
+import org.glassfish.jersey.process.internal.RequestScope
+import org.glassfish.jersey.server.BackgroundScheduler
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth1UserId
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.Context
 
 class GarminSourceAuthorizationService(
@@ -34,8 +40,21 @@ class GarminSourceAuthorizationService(
     @Context private val objectMapper: ObjectMapper,
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val userMapper: RestSourceUserMapper,
+    @Context private val requestScope: RequestScope,
+    @Context @BackgroundScheduler private val scheduler: ScheduledExecutorService,
 ) : OAuth1RestSourceAuthorizationService(restSourceClients, httpClient, objectMapper, userRepository, userMapper) {
-    val GARMIN_USER_ID_ENDPOINT = "https://healthapi.garmin.com/wellness-api/rest/user/id"
+    private val GARMIN_USER_ID_ENDPOINT = "https://healthapi.garmin.com/wellness-api/rest/user/id"
+    val DEREGISTER_CHECK_PERIOD = 3600000L
+
+    init {
+        // This schedules a task that periodically checks users with elapsed end dates and deregisters them.
+        val task = object : TimerTask() {
+            override fun run() = checkForUsersWithElapsedEndDateAndDeregister()
+        }
+        scheduler.scheduleAtFixedRate({
+            checkForUsersWithElapsedEndDateAndDeregister()
+        }, 0, DEREGISTER_CHECK_PERIOD, TimeUnit.MILLISECONDS)
+    }
 
     override fun RestOauth1AccessToken.getExternalId(sourceType: String): String? {
         // Garmin does not provide the service/external id with the token payload, so an additional
@@ -52,6 +71,14 @@ class GarminSourceAuthorizationService(
                 else -> throw HttpBadGatewayException("Cannot connect to ${GARMIN_USER_ID_ENDPOINT}: HTTP status ${response.code}")
             }
         }
+    }
+
+    fun checkForUsersWithElapsedEndDateAndDeregister() {
+        requestScope.runInScope(Runnable {
+            userRepository
+                .queryAllWithElapsedEndDate(GARMIN_AUTH)
+                .forEach { deRegisterUser(it) }
+        })
     }
 
     companion object {

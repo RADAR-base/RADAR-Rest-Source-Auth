@@ -144,6 +144,28 @@ class RestSourceUserRepositoryImpl(
         }
     }
 
+    override fun queryAllWithElapsedEndDate(
+        sourceType: String?,
+    ): List<RestSourceUser> {
+        var queryString = """
+               SELECT u
+               FROM RestSourceUser u
+               WHERE u.endDate < CURRENT_TIMESTAMP - INTERVAL '14 days'
+        """.trimIndent()
+
+        if (sourceType != null) {
+            queryString += " AND u.sourceType = :sourceType"
+        }
+
+        return transact {
+            val query = createQuery(queryString, RestSourceUser::class.java)
+            if (sourceType != null) {
+                query.setParameter("sourceType", sourceType)
+            }
+            query.resultList
+        }
+    }
+
     override fun delete(user: RestSourceUser) = transact {
         remove(merge(user))
     }

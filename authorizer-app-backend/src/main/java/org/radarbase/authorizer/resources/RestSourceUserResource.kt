@@ -16,13 +16,10 @@
 
 package org.radarbase.authorizer.resources
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import okhttp3.OkHttpClient
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
