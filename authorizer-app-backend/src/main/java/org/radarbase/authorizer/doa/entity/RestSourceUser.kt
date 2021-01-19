@@ -26,7 +26,10 @@ class RestSourceUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", sequenceName = "rest_source_user_id_seq", initialValue = 1, allocationSize = 1)
+    @SequenceGenerator(name = "sequenceGenerator",
+        sequenceName = "rest_source_user_id_seq",
+        initialValue = 1,
+        allocationSize = 1)
     var id: Long? = null
 
     // Project ID to be used in org.radarcns.kafka.ObservationKey record keys

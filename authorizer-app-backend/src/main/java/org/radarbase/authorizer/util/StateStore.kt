@@ -20,34 +20,39 @@ import org.radarbase.authorizer.Config
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.Context
 
 class StateStore(
-        @Context config: Config,
-        @Context private val executor: ScheduledExecutorService
+    @Context config: Config,
+    @Context private val executor: ScheduledExecutorService,
 ) {
     private val expiryTime = Duration.ofMinutes(config.service.stateStoreExpiryInMin)
     private val store: ConcurrentHashMap<String, State> = ConcurrentHashMap()
 
     init {
-        executor.scheduleAtFixedRate(::clean,
-                config.service.stateStoreExpiryInMin * 3,
-                config.service.stateStoreExpiryInMin * 3,
-                TimeUnit.MINUTES)
+        executor.scheduleAtFixedRate(
+            ::clean,
+            config.service.stateStoreExpiryInMin * 3,
+            config.service.stateStoreExpiryInMin * 3,
+            TimeUnit.MINUTES,
+        )
     }
 
     fun generate(sourceType: String): State {
         return generateSequence { ByteArray(8).randomize().encodeToBase64() }
-                .mapNotNull {
-                    val state = State(it, sourceType, Instant.now() + expiryTime)
-                    val existingValue = store.putIfAbsent(it, state)
-                    if (existingValue == null) state else null
-                }
-                .first()
+            .mapNotNull {
+                val state = State(it, sourceType, Instant.now() + expiryTime)
+                val existingValue = store.putIfAbsent(it, state)
+                if (existingValue == null) state else null
+            }
+            .first()
     }
 
-    operator fun get(stateId: String?): State? = store.remove(stateId)
+    operator fun get(stateId: String): State? = store.remove(stateId)
 
     private fun clean() {
         val now = Instant.now()

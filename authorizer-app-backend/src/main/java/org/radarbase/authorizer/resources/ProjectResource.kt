@@ -36,21 +36,23 @@ import javax.ws.rs.core.MediaType
 @Singleton
 class ProjectResource(
     @Context private val projectService: RadarProjectService,
-    @Context private val auth: Auth
+    @Context private val auth: Auth,
 ) {
 
     @GET
     @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ)
-    fun projects() = ProjectList(projectService.userProjects(auth)
-            .map { it.toProject() })
+    fun projects() = ProjectList(
+        projectService.userProjects(auth)
+            .map { it.toProject() }
+    )
 
     @GET
     @Path("{projectId}/users")
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ, "projectId")
-    fun users(@PathParam("projectId") projectId: String): UserList {
-        return UserList(projectService.projectUsers(projectId)
-                .map { it.toUser() })
-    }
+    fun users(@PathParam("projectId") projectId: String) = UserList(
+        projectService.projectUsers(projectId)
+            .map { it.toUser() }
+    )
 
     @GET
     @Path("{projectId}")

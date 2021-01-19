@@ -139,13 +139,11 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   }
 
   onChangeProject(projectId: string) {
-    this.selectedProject = projectId;
+    this.selectedProject = projectId
     if (projectId) {
-      this.loadAllRestSourceUsersOfProject(projectId);
-      this.applyFilter('');
-      this.router.navigate(['/users'], {
-        queryParams: { project: this.selectedProject }
-      });
+      this.loadAllRestSourceUsersOfProject(projectId)
+      this.applyFilter("")
+      this.router.navigate(['/users'], {queryParams: {project: this.selectedProject}});
     } else {
       this.router.navigate(['/users']);
     }
