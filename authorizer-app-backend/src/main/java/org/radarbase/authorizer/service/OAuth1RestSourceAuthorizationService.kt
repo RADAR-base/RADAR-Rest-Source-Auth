@@ -103,7 +103,7 @@ abstract class OAuth1RestSourceAuthorizationService(
         return Url(authConfig.authorizationEndpoint, params).getUrl()
     }
 
-    fun requestToken(tokenEndpoint: String?, tokens: RestOauth1AccessToken, sourceType: String): RestOauth1AccessToken {
+    fun requestToken(tokenEndpoint: String?, tokens: RestOauth1AccessToken, sourceType: String): RestOauth1AccessToken? {
         val req = createRequest("POST", tokenEndpoint.orEmpty(), tokens, sourceType)
 
         return httpClient.newCall(req).execute().use { response ->
@@ -111,6 +111,7 @@ abstract class OAuth1RestSourceAuthorizationService(
                 200 -> response.body?.string()
                         ?.let { tokenReader.readValue<RestOauth1AccessToken>(parseParams(it)) }
                         ?: throw HttpBadGatewayException("Service did not provide a result")
+                400, 401, 403 -> null
                 else -> throw HttpBadGatewayException("Cannot connect to ${tokenEndpoint}: HTTP status ${response.code}")
             }
         }
