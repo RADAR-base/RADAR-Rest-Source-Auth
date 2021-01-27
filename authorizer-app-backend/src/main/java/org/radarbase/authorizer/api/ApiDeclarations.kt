@@ -95,6 +95,7 @@ data class RestSourceUsers(
 class TokenDTO(
     val accessToken: String?,
     val expiresAt: Instant?,
+    val refreshToken: String?,
 )
 
 data class Page(

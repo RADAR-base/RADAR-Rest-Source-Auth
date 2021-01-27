@@ -212,7 +212,7 @@ class RestSourceUserResource(
                 "user_unauthorized",
                 "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid. Invalidated user authorization.")
         }
-        return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt)
+        return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt, user.refreshToken)
     }
 
     private fun validate(id: Long, user: RestSourceUserDTO, permission: Permission): RestSourceUser {
