@@ -167,7 +167,7 @@ class RestSourceUserResource(
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
         return if (user.hasValidToken()) {
-            TokenDTO(user.accessToken, user.expiresAt)
+            TokenDTO(user.accessToken, user.expiresAt, user.refreshToken)
         } else {
             // refresh token if current token is already expired.
             refreshToken(userId, user)
