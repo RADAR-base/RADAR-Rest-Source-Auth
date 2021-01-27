@@ -16,6 +16,7 @@
 
 package org.radarbase.authorizer.resources
 
+import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
@@ -48,10 +49,12 @@ import javax.ws.rs.core.Response
 class RestSourceUserResource(
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val userMapper: RestSourceUserMapper,
-    @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val projectService: RadarProjectService,
     @Context private val stateStore: StateStore,
-    @Context private val auth: Auth
+    @Context private val auth: Auth,
+    @Context private val restSourceClients: RestSourceClients,
+    @Context private val clientMapper: RestSourceClientMapper,
+    @Context private val authorizationService: RestSourceAuthorizationService,
 ) {
 
     @GET
@@ -85,19 +88,23 @@ class RestSourceUserResource(
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.APPLICATION_JSON)
     fun create(
-        @FormParam("code") code: String,
-        @FormParam("state") stateId: String,
+        payload: RequestTokenPayload,
     ): Response {
-        logger.info("Authorizing with code $code state $stateId")
-        val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
-        if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
-        val accessToken = authorizationService.requestAccessToken(code, sourceType = state.sourceType)
-        val user = userRepository.create(accessToken, state.sourceType)
+        logger.info("Authorizing with payload $payload")
+        val stateId = payload?.state
+        if (stateId != null) {
+            val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found",
+                "State has expired or not found")
+            if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
+        }
+        val sourceType = payload.sourceType
+        val accessToken = authorizationService.requestAccessToken(payload, sourceType)
+        val user = userRepository.create(accessToken, sourceType)
 
-        return Response.created(URI("users/${user.id}"))
-            .entity(userMapper.fromEntity(user))
+        return Response.created(URI("users/${user?.id}"))
+            .entity(user?.let { userMapper.fromEntity(it) })
             .build()
     }
 
@@ -130,7 +137,7 @@ class RestSourceUserResource(
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
         if (user.accessToken != null) {
-            authorizationService.revokeToken(user.accessToken!!, user.sourceType)
+            authorizationService.revokeToken(user)
         }
         userRepository.delete(user)
         return Response.noContent().header("user-removed", userId).build()
@@ -176,18 +183,34 @@ class RestSourceUserResource(
         return refreshToken(userId, user)
     }
 
+    @POST
+    @Path("{id}/deregister")
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
+    fun reportDeregistration(
+        @PathParam("id") userId: Long,
+    ): RestSourceUserDTO {
+        val existingUser = ensureUser(userId)
+        return userMapper.fromEntity(authorizationService.deRegisterUser(existingUser))
+    }
+
     private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {
         if (!user.authorized) {
-            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
+            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED,
+                "user_unauthorized",
+                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
         }
         val rft = user.refreshToken
-            ?: throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
+            ?: throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED,
+                "user_unauthorized",
+                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
 
-        val token = authorizationService.refreshToken(rft, user.sourceType)
+        val token = authorizationService.refreshToken(user)
         val updatedUser = userRepository.updateToken(token, userId)
 
         if (!updatedUser.authorized) {
-            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED, "user_unauthorized", "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid. Invalidated user authorization.")
+            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED,
+                "user_unauthorized",
+                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid. Invalidated user authorization.")
         }
         return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt)
     }

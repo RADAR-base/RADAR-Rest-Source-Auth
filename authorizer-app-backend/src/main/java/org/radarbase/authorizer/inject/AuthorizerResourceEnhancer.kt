@@ -23,6 +23,11 @@ import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
+import org.radarbase.authorizer.service.GarminSourceAuthorizationService
+import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
@@ -82,8 +87,17 @@ class AuthorizerResourceEnhancer(
             .to(RestSourceUserRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(RestSourceAuthorizationService::class.java)
+        bind(DelegatedRestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
+
+        bind(GarminSourceAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(GARMIN_AUTH)
+            .`in`(Singleton::class.java)
+
+        bind(OAuth2RestSourceAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(FITBIT_AUTH)
             .`in`(Singleton::class.java)
     }
 }

@@ -20,18 +20,18 @@ import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.ShareableClientDetail
 import org.radarbase.authorizer.api.ShareableClientDetails
+import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarcns.auth.authorization.Permission
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import javax.annotation.Resource
 import javax.inject.Singleton
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.Produces
+import javax.ws.rs.*
 import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
 
@@ -44,11 +44,10 @@ class SourceClientResource(
     @Context private val restSourceClients: RestSourceClients,
     @Context private val clientMapper: RestSourceClientMapper,
     @Context private val stateStore: StateStore,
-    @Context private val auth: Auth
+    @Context private val auth: Auth,
+    @Context private val authorizationService: RestSourceAuthorizationService,
 ) {
-
     private val sourceTypes = restSourceClients.clients.map { it.sourceType }
-
     private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
 
     @GET
@@ -69,4 +68,16 @@ class SourceClientResource(
 
         return sourceType.copy(state = stateStore.generate(type).stateId)
     }
+
+    @GET
+    @Path("{type}/auth-endpoint")
+    @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
+    fun getAuthEndpoint(@PathParam("type") type: String, @QueryParam("callbackUrl") callbackUrl: String): String {
+        return authorizationService.getAuthorizationEndpointWithParams(type, callbackUrl);
+    }
+
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(SourceClientResource::class.java)
+    }
+
 }

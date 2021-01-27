@@ -27,7 +27,7 @@ data class Config(
     val service: AuthorizerServiceConfig = AuthorizerServiceConfig(),
     val auth: AuthConfig = AuthConfig(),
     val database: DatabaseConfig = DatabaseConfig(),
-    val restSourceClients: List<RestSourceClient> = emptyList()
+    val restSourceClients: List<RestSourceClient> = emptyList(),
 )
 
 data class AuthorizerServiceConfig(
@@ -37,7 +37,7 @@ data class AuthorizerServiceConfig(
     var enableCors: Boolean? = false,
     var syncProjectsIntervalMin: Long = 30,
     var syncParticipantsIntervalMin: Long = 30,
-    val stateStoreExpiryInMin: Long = 5
+    val stateStoreExpiryInMin: Long = 5,
 )
 
 data class AuthConfig(
@@ -47,17 +47,20 @@ data class AuthConfig(
     var jwtECPublicKeys: List<String>? = null,
     var jwtRSAPublicKeys: List<String>? = null,
     var jwtIssuer: String? = null,
-    var jwtResourceName: String = "res_restAuthorizer"
+    var jwtResourceName: String = "res_restAuthorizer",
 )
 
 data class RestSourceClient(
     val sourceType: String,
+    val preAuthorizationEndpoint: String?,
     val authorizationEndpoint: String,
+    val deregistrationEndpoint: String?,
     val tokenEndpoint: String,
     val clientId: String? = null,
     val clientSecret: String? = null,
     val grantType: String? = null,
-    val scope: String? = null
+    val scope: String? = null,
+    val state: String? = null,
 ) {
     fun withEnv(): RestSourceClient = this
         .copyEnv("${sourceType.toUpperCase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
@@ -65,5 +68,5 @@ data class RestSourceClient(
 }
 
 data class RestSourceClients(
-    val clients: List<RestSourceClient>
+    val clients: List<RestSourceClient>,
 )

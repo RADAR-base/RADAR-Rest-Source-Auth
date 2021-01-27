@@ -36,7 +36,7 @@ import javax.ws.rs.core.MediaType
 @Singleton
 class ProjectResource(
     @Context private val projectService: RadarProjectService,
-    @Context private val auth: Auth
+    @Context private val auth: Auth,
 ) {
 
     @GET

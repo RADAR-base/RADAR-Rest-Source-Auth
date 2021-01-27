@@ -1,21 +1,17 @@
-import {
-  AfterViewInit,
-  Component,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import {
   MatDialog,
   MatPaginator,
   MatSort,
   MatTableDataSource
 } from '@angular/material';
+
+import { RadarProject } from '../../models/rest-source-project.model';
 import { RestSourceUser } from '../../models/rest-source-user.model';
+import { RestSourceUserListDeleteDialog } from './rest-source-user-list-delete-dialog.component';
+import { RestSourceUserListResetDialog } from './rest-source-user-list-reset-dialog.component';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
-import {RadarProject} from "../../models/rest-source-project.model";
-import {ActivatedRoute, Router} from "@angular/router";
-import {RestSourceUserListDeleteDialog} from "./rest-source-user-list-delete-dialog.component";
-import {RestSourceUserListResetDialog} from "./rest-source-user-list-reset-dialog.component";
 
 @Component({
   selector: 'rest-source-list',
@@ -26,6 +22,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   columnsToDisplay = [
     'id',
     'userId',
+    'sourceType',
     'externalUserId',
     'startDate',
     'endDate',
@@ -47,8 +44,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     private restSourceUserService: RestSourceUserService,
     public dialog: MatDialog,
     private router: Router,
-    private activatedRoute: ActivatedRoute,
-
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -57,9 +53,11 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     this.loadAllRestSourceProjects();
     this.dataSource = new MatTableDataSource(this.restSourceUsers);
     this.dataSource.filterPredicate = function(data, filter: string): boolean {
-      return data.id.toLowerCase().includes(filter) ||
+      return (
+        data.id.toLowerCase().includes(filter) ||
         data.userId.toLowerCase().includes(filter) ||
-        data.externalId.toString().includes(filter);
+        data.externalId.toString().includes(filter)
+      );
     };
     this.onChangeProject(this.selectedProject);
   }
@@ -104,13 +102,13 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
 
   removeDevice(restSourceUser: RestSourceUser) {
     this.restSourceUserService.deleteUser(restSourceUser.id).subscribe(() => {
-      this.loadAllRestSourceUsersOfProject(this.selectedProject)
+      this.loadAllRestSourceUsersOfProject(this.selectedProject);
     });
   }
 
   resetUser(restSourceUser: RestSourceUser) {
     this.restSourceUserService.resetUser(restSourceUser).subscribe(() => {
-      this.loadAllRestSourceUsersOfProject(this.selectedProject)
+      this.loadAllRestSourceUsersOfProject(this.selectedProject);
     });
   }
 
@@ -120,8 +118,8 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(user => {
-      if(user){
-        console.log('Deleting user...',user);
+      if (user) {
+        console.log('Deleting user...', user);
         this.removeDevice(user);
       }
     });
@@ -133,7 +131,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe((user: RestSourceUser) => {
-      if(user){
+      if (user) {
         console.log('Resetting user...', user);
         this.resetUser(user);
       }
@@ -150,5 +148,4 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
       this.router.navigate(['/users']);
     }
   }
-
 }

@@ -31,14 +31,15 @@ import javax.persistence.EntityManager
 import javax.ws.rs.core.Context
 
 class RestSourceUserRepositoryImpl(
-    @Context em: Provider<EntityManager>
+    @Context em: Provider<EntityManager>,
 ) : RestSourceUserRepository, HibernateRepository(em) {
 
     override fun create(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = transact {
         val externalUserId = token.externalUserId
             ?: throw HttpBadGatewayException("Could not get externalId from token")
 
-        val queryString = "SELECT u FROM RestSourceUser u where u.sourceType = :sourceType AND u.externalUserId = :externalUserId"
+        val queryString =
+            "SELECT u FROM RestSourceUser u where u.sourceType = :sourceType AND u.externalUserId = :externalUserId"
         val existingUser = createQuery(queryString, RestSourceUser::class.java)
             .setParameter("sourceType", sourceType)
             .setParameter("externalUserId", externalUserId)
@@ -102,6 +103,7 @@ class RestSourceUserRepositoryImpl(
             this.sourceId = user.sourceId
             this.startDate = user.startDate
             this.endDate = user.endDate
+            this.authorized = user.isAuthorized
             merge(this)
         }
     }
@@ -109,7 +111,7 @@ class RestSourceUserRepositoryImpl(
     override fun query(
         page: Page,
         projects: List<String>,
-        sourceType: String?
+        sourceType: String?,
     ): Pair<List<RestSourceUser>, Page> {
         var queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId IN (:projects)"
         var countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId IN (:projects)"
@@ -139,6 +141,28 @@ class RestSourceUserRepositoryImpl(
             val count = countQuery.singleResult as Long
 
             Pair(users, actualPage.copy(totalElements = count))
+        }
+    }
+
+    override fun queryAllWithElapsedEndDate(
+        sourceType: String?,
+    ): List<RestSourceUser> {
+        var queryString = """
+               SELECT u
+               FROM RestSourceUser u
+               WHERE u.endDate < CURRENT_TIMESTAMP - INTERVAL '14 days'
+        """.trimIndent()
+
+        if (sourceType != null) {
+            queryString += " AND u.sourceType = :sourceType"
+        }
+
+        return transact {
+            val query = createQuery(queryString, RestSourceUser::class.java)
+            if (sourceType != null) {
+                query.setParameter("sourceType", sourceType)
+            }
+            query.resultList
         }
     }
 

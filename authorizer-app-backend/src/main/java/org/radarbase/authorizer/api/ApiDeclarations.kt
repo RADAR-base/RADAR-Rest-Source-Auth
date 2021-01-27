@@ -30,8 +30,30 @@ data class RestOauth2AccessToken(
     @JsonProperty("user_id") var externalUserId: String? = null,
 )
 
+
+data class RestOauth1AccessToken(
+    @JsonProperty("oauth_token") var token: String,
+    @JsonProperty("oauth_token_secret") var tokenSecret: String? = null,
+    @JsonProperty("oauth_verifier") var tokenVerifier: String? = null,
+)
+
+data class RestOauth1UserId(
+    @JsonProperty("userId") var userId: String,
+)
+
+data class RequestTokenPayload(
+    var sourceType: String,
+    var code: String? = null,
+    var state: String? = null,
+    var oauth_token: String? = null,
+    var oauth_verifier: String? = null,
+    var oauth_token_secret: String? = null,
+)
+
 data class ShareableClientDetail(
     val sourceType: String,
+    val preAuthorizationEndpoint: String?,
+    val deregistrationEndpoint: String?,
     val authorizationEndpoint: String,
     val tokenEndpoint: String,
     val grantType: String?,
@@ -41,11 +63,12 @@ data class ShareableClientDetail(
 )
 
 data class ShareableClientDetails(
-    val sourceClients: List<ShareableClientDetail>
+    val sourceClients: List<ShareableClientDetail>,
 )
 
 class RestSourceUserDTO(
     val id: String?,
+    val createdAt: Instant?,
     val projectId: String?,
     val userId: String?,
     val humanReadableUserId: String?,
@@ -55,7 +78,7 @@ class RestSourceUserDTO(
     val startDate: Instant,
     val endDate: Instant? = null,
     val sourceType: String,
-    val isAuthorized: Boolean = false,
+    var isAuthorized: Boolean = false,
     val hasValidToken: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0,
@@ -66,12 +89,12 @@ class RestSourceUserDTO(
 }
 
 data class RestSourceUsers(
-    val users: List<RestSourceUserDTO>
+    val users: List<RestSourceUserDTO>,
 )
 
 class TokenDTO(
     val accessToken: String?,
-    val expiresAt: Instant?
+    val expiresAt: Instant?,
 )
 
 data class Page(
