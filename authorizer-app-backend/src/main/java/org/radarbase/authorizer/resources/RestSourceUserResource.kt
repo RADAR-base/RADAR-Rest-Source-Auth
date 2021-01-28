@@ -21,6 +21,7 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.util.OauthSignature
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -167,7 +168,7 @@ class RestSourceUserResource(
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
         return if (user.hasValidToken()) {
-            TokenDTO(user.accessToken, user.expiresAt, user.refreshToken)
+            TokenDTO(user.accessToken, user.expiresAt)
         } else {
             // refresh token if current token is already expired.
             refreshToken(userId, user)
@@ -181,6 +182,17 @@ class RestSourceUserResource(
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
         return refreshToken(userId, user)
+    }
+
+    @POST
+    @Path("{id}/token/sign")
+    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    fun signUrl(@PathParam("id") userId: Long, payload: SignRequestParams): UrlSignatureDTO {
+        val user = ensureUser(userId)
+        auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
+        val signedUrl = authorizationService.signUrl(user, payload.url, payload.method, payload.params)
+
+        return UrlSignatureDTO(payload.url, signedUrl)
     }
 
     @POST
@@ -212,7 +224,7 @@ class RestSourceUserResource(
                 "user_unauthorized",
                 "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid. Invalidated user authorization.")
         }
-        return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt, user.refreshToken)
+        return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt)
     }
 
     private fun validate(id: Long, user: RestSourceUserDTO, permission: Permission): RestSourceUser {
