@@ -102,7 +102,7 @@ class OAuth2RestSourceAuthorizationService(
         throw HttpBadRequestException("", "Not available for auth type")
     }
 
-    override fun signUrl(user: RestSourceUser, url: String, method: String, params: MutableMap<String, String?>): String {
+    override fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String {
         throw HttpBadRequestException("", "Not available for auth type")
     }
 

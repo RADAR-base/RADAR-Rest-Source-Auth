@@ -49,7 +49,7 @@ class DelegatedRestSourceAuthorizationService(
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String =
         delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
 
-    override fun signUrl(user: RestSourceUser, url: String, method: String, params: MutableMap<String, String?>): String =
+    override fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String =
         delegate(user.sourceType).signUrl(user, url, method, params)
 
     companion object {

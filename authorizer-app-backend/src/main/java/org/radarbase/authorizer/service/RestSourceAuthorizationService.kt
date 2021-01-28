@@ -32,6 +32,6 @@ interface RestSourceAuthorizationService {
 
     fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String
 
-    fun signUrl(user: RestSourceUser, url: String, method: String, params: MutableMap<String, String?>): String
+    fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String
 
 }

@@ -7,7 +7,7 @@ import javax.crypto.spec.SecretKeySpec
 
 data class OauthSignature(
     var endPoint: String,
-    var params: MutableMap<String, String?>,
+    var params: Map<String, String?>,
     var method: String,
     var clientSecret: String?,
     var tokenSecret: String?,

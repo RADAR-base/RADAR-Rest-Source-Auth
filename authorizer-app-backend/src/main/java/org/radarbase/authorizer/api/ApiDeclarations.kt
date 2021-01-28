@@ -44,7 +44,7 @@ data class RestOauth1UserId(
 data class SignRequestParams(
     var url: String,
     var method: String,
-    val params: MutableMap<String, String?>
+    val params: Map<String, String?>
 )
 
 data class RequestTokenPayload(
