@@ -103,10 +103,10 @@ class OAuth2RestSourceAuthorizationService(
     }
 
     override fun signUrl(user: RestSourceUser, url: String, method: String, params: MutableMap<String, String?>): String {
-        return ""
+        throw HttpBadRequestException("", "Not available for auth type")
     }
 
-        private fun post(form: FormBody, sourceType: String): Request {
+    private fun post(form: FormBody, sourceType: String): Request {
         val authorizationConfig = configMap[sourceType]
             ?: throw HttpBadRequestException(
                 "client-config-not-found", "Cannot find client configurations for source-type $sourceType")
