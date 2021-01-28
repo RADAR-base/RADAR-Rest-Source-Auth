@@ -146,6 +146,15 @@ abstract class OAuth1RestSourceAuthorizationService(
             .build()
     }
 
+    override fun signUrl(user: RestSourceUser, url: String, method: String, params: MutableMap<String, String?>): String {
+        val authConfig = configMap[user.sourceType]
+            ?: throw HttpBadRequestException("client-config-not-found",
+                "Cannot find client configurations for source-type ${user.sourceType}")
+        val tokens = RestOauth1AccessToken(user.accessToken!!, user.refreshToken)
+
+        return OauthSignature(url, params, method, authConfig.clientSecret, tokens.tokenSecret).getEncodedSignature()
+    }
+
     private fun getAuthParams(
         authConfig: RestSourceClient,
         accessToken: String?,

@@ -49,6 +49,9 @@ class DelegatedRestSourceAuthorizationService(
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String =
         delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
 
+    override fun signUrl(user: RestSourceUser, url: String, method: String, params: MutableMap<String, String?>): String =
+        delegate(user.sourceType).signUrl(user, url, method, params)
+
     companion object {
         const val GARMIN_AUTH = "Garmin"
         const val FITBIT_AUTH = "FitBit"
