@@ -18,6 +18,7 @@ package org.radarbase.authorizer.service
 
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 
 interface RestSourceAuthorizationService {
@@ -27,6 +28,8 @@ interface RestSourceAuthorizationService {
     fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
 
     fun revokeToken(user: RestSourceUser): Boolean
+
+    fun revokeToken(externalId: String, sourceType: String, token: TokenDTO): Boolean
 
     fun deRegisterUser(user: RestSourceUser): RestSourceUser
 

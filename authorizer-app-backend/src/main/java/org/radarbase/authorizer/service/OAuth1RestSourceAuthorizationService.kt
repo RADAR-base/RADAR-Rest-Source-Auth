@@ -22,10 +22,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import org.radarbase.authorizer.RestSourceClient
 import org.radarbase.authorizer.RestSourceClients
-import org.radarbase.authorizer.api.RequestTokenPayload
-import org.radarbase.authorizer.api.RestOauth1AccessToken
-import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.RestSourceUserMapper
+import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.OauthSignature
@@ -79,6 +76,26 @@ abstract class OAuth1RestSourceAuthorizationService(
             authConfig.deregistrationEndpoint!!,
             RestOauth1AccessToken(user.accessToken!!, user.refreshToken),
             user.sourceType)
+
+        return httpClient.newCall(req).execute().use { response ->
+            when (response.code) {
+                200, 204 -> true
+                400, 401, 403 -> false
+                else -> throw HttpBadGatewayException("Cannot connect to ${authConfig.deregistrationEndpoint}: HTTP status ${response.code}")
+            }
+        }
+    }
+
+    override fun revokeToken(externalId: String, sourceType: String, token: TokenDTO): Boolean {
+        val authConfig = configMap[sourceType]
+            ?: throw HttpBadRequestException("client-config-not-found",
+                "Cannot find client configurations for source-type ${sourceType}")
+        
+        if(token.accessToken.isNullOrEmpty()) throw HttpBadRequestException("token-empty", "Token cannot be null or empty")
+        val req = createRequest("DELETE",
+            authConfig.deregistrationEndpoint!!,
+            RestOauth1AccessToken(token.accessToken, ""),
+            sourceType)
 
         return httpClient.newCall(req).execute().use { response ->
             when (response.code) {

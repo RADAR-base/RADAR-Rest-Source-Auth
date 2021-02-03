@@ -21,7 +21,6 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
-import org.radarbase.authorizer.util.OauthSignature
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -142,6 +141,23 @@ class RestSourceUserResource(
         }
         userRepository.delete(user)
         return Response.noContent().header("user-removed", userId).build()
+    }
+
+    @POST
+    @Path("revoke/sourceType/{sourceType}/externalId/{externalId}")
+    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    fun revokeToken(@PathParam("externalId") externalId: String,
+                    @PathParam("sourceType") sourceType: String,
+                    accessToken: TokenDTO): Boolean {
+        val user = userRepository.findByExternalId(externalId, sourceType)
+        if (user == null) {
+            logger.info("No user found for external ID provided. Continuing deregistration..")
+            return authorizationService.revokeToken(externalId, sourceType)
+        }
+        else {
+            auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
+            return authorizationService.revokeToken(user)
+        }
     }
 
     @POST
