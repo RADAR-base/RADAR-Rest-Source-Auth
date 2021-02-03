@@ -152,9 +152,10 @@ abstract class OAuth1RestSourceAuthorizationService(
                 "Cannot find client configurations for source-type ${user.sourceType}")
         val accessToken = user.accessToken
             ?: throw HttpBadRequestException("access-token-not-found", "No access token available for user")
-        val tokens = RestOauth1AccessToken(accessToken, user.refreshToken)
+        val paramsWithToken = params.toMutableMap()
+        paramsWithToken.put(OAUTH_ACCESS_TOKEN, accessToken)
 
-        return OauthSignature(url, params, method, authConfig.clientSecret, tokens.tokenSecret).getEncodedSignature()
+        return OauthSignature(url, paramsWithToken.toSortedMap(), method, authConfig.clientSecret, user.refreshToken).getEncodedSignature()
     }
 
     private fun getAuthParams(
