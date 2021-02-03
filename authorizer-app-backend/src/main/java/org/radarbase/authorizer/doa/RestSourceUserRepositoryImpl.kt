@@ -168,6 +168,24 @@ class RestSourceUserRepositoryImpl(
         }
     }
 
+    override fun findByExternalId(
+        externalId: String,
+        sourceType: String,
+    ): RestSourceUser {
+        var queryString = """
+               SELECT u
+               FROM RestSourceUser u
+               WHERE u.externalId < :externalId
+               AND u.sourceType = :sourceType
+        """.trimIndent()
+        return transact {
+            val query = createQuery(queryString, RestSourceUser::class.java)
+            query.setParameter("sourceType", sourceType)
+            query.setParameter("externalId", externalId)
+            query.singleResult
+        }
+    }
+
     override fun delete(user: RestSourceUser) = transact {
         remove(merge(user))
     }

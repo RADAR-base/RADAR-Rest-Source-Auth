@@ -31,4 +31,5 @@ interface RestSourceUserRepository {
     fun queryAllWithElapsedEndDate(sourceType: String? = null): List<RestSourceUser>
     fun delete(user: RestSourceUser)
     fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?): RestSourceUser
+    fun findByExternalId(externalId: String, sourceType: String): RestSourceUser
 }
