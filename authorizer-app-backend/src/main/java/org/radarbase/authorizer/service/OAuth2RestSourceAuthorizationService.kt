@@ -24,6 +24,7 @@ import okhttp3.Request
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.exception.HttpBadGatewayException
@@ -102,7 +103,7 @@ class OAuth2RestSourceAuthorizationService(
         throw HttpBadRequestException("", "Not available for auth type")
     }
 
-    override fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String {
+    override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams {
         throw HttpBadRequestException("", "Not available for auth type")
     }
 

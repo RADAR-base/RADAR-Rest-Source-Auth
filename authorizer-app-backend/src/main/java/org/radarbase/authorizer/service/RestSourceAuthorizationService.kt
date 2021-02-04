@@ -18,6 +18,7 @@ package org.radarbase.authorizer.service
 
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 
 interface RestSourceAuthorizationService {
@@ -32,6 +33,6 @@ interface RestSourceAuthorizationService {
 
     fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String
 
-    fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String
+    fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams
 
 }
