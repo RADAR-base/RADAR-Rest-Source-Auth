@@ -26,6 +26,7 @@ import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.hibernate.HibernateRepository
 import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import javax.inject.Provider
 import javax.persistence.EntityManager
 import javax.ws.rs.core.Context
@@ -150,7 +151,7 @@ class RestSourceUserRepositoryImpl(
         var queryString = """
                SELECT u
                FROM RestSourceUser u
-               WHERE u.endDate < CURRENT_TIMESTAMP - INTERVAL '14 days'
+               WHERE u.endDate < :prevFourteenDays
         """.trimIndent()
 
         if (sourceType != null) {
@@ -162,6 +163,7 @@ class RestSourceUserRepositoryImpl(
             if (sourceType != null) {
                 query.setParameter("sourceType", sourceType)
             }
+            query.setParameter("prevFourteenDays", Instant.now().minus(14, ChronoUnit.DAYS))
             query.resultList
         }
     }

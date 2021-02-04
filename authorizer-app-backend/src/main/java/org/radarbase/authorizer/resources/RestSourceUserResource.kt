@@ -21,6 +21,7 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.util.OauthSignature
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -181,6 +182,16 @@ class RestSourceUserResource(
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
         return refreshToken(userId, user)
+    }
+
+    @POST
+    @Path("{id}/token/sign")
+    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    fun signRequest(@PathParam("id") userId: Long, payload: SignRequestParams): SignRequestParams {
+        val user = ensureUser(userId)
+        auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
+
+        return authorizationService.signRequest(user, payload)
     }
 
     @POST

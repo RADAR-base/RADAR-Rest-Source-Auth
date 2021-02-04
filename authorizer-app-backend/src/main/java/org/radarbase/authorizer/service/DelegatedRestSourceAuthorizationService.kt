@@ -19,6 +19,7 @@ package org.radarbase.authorizer.service
 import org.glassfish.hk2.api.IterableProvider
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import javax.ws.rs.core.Context
 
@@ -48,6 +49,9 @@ class DelegatedRestSourceAuthorizationService(
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String =
         delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
+
+    override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
+        delegate(user.sourceType).signRequest(user, payload)
 
     companion object {
         const val GARMIN_AUTH = "Garmin"

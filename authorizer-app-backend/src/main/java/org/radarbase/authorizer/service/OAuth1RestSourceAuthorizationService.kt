@@ -22,10 +22,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import org.radarbase.authorizer.RestSourceClient
 import org.radarbase.authorizer.RestSourceClients
-import org.radarbase.authorizer.api.RequestTokenPayload
-import org.radarbase.authorizer.api.RestOauth1AccessToken
-import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.RestSourceUserMapper
+import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.OauthSignature
@@ -144,6 +141,25 @@ abstract class OAuth1RestSourceAuthorizationService(
             .header("Authorization", "OAuth $headers")
             .method(method, if (method == "POST") RequestBody.create(null, "") else null)
             .build()
+    }
+
+    override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams {
+        val authConfig = configMap[user.sourceType]
+            ?: throw HttpBadRequestException("client-config-not-found",
+                "Cannot find client configurations for source-type ${user.sourceType}")
+
+        val accessToken = user.accessToken
+            ?: throw HttpBadRequestException("access-token-not-found", "No access token available for user")
+        val signedParams = payload.parameters.toMutableMap()
+        signedParams[OAUTH_ACCESS_TOKEN] = accessToken
+        signedParams[OAUTH_SIGNATURE_METHOD] = OAUTH_SIGNATURE_METHOD_VALUE
+        signedParams[OAUTH_SIGNATURE] = OauthSignature(payload.url,
+            signedParams.toSortedMap(),
+            payload.method,
+            authConfig.clientSecret,
+            user.refreshToken).getEncodedSignature()
+
+        return SignRequestParams(payload.url, payload.method, signedParams)
     }
 
     private fun getAuthParams(
