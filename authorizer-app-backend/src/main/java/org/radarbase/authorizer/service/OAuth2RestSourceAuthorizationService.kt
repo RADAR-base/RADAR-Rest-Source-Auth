@@ -105,6 +105,11 @@ class OAuth2RestSourceAuthorizationService(
     override fun deRegisterUser(user: RestSourceUser) =
         throw HttpBadRequestException("", "Not available for auth type")
 
+    override fun deleteUser(user: RestSourceUser) {
+        logger.info("Deleting user...")
+        if (user.accessToken != null) revokeToken(user)
+    }
+
     override fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String =
         throw HttpBadRequestException("", "Not available for auth type")
 

@@ -110,6 +110,10 @@ abstract class OAuth1RestSourceAuthorizationService(
         return userRepository.delete(user)
     }
 
+    override fun deleteUser(user: RestSourceUser) {
+        logger.info("Deleting user...")
+    }
+
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {
         logger.info("Getting auth endpoint..")
         val authConfig = configMap[sourceType]

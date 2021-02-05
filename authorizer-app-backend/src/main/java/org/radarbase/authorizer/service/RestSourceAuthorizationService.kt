@@ -37,4 +37,6 @@ interface RestSourceAuthorizationService {
 
     fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String
 
+    fun deleteUser(user: RestSourceUser)
+
 }

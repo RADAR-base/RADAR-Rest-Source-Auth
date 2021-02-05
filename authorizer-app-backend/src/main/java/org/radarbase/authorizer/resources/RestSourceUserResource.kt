@@ -136,10 +136,9 @@ class RestSourceUserResource(
     fun deleteUser(@PathParam("id") userId: Long): Response {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
-        if (user.accessToken != null) {
-            authorizationService.revokeToken(user)
-        }
+        authorizationService.deleteUser(user)
         userRepository.delete(user)
+
         return Response.noContent().header("user-removed", userId).build()
     }
 
