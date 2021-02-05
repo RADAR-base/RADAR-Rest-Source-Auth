@@ -102,7 +102,7 @@ class OAuth2RestSourceAuthorizationService(
             .build().toString()
     }
 
-    override fun deRegisterUser(user: RestSourceUser): RestSourceUser =
+    override fun deRegisterUser(user: RestSourceUser) =
         throw HttpBadRequestException("", "Not available for auth type")
 
     override fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String =
