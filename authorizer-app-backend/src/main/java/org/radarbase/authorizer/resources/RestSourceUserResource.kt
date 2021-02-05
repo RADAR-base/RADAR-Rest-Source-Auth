@@ -144,23 +144,6 @@ class RestSourceUserResource(
     }
 
     @POST
-    @Path("revoke/sourceType/{sourceType}/externalId/{externalId}")
-    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
-    fun revokeToken(@PathParam("externalId") externalId: String,
-                    @PathParam("sourceType") sourceType: String,
-                    accessToken: TokenDTO): Boolean {
-        val user = userRepository.findByExternalId(externalId, sourceType)
-        if (user == null) {
-            logger.info("No user found for external ID provided. Continuing deregistration..")
-            return authorizationService.revokeToken(externalId, sourceType)
-        }
-        else {
-            auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
-            return authorizationService.revokeToken(user)
-        }
-    }
-
-    @POST
     @Path("{id}/reset")
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun reset(
@@ -216,9 +199,10 @@ class RestSourceUserResource(
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun reportDeregistration(
         @PathParam("id") userId: Long,
-    ): RestSourceUserDTO {
-        val existingUser = ensureUser(userId)
-        return userMapper.fromEntity(authorizationService.deRegisterUser(existingUser))
+    ): Response {
+        val user = ensureUser(userId)
+        authorizationService.deRegisterUser(user)
+        return Response.noContent().header("user-removed", userId).build()
     }
 
     private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {

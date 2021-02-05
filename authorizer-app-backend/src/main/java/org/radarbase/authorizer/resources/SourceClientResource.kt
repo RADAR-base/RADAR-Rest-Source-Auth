@@ -17,9 +17,8 @@
 package org.radarbase.authorizer.resources
 
 import org.radarbase.authorizer.RestSourceClients
-import org.radarbase.authorizer.api.RestSourceClientMapper
-import org.radarbase.authorizer.api.ShareableClientDetail
-import org.radarbase.authorizer.api.ShareableClientDetails
+import org.radarbase.authorizer.api.*
+import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
@@ -46,7 +45,9 @@ class SourceClientResource(
     @Context private val stateStore: StateStore,
     @Context private val auth: Auth,
     @Context private val authorizationService: RestSourceAuthorizationService,
-) {
+    @Context private val userRepository: RestSourceUserRepository,
+    @Context private val userMapper: RestSourceUserMapper,
+    ) {
     private val sourceTypes = restSourceClients.clients.map { it.sourceType }
     private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
 
@@ -74,6 +75,35 @@ class SourceClientResource(
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun getAuthEndpoint(@PathParam("type") type: String, @QueryParam("callbackUrl") callbackUrl: String): String {
         return authorizationService.getAuthorizationEndpointWithParams(type, callbackUrl);
+    }
+
+    @DELETE
+    @Path("{type}/authorization/{serviceUserId}")
+    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    fun deleteAuthorization(@PathParam("serviceUserId") serviceUserId: String,
+                    @PathParam("sourceType") sourceType: String,
+                    accessToken: TokenDTO): Boolean {
+        val user = userRepository.findByExternalId(serviceUserId, sourceType)
+        if (user == null) {
+            logger.info("No user found for external ID provided. Continuing deregistration..")
+            return authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
+        }
+        else {
+            auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
+            return authorizationService.revokeToken(user)
+        }
+    }
+
+    @GET
+    @Path("{type}/authorization/{serviceUserId}")
+    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    fun getUserByServiceUserId(@PathParam("serviceUserId") serviceUserId: String,
+                    @PathParam("sourceType") sourceType: String,
+                    accessToken: TokenDTO): RestSourceUserDTO {
+        val user = userRepository.findByExternalId(serviceUserId, sourceType)
+        auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
+        return userMapper.fromEntity(user)
+
     }
 
     companion object {
