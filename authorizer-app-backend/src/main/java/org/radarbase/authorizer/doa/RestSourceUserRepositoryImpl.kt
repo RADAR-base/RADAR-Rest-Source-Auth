@@ -175,7 +175,7 @@ class RestSourceUserRepositoryImpl(
         var queryString = """
                SELECT u
                FROM RestSourceUser u
-               WHERE u.externalId < :externalId
+               WHERE u.externalId = :externalId
                AND u.sourceType = :sourceType
         """.trimIndent()
         return transact {
