@@ -44,7 +44,7 @@ data class RestOauth1UserId(
 data class SignRequestParams(
     var url: String,
     var method: String,
-    val params: Map<String, String?>
+    val parameters: Map<String, String?>,
 )
 
 data class RequestTokenPayload(
@@ -98,14 +98,9 @@ data class RestSourceUsers(
     val users: List<RestSourceUserDTO>,
 )
 
-class TokenDTO(
+data class TokenDTO(
     val accessToken: String?,
-    val expiresAt: Instant?
-)
-
-class UrlSignatureDTO(
-    val url: String,
-    val signedUrl: String?
+    val expiresAt: Instant?,
 )
 
 data class Page(

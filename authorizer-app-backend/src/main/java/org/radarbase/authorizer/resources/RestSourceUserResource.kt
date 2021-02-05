@@ -185,12 +185,11 @@ class RestSourceUserResource(
     @POST
     @Path("{id}/token/sign")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
-    fun signUrl(@PathParam("id") userId: Long, payload: SignRequestParams): UrlSignatureDTO {
+    fun signRequest(@PathParam("id") userId: Long, payload: SignRequestParams): SignRequestParams {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
-        val signedUrl = authorizationService.signUrl(user, payload.url, payload.method, payload.params)
 
-        return UrlSignatureDTO(payload.url, signedUrl)
+        return authorizationService.signRequest(user, payload)
     }
 
     @POST

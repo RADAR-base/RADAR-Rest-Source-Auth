@@ -20,6 +20,7 @@ import org.glassfish.hk2.api.IterableProvider
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.TokenDTO
+import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import javax.ws.rs.core.Context
 
@@ -53,8 +54,8 @@ class DelegatedRestSourceAuthorizationService(
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String =
         delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
 
-    override fun signUrl(user: RestSourceUser, url: String, method: String, params: Map<String, String?>): String =
-        delegate(user.sourceType).signUrl(user, url, method, params)
+    override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
+        delegate(user.sourceType).signRequest(user, payload)
 
     override fun deleteUser(user: RestSourceUser) =
         delegate(user.sourceType).deleteUser(user)
