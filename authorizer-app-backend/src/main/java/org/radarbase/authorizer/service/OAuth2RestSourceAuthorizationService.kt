@@ -85,7 +85,7 @@ class OAuth2RestSourceAuthorizationService(
         return httpClient.request(post(form, user.sourceType))
     }
 
-    override fun revokeToken(externalId: String, sourceType: String, token: TokenDTO): Boolean =
+    override fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
         throw HttpBadRequestException("", "Not available for auth type")
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {
@@ -103,15 +103,7 @@ class OAuth2RestSourceAuthorizationService(
             .build().toString()
     }
 
-    override fun deRegisterUser(user: RestSourceUser) =
-        throw HttpBadRequestException("", "Not available for auth type")
-
-    override fun deleteUser(user: RestSourceUser) {
-        logger.info("Deleting user...")
-        if (user.accessToken != null) revokeToken(user)
-    }
-
-    override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams {
+    override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         throw HttpBadRequestException("", "Not available for auth type")
 
     private fun post(form: FormBody, sourceType: String): Request {

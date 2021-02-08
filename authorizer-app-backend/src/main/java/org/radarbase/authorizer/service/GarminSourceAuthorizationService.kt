@@ -25,6 +25,7 @@ import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth1UserId
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
+import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.slf4j.Logger
@@ -77,7 +78,7 @@ class GarminSourceAuthorizationService(
         requestScope.runInScope(Runnable {
             userRepository
                 .queryAllWithElapsedEndDate(GARMIN_AUTH)
-                .forEach { deRegisterUser(it) }
+                .forEach { revokeToken(it) }
         })
     }
 

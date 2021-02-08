@@ -30,14 +30,10 @@ interface RestSourceAuthorizationService {
 
     fun revokeToken(user: RestSourceUser): Boolean
 
-    fun revokeToken(externalId: String, sourceType: String, token: TokenDTO): Boolean
-
-    fun deRegisterUser(user: RestSourceUser)
+    fun revokeToken(externalId: String, sourceType: String, token: String): Boolean
 
     fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String
 
     fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams
-
-    fun deleteUser(user: RestSourceUser)
 
 }

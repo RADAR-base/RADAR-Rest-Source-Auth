@@ -45,20 +45,14 @@ class DelegatedRestSourceAuthorizationService(
     override fun revokeToken(user: RestSourceUser): Boolean =
         delegate(user.sourceType).revokeToken(user)
 
-    override fun revokeToken(externalId: String, sourceType: String, token: TokenDTO): Boolean =
+    override fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
         delegate(sourceType).revokeToken(externalId, sourceType, token)
-
-    override fun deRegisterUser(user: RestSourceUser) =
-        delegate(user.sourceType).deRegisterUser(user)
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String =
         delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
 
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         delegate(user.sourceType).signRequest(user, payload)
-
-    override fun deleteUser(user: RestSourceUser) =
-        delegate(user.sourceType).deleteUser(user)
 
     companion object {
         const val GARMIN_AUTH = "Garmin"
