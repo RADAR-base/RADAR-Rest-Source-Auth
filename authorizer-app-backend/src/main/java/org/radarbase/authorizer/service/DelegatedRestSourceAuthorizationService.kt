@@ -54,6 +54,9 @@ class DelegatedRestSourceAuthorizationService(
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         delegate(user.sourceType).signRequest(user, payload)
 
+    override fun deregisterUser(user: RestSourceUser) =
+        delegate(user.sourceType).deregisterUser(user)
+
     companion object {
         const val GARMIN_AUTH = "Garmin"
         const val FITBIT_AUTH = "FitBit"

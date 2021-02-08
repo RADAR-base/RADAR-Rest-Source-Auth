@@ -36,4 +36,5 @@ interface RestSourceAuthorizationService {
 
     fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams
 
+    fun deregisterUser(user: RestSourceUser)
 }

@@ -57,6 +57,10 @@ class GarminSourceAuthorizationService(
         }, 0, DEREGISTER_CHECK_PERIOD, TimeUnit.MILLISECONDS)
     }
 
+    override fun deregisterUser(user: RestSourceUser) {
+        userRepository.delete(user)
+    }
+
     override fun RestOauth1AccessToken.getExternalId(sourceType: String): String? {
         // Garmin does not provide the service/external id with the token payload, so an additional
         // request to pull the external id is needed.

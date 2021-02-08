@@ -25,6 +25,7 @@ import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.radarbase.jersey.exception.HttpUnauthorizedException
 import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -79,7 +80,7 @@ class SourceClientResource(
     }
 
     @DELETE
-    @Path("{type}/authorization/{serviceUserId}/token")
+    @Path("{type}/authorization/{serviceUserId}")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
     fun deleteAuthorizationWithToken(
         @PathParam("serviceUserId") serviceUserId: String,
@@ -88,11 +89,10 @@ class SourceClientResource(
     ): Boolean {
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
         if (user == null) {
-            if(!accessToken.isNullOrEmpty()){
+            if (!accessToken.isNullOrEmpty()) {
                 logger.info("No user found for external ID provided. Continuing deregistration..")
                 return authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
-            }
-            else throw HttpNotFoundException("user-not-found", "User and access token not valid")
+            } else throw HttpNotFoundException("user-not-found", "User and access token not valid")
         } else {
             auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
             return authorizationService.revokeToken(user)
@@ -109,7 +109,6 @@ class SourceClientResource(
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
         return userMapper.fromEntity(user)
-
     }
 
     @POST
@@ -117,12 +116,12 @@ class SourceClientResource(
     fun reportDeregistration(@PathParam("type") sourceType: String, params: DeregistrationParams): Response {
         val user = userRepository.findByExternalId(params.userId, sourceType)
         if (user != null) {
-            auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
-            userRepository.delete(user)
+            if (user.accessToken == params.userAccessToken)
+                authorizationService.deregisterUser(user)
+            else throw HttpUnauthorizedException("token-not-valid", "Access token not valid")
         }
         return Response.ok().build()
     }
-
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(SourceClientResource::class.java)
