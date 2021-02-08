@@ -79,12 +79,12 @@ class SourceClientResource(
     }
 
     @DELETE
-    @Path("{type}/authorization/{serviceUserId}/token/{accessToken}")
+    @Path("{type}/authorization/{serviceUserId}/token")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
     fun deleteAuthorizationWithToken(
         @PathParam("serviceUserId") serviceUserId: String,
         @PathParam("sourceType") sourceType: String,
-        @PathParam("accessToken") accessToken: String?,
+        @QueryParam("accessToken") accessToken: String?,
     ): Boolean {
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
         if (user == null) {
@@ -97,16 +97,6 @@ class SourceClientResource(
             auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
             return authorizationService.revokeToken(user)
         }
-    }
-
-    @DELETE
-    @Path("{type}/authorization/{serviceUserId}")
-    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
-    fun deleteAuthorizationWithoutToken(
-        @PathParam("serviceUserId") serviceUserId: String,
-        @PathParam("sourceType") sourceType: String,
-    ): Boolean {
-        return deleteAuthorizationWithToken(serviceUserId, sourceType, "")
     }
 
     @GET
@@ -124,7 +114,6 @@ class SourceClientResource(
 
     @POST
     @Path("{type}/deregister")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun reportDeregistration(@PathParam("type") sourceType: String, params: DeregistrationParams): Response {
         val user = userRepository.findByExternalId(params.userId, sourceType)
         if (user != null) {
