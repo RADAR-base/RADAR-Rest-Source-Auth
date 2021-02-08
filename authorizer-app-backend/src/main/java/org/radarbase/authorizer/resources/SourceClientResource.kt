@@ -81,19 +81,32 @@ class SourceClientResource(
     @DELETE
     @Path("{type}/authorization/{serviceUserId}/token/{accessToken}")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
-    fun deleteAuthorization(
+    fun deleteAuthorizationWithToken(
         @PathParam("serviceUserId") serviceUserId: String,
         @PathParam("sourceType") sourceType: String,
-        @PathParam("accessToken") accessToken: String,
+        @PathParam("accessToken") accessToken: String?,
     ): Boolean {
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
         if (user == null) {
-            logger.info("No user found for external ID provided. Continuing deregistration..")
-            return authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
+            if(!accessToken.isNullOrEmpty()){
+                logger.info("No user found for external ID provided. Continuing deregistration..")
+                return authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
+            }
+            else throw HttpNotFoundException("user-not-found", "User and access token not valid")
         } else {
             auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
             return authorizationService.revokeToken(user)
         }
+    }
+
+    @DELETE
+    @Path("{type}/authorization/{serviceUserId}")
+    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    fun deleteAuthorizationWithoutToken(
+        @PathParam("serviceUserId") serviceUserId: String,
+        @PathParam("sourceType") sourceType: String,
+    ): Boolean {
+        return deleteAuthorizationWithToken(serviceUserId, sourceType, "")
     }
 
     @GET
