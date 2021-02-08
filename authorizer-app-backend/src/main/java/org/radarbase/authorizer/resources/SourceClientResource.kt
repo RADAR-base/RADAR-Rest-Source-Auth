@@ -33,6 +33,7 @@ import javax.inject.Singleton
 import javax.ws.rs.*
 import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
 
 @Path("source-clients")
 @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +48,7 @@ class SourceClientResource(
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val userMapper: RestSourceUserMapper,
-    ) {
+) {
     private val sourceTypes = restSourceClients.clients.map { it.sourceType }
     private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
 
@@ -78,17 +79,18 @@ class SourceClientResource(
     }
 
     @DELETE
-    @Path("{type}/authorization/{serviceUserId}")
+    @Path("{type}/authorization/{serviceUserId}/token/{accessToken}")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
-    fun deleteAuthorization(@PathParam("serviceUserId") serviceUserId: String,
-                    @PathParam("sourceType") sourceType: String,
-                    accessToken: TokenDTO): Boolean {
+    fun deleteAuthorization(
+        @PathParam("serviceUserId") serviceUserId: String,
+        @PathParam("sourceType") sourceType: String,
+        @PathParam("accessToken") accessToken: String,
+    ): Boolean {
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
         if (user == null) {
             logger.info("No user found for external ID provided. Continuing deregistration..")
             return authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
-        }
-        else {
+        } else {
             auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
             return authorizationService.revokeToken(user)
         }
@@ -97,14 +99,28 @@ class SourceClientResource(
     @GET
     @Path("{type}/authorization/{serviceUserId}")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
-    fun getUserByServiceUserId(@PathParam("serviceUserId") serviceUserId: String,
-                    @PathParam("sourceType") sourceType: String,
-                    accessToken: TokenDTO): RestSourceUserDTO {
+    fun getUserByServiceUserId(
+        @PathParam("serviceUserId") serviceUserId: String,
+        @PathParam("type") sourceType: String,
+    ): RestSourceUserDTO {
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
         return userMapper.fromEntity(user)
 
     }
+
+    @POST
+    @Path("{type}/deregister")
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
+    fun reportDeregistration(@PathParam("type") sourceType: String, params: DeregistrationParams): Response {
+        val user = userRepository.findByExternalId(params.userId, sourceType)
+        if (user != null) {
+            auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
+            userRepository.delete(user)
+        }
+        return Response.ok().build()
+    }
+
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(SourceClientResource::class.java)
