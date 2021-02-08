@@ -136,7 +136,7 @@ class RestSourceUserResource(
     fun deleteUser(@PathParam("id") userId: Long): Response {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
-        authorizationService.deleteUser(user)
+        authorizationService.revokeToken(user)
         userRepository.delete(user)
 
         return Response.noContent().header("user-removed", userId).build()
@@ -190,17 +190,6 @@ class RestSourceUserResource(
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
 
         return authorizationService.signRequest(user, payload)
-    }
-
-    @POST
-    @Path("{id}/deregister")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
-    fun reportDeregistration(
-        @PathParam("id") userId: Long,
-    ): Response {
-        val user = ensureUser(userId)
-        authorizationService.deRegisterUser(user)
-        return Response.noContent().header("user-removed", userId).build()
     }
 
     private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {
