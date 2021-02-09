@@ -107,8 +107,11 @@ class SourceClientResource(
         @PathParam("type") sourceType: String,
     ): RestSourceUserDTO {
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
-        auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
-        return userMapper.fromEntity(user)
+        if (user != null) {
+            auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
+            return userMapper.fromEntity(user)
+        }
+        else throw HttpNotFoundException("user-not-found", "User with service user id not found.")
     }
 
     @POST
