@@ -39,7 +39,6 @@ import javax.ws.rs.core.Response
 @Path("source-clients")
 @Produces(MediaType.APPLICATION_JSON)
 @Resource
-@Authenticated
 @Singleton
 class SourceClientResource(
     @Context private val restSourceClients: RestSourceClients,
@@ -54,15 +53,18 @@ class SourceClientResource(
     private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
 
     @GET
+    @Authenticated
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun clients(): ShareableClientDetails = sharableClientDetails
 
     @GET
+    @Authenticated
     @Path("type")
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun types(): List<String> = sourceTypes
 
     @GET
+    @Authenticated
     @Path("{type}")
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun client(@PathParam("type") type: String): ShareableClientDetail {
@@ -73,6 +75,7 @@ class SourceClientResource(
     }
 
     @GET
+    @Authenticated
     @Path("{type}/auth-endpoint")
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun getAuthEndpoint(@PathParam("type") type: String, @QueryParam("callbackUrl") callbackUrl: String): String {
@@ -80,6 +83,7 @@ class SourceClientResource(
     }
 
     @DELETE
+    @Authenticated
     @Path("{type}/authorization/{serviceUserId}")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
     fun deleteAuthorizationWithToken(
@@ -100,6 +104,7 @@ class SourceClientResource(
     }
 
     @GET
+    @Authenticated
     @Path("{type}/authorization/{serviceUserId}")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
     fun getUserByServiceUserId(
