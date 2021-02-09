@@ -25,7 +25,6 @@ import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpNotFoundException
-import org.radarbase.jersey.exception.HttpUnauthorizedException
 import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -120,13 +119,13 @@ class SourceClientResource(
 
     @POST
     @Path("{type}/deregister")
-    fun reportDeregistration(@PathParam("type") sourceType: String, params: DeregistrationParams): Response {
-        val user = userRepository.findByExternalId(params.userId, sourceType)
-        if (user != null) {
-            if (user.accessToken == params.userAccessToken)
+    fun reportDeregistration(@PathParam("type") sourceType: String, body: DeregistrationsDTO): Response {
+        body.deregistrations.forEach { it ->
+            val user = userRepository.findByExternalId(it.userId, sourceType)
+            if (user != null && user.accessToken == it.userAccessToken)
                 authorizationService.deregisterUser(user)
-            else throw HttpUnauthorizedException("token-not-valid", "Access token not valid")
         }
+
         return Response.ok().build()
     }
 
