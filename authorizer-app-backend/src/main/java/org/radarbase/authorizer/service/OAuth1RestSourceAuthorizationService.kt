@@ -86,11 +86,24 @@ abstract class OAuth1RestSourceAuthorizationService(
         }
     }
 
-    override fun deRegisterUser(user: RestSourceUser): RestSourceUser {
-        revokeToken(user)
-        val userDTO = userMapper.fromEntity(user)
-        userDTO.isAuthorized = false
-        return userRepository.update(user, userDTO)
+    override fun revokeToken(externalId: String, sourceType: String, token: String): Boolean {
+        val authConfig = configMap[sourceType]
+            ?: throw HttpBadRequestException("client-config-not-found",
+                "Cannot find client configurations for source-type ${sourceType}")
+
+        if(token.isNullOrEmpty()) throw HttpBadRequestException("token-empty", "Token cannot be null or empty")
+        val req = createRequest("DELETE",
+            authConfig.deregistrationEndpoint!!,
+            RestOauth1AccessToken(token, ""),
+            sourceType)
+
+        return httpClient.newCall(req).execute().use { response ->
+            when (response.code) {
+                200, 204 -> true
+                400, 401, 403 -> false
+                else -> throw HttpBadGatewayException("Cannot connect to ${authConfig.deregistrationEndpoint}: HTTP status ${response.code}")
+            }
+        }
     }
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {

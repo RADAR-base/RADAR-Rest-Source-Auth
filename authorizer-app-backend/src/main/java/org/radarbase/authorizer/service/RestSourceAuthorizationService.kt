@@ -18,6 +18,7 @@ package org.radarbase.authorizer.service
 
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 
@@ -29,10 +30,11 @@ interface RestSourceAuthorizationService {
 
     fun revokeToken(user: RestSourceUser): Boolean
 
-    fun deRegisterUser(user: RestSourceUser): RestSourceUser
+    fun revokeToken(externalId: String, sourceType: String, token: String): Boolean
 
     fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String
 
     fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams
 
+    fun deregisterUser(user: RestSourceUser)
 }

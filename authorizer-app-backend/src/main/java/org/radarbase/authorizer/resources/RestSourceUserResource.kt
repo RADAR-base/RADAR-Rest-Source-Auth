@@ -21,7 +21,6 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
-import org.radarbase.authorizer.util.OauthSignature
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -137,10 +136,9 @@ class RestSourceUserResource(
     fun deleteUser(@PathParam("id") userId: Long): Response {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
-        if (user.accessToken != null) {
-            authorizationService.revokeToken(user)
-        }
+        if (user.accessToken != null) authorizationService.revokeToken(user)
         userRepository.delete(user)
+
         return Response.noContent().header("user-removed", userId).build()
     }
 
@@ -192,16 +190,6 @@ class RestSourceUserResource(
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
 
         return authorizationService.signRequest(user, payload)
-    }
-
-    @POST
-    @Path("{id}/deregister")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
-    fun reportDeregistration(
-        @PathParam("id") userId: Long,
-    ): RestSourceUserDTO {
-        val existingUser = ensureUser(userId)
-        return userMapper.fromEntity(authorizationService.deRegisterUser(existingUser))
     }
 
     private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {

@@ -47,6 +47,15 @@ data class SignRequestParams(
     val parameters: Map<String, String?>,
 )
 
+data class DeregistrationsDTO(
+    val deregistrations: List<DeregistrationParams>
+)
+
+data class DeregistrationParams(
+    val userId: String,
+    val userAccessToken: String
+)
+
 data class RequestTokenPayload(
     var sourceType: String,
     var code: String? = null,

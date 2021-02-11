@@ -25,6 +25,7 @@ import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth1UserId
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
+import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.slf4j.Logger
@@ -56,6 +57,10 @@ class GarminSourceAuthorizationService(
         }, 0, DEREGISTER_CHECK_PERIOD, TimeUnit.MILLISECONDS)
     }
 
+    override fun deregisterUser(user: RestSourceUser) {
+        userRepository.delete(user)
+    }
+
     override fun RestOauth1AccessToken.getExternalId(sourceType: String): String? {
         // Garmin does not provide the service/external id with the token payload, so an additional
         // request to pull the external id is needed.
@@ -77,7 +82,7 @@ class GarminSourceAuthorizationService(
         requestScope.runInScope(Runnable {
             userRepository
                 .queryAllWithElapsedEndDate(GARMIN_AUTH)
-                .forEach { deRegisterUser(it) }
+                .forEach { revokeToken(it) }
         })
     }
 

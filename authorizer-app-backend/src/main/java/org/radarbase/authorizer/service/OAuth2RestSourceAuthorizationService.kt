@@ -24,6 +24,7 @@ import okhttp3.Request
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.StateStore
@@ -84,6 +85,9 @@ class OAuth2RestSourceAuthorizationService(
         return httpClient.request(post(form, user.sourceType))
     }
 
+    override fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
+        throw HttpBadRequestException("", "Not available for auth type")
+
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {
         val authConfig = configMap[sourceType]
             ?: throw HttpBadRequestException("client-config-not-found",
@@ -99,13 +103,11 @@ class OAuth2RestSourceAuthorizationService(
             .build().toString()
     }
 
-    override fun deRegisterUser(user: RestSourceUser): RestSourceUser {
+    override fun deregisterUser(user: RestSourceUser) =
         throw HttpBadRequestException("", "Not available for auth type")
-    }
 
-    override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams {
+    override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         throw HttpBadRequestException("", "Not available for auth type")
-    }
 
     private fun post(form: FormBody, sourceType: String): Request {
         val authorizationConfig = configMap[sourceType]
