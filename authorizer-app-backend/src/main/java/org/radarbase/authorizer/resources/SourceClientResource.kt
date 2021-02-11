@@ -84,7 +84,7 @@ class SourceClientResource(
     @DELETE
     @Authenticated
     @Path("{type}/authorization/{serviceUserId}")
-    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun deleteAuthorizationWithToken(
         @PathParam("serviceUserId") serviceUserId: String,
         @PathParam("sourceType") sourceType: String,
@@ -97,7 +97,7 @@ class SourceClientResource(
                 return authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
             } else throw HttpNotFoundException("user-not-found", "User and access token not valid")
         } else {
-            auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
+            auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
             return authorizationService.revokeToken(user)
         }
     }
