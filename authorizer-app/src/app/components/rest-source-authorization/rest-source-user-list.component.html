@@ -82,8 +82,10 @@
     </table>
 
     <mat-paginator
+      [length]="totalItems"
       [pageSize]="20"
-      [pageSizeOptions]="[5, 10, 20, 50]"
+      [pageSizeOptions]="[1, 5, 10, 20, 50]"
+      (page)="loadPage($event)"
       showFirstLastButtons
     ></mat-paginator>
 

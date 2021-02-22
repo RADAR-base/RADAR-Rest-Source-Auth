@@ -1,5 +1,6 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import {
   MatDialog,
   MatPaginator,
@@ -37,6 +38,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   restSourceUsers: RestSourceUser[];
   restSourceProjects: RadarProject[];
   selectedProject = '';
+  totalItems = 0;
 
   dataSource: MatTableDataSource<RestSourceUser>;
 
@@ -67,7 +69,6 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
    * be able to query its view for the initialized paginator and sort.
    */
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
@@ -77,16 +78,23 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = filterValue;
   }
 
-  private loadAllRestSourceUsersOfProject(projectId: string) {
-    this.restSourceUserService.getAllUsersOfProject(projectId).subscribe(
-      (data: any) => {
-        this.restSourceUsers = data.users;
-        this.dataSource.data = this.restSourceUsers;
-      },
-      () => {
-        this.errorMessage = 'Cannot load registered users!';
-      }
-    );
+  private loadAllRestSourceUsersOfProject(
+    projectId: string,
+    page: number,
+    pageSize: number
+  ) {
+    this.restSourceUserService
+      .getAllUsersOfProject(projectId, { page: page, size: pageSize })
+      .subscribe(
+        (res: HttpResponse<any>) => {
+          this.restSourceUsers = res.body.users;
+          this.dataSource.data = this.restSourceUsers;
+          this.totalItems = parseInt(res.headers.get('x-total-count'));
+        },
+        (res: HttpErrorResponse) => {
+          this.errorMessage = 'Cannot load registered users!';
+        }
+      );
   }
 
   private loadAllRestSourceProjects() {
@@ -100,15 +108,23 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     );
   }
 
+  loadPage(event) {
+    this.loadAllRestSourceUsersOfProject(
+      this.selectedProject,
+      event.pageIndex + 1,
+      event.pageSize
+    );
+  }
+
   removeDevice(restSourceUser: RestSourceUser) {
     this.restSourceUserService.deleteUser(restSourceUser.id).subscribe(() => {
-      this.loadAllRestSourceUsersOfProject(this.selectedProject);
+      this.loadAllRestSourceUsersOfProject(this.selectedProject, 1, 20);
     });
   }
 
   resetUser(restSourceUser: RestSourceUser) {
     this.restSourceUserService.resetUser(restSourceUser).subscribe(() => {
-      this.loadAllRestSourceUsersOfProject(this.selectedProject);
+      this.loadAllRestSourceUsersOfProject(this.selectedProject, 1, 20);
     });
   }
 
@@ -139,11 +155,13 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   }
 
   onChangeProject(projectId: string) {
-    this.selectedProject = projectId
+    this.selectedProject = projectId;
     if (projectId) {
-      this.loadAllRestSourceUsersOfProject(projectId)
-      this.applyFilter("")
-      this.router.navigate(['/users'], {queryParams: {project: this.selectedProject}});
+      this.loadAllRestSourceUsersOfProject(projectId, 1, 20);
+      this.applyFilter('');
+      this.router.navigate(['/users'], {
+        queryParams: { project: this.selectedProject }
+      });
     } else {
       this.router.navigate(['/users']);
     }
