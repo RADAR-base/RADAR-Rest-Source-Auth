@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RadarProject } from '../models/rest-source-project.model';
 import { RequestTokenPayload } from '../models/auth.model';
-import { createRequestOption } from './request.util';
+import { createRequestOption } from '../utilities/request.util';
 import { environment } from '../../environments/environment';
 
 @Injectable({
