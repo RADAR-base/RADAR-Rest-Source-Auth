@@ -1,6 +1,5 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import {
   MatDialog,
   MatPaginator,
