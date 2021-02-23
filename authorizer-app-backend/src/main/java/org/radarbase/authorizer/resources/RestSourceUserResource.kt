@@ -64,7 +64,7 @@ class RestSourceUserResource(
         @QueryParam("source-type") sourceType: String?,
         @QueryParam("size") pageSize: Int?,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int,
-    ): Response {
+    ): RestSourceUsers {
 
         val projects = if (projectId != null) {
             auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
@@ -74,22 +74,17 @@ class RestSourceUserResource(
                 .map { it.id }
         }
 
-        if (projects.isEmpty()) return Response.ok(URI("users/"))
-            .entity(RestSourceUsers(emptyList()))
-            .build()
+        if (projects.isEmpty()) return RestSourceUsers(emptyList(), Page())
 
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
         val (records, page) = userRepository.query(queryPage, projects, sourceType)
 
-        return Response.ok(URI("users/"))
-            .header("X-Total-Count", page.totalElements)
-            .entity(userMapper.fromRestSourceUsers(
-                records.filter {
-                    auth.token.hasPermissionOnSubject(Permission.SUBJECT_READ, it.projectId, it.userId)
-                },
-                page,
-            ))
-            .build()
+        return userMapper.fromRestSourceUsers(
+            records.filter {
+                auth.token.hasPermissionOnSubject(Permission.SUBJECT_READ, it.projectId, it.userId)
+            },
+            page,
+        )
     }
 
     @POST

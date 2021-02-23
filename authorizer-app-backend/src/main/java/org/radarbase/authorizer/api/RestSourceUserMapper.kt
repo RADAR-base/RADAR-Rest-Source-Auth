@@ -48,6 +48,7 @@ class RestSourceUserMapper(
     }
 
     fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
-        users = records.map(::fromEntity)
+        users = records.map(::fromEntity),
+        metadata = page
     )
 }

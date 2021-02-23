@@ -7,9 +7,12 @@ import {
   MatSort,
   MatTableDataSource
 } from '@angular/material';
+import {
+  RestSourceUser,
+  RestSourceUsers
+} from '../../models/rest-source-user.model';
 
 import { RadarProject } from '../../models/rest-source-project.model';
-import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserListDeleteDialog } from './rest-source-user-list-delete-dialog.component';
 import { RestSourceUserListResetDialog } from './rest-source-user-list-reset-dialog.component';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
@@ -86,12 +89,12 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     this.restSourceUserService
       .getAllUsersOfProject(projectId, { page: page, size: pageSize })
       .subscribe(
-        (res: HttpResponse<any>) => {
-          this.restSourceUsers = res.body.users;
+        (res: RestSourceUsers) => {
+          this.restSourceUsers = res.users;
           this.dataSource.data = this.restSourceUsers;
-          this.totalItems = parseInt(res.headers.get('x-total-count'));
+          this.totalItems = res.metadata.totalElements;
         },
-        (res: HttpErrorResponse) => {
+        () => {
           this.errorMessage = 'Cannot load registered users!';
         }
       );
