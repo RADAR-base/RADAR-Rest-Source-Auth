@@ -74,7 +74,7 @@ class RestSourceUserResource(
                 .map { it.id }
         }
 
-        if (projects.isEmpty()) return RestSourceUsers(emptyList())
+        if (projects.isEmpty()) return RestSourceUsers(emptyList(), Page(totalElements = 0))
 
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
         val (records, page) = userRepository.query(queryPage, projects, sourceType)

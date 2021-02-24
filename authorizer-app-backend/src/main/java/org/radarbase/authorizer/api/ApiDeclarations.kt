@@ -105,6 +105,7 @@ class RestSourceUserDTO(
 
 data class RestSourceUsers(
     val users: List<RestSourceUserDTO>,
+    val metadata: Page?
 )
 
 data class TokenDTO(

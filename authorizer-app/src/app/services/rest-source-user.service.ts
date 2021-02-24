@@ -1,10 +1,14 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import {
+  RestSourceUser,
+  RestSourceUsers
+} from '../models/rest-source-user.model';
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RadarProject } from '../models/rest-source-project.model';
 import { RequestTokenPayload } from '../models/auth.model';
-import { RestSourceUser } from '../models/rest-source-user.model';
+import { createRequestOption } from '../utilities/request.util';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -21,10 +25,15 @@ export class RestSourceUserService {
     return this.http.get<RestSourceUser[]>(this.serviceUrl);
   }
 
-  getAllUsersOfProject(projectId: string): Observable<RestSourceUser[]> {
-    return this.http.get<RestSourceUser[]>(
-      environment.backendBaseUrl + '/users?project-id=' + projectId
-    );
+  getAllUsersOfProject(
+    projectId: string,
+    req?: any
+  ): Observable<RestSourceUsers> {
+    const params = createRequestOption(req);
+    return this.http.get(
+      environment.backendBaseUrl + '/users?project-id=' + projectId,
+      { params }
+    ) as Observable<RestSourceUsers>;
   }
 
   getAllProjects(): Observable<RadarProject[]> {
