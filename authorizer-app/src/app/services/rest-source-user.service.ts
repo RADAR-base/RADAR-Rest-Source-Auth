@@ -30,10 +30,10 @@ export class RestSourceUserService {
     req?: any
   ): Observable<RestSourceUsers> {
     const params = createRequestOption(req);
-    return this.http.get(
-      environment.backendBaseUrl + '/users?project-id=' + projectId,
-      { params }
-    ) as Observable<RestSourceUsers>;
+    const url = encodeURI(
+      environment.backendBaseUrl + '/users?project-id=' + projectId
+    );
+    return this.http.get(url, { params }) as Observable<RestSourceUsers>;
   }
 
   getAllProjects(): Observable<RadarProject[]> {
@@ -43,9 +43,10 @@ export class RestSourceUserService {
   }
 
   getAllSubjectsOfProjects(projectId: string): Observable<RestSourceUser[]> {
-    return this.http.get<RestSourceUser[]>(
+    const url = encodeURI(
       environment.backendBaseUrl + '/projects/' + projectId + '/users'
     );
+    return this.http.get<RestSourceUser[]>(url);
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
