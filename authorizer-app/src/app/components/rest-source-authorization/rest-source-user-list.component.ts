@@ -25,8 +25,8 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
   columnsToDisplay = [
     'id',
     'userId',
-    'sourceType',
     'externalUserId',
+    'sourceType',
     'startDate',
     'endDate',
     'authorized',

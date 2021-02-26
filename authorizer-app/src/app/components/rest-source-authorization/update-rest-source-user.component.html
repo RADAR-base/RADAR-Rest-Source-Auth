@@ -35,7 +35,7 @@
     <label for="userId">User ID:</label>
     <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" #userId="ngModel" [disabled]="isEditing">
       <option [selected]="true" [ngValue]="null">Select a user</option>
-      <option *ngFor="let user of subjects" [value]="user.id">{{user.externalId}} ({{(user.id | slice:0:8) + '...'}})</option>
+      <option *ngFor="let user of subjects" [value]="user.id">{{user.externalId}} ({{ user.id }})</option>
     </select>
   </div>
 
