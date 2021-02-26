@@ -15,3 +15,14 @@ export class RestSourceUser {
      hasValidToken?: boolean;
      timesReset?: number;
 }
+
+export class RestSourceUsers {
+     users: RestSourceUser[]
+     metadata: Page
+}
+
+export class Page {
+     pageNumber: number
+     pageSize: number
+     totalElements: number
+}

@@ -20,7 +20,6 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.service.managementportal.RadarProjectService
 import javax.ws.rs.core.Context
 
-
 class RestSourceUserMapper(
     @Context private val projectService: RadarProjectService,
 ) {
@@ -30,10 +29,11 @@ class RestSourceUserMapper(
         }
         return RestSourceUserDTO(
             id = user.id.toString(),
+            createdAt = user.createdAt,
             projectId = user.projectId,
             userId = user.userId,
             humanReadableUserId = mpUser?.attributes?.get("Human-readable-identifier")
-                    ?.takeIf { it.isNotBlank() && it != "null" },
+                ?.takeIf { it.isNotBlank() && it != "null" },
             externalId = mpUser?.externalId,
             sourceId = user.sourceId,
             isAuthorized = user.authorized,
@@ -48,7 +48,7 @@ class RestSourceUserMapper(
     }
 
     fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
-        users = records.map(::fromEntity)
+        users = records.map(::fromEntity),
+        metadata = page
     )
-
 }
