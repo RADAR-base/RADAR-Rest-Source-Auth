@@ -42,6 +42,10 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> User ID </th>
         <td mat-cell *matCellDef="let user"> {{(user.userId | slice:0:8) + '...'}}</td>
       </ng-container>
+      <ng-container matColumnDef="sourceType">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Source Type </th>
+        <td mat-cell *matCellDef="let user"> {{user.sourceType}} </td>
+      </ng-container>
       <ng-container matColumnDef="externalUserId">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> External User ID </th>
         <td mat-cell *matCellDef="let user"> {{user.externalId}} </td>
@@ -78,8 +82,10 @@
     </table>
 
     <mat-paginator
+      [length]="totalItems"
       [pageSize]="20"
-      [pageSizeOptions]="[5, 10, 20, 50]"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="loadPage($event)"
       showFirstLastButtons
     ></mat-paginator>
 

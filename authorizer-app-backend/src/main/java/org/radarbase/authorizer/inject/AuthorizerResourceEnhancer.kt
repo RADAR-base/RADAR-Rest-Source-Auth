@@ -23,35 +23,45 @@ import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
+import org.radarbase.authorizer.service.GarminSourceAuthorizationService
+import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
 import javax.inject.Singleton
 
-class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnhancer {
-    private val restSourceClients = RestSourceClients(config.restSourceClients
+class AuthorizerResourceEnhancer(
+    private val config: Config,
+) : JerseyResourceEnhancer {
+    private val restSourceClients = RestSourceClients(
+        config.restSourceClients
             .map { it.withEnv() }
             .onEach {
                 requireNotNull(it.clientId) { "Client ID of ${it.sourceType} is missing" }
                 requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
-            })
+            }
+    )
 
     override val classes: Array<Class<*>>
-        get() {
-            return if (config.service.enableCors == true) {
-                arrayOf(
-                    ConfigLoader.Filters.logResponse,
-                    ConfigLoader.Filters.cors)
-            } else {
-                arrayOf(
-                    ConfigLoader.Filters.logResponse)
-            }
+        get() = if (config.service.enableCors == true) {
+            arrayOf(
+                ConfigLoader.Filters.logResponse,
+                ConfigLoader.Filters.cors,
+            )
+        } else {
+            arrayOf(
+                ConfigLoader.Filters.logResponse,
+            )
         }
 
     override val packages: Array<String> = arrayOf(
         "org.radarbase.authorizer.exception",
-        "org.radarbase.authorizer.resources")
+        "org.radarbase.authorizer.resources",
+    )
 
     override fun AbstractBinder.enhance() {
         // Bind instances. These cannot use any injects themselves
@@ -62,8 +72,8 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
             .to(RestSourceClients::class.java)
 
         bind(StateStore::class.java)
-                .to(StateStore::class.java)
-                .`in`(Singleton::class.java)
+            .to(StateStore::class.java)
+            .`in`(Singleton::class.java)
 
         bind(RestSourceUserMapper::class.java)
             .to(RestSourceUserMapper::class.java)
@@ -77,9 +87,17 @@ class AuthorizerResourceEnhancer(private val config: Config) : JerseyResourceEnh
             .to(RestSourceUserRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(RestSourceAuthorizationService::class.java)
+        bind(DelegatedRestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
+
+        bind(GarminSourceAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(GARMIN_AUTH)
             .`in`(Singleton::class.java)
 
+        bind(OAuth2RestSourceAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(FITBIT_AUTH)
+            .`in`(Singleton::class.java)
     }
 }
