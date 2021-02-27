@@ -33,3 +33,12 @@ restSourceClients:
     clientId: Fitbit-clientid
     clientSecret: Fitbit-clientsecret
     scope: activity heartrate sleep profile
+  - sourceType: Garmin
+    preAuthorizationEndpoint: https://connectapi.garmin.com/oauth-service/oauth/request_token
+    authorizationEndpoint: https://connect.garmin.com/oauthConfirm
+    deregistrationEndpoint: https://healthapi.garmin.com/wellness-api/rest/user/registration
+    tokenEndpoint: https://connectapi.garmin.com/oauth-service/oauth/access_token
+    clientId: Garmin-clientid
+    clientSecret: Garmin-clientsecret
+    scope: activity heartrate sleep profile
+
