@@ -87,7 +87,7 @@ class SourceClientResource(
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun deleteAuthorizationWithToken(
         @PathParam("serviceUserId") serviceUserId: String,
-        @PathParam("sourceType") sourceType: String,
+        @PathParam("type") sourceType: String,
         @QueryParam("accessToken") accessToken: String?,
     ): Boolean {
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
