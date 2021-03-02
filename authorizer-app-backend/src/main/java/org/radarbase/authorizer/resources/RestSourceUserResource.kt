@@ -59,7 +59,7 @@ class RestSourceUserResource(
     fun query(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
-        @QueryParam("size") pageSize: Int?,
+        @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int): RestSourceUsers {
 
         val projects = if (projectId != null) {
