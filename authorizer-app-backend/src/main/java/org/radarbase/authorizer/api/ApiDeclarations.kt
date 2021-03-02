@@ -115,8 +115,8 @@ data class TokenDTO(
 
 data class Page(
     val pageNumber: Int = 1,
-    val pageSize: Int? = null,
-    val totalElements: Long? = null,
+    val pageSize: Int = Integer.MAX_VALUE,
+    val totalElements: Long? = null
 ) {
     val offset: Int
         get() = (this.pageNumber - 1) * this.pageSize!!
