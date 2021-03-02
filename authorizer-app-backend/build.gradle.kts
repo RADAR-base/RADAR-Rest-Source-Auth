@@ -6,22 +6,22 @@ plugins {
     id("org.jetbrains.kotlin.plugin.noarg")
     id("org.jetbrains.kotlin.plugin.jpa")
     id("org.jetbrains.kotlin.plugin.allopen")
+    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
 }
-
 
 application {
     mainClassName = "org.radarbase.authorizer.MainKt"
 }
 
 project.extra.apply {
-    set("okhttpVersion", "4.8.1")
-    set("radarJerseyVersion", "0.3.1")
-    set("jacksonVersion", "2.11.2")
+    set("okhttpVersion", "4.9.0")
+    set("radarJerseyVersion", "0.4.2.1")
+    set("jacksonVersion", "2.11.3")
     set("slf4jVersion", "1.7.30")
     set("logbackVersion", "1.2.3")
-    set("jerseyVersion", "2.31")
+    set("jerseyVersion", "2.32")
     set("liquibaseVersion", "3.10.2")
-    set("junitVersion", "5.6.2")
+    set("junitVersion", "5.7.0")
     set("mockitoKotlinVersion", "2.2.0")
     set("githubRepoName", "RADAR-base/RADAR-Rest-Source-Auth")
     set("githubUrl", "https://github.com/RADAR-base/RADAR-Rest-Source-Auth.git")
@@ -29,7 +29,6 @@ project.extra.apply {
     set("website", "http://radar-base.org")
     set("description", "RADAR Rest Source Authorizer handles authorization for data access from third party APIs for wearable devices or other connected sources.")
 }
-
 
 repositories {
     jcenter()
@@ -86,10 +85,9 @@ allOpen {
 }
 
 tasks.register("downloadDependencies") {
-    configurations["runtimeClasspath"].files
-    configurations["compileClasspath"].files
-
     doLast {
+        configurations["runtimeClasspath"].files
+        configurations["compileClasspath"].files
         println("Downloaded all dependencies")
     }
 }

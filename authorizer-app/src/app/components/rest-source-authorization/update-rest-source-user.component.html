@@ -7,13 +7,13 @@
   </ngb-alert>
 </div>
 
-<div *ngIf="restSourceUser" class="container col-md-4">
+<div *ngIf="restSourceUser" class="container col-md-4" style="padding: 32px">
   <h3 *ngIf="!isEditing">Enter details for User</h3>
-  <h3 *ngIf="isEditing">Edit details for User</h3>
+  <h3 *ngIf="isEditing">Details for User</h3>
   <div class="form-group">
-    <label for="externalUserId">External User ID:</label>
+    <label for="externalUserId">Service User ID:</label>
     <input class="form-control" name="externalUserId" disabled type="text"
-           [(ngModel)]="restSourceUser.externalUserId" id="externalUserId">
+           [(ngModel)]="restSourceUser.serviceUserId" id="externalUserId">
   </div>
 
   <div class="form-group">
@@ -26,16 +26,16 @@
     <label for="projectId">Project ID:</label>
     <select class="form-control" id="projectId" [(ngModel)]="restSourceUser.projectId" #projectId="ngModel" [disabled]="isEditing"
             (change)="onChangeProject($event.target.value)">
-      <option [selected]="true" value="">Select a project</option>
+      <option [selected]="true" [ngValue]="null">Select a project</option>
       <option [value]="project.id" *ngFor="let project of restSourceProjects">{{project.id}}</option>
     </select>
   </div>
 
   <div class="form-group" *ngIf="restSourceUser.projectId">
     <label for="userId">User ID:</label>
-    <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" [disabled]="isEditing">
-      <option [selected]="true" value="">Select a user</option>
-      <option [value]="user.id" *ngFor="let user of subjects">{{user.id}}</option>
+    <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" #userId="ngModel" [disabled]="isEditing">
+      <option [selected]="true" [ngValue]="null">Select a user</option>
+      <option *ngFor="let user of subjects" [value]="user.id">{{user.externalId}} ({{ user.id }})</option>
     </select>
   </div>
 
@@ -50,7 +50,7 @@
     <div class="input-group" placement="top"
          ngbTooltip="Start date to collect data from this source">
       <input id="startDate" class="form-control" placeholder="yyyy-mm-dd"
-             required name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker">
+        required name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker" [disabled]="isEditing">
       <div class="input-group-append">
         <button class="btn btn-outline-secondary calendar" (click)="e.toggle()"
                 type="button"></button>
@@ -63,7 +63,7 @@
     <div class="input-group" placement="top"
          ngbTooltip="End date to collect data from this source">
       <input id="endDate" class="form-control" placeholder="yyyy-mm-dd"
-             required name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker">
+        required name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker" [disabled]="isEditing">
       <div class="input-group-append">
         <button class="btn btn-outline-secondary calendar" (click)="d.toggle()"
                 type="button"></button>
@@ -78,6 +78,12 @@
   </div>
 
   <div class="form-group" *ngIf="isEditing">
+    <label for="timesReset">Reset Version:</label>
+    <input class="form-control" name="resetVersion" disabled type="text"
+           id="resetVersion" [(ngModel)]="restSourceUser.version">
+  </div>
+
+  <div class="form-group" *ngIf="isEditing">
     <label for="timesReset">Times Reset:</label>
     <input class="form-control" name="timesReset" disabled type="text"
            id="timesReset" [(ngModel)]="restSourceUser.timesReset">
@@ -87,13 +93,10 @@
           style="margin-right: 16px">Cancel
   </button>
   <button *ngIf="isEditing" type="button" (click)="backClicked()" class="btn btn-outline-primary"
-          style="margin-right: 16px">Cancel
+          style="margin-right: 16px">Back
   </button>
 
   <button *ngIf="!isEditing && restSourceUser.projectId" type="button" (click)="updateRestSourceUser()"
                    class="btn btn-success">Submit
-  </button>
-  <button *ngIf="isEditing && restSourceUser.projectId" type="button" (click)="updateRestSourceUser()"
-          class="btn btn-success">Save
   </button>
 </div>

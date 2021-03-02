@@ -21,70 +21,77 @@ import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
-import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.radarbase.jersey.hibernate.HibernateRepository
 import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import javax.inject.Provider
 import javax.persistence.EntityManager
 import javax.ws.rs.core.Context
 
 class RestSourceUserRepositoryImpl(
-    @Context em: Provider<EntityManager>
+    @Context em: Provider<EntityManager>,
 ) : RestSourceUserRepository, HibernateRepository(em) {
 
     override fun create(token: RestOauth2AccessToken, sourceType: String): RestSourceUser = transact {
         val externalUserId = token.externalUserId
             ?: throw HttpBadGatewayException("Could not get externalId from token")
 
-        val queryString = "SELECT u FROM RestSourceUser u where u.sourceType = :sourceType AND u.externalUserId = :externalUserId"
+        val queryString =
+            "SELECT u FROM RestSourceUser u where u.sourceType = :sourceType AND u.externalUserId = :externalUserId"
         val existingUser = createQuery(queryString, RestSourceUser::class.java)
             .setParameter("sourceType", sourceType)
             .setParameter("externalUserId", externalUserId)
             .resultList.firstOrNull()
 
-        if (existingUser != null) {
-            throw HttpConflictException("external-id-exists", "External-user-id ${existingUser.externalUserId} " +
+        when {
+            existingUser == null -> RestSourceUser().apply {
+                this.externalUserId = externalUserId
+                this.sourceType = sourceType
+                this.startDate = Instant.now()
+                setToken(token)
+                persist(this)
+            }
+            // Do not override existing user, except if it is not fully specified
+            existingUser.projectId != null -> throw HttpConflictException(
+                "external-id-exists",
+                "External-user-id ${existingUser.externalUserId} " +
                     "for source-type ${existingUser.sourceType} is already in use by user ${existingUser.userId}." +
-                    " Please remove the existing user to continue or update existing user.")
+                    " Please remove the existing user to continue or update existing user.",
+            )
+            else -> existingUser.apply {
+                this.startDate = Instant.now()
+                setToken(token)
+                merge(this)
+            }
         }
+    }
 
-        RestSourceUser().apply {
+    private fun RestSourceUser.setToken(token: RestOauth2AccessToken?) {
+        if (token != null) {
             this.authorized = true
-            this.externalUserId = externalUserId
-            this.sourceType = sourceType
-            this.startDate = Instant.now()
             this.accessToken = token.accessToken
             this.refreshToken = token.refreshToken
             this.expiresIn = token.expiresIn
-            this.expiresAt = startDate.plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
-            persist(this)
+            this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()) - expiryTimeMargin
+        } else {
+            this.authorized = false
+            this.accessToken = null
+            this.refreshToken = null
+            this.expiresIn = null
+            this.expiresAt = null
         }
     }
 
     override fun updateToken(token: RestOauth2AccessToken?, userId: Long): RestSourceUser = transact {
         val existingUser = find(RestSourceUser::class.java, userId)
-                ?: throw HttpNotFoundException("user_not_found", "User with ID $userId does not exist")
+            ?: throw HttpNotFoundException("user_not_found", "User with ID $userId does not exist")
 
-        if (token == null) {
-            existingUser.apply {
-                this.authorized = false
-                this.accessToken = null
-                this.refreshToken = null
-                this.expiresIn = null
-                this.expiresAt = null
-                merge(this)
-            }
-        } else {
-            existingUser.apply {
-                this.authorized = true
-                this.accessToken = token.accessToken
-                this.refreshToken = token.refreshToken
-                this.expiresIn = token.expiresIn
-                this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()).minus(expiryTimeMargin)
-                merge(this)
-            }
+        existingUser.apply {
+            setToken(token)
+            merge(this)
         }
     }
 
@@ -97,14 +104,15 @@ class RestSourceUserRepositoryImpl(
             this.sourceId = user.sourceId
             this.startDate = user.startDate
             this.endDate = user.endDate
+            this.authorized = user.isAuthorized
             merge(this)
         }
     }
 
     override fun query(
-            page: Page,
-            projects: List<String>,
-            sourceType: String?
+        page: Page,
+        projects: List<String>,
+        sourceType: String?,
     ): Pair<List<RestSourceUser>, Page> {
         var queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId IN (:projects)"
         var countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId IN (:projects)"
@@ -135,6 +143,48 @@ class RestSourceUserRepositoryImpl(
 
             Pair(users, actualPage.copy(totalElements = count))
         }
+    }
+
+    override fun queryAllWithElapsedEndDate(
+        sourceType: String?,
+    ): List<RestSourceUser> {
+        var queryString = """
+               SELECT u
+               FROM RestSourceUser u
+               WHERE u.endDate < :prevFourteenDays
+        """.trimIndent()
+
+        if (sourceType != null) {
+            queryString += " AND u.sourceType = :sourceType"
+        }
+
+        return transact {
+            val query = createQuery(queryString, RestSourceUser::class.java)
+            if (sourceType != null) {
+                query.setParameter("sourceType", sourceType)
+            }
+            query.setParameter("prevFourteenDays", Instant.now().minus(14, ChronoUnit.DAYS))
+            query.resultList
+        }
+    }
+
+    override fun findByExternalId(
+        externalId: String,
+        sourceType: String,
+    ): RestSourceUser? {
+        var queryString = """
+               SELECT u
+               FROM RestSourceUser u
+               WHERE u.externalUserId = :externalId
+               AND u.sourceType = :sourceType
+        """.trimIndent()
+        val result = transact {
+            val query = createQuery(queryString, RestSourceUser::class.java)
+            query.setParameter("sourceType", sourceType)
+            query.setParameter("externalId", externalId)
+            query.resultList
+        }
+        return if (result.isEmpty()) null else result.get(0)
     }
 
     override fun delete(user: RestSourceUser) = transact {

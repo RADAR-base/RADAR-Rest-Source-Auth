@@ -28,6 +28,8 @@ interface RestSourceUserRepository {
     fun read(id: Long): RestSourceUser?
     fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser
     fun query(page: Page, projects: List<String>, sourceType: String? = null): Pair<List<RestSourceUser>, Page>
+    fun queryAllWithElapsedEndDate(sourceType: String? = null): List<RestSourceUser>
     fun delete(user: RestSourceUser)
     fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?): RestSourceUser
+    fun findByExternalId(externalId: String, sourceType: String): RestSourceUser?
 }
