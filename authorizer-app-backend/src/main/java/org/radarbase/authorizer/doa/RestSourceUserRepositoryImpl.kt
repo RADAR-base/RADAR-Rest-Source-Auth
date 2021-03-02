@@ -114,7 +114,7 @@ class RestSourceUserRepositoryImpl(
             countQueryString += " AND u.sourceType = :sourceType"
         }
 
-        val actualPage = page.createValid(maximum = 100)
+        val actualPage = page.createValid(maximum = Integer.MAX_VALUE)
         return transact {
             val query = createQuery(queryString, RestSourceUser::class.java)
                 .setFirstResult(actualPage.offset)
