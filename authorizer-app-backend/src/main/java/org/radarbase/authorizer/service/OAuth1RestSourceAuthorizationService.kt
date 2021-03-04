@@ -69,9 +69,13 @@ abstract class OAuth1RestSourceAuthorizationService(
     }
 
     override fun revokeToken(user: RestSourceUser): Boolean {
-        val userId = user.id ?: return false
+        val userId = user.id
+            ?: throw HttpBadRequestException("user-id-is-null",
+            "Cannot revoke token of user whose id is null")
         val accessToken = user.accessToken
-        if (accessToken == null || !user.authorized) return false
+        if (accessToken == null || !user.authorized)
+            throw HttpBadRequestException("user-already-unauthorized",
+                "Cannot revoke token of unauthorized user")
 
         val authConfig = configMap[user.sourceType]
             ?: throw HttpBadRequestException("client-config-not-found",
