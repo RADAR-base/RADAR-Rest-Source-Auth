@@ -83,7 +83,10 @@ abstract class OAuth1RestSourceAuthorizationService(
 
         return httpClient.newCall(req).execute().use { response ->
             when (response.code) {
-                200, 204 -> !this.userRepository.updateToken(null, userId).authorized
+                200, 204 -> {
+                    this.userRepository.updateToken(null, userId)
+                    true
+                  }
                 400, 401, 403 -> false
                 else -> throw HttpBadGatewayException("Cannot connect to ${authConfig.deregistrationEndpoint}: HTTP status ${response.code}")
             }
