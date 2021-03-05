@@ -21,18 +21,54 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import java.time.Instant
 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class RestOauth2AccessToken(
     @JsonProperty("access_token") var accessToken: String,
     @JsonProperty("refresh_token") var refreshToken: String? = null,
     @JsonProperty("expires_in") var expiresIn: Int = 0,
     @JsonProperty("token_type") var tokenType: String? = null,
-    @JsonProperty("user_id") var externalUserId: String? = null)
+    @JsonProperty("user_id") var externalUserId: String? = null,
+)
 
+
+data class RestOauth1AccessToken(
+    @JsonProperty("oauth_token") var token: String,
+    @JsonProperty("oauth_token_secret") var tokenSecret: String? = null,
+    @JsonProperty("oauth_verifier") var tokenVerifier: String? = null,
+)
+
+data class RestOauth1UserId(
+    @JsonProperty("userId") var userId: String,
+)
+
+data class SignRequestParams(
+    var url: String,
+    var method: String,
+    val parameters: Map<String, String?>,
+)
+
+data class DeregistrationsDTO(
+    val deregistrations: List<DeregistrationParams>
+)
+
+data class DeregistrationParams(
+    val userId: String,
+    val userAccessToken: String
+)
+
+data class RequestTokenPayload(
+    var sourceType: String,
+    var code: String? = null,
+    var state: String? = null,
+    var oauth_token: String? = null,
+    var oauth_verifier: String? = null,
+    var oauth_token_secret: String? = null,
+)
 
 data class ShareableClientDetail(
     val sourceType: String,
+    val preAuthorizationEndpoint: String?,
+    val deregistrationEndpoint: String?,
     val authorizationEndpoint: String,
     val tokenEndpoint: String,
     val grantType: String?,
@@ -42,11 +78,12 @@ data class ShareableClientDetail(
 )
 
 data class ShareableClientDetails(
-    val sourceClients: List<ShareableClientDetail>
+    val sourceClients: List<ShareableClientDetail>,
 )
 
 class RestSourceUserDTO(
     val id: String?,
+    val createdAt: Instant?,
     val projectId: String?,
     val userId: String?,
     val humanReadableUserId: String?,
@@ -56,28 +93,31 @@ class RestSourceUserDTO(
     val startDate: Instant,
     val endDate: Instant? = null,
     val sourceType: String,
-    val isAuthorized: Boolean = false,
+    var isAuthorized: Boolean = false,
     val hasValidToken: Boolean = false,
     val version: String? = null,
-    val timesReset: Long = 0) : Serializable {
+    val timesReset: Long = 0,
+) : Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
 }
 
 data class RestSourceUsers(
-    val users: List<RestSourceUserDTO>
+    val users: List<RestSourceUserDTO>,
+    val metadata: Page?
 )
 
-class TokenDTO(
+data class TokenDTO(
     val accessToken: String?,
-    val expiresAt: Instant?
+    val expiresAt: Instant?,
 )
 
 data class Page(
     val pageNumber: Int = 1,
-    val pageSize: Int? = null,
-    val totalElements: Long? = null) {
+    val pageSize: Int = Integer.MAX_VALUE,
+    val totalElements: Long? = null
+) {
     val offset: Int
         get() = (this.pageNumber - 1) * this.pageSize!!
 

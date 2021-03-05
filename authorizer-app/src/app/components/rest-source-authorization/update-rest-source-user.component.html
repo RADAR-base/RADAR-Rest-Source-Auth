@@ -7,7 +7,7 @@
   </ngb-alert>
 </div>
 
-<div *ngIf="restSourceUser" class="container col-md-4">
+<div *ngIf="restSourceUser" class="container col-md-4" style="padding: 32px">
   <h3 *ngIf="!isEditing">Enter details for User</h3>
   <h3 *ngIf="isEditing">Details for User</h3>
   <div class="form-group">
@@ -35,7 +35,7 @@
     <label for="userId">User ID:</label>
     <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" #userId="ngModel" [disabled]="isEditing">
       <option [selected]="true" [ngValue]="null">Select a user</option>
-      <option *ngFor="let user of subjects" [value]="user.id">{{user.externalId}} ({{(user.id | slice:0:8) + '...'}})</option>
+      <option *ngFor="let user of subjects" [value]="user.id">{{user.externalId}} ({{ user.id }})</option>
     </select>
   </div>
 
@@ -75,6 +75,12 @@
     <label for="isAuthorized">Authorized:</label>
     <input class="form-control" name="isAuthorized" disabled type="text"
            id="isAuthorized" [value]= "restSourceUser.isAuthorized? 'Yes':'No'">
+  </div>
+
+  <div class="form-group" *ngIf="isEditing">
+    <label for="timesReset">Reset Version:</label>
+    <input class="form-control" name="resetVersion" disabled type="text"
+           id="resetVersion" [(ngModel)]="restSourceUser.version">
   </div>
 
   <div class="form-group" *ngIf="isEditing">

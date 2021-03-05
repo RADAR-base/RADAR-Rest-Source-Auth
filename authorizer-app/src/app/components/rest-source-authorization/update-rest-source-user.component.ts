@@ -4,20 +4,22 @@ import {
   NgbDateAdapter,
   NgbDateNativeAdapter
 } from '@ng-bootstrap/ng-bootstrap';
+import {
+  RadarProject,
+  RadarSubject
+} from '../../models/rest-source-project.model';
 
 import { HttpErrorResponse } from '@angular/common/http';
+import { Location } from '@angular/common';
+import { RequestTokenPayload } from 'src/app/models/auth.model';
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
-import { SourceClientAuthorizationService } from '../../services/source-client-authorization.service';
-import { RadarProject, RadarSubject } from '../../models/rest-source-project.model';
-import { Location } from '@angular/common';
 
 @Component({
   selector: 'update-rest-source-user',
   templateUrl: './update-rest-source-user.component.html',
   providers: [{ provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }]
 })
-
 export class UpdateRestSourceUserComponent implements OnInit {
   isEditing = false;
   errorMessage?: string;
@@ -29,7 +31,6 @@ export class UpdateRestSourceUserComponent implements OnInit {
 
   constructor(
     private restSourceUserService: RestSourceUserService,
-    private sourceClientAuthorizationService: SourceClientAuthorizationService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private _location: Location
@@ -45,7 +46,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
         this.restSourceUserService.getUserById(params['id']).subscribe(
           user => {
             this.restSourceUser = user;
-            this.subjects = [{id: this.restSourceUser.userId}];
+            this.subjects = [{ id: this.restSourceUser.userId }];
             this.isEditing = true;
             this.startDate = new Date(this.restSourceUser.startDate);
             this.endDate = new Date(this.restSourceUser.endDate);
@@ -64,17 +65,20 @@ export class UpdateRestSourceUserComponent implements OnInit {
             window.setTimeout(() => this.router.navigate(['']), 5000);
           } else {
             this.errorMessage = null;
-            this.addRestSourceUser(params['code'], params['state']);
+            this.handleAuthRedirect(params);
           }
         });
       }
     });
   }
 
+  handleAuthRedirect(params) {
+    this.addRestSourceUser(params);
+  }
+
   updateRestSourceUser() {
     if (!this.endDate || !this.startDate) {
-      this.errorMessage =
-        'Please select Start Date and End Date';
+      this.errorMessage = 'Please select Start Date and End Date';
       return;
     }
     if (this.endDate <= this.startDate) {
@@ -85,13 +89,14 @@ export class UpdateRestSourceUserComponent implements OnInit {
       this.restSourceUser.startDate = this.startDate.toISOString();
       this.restSourceUser.endDate = this.endDate.toISOString();
     } catch (err) {
-      this.errorMessage =
-        'Please enter valid Start Date and End Date';
+      this.errorMessage = 'Please enter valid Start Date and End Date';
       return;
     }
     this.restSourceUserService.updateUser(this.restSourceUser).subscribe(
       () => {
-        return this.router.navigate(['/users'], {queryParams: {project: this.restSourceUser.projectId}});
+        return this.router.navigate(['/users'], {
+          queryParams: { project: this.restSourceUser.projectId }
+        });
       },
       (err: HttpErrorResponse) => {
         if (err.error instanceof ErrorEvent) {
@@ -112,14 +117,15 @@ export class UpdateRestSourceUserComponent implements OnInit {
     );
   }
 
-  private addRestSourceUser(code: string, state: string) {
-    this.restSourceUserService.addAuthorizedUser(code, state).subscribe(
+  private addRestSourceUser(payload: RequestTokenPayload) {
+    this.restSourceUserService.addAuthorizedUser(payload).subscribe(
       data => {
         this.onChangeProject(data.projectId);
         this.restSourceUser = data;
       },
       (err: HttpErrorResponse) => {
-        this.errorMessage = err.statusText + ' : ' + err.error.error_description;
+        this.errorMessage =
+          err.statusText + ' : ' + err.error.error_description;
         window.setTimeout(() => this.router.navigate(['']), 10000);
       }
     );
@@ -150,10 +156,10 @@ export class UpdateRestSourceUserComponent implements OnInit {
         let withExternalId = this.subjects.filter(s => s.externalId);
         let withoutExternalId = this.subjects.filter(s => !s.externalId);
         withExternalId = withExternalId.sort((a, b) => {
-          return (a.externalId < b.externalId) ? -1 : 1;
+          return a.externalId < b.externalId ? -1 : 1;
         });
         withoutExternalId = withoutExternalId.sort((a, b) => {
-          return (a.id < b.id) ? -1 : 1;
+          return a.id < b.id ? -1 : 1;
         });
         this.subjects = [...withExternalId, ...withoutExternalId];
       },

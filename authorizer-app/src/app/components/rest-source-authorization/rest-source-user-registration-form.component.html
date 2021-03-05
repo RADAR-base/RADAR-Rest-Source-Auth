@@ -1,23 +1,20 @@
-<div *ngIf="sourceClientDetail">
-  <form *ngIf="showForm" [formGroup]="sourceTypeForm" class="form-group container">
-    <div class="text-center">
-      <label for="field_sourceType">Select an external service: </label>
-      <select class="form-control" id="field_sourceType" formControlName="selectedDeviceType"
-              (change)="onChange($event.target.value)">
-        <option [value]="sourceType" *ngFor="let sourceType of sourceTypes">{{sourceType}}</option>
-      </select>
-    </div>
-  </form>
-  <form class="form-group" ngNoForm method="GET"
-        [action]="sourceClientDetail.authorizationEndpoint">
-    <input type="hidden" name="response_type" value="code"/>
-    <input type="hidden" name="client_id" [value]="sourceClientDetail.clientId"/>
-    <input type="hidden" name="state" [value]="sourceClientDetail.state"/>
-    <input type="hidden" name="scope" [value]="sourceClientDetail.scope"/>
-    <input type="hidden" name="prompt" value="login"/>
-    <!--<input type="hidden" name="redirect_uri" [value]="callbackUrl"/>-->
-    <button class="btn btn-success" type="submit" >Request to authorize</button>
-  </form>
+<div class="container">
+  <div class="text-center">
+    <label for="field_sourceType">Select an external service: </label>
+    <select
+      [(ngModel)]="selectedSourceType"
+      class="form-control"
+      id="field_sourceType"
+    >
+      <option [ngValue]="sourceType" *ngFor="let sourceType of sourceTypes">{{
+        sourceType
+      }}</option>
+    </select>
+  </div>
+  <br />
 
-
+  <button class="btn btn-success" type="submit" (click)="requestToAuthorize()">
+    Request to authorize
+  </button>
 </div>
+<br />

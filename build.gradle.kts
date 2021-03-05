@@ -1,6 +1,6 @@
 subprojects {
     group = "org.radarbase"
-    version = "2.0"
+    version = "3.0.0"
 }
 
 tasks.wrapper {
