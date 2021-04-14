@@ -16,12 +16,10 @@
 
 package org.radarbase.authorizer.service
 
-import org.radarbase.authorizer.RestSourceClient
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.jersey.exception.HttpBadRequestException
 
 interface RestSourceAuthorizationService {
     fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken
@@ -37,13 +35,4 @@ interface RestSourceAuthorizationService {
     fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams
 
     fun deregisterUser(user: RestSourceUser)
-
-    companion object {
-        fun Map<String, RestSourceClient>.client(sourceType: String): RestSourceClient {
-            return this[sourceType] ?: throw HttpBadRequestException(
-                "client-config-not-found",
-                "Cannot find client configurations for source-type $sourceType",
-            )
-        }
-    }
 }
