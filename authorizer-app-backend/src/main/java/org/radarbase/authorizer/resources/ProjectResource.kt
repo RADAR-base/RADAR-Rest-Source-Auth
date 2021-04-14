@@ -16,17 +16,17 @@
 
 package org.radarbase.authorizer.resources
 
+import jakarta.annotation.Resource
+import jakarta.inject.Singleton
+import jakarta.ws.rs.*
+import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.MediaType
+import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.*
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.managementportal.RadarProjectService
-import org.radarcns.auth.authorization.Permission
-import javax.annotation.Resource
-import javax.inject.Singleton
-import javax.ws.rs.*
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.MediaType
 
 @Path("projects")
 @Authenticated

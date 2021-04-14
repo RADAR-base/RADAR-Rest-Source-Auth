@@ -16,9 +16,9 @@
 
 package org.radarbase.authorizer.api
 
+import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.service.managementportal.RadarProjectService
-import javax.ws.rs.core.Context
 
 class RestSourceUserMapper(
     @Context private val projectService: RadarProjectService,

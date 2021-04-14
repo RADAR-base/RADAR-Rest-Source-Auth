@@ -30,7 +30,6 @@ data class RestOauth2AccessToken(
     @JsonProperty("user_id") var externalUserId: String? = null,
 )
 
-
 data class RestOauth1AccessToken(
     @JsonProperty("oauth_token") var token: String,
     @JsonProperty("oauth_token_secret") var tokenSecret: String? = null,
@@ -119,16 +118,16 @@ data class Page(
     val totalElements: Long? = null
 ) {
     val offset: Int
-        get() = (this.pageNumber - 1) * this.pageSize!!
+        get() = (this.pageNumber - 1) * this.pageSize
 
     fun createValid(maximum: Int? = null): Page {
         val imposedNumber = pageNumber.coerceAtLeast(1)
 
         val imposedSize = if (maximum != null) {
             require(maximum >= 1) { "Maximum page size should be at least 1" }
-            pageSize?.coerceAtLeast(1)?.coerceAtMost(maximum) ?: maximum
+            pageSize.coerceIn(1, maximum)
         } else {
-            pageSize?.coerceAtLeast(1)
+            pageSize.coerceAtLeast(1)
         }
         return if (imposedNumber == pageNumber && imposedSize == pageSize) {
             this

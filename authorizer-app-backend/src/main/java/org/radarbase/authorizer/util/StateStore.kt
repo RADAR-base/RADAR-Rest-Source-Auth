@@ -16,6 +16,7 @@
 
 package org.radarbase.authorizer.util
 
+import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.Config
 import java.time.Duration
 import java.time.Instant
@@ -24,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
-import javax.ws.rs.core.Context
 
 class StateStore(
     @Context config: Config,

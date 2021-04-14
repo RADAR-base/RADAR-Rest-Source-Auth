@@ -16,6 +16,8 @@
 
 package org.radarbase.authorizer.doa
 
+import jakarta.inject.Provider
+import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.api.Page
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
@@ -27,9 +29,7 @@ import org.radarbase.jersey.hibernate.HibernateRepository
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import javax.inject.Provider
 import javax.persistence.EntityManager
-import javax.ws.rs.core.Context
 
 class RestSourceUserRepositoryImpl(
     @Context em: Provider<EntityManager>,
@@ -126,7 +126,7 @@ class RestSourceUserRepositoryImpl(
         return transact {
             val query = createQuery(queryString, RestSourceUser::class.java)
                 .setFirstResult(actualPage.offset)
-                .setMaxResults(actualPage.pageSize!!)
+                .setMaxResults(actualPage.pageSize)
 
             val countQuery = createQuery(countQueryString)
 

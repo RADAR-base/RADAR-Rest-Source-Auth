@@ -16,19 +16,17 @@
 
 package org.radarbase.authorizer.service
 
+import jakarta.ws.rs.core.Context
 import org.glassfish.hk2.api.IterableProvider
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import javax.ws.rs.core.Context
 
 class DelegatedRestSourceAuthorizationService(
     @Context private val namedServices: IterableProvider<RestSourceAuthorizationService>,
 ) : RestSourceAuthorizationService {
-
-    fun delegate(sourceType: String): RestSourceAuthorizationService {
+    private fun delegate(sourceType: String): RestSourceAuthorizationService {
         return when (sourceType) {
             GARMIN_AUTH -> namedServices.named(GARMIN_AUTH).get()
             FITBIT_AUTH -> namedServices.named(FITBIT_AUTH).get()
@@ -61,5 +59,4 @@ class DelegatedRestSourceAuthorizationService(
         const val GARMIN_AUTH = "Garmin"
         const val FITBIT_AUTH = "FitBit"
     }
-
 }

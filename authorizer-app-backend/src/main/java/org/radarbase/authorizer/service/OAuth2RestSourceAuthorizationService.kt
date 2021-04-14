@@ -17,14 +17,14 @@
 package org.radarbase.authorizer.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.UriBuilder
 import okhttp3.Credentials
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.StateStore
@@ -34,22 +34,17 @@ import org.radarbase.jersey.util.request
 import org.radarbase.jersey.util.requestJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.UriBuilder
 
 class OAuth2RestSourceAuthorizationService(
-    @Context private val restSourceClients: RestSourceClients,
+    @Context private val clients: RestSourceClientService,
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
     @Context private val stateStore: StateStore,
 ) : RestSourceAuthorizationService {
-    private val configMap = restSourceClients.clients.map { it.sourceType to it }.toMap()
     private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
 
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
-        val authorizationConfig = configMap[sourceType]
-            ?: throw HttpBadRequestException("client-config-not-found",
-                "Cannot find client configurations for source-type $sourceType")
+        val authorizationConfig = clients.forSourceType(sourceType)
         val clientId = checkNotNull(authorizationConfig.clientId)
 
         val form = FormBody.Builder().apply {
@@ -81,7 +76,7 @@ class OAuth2RestSourceAuthorizationService(
 
     override fun revokeToken(user: RestSourceUser): Boolean {
         val form = FormBody.Builder().add("token", user.accessToken!!).build()
-        logger.info("Requesting to revoke access token");
+        logger.info("Requesting to revoke access token")
         return httpClient.request(post(form, user.sourceType))
     }
 
@@ -89,9 +84,7 @@ class OAuth2RestSourceAuthorizationService(
         throw HttpBadRequestException("", "Not available for auth type")
 
     override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {
-        val authConfig = configMap[sourceType]
-            ?: throw HttpBadRequestException("client-config-not-found",
-                "Cannot find client configurations for source-type $sourceType")
+        val authConfig = clients.forSourceType(sourceType)
 
         val stateId = stateStore.generate(sourceType).stateId
         return UriBuilder.fromUri(authConfig.authorizationEndpoint)
@@ -110,13 +103,12 @@ class OAuth2RestSourceAuthorizationService(
         throw HttpBadRequestException("", "Not available for auth type")
 
     private fun post(form: FormBody, sourceType: String): Request {
-        val authorizationConfig = configMap[sourceType]
-            ?: throw HttpBadRequestException(
-                "client-config-not-found", "Cannot find client configurations for source-type $sourceType")
+        val authorizationConfig = clients.forSourceType(sourceType)
 
         val credentials = Credentials.basic(
             checkNotNull(authorizationConfig.clientId),
-            checkNotNull(authorizationConfig.clientSecret))
+            checkNotNull(authorizationConfig.clientSecret),
+        )
 
         return Request.Builder().apply {
             url(authorizationConfig.tokenEndpoint)
