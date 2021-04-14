@@ -12,7 +12,7 @@ plugins {
 }
 
 application {
-    mainClassName = "org.radarbase.authorizer.MainKt"
+    mainClass.set("org.radarbase.authorizer.MainKt")
 }
 
 repositories {
