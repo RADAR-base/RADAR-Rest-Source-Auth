@@ -1,12 +1,11 @@
 package org.radarbase.authorizer.util
 
-import javax.ws.rs.core.UriBuilder
+import jakarta.ws.rs.core.UriBuilder
 
 data class Url(
     var endPoint: String,
     var queryParams: Map<String, String?>,
 ) {
-
     fun getUrl(): String {
         val uriBuilder = UriBuilder.fromUri(this.endPoint)
         for ((key, value) in queryParams) {
@@ -16,5 +15,3 @@ data class Url(
         return uriBuilder.build().toString()
     }
 }
-
-

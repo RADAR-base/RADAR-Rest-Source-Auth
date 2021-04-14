@@ -16,6 +16,13 @@
 
 package org.radarbase.authorizer.resources
 
+import jakarta.annotation.Resource
+import jakarta.inject.Singleton
+import jakarta.ws.rs.*
+import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
+import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
@@ -25,15 +32,8 @@ import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpNotFoundException
-import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import javax.annotation.Resource
-import javax.inject.Singleton
-import javax.ws.rs.*
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
 
 @Path("source-clients")
 @Produces(MediaType.APPLICATION_JSON)
@@ -77,9 +77,10 @@ class SourceClientResource(
     @Authenticated
     @Path("{type}/auth-endpoint")
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
-    fun getAuthEndpoint(@PathParam("type") type: String, @QueryParam("callbackUrl") callbackUrl: String): String {
-        return authorizationService.getAuthorizationEndpointWithParams(type, callbackUrl);
-    }
+    fun getAuthEndpoint(
+        @PathParam("type") type: String,
+        @QueryParam("callbackUrl") callbackUrl: String,
+    ): String = authorizationService.getAuthorizationEndpointWithParams(type, callbackUrl)
 
     @DELETE
     @Authenticated
@@ -91,14 +92,14 @@ class SourceClientResource(
         @QueryParam("accessToken") accessToken: String?,
     ): Boolean {
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
-        if (user == null) {
-            if (!accessToken.isNullOrEmpty()) {
-                logger.info("No user found for external ID provided. Continuing deregistration..")
-                return authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
-            } else throw HttpNotFoundException("user-not-found", "User and access token not valid")
+        return if (user == null) {
+            if (accessToken.isNullOrEmpty()) throw HttpNotFoundException("user-not-found", "User and access token not valid")
+
+            logger.info("No user found for external ID provided. Continuing deregistration..")
+            authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
         } else {
             auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
-            return authorizationService.revokeToken(user)
+            authorizationService.revokeToken(user)
         }
     }
 
@@ -132,5 +133,4 @@ class SourceClientResource(
     companion object {
         val logger: Logger = LoggerFactory.getLogger(SourceClientResource::class.java)
     }
-
 }

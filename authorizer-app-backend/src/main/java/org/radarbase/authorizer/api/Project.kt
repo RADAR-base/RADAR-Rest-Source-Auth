@@ -16,8 +16,8 @@
 
 package org.radarbase.authorizer.api
 
-import org.radarbase.jersey.service.managementportal.MPProject
-import org.radarbase.jersey.service.managementportal.MPUser
+import org.radarbase.management.client.MPProject
+import org.radarbase.management.client.MPSubject
 
 data class ProjectList(val projects: List<Project>)
 
@@ -41,8 +41,8 @@ data class UserList(val users: List<User>)
 
 data class User(val id: String, val projectId: String, val externalId: String? = null, val status: String)
 
-fun MPUser.toUser() = User(
-    id = id,
+fun MPSubject.toUser() = User(
+    id = checkNotNull(id) { "User must have a login" },
     projectId = checkNotNull(projectId) { "User must have a project ID" },
     externalId = externalId,
     status = status,

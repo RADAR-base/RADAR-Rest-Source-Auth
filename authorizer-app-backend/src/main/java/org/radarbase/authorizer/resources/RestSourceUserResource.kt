@@ -16,6 +16,13 @@
 
 package org.radarbase.authorizer.resources
 
+import jakarta.annotation.Resource
+import jakarta.inject.Singleton
+import jakarta.ws.rs.*
+import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
+import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
@@ -29,16 +36,9 @@ import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.service.managementportal.RadarProjectService
-import org.radarcns.auth.authorization.Permission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
-import javax.annotation.Resource
-import javax.inject.Singleton
-import javax.ws.rs.*
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
 
 @Path("users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -63,7 +63,8 @@ class RestSourceUserResource(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
         @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
-        @DefaultValue("1") @QueryParam("page") pageNumber: Int): RestSourceUsers {
+        @DefaultValue("1") @QueryParam("page") pageNumber: Int,
+    ): RestSourceUsers {
 
         val projects = if (projectId != null) {
             auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
@@ -92,18 +93,18 @@ class RestSourceUserResource(
         payload: RequestTokenPayload,
     ): Response {
         logger.info("Authorizing with payload $payload")
-        val stateId = payload?.state
+        val stateId = payload.state
         if (stateId != null) {
-            val state = stateStore[stateId] ?: throw HttpBadRequestException("state_not_found",
-                "State has expired or not found")
+            val state = stateStore[stateId]
+                ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
             if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
         }
         val sourceType = payload.sourceType
         val accessToken = authorizationService.requestAccessToken(payload, sourceType)
         val user = userRepository.create(accessToken, sourceType)
 
-        return Response.created(URI("users/${user?.id}"))
-            .entity(user?.let { userMapper.fromEntity(it) })
+        return Response.created(URI("users/${user.id}"))
+            .entity(userMapper.fromEntity(user))
             .build()
     }
 
@@ -193,22 +194,29 @@ class RestSourceUserResource(
 
     private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {
         if (!user.authorized) {
-            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED,
+            throw HttpApplicationException(
+                Response.Status.PROXY_AUTHENTICATION_REQUIRED,
                 "user_unauthorized",
-                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
+                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.",
+            )
         }
-        val rft = user.refreshToken
-            ?: throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED,
+        if (user.refreshToken == null) {
+            throw HttpApplicationException(
+                Response.Status.PROXY_AUTHENTICATION_REQUIRED,
                 "user_unauthorized",
-                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.")
+                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid.",
+            )
+        }
 
         val token = authorizationService.refreshToken(user)
         val updatedUser = userRepository.updateToken(token, userId)
 
         if (!updatedUser.authorized) {
-            throw HttpApplicationException(Response.Status.PROXY_AUTHENTICATION_REQUIRED,
+            throw HttpApplicationException(
+                Response.Status.PROXY_AUTHENTICATION_REQUIRED,
                 "user_unauthorized",
-                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid. Invalidated user authorization.")
+                "Refresh token for ${user.userId ?: user.externalUserId} is no longer valid. Invalidated user authorization.",
+            )
         }
         return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt)
     }
