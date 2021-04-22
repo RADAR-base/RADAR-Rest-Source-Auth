@@ -23,12 +23,9 @@ import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
-import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
+import org.radarbase.authorizer.service.*
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
-import org.radarbase.authorizer.service.GarminSourceAuthorizationService
-import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
-import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
@@ -81,6 +78,10 @@ class AuthorizerResourceEnhancer(
 
         bind(RestSourceClientMapper::class.java)
             .to(RestSourceClientMapper::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(RestSourceClientService::class.java)
+            .to(RestSourceClientService::class.java)
             .`in`(Singleton::class.java)
 
         bind(RestSourceUserRepositoryImpl::class.java)

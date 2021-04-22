@@ -18,12 +18,10 @@ package org.radarbase.authorizer.service
 
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 
 interface RestSourceAuthorizationService {
-
     fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken
 
     fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
