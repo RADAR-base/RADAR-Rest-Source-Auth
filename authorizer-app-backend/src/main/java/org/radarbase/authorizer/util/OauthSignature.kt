@@ -18,22 +18,20 @@ data class OauthSignature(
         val encodedParams = URLEncoder.encode(this.params.toQueryFormat(), UTF_8)
         val signatureBase = "$method&$encodedUrl&$encodedParams"
         val key = "${this.clientSecret.orEmpty()}&${this.tokenSecret.orEmpty()}"
-        return URLEncoder.encode(encodeSHA(key, signatureBase), UTF_8);
+        return URLEncoder.encode(encodeSHA(key, signatureBase), UTF_8)
     }
 
     private fun encodeSHA(key: String, plaintext: String): String? {
-        val signingKey = SecretKeySpec(key.toByteArray(), "HmacSHA1");
+        val signingKey = SecretKeySpec(key.toByteArray(), "HmacSHA1")
         val rawHmac = Mac.getInstance("HmacSHA1")
             .run {
                 init(signingKey)
                 doFinal(plaintext.toByteArray())
             }
-        return Base64.getEncoder().encodeToString(rawHmac);
+        return Base64.getEncoder().encodeToString(rawHmac)
     }
 
     private fun Map<String, String?>.toQueryFormat(): String = this
         .map { (k, v) -> "$k=$v" }
         .joinToString("&")
 }
-
-
