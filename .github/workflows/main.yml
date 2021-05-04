@@ -4,9 +4,9 @@ name: CI
 # Run in master and dev branches and in all pull requests to those branches
 on:
   push:
-    branches: [ master, dev ]
+    branches: [master, dev]
   pull_request:
-    branches: [ master, dev ]
+    branches: [master, dev]
 
 jobs:
   # Build and test the code
@@ -16,13 +16,15 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - uses: browser-actions/setup-chrome@latest
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      
+
       - name: Use Node.js 15
         uses: actions/setup-node@v1
         with:
@@ -45,7 +47,7 @@ jobs:
       # Gradle check
       - name: Check
         run: ./gradlew check
-        
+
       # Install npm dependencies
       - name: Install NPM dependencies
         run: cd authorizer-app/ && npm install && cd ..
@@ -54,4 +56,4 @@ jobs:
         run: cd authorizer-app/ && npm run build && cd ..
 
       - name: NPM test
-        run: cd authorizer-app/ && npm run test && cd ..
+        run: cd authorizer-app/ && CHROMIUM_BIN=$(which chrome) npm run test && cd ..
