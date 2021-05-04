@@ -14,7 +14,7 @@ COPY ./ /app/
 RUN $(npm bin)/ng build ${PROFILE} --base-href=${BASE_HREF}
 
 
-FROM nginx:1.17.3-alpine
+FROM nginx:1.18-alpine
 
 # add init script
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
