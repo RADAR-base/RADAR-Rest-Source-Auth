@@ -35,10 +35,13 @@ jobs:
         with:
           # Cache gradle directories
           path: |
+            ~/.npm
             ~/.gradle/caches
             ~/.gradle/wrapper
           # Key for restoring and saving the cache
-          key: ${{ runner.os }}-gradle
+          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties', '**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-java-
 
       # Compile the code
       - name: Compile code
