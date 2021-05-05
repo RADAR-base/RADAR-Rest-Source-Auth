@@ -22,14 +22,12 @@ RUN gradle :authorizer-app-backend:downloadDependencies --no-watch-fs
 
 COPY authorizer-app-backend/src /code/authorizer-app-backend/src
 
-RUN gradle -Dkotlin.compiler.execution.strategy="in-process" -Dorg.gradle.parallel=false -Pkotlin.incremental=false --no-watch-fs :authorizer-app-backend:distTar \
+RUN gradle --no-watch-fs :authorizer-app-backend:distTar \
     && cd authorizer-app-backend/build/distributions \
     && tar xf *.tar \
     && rm *.tar authorizer-app-backend-*/lib/authorizer-app-backend-*.jar
 
 FROM openjdk:11-jre-slim
-
-MAINTAINER @nivemaham @blootsvoets
 
 LABEL description="RADAR-base rest sources authorizer backend application"
 

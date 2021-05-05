@@ -1,4 +1,4 @@
-FROM node:10.16.3-alpine as builder
+FROM node:15-alpine as builder
 
 ARG BASE_HREF="BASE_HREF"
 ARG PROFILE="--prod"
@@ -13,8 +13,7 @@ COPY ./ /app/
 
 RUN $(npm bin)/ng build ${PROFILE} --base-href=${BASE_HREF}
 
-
-FROM nginx:1.17.3-alpine
+FROM nginx:1.19-alpine
 
 # add init script
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf

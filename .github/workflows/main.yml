@@ -8,6 +8,10 @@ on:
   pull_request:
     branches: [ master, dev ]
 
+env:
+  DOCKER_IMAGE_BACKEND: radarbase/radar-rest-source-auth-backend
+  DOCKER_IMAGE_FRONTEND: radarbase/radar-rest-source-authorizer
+
 jobs:
   # Build and test the code
   kotlin:
@@ -93,8 +97,86 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build Kotlin docker
-        run: docker build -t radarbase/radar-rest-source-auth-backend:SNAPSHOT -f authorizer-app-backend/Dockerfile .
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'src/main/**') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-      - name: Build Node docker
-        run: docker build -t radarbase/radar-rest-source-authorizer:SNAPSHOT authorizer-app
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Add Docker labels and tags
+      - name: Docker meta backend
+        id: docker_meta_backend
+        uses: crazy-max/ghaction-docker-meta@v2
+        with:
+          images: ${{ env.DOCKER_IMAGE_BACKEND }}
+
+      - name: Docker meta backend
+        id: docker_meta_frontend
+        uses: crazy-max/ghaction-docker-meta@v2
+        with:
+          images: ${{ env.DOCKER_IMAGE_FRONTEND }}
+
+      # Setup docker build environment
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build backend docker
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./authorizer-app-backend/Dockerfile
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          load: true
+          tags: ${{ steps.docker_meta_backend.outputs.tags }}
+          # Use runtime labels from docker_meta_backend as well as fixed labels
+          labels: |
+            ${{ steps.docker_meta_backend.outputs.labels }}
+            maintainer=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            description="RADAR-base rest sources authorizer frontend application"
+            org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Build frontend docker
+        uses: docker/build-push-action@v2
+        with:
+          context: ./authorizer-app
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          load: true
+          tags: ${{ steps.docker_meta_frontend.outputs.tags }}
+          # Use runtime labels from docker_meta_backend as well as fixed labels
+          labels: |
+            ${{ steps.docker_meta_frontend.outputs.labels }}
+            maintainer=Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            description="RADAR-base rest sources authorizer frontend application"
+            org.opencontainers.image.authors=Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Check backend docker image
+        run: >
+          docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} curl --help &&
+          docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} authorizer-app-backend --help
+
+      # If the image was pushed, we need to pull it again to inspect it
+      - name: Push backend image
+        if: ${{ github.event_name != 'pull_request' }}
+        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta_backend.outputs.version }}
+
+      # If the image was pushed, we need to pull it again to inspect it
+      - name: Push frontend image
+        if: ${{ github.event_name != 'pull_request' }}
+        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta_frontend.outputs.version }}
