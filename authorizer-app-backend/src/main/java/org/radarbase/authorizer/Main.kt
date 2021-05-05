@@ -20,10 +20,16 @@ import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.system.exitProcess
 
 val logger: Logger = LoggerFactory.getLogger("org.radarbase.authorizer.Main")
 
 fun main(args: Array<String>) {
+    if (args.firstOrNull() in arrayOf("--help", "-h")) {
+        logger.info("Usage: <command> [<config file path>]")
+        exitProcess(0)
+    }
+
     val config: Config = ConfigLoader.loadConfig("authorizer.yml", args)
     val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
 
