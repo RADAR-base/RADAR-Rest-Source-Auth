@@ -149,6 +149,9 @@ jobs:
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
 
+      - name: Inspect backend docker image
+        run: docker image inspect ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
+
       - name: Build frontend docker
         uses: docker/build-push-action@v2
         with:
@@ -166,17 +169,20 @@ jobs:
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
 
+      - name: Inspect frontend docker image
+        run: docker image inspect ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
+
       - name: Check backend docker image
         run: >
           docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} curl --help &&
           docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} authorizer-app-backend --help
 
-      # If the image was pushed, we need to pull it again to inspect it
+      # Push the backend image on the dev and master branches
       - name: Push backend image
         if: ${{ github.event_name != 'pull_request' }}
-        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta_backend.outputs.version }}
+        run: docker push ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
 
-      # If the image was pushed, we need to pull it again to inspect it
+      # Push the frontend image on the dev and master branches
       - name: Push frontend image
         if: ${{ github.event_name != 'pull_request' }}
-        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta_frontend.outputs.version }}
+        run: docker push ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
