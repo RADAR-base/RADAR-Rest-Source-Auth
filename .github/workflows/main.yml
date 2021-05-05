@@ -149,9 +149,6 @@ jobs:
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
 
-      - name: Inspect backend docker image
-        run: docker image inspect ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
-
       - name: Build frontend docker
         uses: docker/build-push-action@v2
         with:
@@ -169,20 +166,19 @@ jobs:
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
 
-      - name: Inspect frontend docker image
-        run: docker image inspect ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
+      - name: Inspect docker images
+        run: |
+          docker image inspect ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
+          docker image inspect ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
 
       - name: Check backend docker image
-        run: >
-          docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} curl --help &&
+        run: |
+          docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} curl --version
           docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} authorizer-app-backend --help
 
       # Push the backend image on the dev and master branches
-      - name: Push backend image
+      - name: Push images
         if: ${{ github.event_name != 'pull_request' }}
-        run: docker push ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
-
-      # Push the frontend image on the dev and master branches
-      - name: Push frontend image
-        if: ${{ github.event_name != 'pull_request' }}
-        run: docker push ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
+        run: |
+          docker push ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
+          docker push ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
