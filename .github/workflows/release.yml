@@ -91,7 +91,7 @@ jobs:
           labels: |
             ${{ steps.docker_meta_backend.outputs.labels }}
             maintainer=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
-            description="RADAR-base rest sources authorizer frontend application"
+            org.opencontainers.image.description=RADAR-base rest sources authorizer backend application
             org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
@@ -107,7 +107,7 @@ jobs:
           labels: |
             ${{ steps.docker_meta_frontend.outputs.labels }}
             maintainer=Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
-            description="RADAR-base rest sources authorizer frontend application"
+            org.opencontainers.image.description=RADAR-base rest sources authorizer frontend application
             org.opencontainers.image.authors=Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
