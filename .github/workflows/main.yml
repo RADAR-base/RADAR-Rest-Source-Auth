@@ -1,0 +1,100 @@
+# Continuous integration, including test and integration test
+name: CI
+
+# Run in master and dev branches and in all pull requests to those branches
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+jobs:
+  # Build and test the code
+  kotlin:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Cache
+        uses: actions/cache@v2.0.0
+        with:
+          # Cache gradle directories
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          # Key for restoring and saving the cache
+          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-java-
+
+      # Compile the code
+      - name: Compile code
+        run: ./gradlew assemble
+
+      # Gradle check
+      - name: Check
+        run: ./gradlew check
+
+  # Build and test the code
+  node:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: browser-actions/setup-chrome@latest
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 15
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15
+
+      - name: Cache
+        uses: actions/cache@v2.0.0
+        with:
+          # Cache gradle directories
+          path: |
+            ~/.npm
+          # Key for restoring and saving the cache
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Install npm dependencies
+      - name: Install NPM dependencies
+        working-directory: ./authorizer-app
+        run: npm install
+
+      - name: NPM build
+        working-directory: ./authorizer-app
+        run: npm run build
+
+      - name: NPM test
+        working-directory: ./authorizer-app
+        run: CHROMIUM_BIN=$(which chrome) npm run test
+
+  docker:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Build Kotlin docker
+        run: docker build -t radarbase/radar-rest-source-auth-backend:SNAPSHOT -f authorizer-app-backend/Dockerfile .
+
+      - name: Build Node docker
+        run: docker build -t radarbase/radar-rest-source-authorizer:SNAPSHOT authorizer-app
