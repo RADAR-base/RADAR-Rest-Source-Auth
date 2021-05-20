@@ -29,7 +29,7 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
-import javax.inject.Singleton
+import jakarta.inject.Singleton
 
 class AuthorizerResourceEnhancer(
     private val config: Config,
