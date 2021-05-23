@@ -23,7 +23,6 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
@@ -32,6 +31,7 @@ import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
+import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpNotFoundException
@@ -52,11 +52,8 @@ class RestSourceUserResource(
     @Context private val projectService: RadarProjectService,
     @Context private val stateStore: StateStore,
     @Context private val auth: Auth,
-    @Context private val restSourceClients: RestSourceClients,
-    @Context private val clientMapper: RestSourceClientMapper,
     @Context private val authorizationService: RestSourceAuthorizationService,
 ) {
-
     @GET
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
     fun query(
@@ -65,7 +62,6 @@ class RestSourceUserResource(
         @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int,
     ): RestSourceUsers {
-
         val projects = if (projectId != null) {
             auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
             listOf(projectId)
@@ -124,6 +120,7 @@ class RestSourceUserResource(
     @GET
     @Path("{id}")
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
+    @Cache(maxAge = 300, isPrivate = true)
     fun readUser(@PathParam("id") userId: Long): RestSourceUserDTO {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_READ, user.projectId, user.userId)
@@ -221,7 +218,11 @@ class RestSourceUserResource(
         return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt)
     }
 
-    private fun validate(id: Long, user: RestSourceUserDTO, permission: Permission): RestSourceUser {
+    private fun validate(
+        id: Long,
+        user: RestSourceUserDTO,
+        permission: Permission,
+    ): RestSourceUser {
         val existingUser = ensureUser(id)
         val projectId = user.projectId
             ?: throw HttpBadRequestException("missing_project_id", "project cannot be empty")

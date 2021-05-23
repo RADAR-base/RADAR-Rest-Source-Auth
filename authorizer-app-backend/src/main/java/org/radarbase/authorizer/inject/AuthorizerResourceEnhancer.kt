@@ -16,6 +16,7 @@
 
 package org.radarbase.authorizer.inject
 
+import jakarta.inject.Singleton
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.RestSourceClients
@@ -29,7 +30,6 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
-import jakarta.inject.Singleton
 
 class AuthorizerResourceEnhancer(
     private val config: Config,
@@ -46,17 +46,18 @@ class AuthorizerResourceEnhancer(
     override val classes: Array<Class<*>>
         get() = if (config.service.enableCors == true) {
             arrayOf(
+                ConfigLoader.Filters.cache,
                 ConfigLoader.Filters.logResponse,
                 ConfigLoader.Filters.cors,
             )
         } else {
             arrayOf(
+                ConfigLoader.Filters.cache,
                 ConfigLoader.Filters.logResponse,
             )
         }
 
     override val packages: Array<String> = arrayOf(
-        "org.radarbase.authorizer.exception",
         "org.radarbase.authorizer.resources",
     )
 
