@@ -91,6 +91,7 @@ class SourceClientResource(
         @PathParam("type") sourceType: String,
         @QueryParam("accessToken") accessToken: String?,
     ): Boolean {
+        restSourceClients.ensureSourceType(sourceType)
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
         return if (user == null) {
             if (accessToken.isNullOrEmpty()) throw HttpNotFoundException("user-not-found", "User and access token not valid")
@@ -110,6 +111,7 @@ class SourceClientResource(
         @PathParam("serviceUserId") serviceUserId: String,
         @PathParam("type") sourceType: String,
     ): RestSourceUserDTO {
+        restSourceClients.ensureSourceType(sourceType)
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
             ?: throw HttpNotFoundException("user-not-found", "User with service user id not found.")
 
@@ -119,7 +121,12 @@ class SourceClientResource(
 
     @POST
     @Path("{type}/deregister")
-    fun reportDeregistration(@PathParam("type") sourceType: String, body: DeregistrationsDTO) {
+    fun reportDeregistration(
+        @PathParam("type") sourceType: String,
+        body: DeregistrationsDTO,
+    ) {
+        restSourceClients.ensureSourceType(sourceType)
+
         body.deregistrations.forEach { deregistration ->
             val user = userRepository.findByExternalId(deregistration.userId, sourceType)
             if (user != null && user.accessToken == deregistration.userAccessToken) {

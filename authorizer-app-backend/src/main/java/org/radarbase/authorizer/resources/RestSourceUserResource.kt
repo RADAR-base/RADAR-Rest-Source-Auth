@@ -27,6 +27,7 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -53,6 +54,7 @@ class RestSourceUserResource(
     @Context private val stateStore: StateStore,
     @Context private val auth: Auth,
     @Context private val authorizationService: RestSourceAuthorizationService,
+    @Context private val sourceClientService: RestSourceClientService
 ) {
     @GET
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
@@ -62,6 +64,10 @@ class RestSourceUserResource(
         @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int,
     ): RestSourceUsers {
+        val sanitizedSourceType = if (sourceType != null && sourceType in sourceClientService) {
+            sourceType
+        } else null
+
         val projects = if (projectId != null) {
             auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
             listOf(projectId)
@@ -73,7 +79,7 @@ class RestSourceUserResource(
         if (projects.isEmpty()) return RestSourceUsers(emptyList(), Page(totalElements = 0))
 
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
-        val (records, page) = userRepository.query(queryPage, projects, sourceType)
+        val (records, page) = userRepository.query(queryPage, projects, sanitizedSourceType)
 
         return userMapper.fromRestSourceUsers(
             records.filter {
@@ -96,6 +102,8 @@ class RestSourceUserResource(
             if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
         }
         val sourceType = payload.sourceType
+        sourceClientService.ensureSourceType(sourceType)
+
         val accessToken = authorizationService.requestAccessToken(payload, sourceType)
         val user = userRepository.create(accessToken, sourceType)
 
@@ -182,7 +190,10 @@ class RestSourceUserResource(
     @POST
     @Path("{id}/token/sign")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
-    fun signRequest(@PathParam("id") userId: Long, payload: SignRequestParams): SignRequestParams {
+    fun signRequest(
+        @PathParam("id") userId: Long,
+        payload: SignRequestParams,
+    ): SignRequestParams {
         val user = ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
 
