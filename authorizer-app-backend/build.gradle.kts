@@ -12,7 +12,7 @@ plugins {
 }
 
 application {
-    mainClass.set("org.radarbase.authorizer.MainKt")
+    mainClass.set("org.radarbase.authorizer.Main")
 }
 
 repositories {
@@ -34,8 +34,10 @@ dependencies {
     val okhttpVersion: String by project
     implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
 
-    val logbackVersion: String by project
-    runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
+    val log4j2Version: String by project
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
+    runtimeOnly("org.apache.logging.log4j:log4j-api:$log4j2Version")
+    runtimeOnly("org.apache.logging.log4j:log4j-jul:$log4j2Version")
 
     val junitVersion: String by project
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
@@ -51,8 +53,8 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "11"
-        apiVersion = "1.4"
-        languageVersion = "1.4"
+        apiVersion = "1.5"
+        languageVersion = "1.5"
     }
 }
 

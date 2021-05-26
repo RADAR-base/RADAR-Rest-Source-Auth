@@ -20,13 +20,26 @@ import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.system.exitProcess
 
-val logger: Logger = LoggerFactory.getLogger("org.radarbase.authorizer.Main")
+object Main {
+    init {
+        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
+    }
+    private val logger: Logger = LoggerFactory.getLogger(Main.javaClass)
 
-fun main(args: Array<String>) {
-    val config: Config = ConfigLoader.loadConfig("authorizer.yml", args)
-    val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
+    @JvmStatic
+    fun main(args: Array<String>) {
 
-    val server = GrizzlyServer(config.service.baseUri, resources)
-    server.listen()
+        if (args.firstOrNull() in arrayOf("--help", "-h")) {
+            logger.info("Usage: <command> [<config file path>]")
+            exitProcess(0)
+        }
+
+        val config: Config = ConfigLoader.loadConfig("authorizer.yml", args)
+        val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
+
+        val server = GrizzlyServer(config.service.baseUri, resources)
+        server.listen()
+    }
 }

@@ -19,18 +19,21 @@ package org.radarbase.authorizer.api
 import org.radarbase.authorizer.RestSourceClient
 
 class RestSourceClientMapper {
-    private fun fromSourceClientConfig(client: RestSourceClient) = ShareableClientDetail(
-        clientId = requireNotNull(client.clientId) { "Client ID of sourceType ${client.sourceType} not specified" },
-        sourceType = client.sourceType,
-        scope = client.scope,
-        preAuthorizationEndpoint = client.preAuthorizationEndpoint,
-        authorizationEndpoint = client.authorizationEndpoint,
-        deregistrationEndpoint = client.deregistrationEndpoint,
-        tokenEndpoint = client.tokenEndpoint,
-        grantType = client.grantType
-    )
+    fun toSourceClientConfig(client: RestSourceClient, state: String? = null) = client.run {
+        ShareableClientDetail(
+            clientId = requireNotNull(clientId) { "Client ID of sourceType $sourceType not specified" },
+            sourceType = sourceType,
+            scope = scope,
+            preAuthorizationEndpoint = preAuthorizationEndpoint,
+            authorizationEndpoint = authorizationEndpoint,
+            deregistrationEndpoint = deregistrationEndpoint,
+            tokenEndpoint = tokenEndpoint,
+            grantType = grantType,
+            state = state,
+        )
+    }
 
     fun fromSourceClientConfigs(clientConfigs: List<RestSourceClient>) = ShareableClientDetails(
-        sourceClients = clientConfigs.map(::fromSourceClientConfig)
+        sourceClients = clientConfigs.map { toSourceClientConfig(it) }
     )
 }

@@ -22,16 +22,16 @@ import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
+import org.radarbase.jersey.exception.HttpBadRequestException
 
 class DelegatedRestSourceAuthorizationService(
     @Context private val namedServices: IterableProvider<RestSourceAuthorizationService>,
 ) : RestSourceAuthorizationService {
     private fun delegate(sourceType: String): RestSourceAuthorizationService {
-        return when (sourceType) {
-            GARMIN_AUTH -> namedServices.named(GARMIN_AUTH).get()
-            FITBIT_AUTH -> namedServices.named(FITBIT_AUTH).get()
-            else -> throw IllegalStateException()
-        }
+        val authorizationProvider = namedServices.named(sourceType)
+            ?: throw HttpBadRequestException("source-type-not-found", "Source type $sourceType does not exist")
+
+        return authorizationProvider.get()
     }
 
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken =

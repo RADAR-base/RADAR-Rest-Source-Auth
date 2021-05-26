@@ -44,13 +44,13 @@ class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFact
             )
         )
         return listOf(
-            AuthorizerResourceEnhancer(config),
             ConfigLoader.Enhancers.radar(authConfig),
             ConfigLoader.Enhancers.health,
             HibernateResourceEnhancer(dbConfig),
             ConfigLoader.Enhancers.managementPortal(authConfig),
             ConfigLoader.Enhancers.generalException,
             ConfigLoader.Enhancers.httpException,
+            AuthorizerResourceEnhancer(config),
         )
     }
 }

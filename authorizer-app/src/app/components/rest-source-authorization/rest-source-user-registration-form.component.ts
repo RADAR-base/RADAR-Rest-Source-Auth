@@ -21,6 +21,9 @@ export class RestSourceUserRegistrationFormComponent implements OnInit {
   ngOnInit(): void {
     this.sourceClientAuthorizationService.getDeviceTypes().subscribe(data => {
       this.sourceTypes = data;
+      if (!this.selectedSourceType && data.length > 0) {
+        this.selectedSourceType = data[0];
+      }
     });
   }
 

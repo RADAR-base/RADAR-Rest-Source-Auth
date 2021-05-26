@@ -26,6 +26,7 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
+import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.service.managementportal.RadarProjectService
 
 @Path("projects")
@@ -41,6 +42,7 @@ class ProjectResource(
 
     @GET
     @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ)
+    @Cache(maxAge = 300, isPrivate = true)
     fun projects() = ProjectList(
         projectService.userProjects(auth)
             .map { it.toProject() }
@@ -49,6 +51,7 @@ class ProjectResource(
     @GET
     @Path("{projectId}/users")
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ, "projectId")
+    @Cache(maxAge = 60, isPrivate = true)
     fun users(@PathParam("projectId") projectId: String) = UserList(
         projectService.projectUsers(projectId)
             .map { it.toUser() }
@@ -57,6 +60,7 @@ class ProjectResource(
     @GET
     @Path("{projectId}")
     @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ, "projectId")
+    @Cache(maxAge = 300, isPrivate = true)
     fun project(@PathParam("projectId") projectId: String): Project {
         return projectService.project(projectId).toProject()
     }

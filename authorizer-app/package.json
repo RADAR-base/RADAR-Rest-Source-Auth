@@ -1,6 +1,6 @@
 {
   "name": "authorizer-app",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Simple app to authorize to collect data from third party services ",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test",
+    "test": "ng test --watch=false",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },

@@ -1,0 +1,184 @@
+# Continuous integration, including test and integration test
+name: CI
+
+# Run in master and dev branches and in all pull requests to those branches
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+env:
+  DOCKER_IMAGE_BACKEND: radarbase/radar-rest-source-auth-backend
+  DOCKER_IMAGE_FRONTEND: radarbase/radar-rest-source-authorizer
+
+jobs:
+  # Build and test the code
+  kotlin:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Cache
+        uses: actions/cache@v2.0.0
+        with:
+          # Cache gradle directories
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          # Key for restoring and saving the cache
+          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-java-
+
+      # Compile the code
+      - name: Compile code
+        run: ./gradlew assemble
+
+      # Gradle check
+      - name: Check
+        run: ./gradlew check
+
+  # Build and test the code
+  node:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: browser-actions/setup-chrome@latest
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 15
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15
+
+      - name: Cache
+        uses: actions/cache@v2.0.0
+        with:
+          # Cache gradle directories
+          path: |
+            ~/.npm
+          # Key for restoring and saving the cache
+          key: ${{ runner.os }}-node-${{ hashFiles('authorizer-app/package*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Install npm dependencies
+      - name: Install NPM dependencies
+        working-directory: ./authorizer-app
+        run: npm install
+
+      - name: NPM build
+        working-directory: ./authorizer-app
+        run: npm run build
+
+      - name: NPM test
+        working-directory: ./authorizer-app
+        run: CHROMIUM_BIN=$(which chrome) npm run test
+
+  docker:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'authorizer-app/*', 'authorizer-app-backend/src/main/**') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Add Docker labels and tags
+      - name: Docker meta backend
+        id: docker_meta_backend
+        uses: crazy-max/ghaction-docker-meta@v2
+        with:
+          images: ${{ env.DOCKER_IMAGE_BACKEND }}
+
+      - name: Docker meta backend
+        id: docker_meta_frontend
+        uses: crazy-max/ghaction-docker-meta@v2
+        with:
+          images: ${{ env.DOCKER_IMAGE_FRONTEND }}
+
+      # Setup docker build environment
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build backend docker
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./authorizer-app-backend/Dockerfile
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          load: true
+          tags: ${{ steps.docker_meta_backend.outputs.tags }}
+          # Use runtime labels from docker_meta_backend as well as fixed labels
+          labels: |
+            ${{ steps.docker_meta_backend.outputs.labels }}
+            maintainer=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.description=RADAR-base rest sources authorizer backend application
+            org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Build frontend docker
+        uses: docker/build-push-action@v2
+        with:
+          context: ./authorizer-app
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          load: true
+          tags: ${{ steps.docker_meta_frontend.outputs.tags }}
+          # Use runtime labels from docker_meta_backend as well as fixed labels
+          labels: |
+            ${{ steps.docker_meta_frontend.outputs.labels }}
+            maintainer=Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.description=RADAR-base rest sources authorizer frontend application
+            org.opencontainers.image.authors=Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Inspect docker images
+        run: |
+          docker image inspect ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
+          docker image inspect ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
+
+      - name: Check backend docker image
+        run: |
+          docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} curl --version
+          docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} authorizer-app-backend --help
+
+      # Push the backend image on the dev and master branches
+      - name: Push images
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          docker push ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
+          docker push ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}

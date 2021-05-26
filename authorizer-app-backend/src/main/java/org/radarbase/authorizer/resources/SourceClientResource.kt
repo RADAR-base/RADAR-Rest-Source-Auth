@@ -21,16 +21,16 @@ import jakarta.inject.Singleton
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
+import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory
 @Resource
 @Singleton
 class SourceClientResource(
-    @Context private val restSourceClients: RestSourceClients,
+    @Context private val restSourceClients: RestSourceClientService,
     @Context private val clientMapper: RestSourceClientMapper,
     @Context private val stateStore: StateStore,
     @Context private val auth: Auth,
@@ -54,12 +54,14 @@ class SourceClientResource(
     @GET
     @Authenticated
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
+    @Cache(maxAge = 3600, isPrivate = true)
     fun clients(): ShareableClientDetails = sharableClientDetails
 
     @GET
     @Authenticated
     @Path("type")
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
+    @Cache(maxAge = 3600, isPrivate = true)
     fun types(): List<String> = sourceTypes
 
     @GET
@@ -67,10 +69,8 @@ class SourceClientResource(
     @Path("{type}")
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun client(@PathParam("type") type: String): ShareableClientDetail {
-        val sourceType = sharableClientDetails.sourceClients.find { it.sourceType == type }
-            ?: throw HttpNotFoundException("source-type-not-found", "Client with source-type $type is not configured")
-
-        return sourceType.copy(state = stateStore.generate(type).stateId)
+        val sourceType = restSourceClients.forSourceType(type)
+        return clientMapper.toSourceClientConfig(sourceType, stateStore.generate(type).stateId)
     }
 
     @GET
@@ -91,10 +91,10 @@ class SourceClientResource(
         @PathParam("type") sourceType: String,
         @QueryParam("accessToken") accessToken: String?,
     ): Boolean {
+        restSourceClients.ensureSourceType(sourceType)
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
         return if (user == null) {
             if (accessToken.isNullOrEmpty()) throw HttpNotFoundException("user-not-found", "User and access token not valid")
-
             logger.info("No user found for external ID provided. Continuing deregistration..")
             authorizationService.revokeToken(serviceUserId, sourceType, accessToken)
         } else {
@@ -111,6 +111,7 @@ class SourceClientResource(
         @PathParam("serviceUserId") serviceUserId: String,
         @PathParam("type") sourceType: String,
     ): RestSourceUserDTO {
+        restSourceClients.ensureSourceType(sourceType)
         val user = userRepository.findByExternalId(serviceUserId, sourceType)
             ?: throw HttpNotFoundException("user-not-found", "User with service user id not found.")
 
@@ -120,14 +121,18 @@ class SourceClientResource(
 
     @POST
     @Path("{type}/deregister")
-    fun reportDeregistration(@PathParam("type") sourceType: String, body: DeregistrationsDTO): Response {
-        body.deregistrations.forEach { it ->
-            val user = userRepository.findByExternalId(it.userId, sourceType)
-            if (user != null && user.accessToken == it.userAccessToken)
-                authorizationService.deregisterUser(user)
-        }
+    fun reportDeregistration(
+        @PathParam("type") sourceType: String,
+        body: DeregistrationsDTO,
+    ) {
+        restSourceClients.ensureSourceType(sourceType)
 
-        return Response.ok().build()
+        body.deregistrations.forEach { deregistration ->
+            val user = userRepository.findByExternalId(deregistration.userId, sourceType)
+            if (user != null && user.accessToken == deregistration.userAccessToken) {
+                authorizationService.deregisterUser(user)
+            }
+        }
     }
 
     companion object {

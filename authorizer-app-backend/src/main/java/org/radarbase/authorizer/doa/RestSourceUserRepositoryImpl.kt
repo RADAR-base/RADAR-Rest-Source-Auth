@@ -172,7 +172,7 @@ class RestSourceUserRepositoryImpl(
         externalId: String,
         sourceType: String,
     ): RestSourceUser? {
-        var queryString = """
+        val queryString = """
                SELECT u
                FROM RestSourceUser u
                WHERE u.externalUserId = :externalId
