@@ -8,10 +8,6 @@ on:
   pull_request:
     branches: [ master, dev ]
 
-env:
-  DOCKER_IMAGE_BACKEND: radarbase/radar-rest-source-auth-backend
-  DOCKER_IMAGE_FRONTEND: radarbase/radar-rest-source-authorizer
-
 jobs:
   # Build and test the code
   kotlin:
@@ -88,9 +84,12 @@ jobs:
         working-directory: ./authorizer-app
         run: CHROMIUM_BIN=$(which chrome) npm run test
 
-  docker:
+  dockerBackend:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    env:
+      DOCKER_IMAGE: radarbase/radar-rest-source-auth-backend
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -104,17 +103,101 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Add Docker labels and tags
-      - name: Docker meta backend
-        id: docker_meta_backend
+      - name: Docker meta
+        id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v2
         with:
-          images: ${{ env.DOCKER_IMAGE_BACKEND }}
+          images: ${{ env.DOCKER_IMAGE }}
 
-      - name: Docker meta backend
-        id: docker_meta_frontend
+      # Setup docker build environment
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache layers
+        id: cache-buildx
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-backend-${{ hashFiles('authorizer-app-backend/Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'authorizer-app-backend/src/main/**') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-backend-
+
+      - name: Cache parameters
+        id: cache-parameters
+        run: |
+          if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
+            echo "::set-output name=cache-to::"
+          else
+            echo "::set-output name=cache-to::type=local,dest=/tmp/.buildx-cache-new,mode=max"
+          fi
+
+      - name: Build backend docker
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./authorizer-app-backend/Dockerfile
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
+          load: true
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          # Use runtime labels from docker_meta_backend as well as fixed labels
+          labels: |
+            ${{ steps.docker_meta.outputs.labels }}
+            maintainer=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.description=RADAR-base rest sources authorizer backend application
+            org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Inspect docker images
+        run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      - name: Check docker image
+        run: |
+          docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --version
+          docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} authorizer-app-backend --help
+
+      # Push the image on the dev and master branches
+      - name: Push images
+        if: ${{ github.event_name != 'pull_request' }}
+        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move docker build cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  dockerFrontend:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_IMAGE: radarbase/radar-rest-source-authorizer
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Add Docker labels and tags
+      - name: Docker meta
+        id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v2
         with:
-          images: ${{ env.DOCKER_IMAGE_FRONTEND }}
+          images: ${{ env.DOCKER_IMAGE }}
 
       # Setup docker build environment
       - name: Set up QEMU
@@ -124,78 +207,53 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Cache frontend layers
+        id: cache-buildx
         uses: actions/cache@v2
         with:
-          path: /tmp/.buildx-cache-frontend
+          path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-frontend-${{ hashFiles('authorizer-app/**') }}
           restore-keys: |
             ${{ runner.os }}-buildx-frontend-
 
-      - name: Cache backend layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache-backend
-          key: ${{ runner.os }}-buildx-backend-${{ hashFiles('authorizer-app-backend/Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'authorizer-app-backend/src/main/**') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-backend-
-
-      - name: Build backend docker
-        uses: docker/build-push-action@v2
-        with:
-          context: ./
-          file: ./authorizer-app-backend/Dockerfile
-          cache-from: type=local,src=/tmp/.buildx-cache-backend
-          cache-to: type=local,dest=/tmp/.buildx-cache-backend-new,mode=max
-          load: true
-          tags: ${{ steps.docker_meta_backend.outputs.tags }}
-          # Use runtime labels from docker_meta_backend as well as fixed labels
-          labels: |
-            ${{ steps.docker_meta_backend.outputs.labels }}
-            maintainer=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
-            org.opencontainers.image.description=RADAR-base rest sources authorizer backend application
-            org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
-            org.opencontainers.image.vendor=RADAR-base
-            org.opencontainers.image.licenses=Apache-2.0
+      - name: Cache parameters
+        id: cache-parameters
+        run: |
+          if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
+            echo "::set-output name=cache-to::"
+          else
+            echo "::set-output name=cache-to::type=local,dest=/tmp/.buildx-cache-new,mode=max"
+          fi
 
       - name: Build frontend docker
         uses: docker/build-push-action@v2
         with:
           context: ./authorizer-app
-          cache-from: type=local,src=/tmp/.buildx-cache-frontend
-          cache-to: type=local,dest=/tmp/.buildx-cache-frontend-new,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
           load: true
-          tags: ${{ steps.docker_meta_frontend.outputs.tags }}
-          # Use runtime labels from docker_meta_backend as well as fixed labels
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          # Use runtime labels from docker_meta as well as fixed labels
           labels: |
-            ${{ steps.docker_meta_frontend.outputs.labels }}
+            ${{ steps.docker_meta.outputs.labels }}
             maintainer=Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
             org.opencontainers.image.description=RADAR-base rest sources authorizer frontend application
             org.opencontainers.image.authors=Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
 
+      - name: Inspect docker images
+        run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      # Push the image on the dev and master branches
+      - name: Push images
+        if: ${{ github.event_name != 'pull_request' }}
+        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252
       # https://github.com/moby/buildkit/issues/1896
       - name: Move docker build cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
         run: |
-          rm -rf /tmp/.buildx-cache-*end
-          mv /tmp/.buildx-cache-backend-new /tmp/.buildx-cache-backend
-          mv /tmp/.buildx-cache-frontend-new /tmp/.buildx-cache-frontend
-
-      - name: Inspect docker images
-        run: |
-          docker image inspect ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
-          docker image inspect ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
-
-      - name: Check backend docker image
-        run: |
-          docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} curl --version
-          docker run --rm ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }} authorizer-app-backend --help
-
-      # Push the backend image on the dev and master branches
-      - name: Push images
-        if: ${{ github.event_name != 'pull_request' }}
-        run: |
-          docker push ${{ env.DOCKER_IMAGE_BACKEND }}:${{ steps.docker_meta_backend.outputs.version }}
-          docker push ${{ env.DOCKER_IMAGE_FRONTEND }}:${{ steps.docker_meta_frontend.outputs.version }}
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
