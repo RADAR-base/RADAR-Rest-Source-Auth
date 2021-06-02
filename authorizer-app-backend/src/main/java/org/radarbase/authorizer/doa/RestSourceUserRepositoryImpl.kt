@@ -18,6 +18,7 @@ package org.radarbase.authorizer.doa
 
 import jakarta.inject.Provider
 import jakarta.ws.rs.core.Context
+import org.hibernate.criterion.MatchMode
 import org.radarbase.authorizer.api.Page
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
@@ -111,15 +112,21 @@ class RestSourceUserRepositoryImpl(
 
     override fun query(
         page: Page,
-        projects: List<String>,
+        projectId: String,
         sourceType: String?,
+        search: String?,
+        userIds: List<String>,
     ): Pair<List<RestSourceUser>, Page> {
-        var queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId IN (:projects)"
-        var countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId IN (:projects)"
+        var queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId = :projectId"
+        var countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId = :projectId"
 
         if (sourceType != null) {
             queryString += " AND u.sourceType = :sourceType"
             countQueryString += " AND u.sourceType = :sourceType"
+        }
+        if (search != null) {
+            queryString += " AND (u.userId LIKE :search OR u.userId IN :userIds)"
+            countQueryString += " AND (u.userId LIKE :search OR u.userId IN :userIds)"
         }
 
         val actualPage = page.createValid(maximum = Integer.MAX_VALUE)
@@ -130,12 +137,20 @@ class RestSourceUserRepositoryImpl(
 
             val countQuery = createQuery(countQueryString)
 
-            query.setParameter("projects", projects)
-            countQuery.setParameter("projects", projects)
+            query.setParameter("projectId", projectId)
+            countQuery.setParameter("projectId", projectId)
 
             if (sourceType != null) {
                 query.setParameter("sourceType", sourceType)
                 countQuery.setParameter("sourceType", sourceType)
+            }
+            if (search != null) {
+                // user IDs are always lower case in MP.
+                val searchMatch = MatchMode.ANYWHERE.toMatchString(search.lowercase())
+                query.setParameter("search", searchMatch)
+                query.setParameter("userIds", userIds)
+                countQuery.setParameter("search", searchMatch)
+                countQuery.setParameter("userIds", userIds)
             }
 
             val users = query.resultList

@@ -2,7 +2,7 @@
   align-items: center;
 }
 
-.mat-cell {
+td {
   margin-left: 5px;
   margin-right: 5px;
   align-content: center;
@@ -30,11 +30,7 @@
   font-weight: bold;
 }
 
-.page-container {
-  text-align: center;
-}
-
-.mat-table {
+table {
   width: 100%;
   overflow: auto;
 }
