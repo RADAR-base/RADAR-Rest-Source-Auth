@@ -57,10 +57,10 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit {
     this.loadAllRestSourceProjects();
     this.dataSource = new MatTableDataSource(this.restSourceUsers);
     this.dataSource.filterPredicate = function(data, filter: string): boolean {
-      return (
-        data.id.toLowerCase().includes(filter) ||
-        data.userId.toLowerCase().includes(filter) ||
-        data.externalId.toString().includes(filter)
+      return data && (
+        (data.id && data.id.toLowerCase().includes(filter)) ||
+        (data.userId && data.userId.toLowerCase().includes(filter)) ||
+        (data.externalId && data.externalId.toString().includes(filter))
       );
     };
     this.onChangeProject(this.selectedProject);
