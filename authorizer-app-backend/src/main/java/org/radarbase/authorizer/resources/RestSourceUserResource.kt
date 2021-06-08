@@ -61,32 +61,41 @@ class RestSourceUserResource(
     fun query(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
+        @QueryParam("search") search: String?,
         @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int,
     ): RestSourceUsers {
+        projectId ?: throw HttpBadRequestException(
+            "missing_project_id",
+            "Project ID parameter is mandatory",
+        )
+
         val sanitizedSourceType = if (sourceType != null && sourceType in sourceClientService) {
             sourceType
         } else null
 
-        val projects = if (projectId != null) {
-            auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
-            listOf(projectId)
-        } else {
-            projectService.userProjects(auth, Permission.SUBJECT_READ)
-                .map { it.id }
-        }
+        auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
 
-        if (projects.isEmpty()) return RestSourceUsers(emptyList(), Page(totalElements = 0))
+        val minimalSearch = search?.takeIf { it.length >= 2 }
+
+        val userIds = if (minimalSearch != null) {
+            projectService.projectUsers(projectId)
+                .mapNotNull { sub ->
+                    val externalId = sub.externalId ?: return@mapNotNull null
+                    sub.id.takeIf { minimalSearch in externalId }
+                }
+        } else emptyList()
 
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
-        val (records, page) = userRepository.query(queryPage, projects, sanitizedSourceType)
-
-        return userMapper.fromRestSourceUsers(
-            records.filter {
-                auth.token.hasPermissionOnSubject(Permission.SUBJECT_READ, it.projectId, it.userId)
-            },
-            page,
+        val (records, page) = userRepository.query(
+            queryPage,
+            projectId,
+            sanitizedSourceType,
+            minimalSearch,
+            userIds,
         )
+
+        return userMapper.fromRestSourceUsers(records, page)
     }
 
     @POST

@@ -17,8 +17,8 @@ export class RestSourceUser {
 }
 
 export class RestSourceUsers {
-     users: RestSourceUser[]
-     metadata: Page
+     users: RestSourceUser[];
+     metadata: Page;
 }
 
 export class Page {
