@@ -29,7 +29,7 @@ interface RestSourceUserRepository {
     fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser
     fun query(
         page: Page,
-        projectId: String,
+        projectIds: List<String>,
         sourceType: String? = null,
         search: String?,
         userIds: List<String>,

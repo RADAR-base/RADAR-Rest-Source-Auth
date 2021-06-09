@@ -112,33 +112,32 @@ class RestSourceUserRepositoryImpl(
 
     override fun query(
         page: Page,
-        projectId: String,
+        projectIds: List<String>,
         sourceType: String?,
         search: String?,
         userIds: List<String>,
     ): Pair<List<RestSourceUser>, Page> {
-        var queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId = :projectId"
-        var countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId = :projectId"
+        val queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId IN :projectIds"
+        val countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId IN :projectIds"
 
+        var whereClauses = ""
         if (sourceType != null) {
-            queryString += " AND u.sourceType = :sourceType"
-            countQueryString += " AND u.sourceType = :sourceType"
+            whereClauses += " AND u.sourceType = :sourceType"
         }
         if (search != null) {
-            queryString += " AND (u.userId LIKE :search OR u.userId IN :userIds)"
-            countQueryString += " AND (u.userId LIKE :search OR u.userId IN :userIds)"
+            whereClauses += "AND (u.userId LIKE :search OR u.userId IN :userIds)"
         }
 
         val actualPage = page.createValid(maximum = Integer.MAX_VALUE)
         return transact {
-            val query = createQuery(queryString, RestSourceUser::class.java)
+            val query = createQuery(queryString + whereClauses, RestSourceUser::class.java)
                 .setFirstResult(actualPage.offset)
                 .setMaxResults(actualPage.pageSize)
 
-            val countQuery = createQuery(countQueryString)
+            val countQuery = createQuery(countQueryString + whereClauses)
 
-            query.setParameter("projectId", projectId)
-            countQuery.setParameter("projectId", projectId)
+            query.setParameter("projectIds", projectIds)
+            countQuery.setParameter("projectIds", projectIds)
 
             if (sourceType != null) {
                 query.setParameter("sourceType", sourceType)
