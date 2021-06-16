@@ -125,7 +125,7 @@ class RestSourceUserRepositoryImpl(
             whereClauses += " AND u.sourceType = :sourceType"
         }
         if (search != null) {
-            whereClauses += "AND (u.userId LIKE :search OR u.userId IN :userIds)"
+            whereClauses += " AND (u.userId LIKE :search OR u.userId IN :userIds)"
         }
 
         val actualPage = page.createValid(maximum = Integer.MAX_VALUE)
