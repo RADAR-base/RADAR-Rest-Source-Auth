@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {
   MatDialog,
   MatPaginator,
@@ -12,12 +21,13 @@ import {
 import { RestSourceUserListDeleteDialog } from './rest-source-user-list-delete-dialog.component';
 import { RestSourceUserListResetDialog } from './rest-source-user-list-reset-dialog.component';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, of, Subscription, Observable } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import {
   catchError,
   debounceTime,
-  distinctUntilChanged
+  distinctUntilChanged,
+  switchMap,
 } from 'rxjs/operators';
 
 @Component({
@@ -25,7 +35,7 @@ import {
   templateUrl: './rest-source-user-list.component.html',
   styleUrls: ['./rest-source-user-list.component.css']
 })
-export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDestroy {
+export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   columnsToDisplay = [
     'id',
     'userId',
@@ -40,7 +50,6 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
   @Input() project: string;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-
   updateTrigger = new BehaviorSubject<string>('init');
   filterValue = new BehaviorSubject<string>('');
   page = new BehaviorSubject<PageEvent>({
@@ -61,19 +70,32 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
     this.dataSource = new MatTableDataSource([]);
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if ('project' in changes) {
+      this.updateTrigger.next('update');
+    }
+  }
+
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
     this.paginator.pageSize = 50;
-
-    const filterInput = this.filterValue
-      .pipe(
-        debounceTime(150),
-        distinctUntilChanged(),
-      );
-    combineLatest(this.page, filterInput, this.updateTrigger)
-      .subscribe(([page, filterValue, _]: [PageEvent, string, string]) => this.loadUsers(filterValue, page));
-
     this.paginator.page.subscribe(next => this.page.next(next));
+    this.subscribeToUsers();
+  }
+
+  subscribeToUsers(): Subscription {
+    const filterInput = this.filterValue
+    .pipe(
+      debounceTime(150),
+      distinctUntilChanged(),
+    );
+    return combineLatest(this.page, filterInput, this.updateTrigger)
+      .pipe(switchMap(([page, filterValue, _]: [PageEvent, string, string]) => this.loadUsers(filterValue, page)))
+      .subscribe(users => {
+        this.dataSource.data = users.users;
+        this.paginator.pageIndex = users.metadata.pageNumber - 1;
+        this.paginator.length = users.metadata.totalElements;
+      });
   }
 
   ngOnDestroy() {
@@ -91,7 +113,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
     }
   }
 
-  loadUsers(filterValue: string, page: PageEvent) {
+  loadUsers(filterValue: string, page: PageEvent): Observable<RestSourceUsers> {
     const params = {
       page: page.pageIndex + 1,
       size: page.pageSize
@@ -101,15 +123,10 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
       params['search'] = filterValue;
     }
 
-    this.restSourceUserService.getAllUsersOfProject(this.project, params)
+    return this.restSourceUserService.getAllUsersOfProject(this.project, params)
       .pipe(
         catchError(() => of({users: [], metadata: { pageNumber: 1, pageSize: page.pageSize, totalElements: 0 }} as RestSourceUsers)),
-      )
-      .subscribe(users => {
-        this.dataSource.data = users.users;
-        this.paginator.pageIndex = users.metadata.pageNumber - 1;
-        this.paginator.length = users.metadata.totalElements;
-      });
+      );
   }
 
   removeUser(restSourceUser: RestSourceUser) {
