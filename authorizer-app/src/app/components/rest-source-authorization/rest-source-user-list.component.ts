@@ -2,10 +2,8 @@ import {
   AfterViewInit,
   Component,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   ViewChild
 } from '@angular/core';
 import {
@@ -27,6 +25,7 @@ import {
   catchError,
   debounceTime,
   distinctUntilChanged,
+  filter,
   switchMap,
 } from 'rxjs/operators';
 
@@ -35,7 +34,7 @@ import {
   templateUrl: './rest-source-user-list.component.html',
   styleUrls: ['./rest-source-user-list.component.css']
 })
-export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDestroy {
   columnsToDisplay = [
     'id',
     'userId',
@@ -47,7 +46,9 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
     'actions'
   ];
 
-  @Input() project: string;
+  @Input('project') set project(project: string) { this.project$.next(project); }
+  private project$ = new BehaviorSubject<string>('');
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   updateTrigger = new BehaviorSubject<string>('init');
@@ -70,12 +71,6 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
     this.dataSource = new MatTableDataSource([]);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if ('project' in changes) {
-      this.updateTrigger.next('update');
-    }
-  }
-
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
     this.paginator.pageSize = 50;
@@ -85,12 +80,24 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
 
   subscribeToUsers(): Subscription {
     const filterInput = this.filterValue
-    .pipe(
-      debounceTime(150),
-      distinctUntilChanged(),
-    );
-    return combineLatest(this.page, filterInput, this.updateTrigger)
-      .pipe(switchMap(([page, filterValue, _]: [PageEvent, string, string]) => this.loadUsers(filterValue, page)))
+      .pipe(
+        debounceTime(150),
+        distinctUntilChanged(),
+      );
+    const projectInput = this.project$
+      .pipe(
+        filter(p => !!p),
+        distinctUntilChanged(),
+      );
+    const pageInput = this.page
+      .pipe(
+        distinctUntilChanged((p1, p2) =>
+          p1.pageIndex === p2.pageIndex && p1.pageSize === p2.pageSize)
+      );
+    return combineLatest<PageEvent, string, string, string>(pageInput, filterInput, this.updateTrigger, projectInput)
+      .pipe(
+        switchMap(([page, filterValue, _, project]) => this.loadUsers(filterValue, page, project))
+      )
       .subscribe(users => {
         this.dataSource.data = users.users;
         this.paginator.pageIndex = users.metadata.pageNumber - 1;
@@ -113,7 +120,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
     }
   }
 
-  loadUsers(filterValue: string, page: PageEvent): Observable<RestSourceUsers> {
+  loadUsers(filterValue: string, page: PageEvent, project: string): Observable<RestSourceUsers> {
     const params = {
       page: page.pageIndex + 1,
       size: page.pageSize
@@ -123,7 +130,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
       params['search'] = filterValue;
     }
 
-    return this.restSourceUserService.getAllUsersOfProject(this.project, params)
+    return this.restSourceUserService.getAllUsersOfProject(project, params)
       .pipe(
         catchError(() => of({users: [], metadata: { pageNumber: 1, pageSize: page.pageSize, totalElements: 0 }} as RestSourceUsers)),
       );
