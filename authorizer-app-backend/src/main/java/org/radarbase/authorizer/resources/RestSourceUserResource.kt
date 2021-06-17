@@ -66,13 +66,13 @@ class RestSourceUserResource(
         @DefaultValue("1") @QueryParam("page") pageNumber: Int,
     ): RestSourceUsers {
         val projectIds = if (projectId == null) {
-            projectService.userProjects(auth)
+            projectService.userProjects(auth, Permission.SUBJECT_READ)
                 .also { projects ->
                     if (projects.isEmpty()) return emptyUsers(pageNumber, pageSize)
                 }
                 .map { it.id }
         } else {
-            auth.checkPermissionOnProject(Permission.PROJECT_READ, projectId)
+            auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
             listOf(projectId)
         }
 
