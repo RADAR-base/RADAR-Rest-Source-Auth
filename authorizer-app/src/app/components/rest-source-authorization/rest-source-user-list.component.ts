@@ -81,7 +81,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
   subscribeToUsers(): Subscription {
     const filterInput = this.filterValue
       .pipe(
-        debounceTime(150),
+        debounceTime(300),
         distinctUntilChanged(),
       );
     const projectInput = this.project$
