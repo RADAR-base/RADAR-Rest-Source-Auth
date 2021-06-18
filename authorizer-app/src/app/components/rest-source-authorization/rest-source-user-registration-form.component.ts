@@ -11,7 +11,7 @@ import { SourceClientAuthorizationService } from '../../services/source-client-a
 })
 export class RestSourceUserRegistrationFormComponent implements OnInit {
   sourceTypes: string[];
-  selectedSourceType;
+  selectedSourceType = '';
 
   constructor(
     private sourceClientAuthorizationService: SourceClientAuthorizationService,
