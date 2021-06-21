@@ -52,7 +52,9 @@ class ProjectResource(
     @Path("{projectId}/users")
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ, "projectId")
     @Cache(maxAge = 60, isPrivate = true)
-    fun users(@PathParam("projectId") projectId: String) = UserList(
+    fun users(
+        @PathParam("projectId") projectId: String,
+    ) = UserList(
         projectService.projectUsers(projectId)
             .map { it.toUser() }
     )

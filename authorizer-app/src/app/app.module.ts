@@ -21,6 +21,10 @@ import {
 import {
   RestSourceUserListComponent,
 } from './components/rest-source-authorization/rest-source-user-list.component';
+import {
+  RestSourceUserDashboardComponent,
+} from './components/rest-source-authorization/rest-source-user-dashboard.component';
+
 import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -48,7 +52,7 @@ import {RestSourceUserListResetDialog} from "./components/rest-source-authorizat
 const appRoutes: Routes = [
   {
     path: '',
-    component: RestSourceUserListComponent,
+    component: RestSourceUserDashboardComponent,
     canActivate: [AuthGuard]
   },
   {
@@ -57,7 +61,7 @@ const appRoutes: Routes = [
   },
   {
     path: 'users',
-    component: RestSourceUserListComponent,
+    component: RestSourceUserDashboardComponent,
     canActivate: [AuthGuard]
   },
   {
@@ -82,7 +86,7 @@ const appRoutes: Routes = [
   },
   {
     path: '**',
-    component: RestSourceUserListComponent,
+    component: RestSourceUserDashboardComponent,
     canActivate: [AuthGuard]
   }
 ];
@@ -94,6 +98,7 @@ const appRoutes: Routes = [
     RestSourceUserRegistrationFormComponent,
     ErrorReportingComponent,
     RestSourceUserListComponent,
+    RestSourceUserDashboardComponent,
     LoginPageComponent,
     ToolbarComponent,
     RestSourceUserListResetDialog,

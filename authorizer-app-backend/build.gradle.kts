@@ -1,4 +1,3 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -7,8 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.noarg")
     id("org.jetbrains.kotlin.plugin.jpa")
     id("org.jetbrains.kotlin.plugin.allopen")
-    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
-    id("com.github.ben-manes.versions") version "0.38.0"
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 application {
@@ -16,7 +14,6 @@ application {
 }
 
 repositories {
-    mavenCentral()
     maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
 }
 
@@ -62,19 +59,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
-    }
-}
-
-fun isNonStable(version: String): Boolean {
-    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
-    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-    val isStable = stableKeyword || regex.matches(version)
-    return isStable.not()
-}
-
-tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
-    rejectVersionIf {
-        isNonStable(candidate.version)
     }
 }
 

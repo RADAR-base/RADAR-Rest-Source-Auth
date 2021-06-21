@@ -61,32 +61,53 @@ class RestSourceUserResource(
     fun query(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
+        @QueryParam("search") search: String?,
         @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int,
     ): RestSourceUsers {
-        val sanitizedSourceType = if (sourceType != null && sourceType in sourceClientService) {
-            sourceType
-        } else null
-
-        val projects = if (projectId != null) {
+        val projectIds = if (projectId == null) {
+            projectService.userProjects(auth, Permission.SUBJECT_READ)
+                .also { projects ->
+                    if (projects.isEmpty()) return emptyUsers(pageNumber, pageSize)
+                }
+                .map { it.id }
+        } else {
             auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
             listOf(projectId)
-        } else {
-            projectService.userProjects(auth, Permission.SUBJECT_READ)
-                .map { it.id }
         }
 
-        if (projects.isEmpty()) return RestSourceUsers(emptyList(), Page(totalElements = 0))
+        val sanitizedSourceType = when (sourceType) {
+            null -> null
+            in sourceClientService -> sourceType
+            else -> return emptyUsers(pageNumber, pageSize)
+        }
+
+        val sanitizedSearch = search?.takeIf { it.length >= 2 }
+
+        val userIds = if (sanitizedSearch != null) {
+            if (projectId == null) {
+                throw HttpBadRequestException(
+                    "missing_project_id",
+                    "Cannot search without a fixed project ID.",
+                )
+            }
+            projectService.projectUsers(projectId)
+                .mapNotNull { sub ->
+                    val externalId = sub.externalId ?: return@mapNotNull null
+                    sub.id.takeIf { sanitizedSearch in externalId }
+                }
+        } else emptyList()
 
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
-        val (records, page) = userRepository.query(queryPage, projects, sanitizedSourceType)
-
-        return userMapper.fromRestSourceUsers(
-            records.filter {
-                auth.token.hasPermissionOnSubject(Permission.SUBJECT_READ, it.projectId, it.userId)
-            },
-            page,
+        val (records, page) = userRepository.query(
+            queryPage,
+            projectIds,
+            sanitizedSourceType,
+            sanitizedSearch,
+            userIds,
         )
+
+        return userMapper.fromRestSourceUsers(records, page)
     }
 
     @POST
@@ -253,5 +274,14 @@ class RestSourceUserResource(
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(RestSourceUserResource::class.java)
+
+        private fun emptyUsers(pageNumber: Int, pageSize: Int) = RestSourceUsers(
+            users = listOf(),
+            metadata = Page(
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                totalElements = 0,
+            ),
+        )
     }
 }
