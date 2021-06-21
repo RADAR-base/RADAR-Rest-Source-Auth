@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {
   RestSourceUser,
   RestSourceUsers
@@ -21,19 +21,13 @@ export class RestSourceUserService {
 
   constructor(private http: HttpClient) {}
 
-  getAllUsers(): Observable<RestSourceUser[]> {
-    return this.http.get<RestSourceUser[]>(this.serviceUrl);
-  }
-
   getAllUsersOfProject(
     projectId: string,
     req?: any
   ): Observable<RestSourceUsers> {
-    const params = createRequestOption(req);
-    const url = encodeURI(
-      environment.backendBaseUrl + '/users?project-id=' + projectId
-    );
-    return this.http.get(url, { params }) as Observable<RestSourceUsers>;
+    let params = createRequestOption(req);
+    params = params.set('project-id', projectId);
+    return this.http.get<RestSourceUsers>(environment.backendBaseUrl + '/users', { params });
   }
 
   getAllProjects(): Observable<RadarProject[]> {

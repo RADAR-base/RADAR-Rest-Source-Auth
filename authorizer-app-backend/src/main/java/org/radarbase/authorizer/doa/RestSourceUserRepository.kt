@@ -27,7 +27,13 @@ interface RestSourceUserRepository {
     fun updateToken(token: RestOauth2AccessToken?, userId: Long): RestSourceUser
     fun read(id: Long): RestSourceUser?
     fun update(existingUser: RestSourceUser, user: RestSourceUserDTO): RestSourceUser
-    fun query(page: Page, projects: List<String>, sourceType: String? = null): Pair<List<RestSourceUser>, Page>
+    fun query(
+        page: Page,
+        projectIds: List<String>,
+        sourceType: String? = null,
+        search: String?,
+        userIds: List<String>,
+    ): Pair<List<RestSourceUser>, Page>
     fun queryAllWithElapsedEndDate(sourceType: String? = null): List<RestSourceUser>
     fun delete(user: RestSourceUser)
     fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?): RestSourceUser

@@ -1,101 +1,80 @@
-<toolbar [showMenu]="true"></toolbar>
+<div class="users-container">
 
-<div class="page-container">
+  <mat-form-field class="container col-md-4">
+    <label>
+      <input
+        matInput
+        (keyup)="applyFilter($event.target.value)"
+        placeholder="Filter by User ID or External User ID"
+      />
+    </label>
+  </mat-form-field>
 
-  <ngb-alert *ngIf="errorMessage" type="danger" (close)="errorMessage = null">
-    {{errorMessage}}
-  </ngb-alert>
-
-  <div class="container col-md-4">
-    <rest-source-user-registration-form></rest-source-user-registration-form>
-
-    <form class="form-group">
-      <div class="container text-center">
-        <label for="field_projects">Project:</label>
-        <select class="form-control" id="field_projects"
-                (change)="onChangeProject($event.target.value)">
-          <option  value="">Select a project</option>
-          <option [selected]="project.id===selectedProject" [value]="project.id" *ngFor="let project of restSourceProjects">{{project.id}}</option>
-        </select>
-      </div>
-    </form>
-  </div>
-
-  <div *ngIf="selectedProject && selectedProject!==''" class="users-container">
-
-    <mat-form-field class="container col-md-4">
-      <label>
-        <input
-          matInput
-          (keyup)="applyFilter($event.target.value)"
-          placeholder="Filter by ID, User ID or External User ID"
-        />
-      </label>
-    </mat-form-field>
-
-    <table mat-table [dataSource]="dataSource" matSort>
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-        <td mat-cell *matCellDef="let user"> {{user.id}} </td>
-      </ng-container>
-      <ng-container matColumnDef="userId">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> User ID </th>
-        <td mat-cell *matCellDef="let user">
-          <span   
-          [matTooltip]="user.userId"
-          matTooltipPosition="after"
-          matTooltipHideDelay="10000">
-          {{(user.userId | slice:0:13) + '...'}}
-        </span>
+  <table mat-table [dataSource]="dataSource" matSort>
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+      <td mat-cell *matCellDef="let user"> {{user.id}} </td>
+    </ng-container>
+    <ng-container matColumnDef="userId">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> User ID </th>
+      <td mat-cell *matCellDef="let user">
+        <span
+        [matTooltip]="user.userId"
+        matTooltipPosition="after"
+        matTooltipHideDelay="10000">
+        {{(user.userId | slice:0:13) + '...'}}
+      </span>
+    </td>
+    </ng-container>
+    <ng-container matColumnDef="externalUserId">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> External User ID </th>
+      <td mat-cell *matCellDef="let user"> {{user.externalId}} </td>
+    </ng-container>
+    <ng-container matColumnDef="sourceType">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Source Type </th>
+      <td mat-cell *matCellDef="let user"> {{user.sourceType}} </td>
+    </ng-container>
+    <ng-container matColumnDef="startDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Start Date </th>
+      <td mat-cell *matCellDef="let user"> {{user.startDate | date}} </td>
+    </ng-container>
+    <ng-container matColumnDef="endDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> End Date </th>
+      <td mat-cell *matCellDef="let user"> {{user.endDate | date}} </td>
+    </ng-container>authorized
+    <ng-container matColumnDef="authorized">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Authorized </th>
+      <td mat-cell *matCellDef="let user"> {{user.isAuthorized? "Yes":"No"}} </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let user">
+        <button mat-icon-button color="primary" [routerLink]="['/users', user.id]" ngbTooltip="Info/Edit">
+          <mat-icon>info</mat-icon>
+        </button>
+        <button mat-icon-button ngbTooltip="Reset" matTooltip="This will re-pull all the data for this user"
+                color="warn" (click)="openResetDialog(user)">
+          <mat-icon>replay</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="openDeleteDialog(user)" ngbTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
       </td>
-      </ng-container>
-      <ng-container matColumnDef="externalUserId">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> External User ID </th>
-        <td mat-cell *matCellDef="let user"> {{user.externalId}} </td>
-      </ng-container>
-      <ng-container matColumnDef="sourceType">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Source Type </th>
-        <td mat-cell *matCellDef="let user"> {{user.sourceType}} </td>
-      </ng-container>
-      <ng-container matColumnDef="startDate">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Start Date </th>
-        <td mat-cell *matCellDef="let user"> {{user.startDate | date}} </td>
-      </ng-container>
-      <ng-container matColumnDef="endDate">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> End Date </th>
-        <td mat-cell *matCellDef="let user"> {{user.endDate | date}} </td>
-      </ng-container>authorized
-      <ng-container matColumnDef="authorized">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Authorized </th>
-        <td mat-cell *matCellDef="let user"> {{user.isAuthorized? "Yes":"No"}} </td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Actions </th>
-        <td mat-cell *matCellDef="let user">
-          <button mat-icon-button color="primary" [routerLink]="['/users', user.id]" ngbTooltip="Info/Edit">
-            <mat-icon>info</mat-icon>
-          </button>
-          <button mat-icon-button ngbTooltip="Reset" matTooltip="This will re-pull all the data for this user"
-                  color="warn" (click)="openResetDialog(user)">
-            <mat-icon>replay</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="openDeleteDialog(user)" ngbTooltip="Delete">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-      <tr mat-row *matRowDef="let rowData; columns: columnsToDisplay"></tr>
-    </table>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let rowData; columns: columnsToDisplay"></tr>
+  </table>
 
-    <mat-paginator
-      [length]="totalItems"
-      [pageSize]="20"
-      [pageSizeOptions]="[10, 20, 50]"
-      (page)="loadPage($event)"
-      showFirstLastButtons
-    ></mat-paginator>
+  <table *ngIf="!dataSource.data.length">
+    <tr>
+      <td style="text-align: center;" [attr.colspan]="columnsToDisplay.length">
+        No users found
+      </td>
+    </tr>
+  </table>
 
-  </div>
-
+  <mat-paginator [hidden]="!dataSource.data.length"
+                 [pageSizeOptions]="[10, 20, 50]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>
