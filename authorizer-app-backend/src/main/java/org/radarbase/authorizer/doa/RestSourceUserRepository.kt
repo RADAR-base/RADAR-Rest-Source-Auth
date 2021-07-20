@@ -33,6 +33,7 @@ interface RestSourceUserRepository {
         sourceType: String? = null,
         search: String?,
         userIds: List<String>,
+        isAuthorized: Boolean?,
     ): Pair<List<RestSourceUser>, Page>
     fun queryAllWithElapsedEndDate(sourceType: String? = null): List<RestSourceUser>
     fun delete(user: RestSourceUser)
