@@ -95,11 +95,11 @@ class RestSourceUser(
     var timesReset: Long = 0,
 
     @OneToMany(
-        targetEntity = TokenState::class,
+        targetEntity = RegistrationState::class,
         cascade = [CascadeType.REMOVE],
         mappedBy = "user",
     )
-    var tokens: List<TokenState> = listOf(),
+    var registrations: List<RegistrationState> = listOf(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

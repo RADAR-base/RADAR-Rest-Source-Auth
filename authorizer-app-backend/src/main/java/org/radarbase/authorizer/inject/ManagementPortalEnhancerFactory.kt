@@ -18,7 +18,7 @@ package org.radarbase.authorizer.inject
 
 import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.doa.entity.TokenState
+import org.radarbase.authorizer.doa.entity.RegistrationState
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.config.ConfigLoader
@@ -42,7 +42,7 @@ class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFact
         val dbConfig = config.database.copy(
             managedClasses = listOf(
                 RestSourceUser::class.qualifiedName!!,
-                TokenState::class.qualifiedName!!,
+                RegistrationState::class.qualifiedName!!,
             ),
         )
         return listOf(

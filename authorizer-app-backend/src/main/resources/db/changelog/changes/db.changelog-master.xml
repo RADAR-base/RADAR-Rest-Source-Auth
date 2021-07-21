@@ -3,9 +3,10 @@
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+                          https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
   <include  file="db/changelog/changes/00000000000000_initial_schema.xml"/>
   <include  file="db/changelog/changes/00000000000001_update_schema.xml"/>
   <include  file="db/changelog/changes/00000000000002_update_schema.xml"/>
   <include  file="db/changelog/changes/00000000000003_add_created_at_column.xml"/>
+  <include  file="db/changelog/changes/20210721100000_add_registration_table.xml"/>
 </databaseChangeLog>

@@ -9,10 +9,10 @@ import jakarta.ws.rs.core.Response
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
-import org.radarbase.authorizer.doa.TokenRepository
+import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceUserService
-import org.radarbase.authorizer.service.TokenService
+import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.util.Hmac256Secret
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
@@ -20,17 +20,17 @@ import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
 import java.net.URI
 
-@Path("tokens")
+@Path("registrations")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Resource
 @Singleton
-class TokenResource(
-    @Context private val tokenRepository: TokenRepository,
+class RegistrationResource(
+    @Context private val registrationRepository: RegistrationRepository,
     @Context private val restSourceUserService: RestSourceUserService,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val userRepository: RestSourceUserRepository,
-    @Context private val tokenService: TokenService,
+    @Context private val registrationService: RegistrationService,
 ) {
     @POST
     @Authenticated
@@ -41,12 +41,14 @@ class TokenResource(
     ): Response {
         val user = restSourceUserService.ensureUser(createState.userId.toLong())
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
-        var tokenState = tokenService.generate(user, createState.persistent)
+        var tokenState = registrationService.generate(user, createState.persistent)
         if (!createState.persistent) {
             tokenState = tokenState.copy(
-                authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(user.sourceType,
-                    user.id!!,
-                    tokenState.token),
+                authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(
+                    sourceType = user.sourceType,
+                    userId = user.id!!,
+                    state = tokenState.token,
+                ),
             )
         }
         return Response.created(URI("tokens/${tokenState.token}"))
@@ -57,16 +59,14 @@ class TokenResource(
     @GET
     @Path("{token}")
     fun state(
-        @PathParam("token") tokenId: String,
-    ): Token {
-        val tokenState = tokenRepository[tokenId]
-            ?: throw HttpBadRequestException("token_not_found", "State has expired or not found")
-        if (!tokenState.isValid) throw HttpBadRequestException("token_expired", "Token has expired")
-        return Token(
-            token = tokenState.token,
-            userId = tokenState.user.id!!.toString(),
-            expiresAt = tokenState.expiresAt,
-            persistent = tokenState.persistent,
+        @PathParam("token") token: String,
+    ): RegistrationResponse {
+        val registration = registrationService.ensureRegistration(token)
+        return RegistrationResponse(
+            token = registration.token,
+            userId = registration.user.id!!.toString(),
+            expiresAt = registration.expiresAt,
+            persistent = registration.persistent,
         )
     }
 
@@ -75,7 +75,7 @@ class TokenResource(
     fun deleteState(
         @PathParam("token") token: String,
     ): Response {
-        tokenRepository -= token
+        registrationRepository -= token
         return Response.noContent().build()
     }
 
@@ -84,21 +84,23 @@ class TokenResource(
     fun authEndpoint(
         @PathParam("token") token: String,
         tokenSecret: TokenSecret,
-    ): Token {
-        val tokenState = tokenRepository[token]
-            ?: throw HttpBadRequestException("token_not_found", "State has expired or not found")
-        val salt = tokenState.salt
-        val secretHash = tokenState.secretHash
-        if (salt == null || secretHash == null) throw HttpBadRequestException("token_invalid", "Cannot retrieve authentication endpoint token without credentials.")
-        if (!tokenState.isValid) throw HttpBadRequestException("token_expired", "Token has expired")
+    ): RegistrationResponse {
+        val registration = registrationService.ensureRegistration(token)
+        val salt = registration.salt
+        val secretHash = registration.secretHash
+        if (salt == null || secretHash == null) throw HttpBadRequestException("registration_invalid", "Cannot retrieve authentication endpoint token without credentials.")
         val hmac256Secret = Hmac256Secret(tokenSecret.secret, salt, secretHash)
         if (!hmac256Secret.isValid) throw HttpBadRequestException("bad_secret", "Secret does not match token")
-        return Token(
-            token = tokenState.token,
-            authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(tokenState.user.sourceType, tokenState.user.id!!, tokenState.token),
-            userId = tokenState.user.id!!.toString(),
-            expiresAt = tokenState.expiresAt,
-            persistent = tokenState.persistent,
+        return RegistrationResponse(
+            token = registration.token,
+            authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(
+                sourceType = registration.user.sourceType,
+                userId = registration.user.id!!,
+                state = registration.token
+            ),
+            userId = registration.user.id!!.toString(),
+            expiresAt = registration.expiresAt,
+            persistent = registration.persistent,
         )
     }
 
@@ -109,21 +111,18 @@ class TokenResource(
         @PathParam("token") token: String,
         payload: RequestTokenPayload,
     ): Response {
-        val tokenState = tokenRepository[token]
-            ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
-        if (!tokenState.isValid) throw HttpBadRequestException("state_expired", "State has expired")
+        val registration = registrationService.ensureRegistration(token)
+        val accessToken = authorizationService.requestAccessToken(payload, registration.user.sourceType)
+        val user = userRepository.updateToken(accessToken, registration.user)
 
-        val accessToken = authorizationService.requestAccessToken(payload, tokenState.user.sourceType)
-        val user = userRepository.updateToken(accessToken, tokenState.user)
-
-        val tokenEntity = Token(
-            token = tokenState.token,
-            userId = tokenState.user.id!!.toString(),
-            expiresAt = tokenState.expiresAt,
-            persistent = tokenState.persistent,
+        val tokenEntity = RegistrationResponse(
+            token = registration.token,
+            userId = registration.user.id!!.toString(),
+            expiresAt = registration.expiresAt,
+            persistent = registration.persistent,
         )
 
-        tokenRepository -= tokenState
+        registrationRepository -= registration
 
         return Response.created(URI("source-clients/${user.sourceType}/authorization/${user.externalUserId}"))
             .entity(tokenEntity)

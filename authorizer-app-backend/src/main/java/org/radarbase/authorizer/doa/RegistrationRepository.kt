@@ -4,7 +4,7 @@ import jakarta.inject.Provider
 import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.doa.entity.TokenState
+import org.radarbase.authorizer.doa.entity.RegistrationState
 import org.radarbase.authorizer.util.Hmac256Secret
 import org.radarbase.authorizer.util.Hmac256Secret.Companion.encodeToBase64
 import org.radarbase.authorizer.util.Hmac256Secret.Companion.randomize
@@ -14,7 +14,7 @@ import java.time.Instant
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceException
 
-class TokenRepository(
+class RegistrationRepository(
     @Context private val config: Config,
     @Context em: Provider<EntityManager>,
 ) : HibernateRepository(em) {
@@ -26,7 +26,7 @@ class TokenRepository(
         user: RestSourceUser,
         secret: Hmac256Secret?,
         persistent: Boolean,
-    ): TokenState? {
+    ): RegistrationState? {
         val expiresAt = Instant.now() + if (persistent) persistentTokenExpiryTime else tokenExpiryTime
         val numberOfBytes = if (persistent) 18 else 9
         return randomStrings(numberOfBytes)
@@ -34,7 +34,7 @@ class TokenRepository(
             .firstNotNullOfOrNull { token ->
                 try {
                     transact {
-                        TokenState(
+                        RegistrationState(
                             token = token,
                             user = user,
                             expiresAt = expiresAt,
@@ -50,16 +50,16 @@ class TokenRepository(
             }
     }
 
-    operator fun get(token: String): TokenState? = transact {
-        find(TokenState::class.java, token)
+    operator fun get(token: String): RegistrationState? = transact {
+        find(RegistrationState::class.java, token)
     }
 
     fun cleanUp(): Int = transact {
         val cb = criteriaBuilder
 
         // create delete
-        val deleteQuery = cb.createCriteriaDelete(TokenState::class.java).apply {
-            val tokenType = from(TokenState::class.java)
+        val deleteQuery = cb.createCriteriaDelete(RegistrationState::class.java).apply {
+            val tokenType = from(RegistrationState::class.java)
             where(cb.lessThan(tokenType["expiresAt"], Instant.now()))
         }
 
@@ -69,14 +69,14 @@ class TokenRepository(
 
     operator fun minusAssign(token: String) = remove(token)
 
-    operator fun minusAssign(tokenState: TokenState) = remove(tokenState)
+    operator fun minusAssign(registrationState: RegistrationState) = remove(registrationState)
 
-    fun remove(tokenState: TokenState): Unit = transact {
-        remove(tokenState)
+    fun remove(registrationState: RegistrationState): Unit = transact {
+        remove(registrationState)
     }
 
     fun remove(token: String): Unit = transact {
-        val state = find(TokenState::class.java, token)
+        val state = find(RegistrationState::class.java, token)
         remove(state)
     }
 

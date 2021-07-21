@@ -55,7 +55,7 @@ data class TokenSecret(
     val secret: String,
 )
 
-data class Token(
+data class RegistrationResponse(
     val token: String,
     val secret: String? = null,
     val userId: String,

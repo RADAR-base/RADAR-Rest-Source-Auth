@@ -10,10 +10,10 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-@Table(name = "token")
+@Table(name = "registration")
 @Immutable
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-class TokenState(
+class RegistrationState(
     @Id
     @Column
     val token: String,
@@ -44,7 +44,7 @@ class TokenState(
 
         if (javaClass != otherClass) return false
 
-        other as TokenState
+        other as RegistrationState
 
         return token == other.token &&
             user == other.user
