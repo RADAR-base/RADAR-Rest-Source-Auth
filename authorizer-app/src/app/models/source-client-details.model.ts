@@ -1,3 +1,7 @@
+export class RestSourceClientDetailsList {
+  sourceClients: RestSourceClientDetails[];
+}
+
 export class RestSourceClientDetails {
   sourceType?: string;
   authorizationEndpoint?: string;
@@ -5,5 +9,4 @@ export class RestSourceClientDetails {
   scope?: string;
   redirectUrl?: string;
   grantType?: string;
-  state: string
 }

@@ -16,11 +16,14 @@
 
 package org.radarbase.authorizer
 
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.radarbase.authorizer.inject.ManagementPortalEnhancerFactory
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 import org.radarbase.jersey.config.EnhancerFactory
 import org.radarbase.jersey.hibernate.config.DatabaseConfig
 import java.net.URI
+import java.time.Duration
 import java.util.*
 
 data class Config(
@@ -32,13 +35,20 @@ data class Config(
 
 data class AuthorizerServiceConfig(
     var baseUri: URI = URI.create("http://0.0.0.0:8080/rest-sources/backend/"),
-    var advertisedBaseUri: URI? = null,
+    var frontendBaseUri: URI? = null,
     var resourceConfig: Class<out EnhancerFactory> = ManagementPortalEnhancerFactory::class.java,
     var enableCors: Boolean? = false,
     var syncProjectsIntervalMin: Long = 30,
     var syncParticipantsIntervalMin: Long = 30,
-    val stateStoreExpiryInMin: Long = 5,
-)
+    val tokenExpiryTimeInMinutes: Long = 15,
+    val persistentTokenExpiryInMin: Long = Duration.ofDays(3).toMinutes(),
+) {
+    val callbackUrl: HttpUrl by lazy {
+        checkNotNull(frontendBaseUri?.toHttpUrlOrNull()) { "Frontend URL parameter $frontendBaseUri is not a valid HTTP URL." }
+            .newBuilder("users:new")!!
+            .build()
+    }
+}
 
 data class AuthConfig(
     var managementPortalUrl: String = "http://managementportal-app:8080/managementportal/",

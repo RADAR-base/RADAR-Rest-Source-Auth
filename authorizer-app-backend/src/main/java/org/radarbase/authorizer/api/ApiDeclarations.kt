@@ -46,6 +46,24 @@ data class SignRequestParams(
     val parameters: Map<String, String?>,
 )
 
+data class StateCreateDTO(
+    val userId: String,
+    val persistent: Boolean = false,
+)
+
+data class TokenSecret(
+    val secret: String,
+)
+
+data class Token(
+    val token: String,
+    val secret: String? = null,
+    val userId: String,
+    val expiresAt: Instant,
+    val persistent: Boolean,
+    val authEndpointUrl: String? = null,
+)
+
 data class DeregistrationsDTO(
     val deregistrations: List<DeregistrationParams>
 )
@@ -56,9 +74,7 @@ data class DeregistrationParams(
 )
 
 data class RequestTokenPayload(
-    var sourceType: String,
     var code: String? = null,
-    var state: String? = null,
     var oauth_token: String? = null,
     var oauth_verifier: String? = null,
     var oauth_token_secret: String? = null,
@@ -73,7 +89,6 @@ data class ShareableClientDetail(
     val grantType: String?,
     val clientId: String,
     val scope: String?,
-    val state: String? = null,
 )
 
 data class ShareableClientDetails(
@@ -88,7 +103,7 @@ class RestSourceUserDTO(
     val humanReadableUserId: String?,
     val externalId: String?,
     val sourceId: String,
-    val serviceUserId: String,
+    val serviceUserId: String?,
     val startDate: Instant,
     val endDate: Instant? = null,
     val sourceType: String,

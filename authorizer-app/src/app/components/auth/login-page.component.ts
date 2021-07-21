@@ -22,7 +22,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   authCodeSubscription: Subscription;
 
   ngOnInit() {
-    if (environment.authorizationGrantType == grantType.AUTHORIZATION_CODE) {
+    if (environment.authorizationGrantType === grantType.AUTHORIZATION_CODE) {
       this.loginWithAuthCode();
     }
   }
@@ -33,7 +33,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   loginHandler() {
-    if (environment.authorizationGrantType == grantType.AUTHORIZATION_CODE) {
+    if (environment.authorizationGrantType === grantType.AUTHORIZATION_CODE) {
       this.redirectToAuthRequestLink();
     }
   }

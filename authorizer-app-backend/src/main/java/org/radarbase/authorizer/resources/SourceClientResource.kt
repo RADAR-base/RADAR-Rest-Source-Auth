@@ -26,7 +26,6 @@ import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
-import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
@@ -42,13 +41,11 @@ import org.slf4j.LoggerFactory
 class SourceClientResource(
     @Context private val restSourceClients: RestSourceClientService,
     @Context private val clientMapper: RestSourceClientMapper,
-    @Context private val stateStore: StateStore,
     @Context private val auth: Auth,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val userMapper: RestSourceUserMapper,
 ) {
-    private val sourceTypes = restSourceClients.clients.map { it.sourceType }
     private val sharableClientDetails = clientMapper.fromSourceClientConfigs(restSourceClients.clients)
 
     @GET
@@ -59,28 +56,12 @@ class SourceClientResource(
 
     @GET
     @Authenticated
-    @Path("type")
-    @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
-    @Cache(maxAge = 3600, isPrivate = true)
-    fun types(): List<String> = sourceTypes
-
-    @GET
-    @Authenticated
     @Path("{type}")
     @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
     fun client(@PathParam("type") type: String): ShareableClientDetail {
         val sourceType = restSourceClients.forSourceType(type)
-        return clientMapper.toSourceClientConfig(sourceType, stateStore.generate(type).stateId)
+        return clientMapper.toSourceClientConfig(sourceType)
     }
-
-    @GET
-    @Authenticated
-    @Path("{type}/auth-endpoint")
-    @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
-    fun getAuthEndpoint(
-        @PathParam("type") type: String,
-        @QueryParam("callbackUrl") callbackUrl: String,
-    ): String = authorizationService.getAuthorizationEndpointWithParams(type, callbackUrl)
 
     @DELETE
     @Authenticated
@@ -130,6 +111,7 @@ class SourceClientResource(
         body.deregistrations.forEach { deregistration ->
             val user = userRepository.findByExternalId(deregistration.userId, sourceType)
             if (user != null && user.accessToken == deregistration.userAccessToken) {
+                auth.checkPermissionOnSubject(Permission.SUBJECT_DELETE, user.projectId, user.userId)
                 authorizationService.deregisterUser(user)
             }
         }

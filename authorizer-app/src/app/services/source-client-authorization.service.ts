@@ -2,7 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
+import {
+  RestSourceClientDetails,
+  RestSourceClientDetailsList
+} from "../models/source-client-details.model";
+import { AuthEndpointResponse } from "../models/auth.model";
 
 @Injectable({
   providedIn: 'root'
@@ -14,31 +19,27 @@ export class SourceClientAuthorizationService {
 
   constructor(private http: HttpClient) {}
 
-  getDeviceTypes(): Observable<any> {
-    return this.http.get(this.serviceUrl + '/source-clients/type');
-  }
-
-  getSourceClientAuthDetails(sourceType: string): Observable<any> {
-    return this.http.get(this.serviceUrl + '/source-clients/' + sourceType);
+  getDeviceTypes(): Observable<RestSourceClientDetailsList> {
+    return this.http.get<RestSourceClientDetailsList>(this.serviceUrl + '/source-clients');
   }
 
   getAuthorizationEndpoint(
-    sourceType: string,
+    sourceType: RestSourceClientDetails,
     callbackurl: string
   ): Observable<any> {
     const url =
       this.serviceUrl +
       '/source-clients/' +
-      sourceType +
+      sourceType.sourceType +
       '/auth-endpoint?callbackUrl=' +
       callbackurl;
-    return this.http.get(url, { responseType: 'text' }).pipe(
-      map(url => {
-        this.storeAuthorizationEndpointParams(url);
-        this.storeSourceType(sourceType);
-        return url;
-      })
-    );
+    return this.http.get<AuthEndpointResponse>(url)
+      .pipe(
+        tap(authEndpoint => {
+          this.storeAuthorizationEndpointParams(authEndpoint.url);
+          this.storeSourceType(sourceType);
+        })
+      );
   }
 
   storeSourceType(type) {
