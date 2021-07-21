@@ -18,6 +18,7 @@ import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
+import org.radarbase.jersey.exception.HttpConflictException
 import java.net.URI
 
 @Path("registrations")
@@ -88,6 +89,7 @@ class RegistrationResource(
         tokenSecret: TokenSecret,
     ): RegistrationResponse {
         val registration = registrationService.ensureRegistration(token)
+        if (registration.user.authorized) throw HttpConflictException("user_already_authorized", "User was already authorized for this service.")
         val salt = registration.salt
         val secretHash = registration.secretHash
         if (salt == null || secretHash == null) throw HttpBadRequestException("registration_invalid", "Cannot retrieve authentication endpoint token without credentials.")
