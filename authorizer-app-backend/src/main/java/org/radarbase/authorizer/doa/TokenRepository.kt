@@ -14,11 +14,10 @@ import java.time.Instant
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceException
 
-
 class TokenRepository(
     @Context private val config: Config,
     @Context em: Provider<EntityManager>,
-): HibernateRepository(em) {
+) : HibernateRepository(em) {
 
     private val tokenExpiryTime = Duration.ofMinutes(config.service.tokenExpiryTimeInMinutes)
     private val persistentTokenExpiryTime = Duration.ofMinutes(config.service.persistentTokenExpiryInMin)
@@ -76,6 +75,6 @@ class TokenRepository(
 
     companion object {
         fun randomStrings(numberOfBytes: Int): Sequence<String> =
-                generateSequence { ByteArray(numberOfBytes).randomize().encodeToBase64() }
+            generateSequence { ByteArray(numberOfBytes).randomize().encodeToBase64() }
     }
 }

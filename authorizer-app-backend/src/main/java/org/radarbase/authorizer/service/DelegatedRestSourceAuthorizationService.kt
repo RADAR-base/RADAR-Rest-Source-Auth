@@ -47,7 +47,7 @@ class DelegatedRestSourceAuthorizationService(
     override fun getAuthorizationEndpointWithParams(
         sourceType: String,
         userId: Long,
-        state: String?
+        state: String
     ): String =
         delegate(sourceType)
             .getAuthorizationEndpointWithParams(sourceType, userId, state)

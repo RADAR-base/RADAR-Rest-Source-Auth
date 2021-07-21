@@ -21,6 +21,7 @@ import jakarta.ws.rs.core.Context
 import okhttp3.OkHttpClient
 import org.glassfish.jersey.process.internal.RequestScope
 import org.glassfish.jersey.server.BackgroundScheduler
+import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth1UserId
 import org.radarbase.authorizer.doa.RestSourceUserRepository
@@ -37,12 +38,16 @@ class GarminSourceAuthorizationService(
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val requestScope: RequestScope,
     @Context @BackgroundScheduler private val scheduler: ScheduledExecutorService,
+    @Context private val config: Config,
 ) : OAuth1RestSourceAuthorizationService(
     clientService,
     httpClient,
     objectMapper,
     userRepository,
+    config,
 ) {
+    private val oauth1Reader = objectMapper.readerFor(RestOauth1UserId::class.java)
+
     init {
         // This schedules a task that periodically checks users with elapsed end dates and deregisters them.
         scheduler.scheduleAtFixedRate(
@@ -67,7 +72,7 @@ class GarminSourceAuthorizationService(
                 when (response.code) {
                     200 -> response.body?.byteStream()
                         ?.let {
-                            objectMapper.readerFor(RestOauth1UserId::class.java).readValue<RestOauth1UserId>(it).userId
+                            oauth1Reader.readValue<RestOauth1UserId>(it).userId
                         }
                         ?: throw HttpBadGatewayException("Service did not provide a result")
                     400, 401, 403 -> throw HttpBadGatewayException("Service was unable to fetch the external ID")

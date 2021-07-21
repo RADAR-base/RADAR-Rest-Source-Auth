@@ -108,10 +108,10 @@ class RestSourceUser(
 
         other as RestSourceUser
 
-        return projectId == other.projectId
-                && userId == other.userId
-                && sourceId == other.sourceId
-                && sourceType == other.sourceType
+        return projectId == other.projectId &&
+            userId == other.userId &&
+            sourceId == other.sourceId &&
+            sourceType == other.sourceType
     }
 
     override fun hashCode(): Int = Objects.hash(userId, sourceType)

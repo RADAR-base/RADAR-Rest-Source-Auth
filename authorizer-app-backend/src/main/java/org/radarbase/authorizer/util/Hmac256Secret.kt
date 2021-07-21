@@ -16,9 +16,9 @@ class Hmac256Secret(val secret: String, val salt: ByteArray, val secretHash: Byt
 
         other as Hmac256Secret
 
-        return secret == other.secret
-            && salt.contentEquals(other.salt)
-            && secretHash.contentEquals(other.secretHash)
+        return secret == other.secret &&
+            salt.contentEquals(other.salt) &&
+            secretHash.contentEquals(other.secretHash)
     }
 
     override fun hashCode(): Int {

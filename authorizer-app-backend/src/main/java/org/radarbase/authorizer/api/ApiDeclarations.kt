@@ -16,7 +16,6 @@
 
 package org.radarbase.authorizer.api
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
@@ -53,14 +52,18 @@ data class AuthEndpoint(
 )
 
 data class StateCreateDTO(
-    val userId: Long,
+    val userId: String,
     val persistent: Boolean = false,
+)
+
+data class TokenSecret(
+    val secret: String,
 )
 
 data class Token(
     val token: String,
     val secret: String? = null,
-    val userId: Long,
+    val userId: String,
     val expiresAt: Instant,
 )
 
@@ -103,7 +106,7 @@ class RestSourceUserDTO(
     val humanReadableUserId: String?,
     val externalId: String?,
     val sourceId: String,
-    val serviceUserId: String,
+    val serviceUserId: String?,
     val startDate: Instant,
     val endDate: Instant? = null,
     val sourceType: String,

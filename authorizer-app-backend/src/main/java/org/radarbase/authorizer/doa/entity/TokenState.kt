@@ -30,7 +30,6 @@ class TokenState(
     val isValid: Boolean
         get() = Instant.now() < expiresAt
 
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null) return false
@@ -45,8 +44,8 @@ class TokenState(
 
         other as TokenState
 
-        return token == other.token
-                && user == other.user
+        return token == other.token &&
+            user == other.user
     }
 
     override fun hashCode(): Int = Objects.hash(token)

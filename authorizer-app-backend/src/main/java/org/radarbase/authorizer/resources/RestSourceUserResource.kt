@@ -36,8 +36,6 @@ import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.service.managementportal.RadarProjectService
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 @Path("users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -220,8 +218,6 @@ class RestSourceUserResource(
     }
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(RestSourceUserResource::class.java)
-
         private fun emptyUsers(pageNumber: Int, pageSize: Int) = RestSourceUsers(
             users = listOf(),
             metadata = Page(
