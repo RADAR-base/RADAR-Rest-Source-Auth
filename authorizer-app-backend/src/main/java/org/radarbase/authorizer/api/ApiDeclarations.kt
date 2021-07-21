@@ -46,11 +46,6 @@ data class SignRequestParams(
     val parameters: Map<String, String?>,
 )
 
-data class AuthEndpoint(
-    val url: String,
-    val state: String,
-)
-
 data class StateCreateDTO(
     val userId: String,
     val persistent: Boolean = false,
@@ -65,6 +60,8 @@ data class Token(
     val secret: String? = null,
     val userId: String,
     val expiresAt: Instant,
+    val persistent: Boolean,
+    val authEndpointUrl: String? = null,
 )
 
 data class DeregistrationsDTO(

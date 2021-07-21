@@ -6,14 +6,18 @@ import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.TokenRepository
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceUserService
+import org.radarbase.authorizer.service.TokenService
 import org.radarbase.authorizer.util.Hmac256Secret
+import org.radarbase.jersey.auth.Auth
+import org.radarbase.jersey.auth.Authenticated
+import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
-import org.radarbase.jersey.exception.HttpInternalServerException
 import java.net.URI
 
 @Path("tokens")
@@ -26,28 +30,23 @@ class TokenResource(
     @Context private val restSourceUserService: RestSourceUserService,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val userRepository: RestSourceUserRepository,
+    @Context private val tokenService: TokenService,
 ) {
     @POST
+    @Authenticated
+    @NeedsPermission(entity = Permission.Entity.SUBJECT, operation = Permission.Operation.UPDATE)
     fun createState(
+        @Context auth: Auth,
         createState: StateCreateDTO,
     ): Response {
-
-        val secret = if (createState.persistent) {
-            Hmac256Secret.generate(secretLength = 12, saltLength = 6)
-        } else {
-            Hmac256Secret.generate(secretLength = 6, saltLength = 3)
-        }
         val user = restSourceUserService.ensureUser(createState.userId.toLong())
-        val tokenState = tokenRepository.generate(user, secret, createState.persistent) ?: throw HttpInternalServerException("token_not_generated", "Failed to generate token.")
-
-        val token = Token(
-            token = tokenState.token,
-            secret = secret.secret,
-            userId = tokenState.user.id?.toString() ?: throw HttpInternalServerException("token_incomplete", "Failed to generate complete token."),
-            expiresAt = tokenState.expiresAt,
+        auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
+        val tokenState = tokenService.generate(user, createState.persistent)
+        val tokenWithEndpoint = tokenState.copy(
+            authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(user.sourceType, user.id!!, tokenState.token),
         )
-        return Response.created(URI("tokens/${token.token}"))
-            .entity(token)
+        return Response.created(URI("tokens/${tokenState.token}"))
+            .entity(tokenWithEndpoint)
             .build()
     }
 
@@ -63,32 +62,39 @@ class TokenResource(
             token = tokenState.token,
             userId = tokenState.user.id!!.toString(),
             expiresAt = tokenState.expiresAt,
+            persistent = tokenState.persistent,
         )
     }
 
     @DELETE
     @Path("{token}")
     fun deleteState(
-        @PathParam("token") tokenId: String,
+        @PathParam("token") token: String,
     ): Response {
-        tokenRepository -= tokenId
+        tokenRepository -= token
         return Response.noContent().build()
     }
 
     @POST
     @Path("{token}/auth-endpoint")
     fun authEndpoint(
-        @PathParam("token") tokenId: String,
+        @PathParam("token") token: String,
         tokenSecret: TokenSecret,
-    ): AuthEndpoint {
-        val token = tokenRepository[tokenId]
+    ): Token {
+        val tokenState = tokenRepository[token]
             ?: throw HttpBadRequestException("token_not_found", "State has expired or not found")
-        if (!token.isValid) throw HttpBadRequestException("token_expired", "Token has expired")
-        val hmac256Secret = Hmac256Secret(tokenSecret.secret, token.salt, token.secretHash)
+        val salt = tokenState.salt
+        val secretHash = tokenState.secretHash
+        if (salt == null || secretHash == null) throw HttpBadRequestException("token_invalid", "Cannot retrieve authentication endpoint token without credentials.")
+        if (!tokenState.isValid) throw HttpBadRequestException("token_expired", "Token has expired")
+        val hmac256Secret = Hmac256Secret(tokenSecret.secret, salt, secretHash)
         if (!hmac256Secret.isValid) throw HttpBadRequestException("bad_secret", "Secret does not match token")
-        return AuthEndpoint(
-            url = authorizationService.getAuthorizationEndpointWithParams(token.user.sourceType, token.user.id!!, token.token),
-            state = token.token,
+        return Token(
+            token = tokenState.token,
+            authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(tokenState.user.sourceType, tokenState.user.id!!, tokenState.token),
+            userId = tokenState.user.id!!.toString(),
+            expiresAt = tokenState.expiresAt,
+            persistent = tokenState.persistent,
         )
     }
 
@@ -99,16 +105,24 @@ class TokenResource(
         @PathParam("token") token: String,
         payload: RequestTokenPayload,
     ): Response {
-        val state = tokenRepository[token]
+        val tokenState = tokenRepository[token]
             ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
-        if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
+        if (!tokenState.isValid) throw HttpBadRequestException("state_expired", "State has expired")
 
-        val accessToken = authorizationService.requestAccessToken(payload, state.user.sourceType)
-        val user = userRepository.updateToken(accessToken, state.user)
+        val accessToken = authorizationService.requestAccessToken(payload, tokenState.user.sourceType)
+        val user = userRepository.updateToken(accessToken, tokenState.user)
 
-        tokenRepository -= token
+        val tokenEntity = Token(
+            token = tokenState.token,
+            userId = tokenState.user.id!!.toString(),
+            expiresAt = tokenState.expiresAt,
+            persistent = tokenState.persistent,
+        )
+
+        tokenRepository -= tokenState
 
         return Response.created(URI("source-clients/${user.sourceType}/authorization/${user.externalUserId}"))
+            .entity(tokenEntity)
             .build()
     }
 }

@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.MediaType
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
-import org.radarbase.authorizer.doa.TokenRepository
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.jersey.auth.Auth
@@ -42,7 +41,6 @@ import org.slf4j.LoggerFactory
 class SourceClientResource(
     @Context private val restSourceClients: RestSourceClientService,
     @Context private val clientMapper: RestSourceClientMapper,
-    @Context private val tokenRepository: TokenRepository,
     @Context private val auth: Auth,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val userRepository: RestSourceUserRepository,

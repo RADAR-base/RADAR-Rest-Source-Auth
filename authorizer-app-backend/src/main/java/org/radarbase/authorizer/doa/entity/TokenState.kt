@@ -20,12 +20,14 @@ class TokenState(
     @JoinColumn(name = "user_id", nullable = false)
     @ManyToOne(cascade = [], optional = false)
     val user: RestSourceUser,
-    @Column(nullable = false)
-    val salt: ByteArray,
-    @Column(name = "secret_hash", nullable = false)
-    val secretHash: ByteArray,
+    @Column(nullable = true)
+    val salt: ByteArray?,
+    @Column(name = "secret_hash", nullable = true)
+    val secretHash: ByteArray?,
     @Column(name = "expires_at", nullable = false)
     val expiresAt: Instant,
+    @Column(nullable = false)
+    val persistent: Boolean,
 ) {
     val isValid: Boolean
         get() = Instant.now() < expiresAt

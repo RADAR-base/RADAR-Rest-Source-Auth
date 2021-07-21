@@ -24,7 +24,7 @@ class TokenRepository(
 
     fun generate(
         user: RestSourceUser,
-        secret: Hmac256Secret,
+        secret: Hmac256Secret?,
         persistent: Boolean,
     ): TokenState? {
         val expiresAt = Instant.now() + if (persistent) persistentTokenExpiryTime else tokenExpiryTime
@@ -38,8 +38,9 @@ class TokenRepository(
                             token = token,
                             user = user,
                             expiresAt = expiresAt,
-                            salt = secret.salt,
-                            secretHash = secret.secretHash,
+                            salt = secret?.salt,
+                            secretHash = secret?.secretHash,
+                            persistent = persistent,
                         ).also { persist(it) }
                     }
                 } catch (ex: PersistenceException) {
@@ -67,6 +68,12 @@ class TokenRepository(
     }
 
     operator fun minusAssign(token: String) = remove(token)
+
+    operator fun minusAssign(tokenState: TokenState) = remove(tokenState)
+
+    fun remove(tokenState: TokenState): Unit = transact {
+        remove(tokenState)
+    }
 
     fun remove(token: String): Unit = transact {
         val state = find(TokenState::class.java, token)

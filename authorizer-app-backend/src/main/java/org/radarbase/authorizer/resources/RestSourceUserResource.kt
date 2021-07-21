@@ -50,7 +50,7 @@ class RestSourceUserResource(
     @Context private val restSourceUserService: RestSourceUserService,
     @Context private val auth: Auth,
     @Context private val authorizationService: RestSourceAuthorizationService,
-    @Context private val sourceClientService: RestSourceClientService
+    @Context private val sourceClientService: RestSourceClientService,
 ) {
     @GET
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
