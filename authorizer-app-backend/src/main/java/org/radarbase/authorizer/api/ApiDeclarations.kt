@@ -75,7 +75,6 @@ data class DeregistrationParams(
 
 data class RequestTokenPayload(
     var code: String? = null,
-    var state: String,
     var oauth_token: String? = null,
     var oauth_verifier: String? = null,
     var oauth_token_secret: String? = null,

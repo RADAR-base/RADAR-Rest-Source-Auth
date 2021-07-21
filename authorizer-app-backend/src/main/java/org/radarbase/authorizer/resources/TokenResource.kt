@@ -49,7 +49,7 @@ class TokenResource(
             userId = tokenState.user.id ?: throw HttpInternalServerException("token_incomplete", "Failed to generate complete token."),
             expiresAt = tokenState.expiresAt,
         )
-        return Response.created(URI("token/${token.token}"))
+        return Response.created(URI("tokens/${token.token}"))
             .entity(token)
             .build()
     }
@@ -67,6 +67,15 @@ class TokenResource(
             userId = tokenState.user.id!!,
             expiresAt = tokenState.expiresAt,
         )
+    }
+
+    @DELETE
+    @Path("{token}")
+    fun deleteState(
+        @PathParam("token") tokenId: String,
+    ): Response {
+        tokenRepository -= tokenId
+        return Response.noContent().build()
     }
 
     @POST
@@ -88,31 +97,19 @@ class TokenResource(
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("{token}/authorization")
+    @Path("{token}/authorize")
     fun addAccount(
-        @PathParam("type") sourceType: String,
+        @PathParam("token") token: String,
         payload: RequestTokenPayload,
     ): Response {
-        RestSourceUserResource.logger.info("Authorizing with payload $payload")
-
-        val stateId = payload.state
-        val state = tokenRepository[stateId]
+        val state = tokenRepository[token]
             ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
         if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
 
-        val accessToken = authorizationService.requestAccessToken(payload, sourceType)
+        val accessToken = authorizationService.requestAccessToken(payload, state.user.sourceType)
         val user = userRepository.updateToken(accessToken, state.user)
 
-        return Response.created(URI("source-clients/${sourceType}/authorization/${user.externalUserId}"))
+        return Response.created(URI("source-clients/${user.sourceType}/authorization/${user.externalUserId}"))
             .build()
-    }
-
-    @DELETE
-    @Path("{token}")
-    fun deleteState(
-        @PathParam("token") tokenId: String,
-    ): Response {
-        tokenRepository -= tokenId
-        return Response.noContent().build()
     }
 }
