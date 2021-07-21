@@ -28,18 +28,16 @@ import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
-import org.radarbase.authorizer.util.StateStore
+import org.radarbase.authorizer.service.RestSourceUserService
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
-import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.net.URI
 
 @Path("users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -51,7 +49,7 @@ class RestSourceUserResource(
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val userMapper: RestSourceUserMapper,
     @Context private val projectService: RadarProjectService,
-    @Context private val stateStore: StateStore,
+    @Context private val restSourceUserService: RestSourceUserService,
     @Context private val auth: Auth,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val sourceClientService: RestSourceClientService
@@ -113,26 +111,13 @@ class RestSourceUserResource(
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.CREATE)
     fun create(
-        payload: RequestTokenPayload,
-    ): Response {
-        logger.info("Authorizing with payload $payload")
-        val stateId = payload.state
-        if (stateId != null) {
-            val state = stateStore[stateId]
-                ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
-            if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
-        }
-        val sourceType = payload.sourceType
-        sourceClientService.ensureSourceType(sourceType)
-
-        val accessToken = authorizationService.requestAccessToken(payload, sourceType)
-        val user = userRepository.create(accessToken, sourceType)
-
-        return Response.created(URI("users/${user.id}"))
-            .entity(userMapper.fromEntity(user))
-            .build()
+        user: RestSourceUserDTO,
+    ): RestSourceUserDTO {
+        restSourceUserService.validate(user, Permission.SUBJECT_CREATE)
+        val updatedUser = userRepository.create(user)
+        return userMapper.fromEntity(updatedUser)
     }
 
     @POST
@@ -142,9 +127,8 @@ class RestSourceUserResource(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO,
     ): RestSourceUserDTO {
-        val existingUser = validate(userId, user, Permission.SUBJECT_UPDATE)
-
-        val updatedUser = userRepository.update(existingUser, user)
+        restSourceUserService.validate(user, Permission.SUBJECT_UPDATE)
+        val updatedUser = userRepository.update(userId, user)
         return userMapper.fromEntity(updatedUser)
     }
 
@@ -153,7 +137,7 @@ class RestSourceUserResource(
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
     @Cache(maxAge = 300, isPrivate = true)
     fun readUser(@PathParam("id") userId: Long): RestSourceUserDTO {
-        val user = ensureUser(userId)
+        val user = restSourceUserService.ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_READ, user.projectId, user.userId)
         return userMapper.fromEntity(user)
     }
@@ -162,7 +146,7 @@ class RestSourceUserResource(
     @Path("{id}")
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
     fun deleteUser(@PathParam("id") userId: Long): Response {
-        val user = ensureUser(userId)
+        val user = restSourceUserService.ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
         if (user.accessToken != null) authorizationService.revokeToken(user)
         userRepository.delete(user)
@@ -170,34 +154,17 @@ class RestSourceUserResource(
         return Response.noContent().header("user-removed", userId).build()
     }
 
-    @POST
-    @Path("{id}/reset")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
-    fun reset(
-        @PathParam("id") userId: Long,
-        user: RestSourceUserDTO,
-    ): RestSourceUserDTO {
-        val existingUser = validate(userId, user, Permission.SUBJECT_UPDATE)
-
-        val updatedUser = userRepository.reset(
-            existingUser,
-            user.startDate,
-            user.endDate ?: existingUser.endDate,
-        )
-        return userMapper.fromEntity(updatedUser)
-    }
-
     @GET
     @Path("{id}/token")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.CREATE)
     fun requestToken(@PathParam("id") userId: Long): TokenDTO {
-        val user = ensureUser(userId)
+        val user = restSourceUserService.ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
         return if (user.hasValidToken()) {
             TokenDTO(user.accessToken, user.expiresAt)
         } else {
             // refresh token if current token is already expired.
-            refreshToken(userId, user)
+            refreshToken(user)
         }
     }
 
@@ -205,9 +172,9 @@ class RestSourceUserResource(
     @Path("{id}/token")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.CREATE)
     fun refreshToken(@PathParam("id") userId: Long): TokenDTO {
-        val user = ensureUser(userId)
+        val user = restSourceUserService.ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
-        return refreshToken(userId, user)
+        return refreshToken(user)
     }
 
     @POST
@@ -217,13 +184,13 @@ class RestSourceUserResource(
         @PathParam("id") userId: Long,
         payload: SignRequestParams,
     ): SignRequestParams {
-        val user = ensureUser(userId)
+        val user = restSourceUserService.ensureUser(userId)
         auth.checkPermissionOnSubject(Permission.MEASUREMENT_READ, user.projectId, user.userId)
 
         return authorizationService.signRequest(user, payload)
     }
 
-    private fun refreshToken(userId: Long, user: RestSourceUser): TokenDTO {
+    private fun refreshToken(user: RestSourceUser): TokenDTO {
         if (!user.authorized) {
             throw HttpApplicationException(
                 Response.Status.PROXY_AUTHENTICATION_REQUIRED,
@@ -240,7 +207,7 @@ class RestSourceUserResource(
         }
 
         val token = authorizationService.refreshToken(user)
-        val updatedUser = userRepository.updateToken(token, userId)
+        val updatedUser = userRepository.updateToken(token, user)
 
         if (!updatedUser.authorized) {
             throw HttpApplicationException(
@@ -250,28 +217,6 @@ class RestSourceUserResource(
             )
         }
         return TokenDTO(updatedUser.accessToken, updatedUser.expiresAt)
-    }
-
-    private fun validate(
-        id: Long,
-        user: RestSourceUserDTO,
-        permission: Permission,
-    ): RestSourceUser {
-        val existingUser = ensureUser(id)
-        val projectId = user.projectId
-            ?: throw HttpBadRequestException("missing_project_id", "project cannot be empty")
-        val userId = user.userId
-            ?: throw HttpBadRequestException("missing_user_id", "subject-id/user-id cannot be empty")
-        auth.checkPermissionOnSubject(permission, projectId, userId)
-
-        projectService.projectUsers(projectId).find { it.id == userId }
-            ?: throw HttpBadRequestException("user_not_found", "user $userId not found in project $projectId")
-        return existingUser
-    }
-
-    private fun ensureUser(userId: Long): RestSourceUser {
-        return userRepository.read(userId)
-            ?: throw HttpNotFoundException("user_not_found", "Rest-Source-User with ID $userId does not exist")
     }
 
     companion object {

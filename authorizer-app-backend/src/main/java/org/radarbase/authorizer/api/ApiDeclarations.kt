@@ -16,6 +16,7 @@
 
 package org.radarbase.authorizer.api
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
@@ -46,6 +47,23 @@ data class SignRequestParams(
     val parameters: Map<String, String?>,
 )
 
+data class AuthEndpoint(
+    val url: String,
+    val state: String,
+)
+
+data class StateCreateDTO(
+    val userId: Long,
+    val persistent: Boolean = false,
+)
+
+data class Token(
+    val token: String,
+    val secret: String? = null,
+    val userId: Long,
+    val expiresAt: Instant,
+)
+
 data class DeregistrationsDTO(
     val deregistrations: List<DeregistrationParams>
 )
@@ -56,9 +74,8 @@ data class DeregistrationParams(
 )
 
 data class RequestTokenPayload(
-    var sourceType: String,
     var code: String? = null,
-    var state: String? = null,
+    var state: String,
     var oauth_token: String? = null,
     var oauth_verifier: String? = null,
     var oauth_token_secret: String? = null,
@@ -73,7 +90,6 @@ data class ShareableClientDetail(
     val grantType: String?,
     val clientId: String,
     val scope: String?,
-    val state: String? = null,
 )
 
 data class ShareableClientDetails(

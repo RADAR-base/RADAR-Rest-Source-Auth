@@ -23,11 +23,11 @@ import okhttp3.Credentials
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.util.request
@@ -39,7 +39,7 @@ class OAuth2RestSourceAuthorizationService(
     @Context private val clients: RestSourceClientService,
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
-    @Context private val stateStore: StateStore,
+    @Context private val config: Config,
 ) : RestSourceAuthorizationService {
     private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
 
@@ -83,16 +83,19 @@ class OAuth2RestSourceAuthorizationService(
     override fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
         throw HttpBadRequestException("", "Not available for auth type")
 
-    override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {
+    override fun getAuthorizationEndpointWithParams(
+        sourceType: String,
+        userId: Long,
+        state: String,
+    ): String {
         val authConfig = clients.forSourceType(sourceType)
-
-        val stateId = stateStore.generate(sourceType).stateId
         return UriBuilder.fromUri(authConfig.authorizationEndpoint)
             .queryParam("response_type", "code")
             .queryParam("client_id", authConfig.clientId)
-            .queryParam("state", stateId)
+            .queryParam("state", state)
             .queryParam("scope", authConfig.scope)
             .queryParam("prompt", "login")
+            .queryParam("redirect_uri", config.service.callbackUrl)
             .build().toString()
     }
 
