@@ -41,12 +41,16 @@ class TokenResource(
     ): Response {
         val user = restSourceUserService.ensureUser(createState.userId.toLong())
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
-        val tokenState = tokenService.generate(user, createState.persistent)
-        val tokenWithEndpoint = tokenState.copy(
-            authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(user.sourceType, user.id!!, tokenState.token),
-        )
+        var tokenState = tokenService.generate(user, createState.persistent)
+        if (!createState.persistent) {
+            tokenState = tokenState.copy(
+                authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(user.sourceType,
+                    user.id!!,
+                    tokenState.token),
+            )
+        }
         return Response.created(URI("tokens/${tokenState.token}"))
-            .entity(tokenWithEndpoint)
+            .entity(tokenState)
             .build()
     }
 
@@ -76,7 +80,7 @@ class TokenResource(
     }
 
     @POST
-    @Path("{token}/auth-endpoint")
+    @Path("{token}")
     fun authEndpoint(
         @PathParam("token") token: String,
         tokenSecret: TokenSecret,
