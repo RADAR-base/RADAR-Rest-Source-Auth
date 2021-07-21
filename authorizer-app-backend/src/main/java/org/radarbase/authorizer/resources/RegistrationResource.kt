@@ -71,6 +71,8 @@ class RegistrationResource(
     }
 
     @DELETE
+    @Authenticated
+    @NeedsPermission(entity = Permission.Entity.SUBJECT, operation = Permission.Operation.UPDATE)
     @Path("{token}")
     fun deleteState(
         @PathParam("token") token: String,
