@@ -32,7 +32,7 @@ class RegistrationLifecycleManager(
         when (event.type) {
             ApplicationEvent.Type.INITIALIZATION_APP_FINISHED -> startStaleChecks()
             ApplicationEvent.Type.DESTROY_FINISHED -> cancelStaleChecks()
-            else -> {}  // do nothing
+            else -> Unit
         }
     }
 

@@ -14,10 +14,10 @@
                 <constraints nullable="false" foreignKeyName="fk_token_user" references="rest_source_user(id)" deleteCascade="true"/>
             </column>
             <column name="salt" type="varbinary">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="secret_hash" type="varbinary">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="expires_at" type="datetime">
                 <constraints nullable="false"/>
