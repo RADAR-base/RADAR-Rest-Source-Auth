@@ -44,21 +44,15 @@ class AuthorizerResourceEnhancer(
     )
 
     override val classes: Array<Class<*>>
-        get() = if (config.service.enableCors == true) {
-            arrayOf(
-                ConfigLoader.Filters.cache,
-                ConfigLoader.Filters.logResponse,
-                ConfigLoader.Filters.cors,
-            )
-        } else {
-            arrayOf(
-                ConfigLoader.Filters.cache,
-                ConfigLoader.Filters.logResponse,
-            )
-        }
+        get() = listOfNotNull(
+            ConfigLoader.Filters.cache,
+            ConfigLoader.Filters.logResponse,
+            if (config.service.enableCors == true) ConfigLoader.Filters.cors else null,
+        ).toTypedArray()
 
     override val packages: Array<String> = arrayOf(
         "org.radarbase.authorizer.resources",
+        "org.radarbase.authorizer.lifecycle",
     )
 
     override fun AbstractBinder.enhance() {
