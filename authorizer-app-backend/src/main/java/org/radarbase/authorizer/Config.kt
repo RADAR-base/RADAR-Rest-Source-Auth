@@ -35,7 +35,8 @@ data class Config(
 
 data class AuthorizerServiceConfig(
     var baseUri: URI = URI.create("http://0.0.0.0:8080/rest-sources/backend/"),
-    var frontendBaseUri: URI? = null,
+    val advertisedBaseUri: URI? = null,
+    val frontendBaseUri: URI? = null,
     var resourceConfig: Class<out EnhancerFactory> = ManagementPortalEnhancerFactory::class.java,
     var enableCors: Boolean? = false,
     var syncProjectsIntervalMin: Long = 30,
@@ -44,8 +45,26 @@ data class AuthorizerServiceConfig(
     val persistentTokenExpiryInMin: Long = Duration.ofDays(3).toMinutes(),
 ) {
     val callbackUrl: HttpUrl by lazy {
-        checkNotNull(frontendBaseUri?.toHttpUrlOrNull()) { "Frontend URL parameter $frontendBaseUri is not a valid HTTP URL." }
-            .newBuilder("users:new")!!
+        val frontendBaseUrlBuilder = when {
+            frontendBaseUri != null -> frontendBaseUri.toHttpUrlOrNull()?.newBuilder()
+            advertisedBaseUri != null -> {
+                advertisedBaseUri.toHttpUrlOrNull()?.let { advertisedUrl ->
+                    advertisedUrl.newBuilder().apply {
+                        advertisedUrl.pathSegments.asReversed()
+                            .forEachIndexed { idx, segment ->
+                                if (segment.isEmpty() || segment == "backend") {
+                                    removePathSegment(advertisedUrl.pathSize - 1 - idx)
+                                }
+                            }
+                        removePathSegment(advertisedUrl.pathSize - 1)
+                        addPathSegment("authorizer")
+                    }
+                }
+            }
+            else -> null
+        }
+        checkNotNull(frontendBaseUrlBuilder) { "Frontend URL parameter $frontendBaseUri is not a valid HTTP URL." }
+            .addPathSegment("users:new")
             .build()
     }
 }
