@@ -22,9 +22,9 @@ import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
+import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
-import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.service.*
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
