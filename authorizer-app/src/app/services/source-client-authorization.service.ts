@@ -58,7 +58,7 @@ export class SourceClientAuthorizationService {
     const query = url.split('?')[1];
     const result = {};
     query.split('&').forEach(function(part) {
-      let item = part.split('=');
+      const item = part.split('=');
       result[item[0]] = decodeURIComponent(item[1]);
     });
     return result;

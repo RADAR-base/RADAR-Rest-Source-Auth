@@ -12,7 +12,7 @@ import { RestSourceClientDetails } from "../../models/source-client-details.mode
 })
 export class RestSourceUserRegistrationFormComponent implements OnInit {
   sourceTypes: RestSourceClientDetails[];
-  selectedSourceType = null;
+  selectedSourceType?: RestSourceClientDetails = null;
 
   constructor(
     private sourceClientAuthorizationService: SourceClientAuthorizationService,
