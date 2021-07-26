@@ -102,7 +102,7 @@ class RestSourceUserDTO(
     val userId: String?,
     val humanReadableUserId: String?,
     val externalId: String?,
-    val sourceId: String,
+    val sourceId: String?,
     val serviceUserId: String?,
     val startDate: Instant,
     val endDate: Instant? = null,

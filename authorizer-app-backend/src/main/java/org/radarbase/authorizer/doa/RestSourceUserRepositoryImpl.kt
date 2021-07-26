@@ -29,6 +29,7 @@ import org.radarbase.jersey.hibernate.HibernateRepository
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.*
 import javax.persistence.EntityManager
 
 class RestSourceUserRepositoryImpl(
@@ -55,7 +56,7 @@ class RestSourceUserRepositoryImpl(
         RestSourceUser(
             projectId = user.projectId,
             userId = user.userId,
-            sourceId = user.sourceId,
+            sourceId = user.sourceId ?: UUID.randomUUID().toString(),
             sourceType = user.sourceType,
             createdAt = Instant.now(),
             version = Instant.now().toString(),
