@@ -4,6 +4,7 @@ import { FormBuilder } from '@angular/forms';
 import { PlatformLocation } from '@angular/common';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
 import { SourceClientAuthorizationService } from '../../services/source-client-authorization.service';
+import {SourceClientAuthorizationMockService} from '../../services/source-client-authorization-mock.service';
 
 @Component({
   selector: 'rest-source-user-registration-form',
@@ -15,6 +16,7 @@ export class RestSourceUserRegistrationFormComponent implements OnInit {
 
   constructor(
     private sourceClientAuthorizationService: SourceClientAuthorizationService,
+    // private sourceClientAuthorizationService: SourceClientAuthorizationMockService,
     private platformLocation: PlatformLocation
   ) {}
 

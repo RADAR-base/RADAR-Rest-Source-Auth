@@ -4,7 +4,7 @@ import {
   MatMomentDateModule
 } from '@angular/material-moment-adapter';
 import {
-  MatButtonModule,
+  MatButtonModule, MatCardModule,
   MatDatepickerModule,
   MatDialogModule,
   MatFormFieldModule,
@@ -12,7 +12,7 @@ import {
   MatInputModule,
   MatMenuModule,
   MatNativeDateModule,
-  MatPaginatorModule,
+  MatPaginatorModule, MatRadioModule, MatSelectModule,
   MatSortModule,
   MatTableModule,
   MatToolbarModule,
@@ -46,14 +46,18 @@ import { ToolbarComponent } from './components/shared/toolbar/toolbar.component'
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
 import { AuthInterceptor } from './auth.interceptor';
 import { ErrorInterceptor } from './error.interceptor';
-import {RestSourceUserListDeleteDialog} from "./components/rest-source-authorization/rest-source-user-list-delete-dialog.component";
-import {RestSourceUserListResetDialog} from "./components/rest-source-authorization/rest-source-user-list-reset-dialog.component";
+import {RestSourceUserListDeleteDialog} from './components/rest-source-authorization/rest-source-user-list-delete-dialog.component';
+import {RestSourceUserListResetDialog} from './components/rest-source-authorization/rest-source-user-list-reset-dialog.component';
+import {LinkRestSourceUserComponent} from './components/rest-source-authorization/link-rest-source-user.component';
+import {AuthorizedRestSourceUserComponent} from './components/rest-source-authorization/authorized-rest-source-user.component';
+import {RestSourceUserMockService} from './services/rest-source-user-mock.service';
+import {SourceClientAuthorizationMockService} from './services/source-client-authorization-mock.service';
 
 const appRoutes: Routes = [
   {
     path: '',
     component: RestSourceUserDashboardComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   {
     path: 'login',
@@ -62,12 +66,22 @@ const appRoutes: Routes = [
   {
     path: 'users',
     component: RestSourceUserDashboardComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
+  },
+  // {
+  //   path: 'users:new',
+  //   component: UpdateRestSourceUserComponent,
+  //   canActivate: [AuthGuard]
+  // },
+  {
+    path: 'users:link',
+    component: LinkRestSourceUserComponent,
+    // canActivate: [AuthGuard]
   },
   {
     path: 'users:new',
-    component: UpdateRestSourceUserComponent,
-    canActivate: [AuthGuard]
+    component: AuthorizedRestSourceUserComponent,
+    // canActivate: [AuthGuard]
   },
   {
     path: 'users/:id',
@@ -102,7 +116,9 @@ const appRoutes: Routes = [
     LoginPageComponent,
     ToolbarComponent,
     RestSourceUserListResetDialog,
-    RestSourceUserListDeleteDialog
+    RestSourceUserListDeleteDialog,
+    LinkRestSourceUserComponent,
+    AuthorizedRestSourceUserComponent,
   ],
   entryComponents: [
     RestSourceUserListDeleteDialog,
@@ -125,16 +141,21 @@ const appRoutes: Routes = [
     MatIconModule,
     RouterModule.forRoot(appRoutes),
     NgbModule.forRoot(),
-    JwtModule.forRoot({ config: { tokenGetter: AuthService.getAccessToken } }),
+    JwtModule.forRoot({config: {tokenGetter: AuthService.getAccessToken}}),
     MatTooltipModule,
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatMomentDateModule
+    MatMomentDateModule,
+    MatCardModule,
+    MatSelectModule,
+    MatRadioModule
   ],
   providers: [
     RestSourceUserService,
+    RestSourceUserMockService,
     SourceClientAuthorizationService,
+    SourceClientAuthorizationMockService,
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

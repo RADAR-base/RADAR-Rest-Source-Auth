@@ -52,6 +52,9 @@
         <button mat-icon-button color="primary" [routerLink]="['/users', user.id]" ngbTooltip="Info/Edit">
           <mat-icon>info</mat-icon>
         </button>
+        <button *ngIf="!user.isAuthorized" mat-icon-button matTooltip="Register/Link" color="primary" (click)="registerUser()">
+          <mat-icon>person_add</mat-icon>
+        </button>
         <button mat-icon-button ngbTooltip="Reset" matTooltip="This will re-pull all the data for this user"
                 color="warn" (click)="openResetDialog(user)">
           <mat-icon>replay</mat-icon>

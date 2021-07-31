@@ -14,6 +14,7 @@ import { Location } from '@angular/common';
 import { RequestTokenPayload } from 'src/app/models/auth.model';
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
+import {RestSourceUserMockService} from '../../services/rest-source-user-mock.service';
 
 @Component({
   selector: 'update-rest-source-user',
@@ -31,6 +32,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
 
   constructor(
     private restSourceUserService: RestSourceUserService,
+    // private restSourceUserService: RestSourceUserMockService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private _location: Location

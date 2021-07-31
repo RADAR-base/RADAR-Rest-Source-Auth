@@ -2,21 +2,40 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
-import { map } from 'rxjs/operators';
+import {delay, map} from 'rxjs/operators';
+import {RadarProject} from '../models/rest-source-project.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SourceClientAuthorizationService {
+export class SourceClientAuthorizationMockService {
   private serviceUrl = environment.backendBaseUrl;
   AUTH_ENDPOINT_PARAMS_STORAGE_KEY = 'auth_endpoint_params';
   AUTH_SOURCE_TYPE_STORAGE_KEY = 'auth_source_type';
 
   constructor(private http: HttpClient) {}
 
-  getDeviceTypes(): Observable<any[]> {
-    return this.http.get<{sourceClients: any[]}>(this.serviceUrl + '/source-clients').pipe(
-      map(result => result.sourceClients)
+  getDeviceTypes(): Observable<any> {
+    // return this.http.get(this.serviceUrl + '/source-clients/type');
+    const sourceClients: any = {
+      sourceClients: [
+        {
+          sourceType: 'FitBit',
+          authorizationEndpoint: 'https://www.fitbit.com/oauth2/authorize',
+          tokenEndpoint: 'https://api.fitbit.com/oauth2/token',
+          clientId: '239Z46',
+          scope: 'activity heartrate sleep profile'
+        }
+      ]
+    };
+    // return throwError({message: 'Server error. Couldn\'t create user'}).pipe(
+    //   delay(5000)
+    // );
+    return new Observable((observer: { next: (arg0: any) => void; }) => {
+      observer.next(sourceClients);
+    }).pipe(
+      map(resp => resp.sourceClients),
+      delay(1000)
     );
   }
 

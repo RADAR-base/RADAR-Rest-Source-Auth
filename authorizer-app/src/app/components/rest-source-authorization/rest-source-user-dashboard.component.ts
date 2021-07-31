@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { RadarProject } from '../../models/rest-source-project.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
+import {RestSourceUserMockService} from '../../services/rest-source-user-mock.service';
 
 @Component({
   selector: 'rest-source-dashboard',
@@ -16,6 +17,7 @@ export class RestSourceUserDashboardComponent implements OnInit {
 
   constructor(
     private restSourceUserService: RestSourceUserService,
+    // private restSourceUserService: RestSourceUserMockService,
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {}
@@ -28,7 +30,7 @@ export class RestSourceUserDashboardComponent implements OnInit {
   private loadAllRestSourceProjects() {
     this.restSourceUserService.getAllProjects().subscribe(
       (data: any) => {
-        this.restSourceProjects = data.projects;
+        this.restSourceProjects = data; // data.projects;
       },
       () => {
         this.errorMessage = 'Cannot load projects!';

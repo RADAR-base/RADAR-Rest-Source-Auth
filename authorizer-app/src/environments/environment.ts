@@ -4,15 +4,26 @@
 
 export const environment = {
   production: false,
-  backendBaseUrl: 'http://localhost:8080',
+  backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend', // 'http://localhost:8080',
+  // backendBaseUrl: 'https://radar-test.thehyve.net/rest-sources/backend', // 'http://localhost:8080',
   doValidate: false,
   authorizationGrantType: 'authorization_code',
-  appClientId: 'radar_rest_sources_auth',
-  appClientSecret: 'secret',
-  authCallbackUrl: 'http://localhost:8080/oauth/callback',
+  // appClientId: 'radar_rest_sources_auth',
+  appClientId: 'radar_rest_sources_authorizer',
+  // appClientId: 'appconfig_frontend',
+  appClientSecret: '',
+  // appClientSecret: '',
+  authCallbackUrl: 'http://localhost:8080/login', //https://radar-k3s-test.thehyve.net/rest-sources/authorizer/login', //'http://localhost:8080/oauth/callback',
   BASE_HREF: '/rest-sources/authorizer/',
-  authBaseUrl: 'http://localhost:8080/oauth'
+  // authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
+  // authBaseUrl: 'https://radar-test.thehyve.net/managementportal/oauth',
+  authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
+  // authBaseUrl: 'http://localhost:8080/oauth'
 };
+
+  // appClientId: 'radar_rest_sources_authorizer',
+  // appClientSecret: '', // 'secret',
+  // authCallbackUrl: 'https://more-dev.thehyve.net/rest-sources/authorizer/login', // http://localhost:8080/oauth/callback',
 
 /*
  * For easier debugging in development mode, you can import the following file
