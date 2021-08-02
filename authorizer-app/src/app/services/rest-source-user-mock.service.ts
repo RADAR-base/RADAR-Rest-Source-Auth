@@ -230,6 +230,18 @@ export class RestSourceUserMockService {
   }
 
   getAuthEndpointUrl(registrationRequest: RegistrationRequest, token: string): Observable<RegistrationResponse> {
-    return this.http.post<RegistrationResponse>(this.serviceUrl + '/registrations/' + token, registrationRequest);
+    const registrationResponse = {
+      token: token, // '9876543210',
+      userId: '11', // 'registrationCreateRequest.userId',
+      expiresAt: '123456789',
+      persistent: true, // false, // registrationCreateRequest.persistent
+      authEndpointUrl: 'https://www.google.com',  // only defined if the registration is not persistent
+    };
+    return new Observable((observer: { next: (arg0: RegistrationResponse) => void; }) => {
+      observer.next(registrationResponse);
+    }).pipe(
+      delay(1000)
+    );
+    // return this.http.post<RegistrationResponse>(this.serviceUrl + '/registrations/' + token, registrationRequest);
   }
 }

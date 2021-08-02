@@ -54,7 +54,7 @@ export class RestSourceUserService {
   }
 
   updateUser(sourceUser: RestSourceUser): Observable<any> {
-    return this.http.post(this.serviceUrl + '/' + sourceUser.id, sourceUser);
+    return this.http.post(this.serviceUrl + '/users/' + sourceUser.id, sourceUser);
   }
 
   addAuthorizedUser(payload: RequestTokenPayload): Observable<any> {
@@ -74,15 +74,15 @@ export class RestSourceUserService {
   }
 
   getUserById(userId: string): Observable<RestSourceUser> {
-    return this.http.get(this.serviceUrl + '/' + userId);
+    return this.http.get(this.serviceUrl + '/users/' + userId);
   }
 
   deleteUser(userId: string): Observable<any> {
-    return this.http.delete(this.serviceUrl + '/' + userId);
+    return this.http.delete(this.serviceUrl + '/users/' + userId);
   }
 
   resetUser(user: RestSourceUser): Observable<any> {
-    return this.http.post(this.serviceUrl + '/' + user.id + '/reset', user);
+    return this.http.post(this.serviceUrl + '/users/' + user.id + '/reset', user);
   }
 
   // --

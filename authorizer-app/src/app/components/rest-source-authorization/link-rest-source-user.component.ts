@@ -22,6 +22,7 @@ export class LinkRestSourceUserComponent implements OnInit {
   sourceTypes$ = this.sourceTypeService.getDeviceTypes();
   projects$ = this.service.getAllProjects();
   subjects$;
+  linkForUser?: string;
 
   form = this.fb.group({
     sourceType: [null, Validators.required],
@@ -33,7 +34,7 @@ export class LinkRestSourceUserComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    // private service: RestSourceUserMockService,
+    private mockService: RestSourceUserMockService,
     private service: RestSourceUserService,
     // private sourceTypeService: SourceClientAuthorizationMockService,
     private sourceTypeService: SourceClientAuthorizationService,
@@ -75,7 +76,7 @@ export class LinkRestSourceUserComponent implements OnInit {
     this.service.createUser(user).subscribe(
       resp => {
         console.log(resp);
-        this.service.registerUser({userId: resp.id, persistent}).subscribe(
+        this.mockService.registerUser({userId: resp.id, persistent}).subscribe(
           registrationResp => {
             console.log(registrationResp);
             if (registrationResp.authEndpointUrl) {
@@ -83,6 +84,8 @@ export class LinkRestSourceUserComponent implements OnInit {
               window.location.href = registrationResp.authEndpointUrl;
             } else if (registrationResp.secret) {
               // generate link // show // copy to clipboard
+              this.linkForUser =
+                `https://rest-source-auth-frontend/users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}`;
               this.linkGeneratingLoading = false;
             }
           },
@@ -96,9 +99,32 @@ export class LinkRestSourceUserComponent implements OnInit {
       },
       err => {
         console.log(err);
-        this.error = err.error.error_description; // message;
-        this.linkGeneratingLoading = false;
-        this.authorizationLoading = false;
+        if (err.status === 409 && err.error.error === 'user_exists') {
+          this.mockService.registerUser({userId: '11', persistent}).subscribe(
+            registrationResp => {
+              console.log(registrationResp);
+              if (registrationResp.authEndpointUrl) {
+                // redirect to endpointUrl
+                window.location.href = registrationResp.authEndpointUrl;
+              } else if (registrationResp.secret) {
+                // generate link // show // copy to clipboard
+                this.linkForUser =
+                  `https://rest-source-auth-frontend/users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}`;
+                this.linkGeneratingLoading = false;
+              }
+            },
+            error => {
+              console.log(error);
+              this.error = err.error.error_description; // err.message;
+              this.linkGeneratingLoading = false;
+              this.authorizationLoading = false;
+            }
+          );
+        } else {
+          this.error = err.error.error_description; // message;
+          this.linkGeneratingLoading = false;
+          this.authorizationLoading = false;
+        }
       }
     );
   }
@@ -112,5 +138,9 @@ export class LinkRestSourceUserComponent implements OnInit {
 
   onBack() {
     this.router.navigateByUrl('/');
+  }
+
+  copyToClipboard() {
+    console.log('copy to clipboard');
   }
 }

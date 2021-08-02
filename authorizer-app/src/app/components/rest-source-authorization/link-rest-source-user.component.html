@@ -5,10 +5,8 @@
 <!--<p></p>-->
 <!--{{ subjects$ | async | json }}-->
 <!--<p></p>-->
-
-<form [formGroup]="form" novalidate (ngSubmit)="onSubmit($event)">
-  <mat-card class="link-rest-source-user-card" style="width: 400px;">
-
+<mat-card class="link-rest-source-user-card" style="width: 400px;">
+  <form [formGroup]="form" novalidate (ngSubmit)="onSubmit($event)">
     <mat-card-header>
       <mat-card-title>
         <h5>Linking a User</h5>
@@ -84,19 +82,33 @@
       </div>
     </mat-card-content>
 
-    <mat-card-actions>
-      <div class="row">
-        <div class="col">
+    <div class="row">
+      <div class="col">
+        <mat-card-actions>
           <button mat-raised-button color="primary" type="button" (click)="onBack()">Back</button>
           <button mat-raised-button color="primary" type="submit" name="authorize" [class.spinner]="authorizationLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Authorize</button>
           <button mat-raised-button color="primary" type="submit" name="link" [class.spinner]="linkGeneratingLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Copy Link</button>
-        </div>
+        </mat-card-actions>
       </div>
-    </mat-card-actions>
+    </div>
 
-  </mat-card>
-</form>
+<!--    <p *ngIf="linkForUser">{{linkForUser}}</p>-->
+  </form>
 
+  <div class="row" *ngIf="linkForUser">
+    <div class="col">
+      Send this link to Subject
+      <mat-form-field class="full-width" appearance="outline">
+        <!--          <mat-label></mat-label>-->
+        <input matInput [type]="'text'" [value]="linkForUser">
+        <button mat-icon-button matSuffix (click)="copyToClipboard()" [attr.aria-label]="'Hide password'" >
+          <!--          [attr.aria-pressed]="hide"-->
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>
+</mat-card>
 
 
 <!--<div *ngIf="restSourceUser" class="container col-md-4" style="padding: 32px">-->

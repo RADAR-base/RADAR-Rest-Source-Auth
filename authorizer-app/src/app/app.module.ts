@@ -52,6 +52,8 @@ import {LinkRestSourceUserComponent} from './components/rest-source-authorizatio
 import {AuthorizedRestSourceUserComponent} from './components/rest-source-authorization/authorized-rest-source-user.component';
 import {RestSourceUserMockService} from './services/rest-source-user-mock.service';
 import {SourceClientAuthorizationMockService} from './services/source-client-authorization-mock.service';
+import {AuthorizeRestSourceUserComponent} from './components/rest-source-authorization/authorize-rest-source-user.component';
+// import { ClipboardModule } from '@angular/cdk/clipboard';
 
 const appRoutes: Routes = [
   {
@@ -81,6 +83,11 @@ const appRoutes: Routes = [
   {
     path: 'users:new',
     component: AuthorizedRestSourceUserComponent,
+    // canActivate: [AuthGuard]
+  },
+  {
+    path: 'users:auth',
+    component: AuthorizeRestSourceUserComponent,
     // canActivate: [AuthGuard]
   },
   {
@@ -119,6 +126,7 @@ const appRoutes: Routes = [
     RestSourceUserListDeleteDialog,
     LinkRestSourceUserComponent,
     AuthorizedRestSourceUserComponent,
+    AuthorizeRestSourceUserComponent,
   ],
   entryComponents: [
     RestSourceUserListDeleteDialog,
@@ -149,7 +157,8 @@ const appRoutes: Routes = [
     MatMomentDateModule,
     MatCardModule,
     MatSelectModule,
-    MatRadioModule
+    MatRadioModule,
+    // ClipboardModule
   ],
   providers: [
     RestSourceUserService,
