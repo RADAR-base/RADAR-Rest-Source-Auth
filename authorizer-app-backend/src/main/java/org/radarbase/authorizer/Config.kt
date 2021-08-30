@@ -56,7 +56,6 @@ data class AuthorizerServiceConfig(
                                     removePathSegment(advertisedUrl.pathSize - 1 - idx)
                                 }
                             }
-                        removePathSegment(advertisedUrl.pathSize - 1)
                         addPathSegment("authorizer")
                     }
                 }

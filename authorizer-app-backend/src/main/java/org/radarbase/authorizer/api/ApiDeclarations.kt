@@ -95,7 +95,7 @@ data class ShareableClientDetails(
     val sourceClients: List<ShareableClientDetail>,
 )
 
-class RestSourceUserDTO(
+data class RestSourceUserDTO(
     val id: String?,
     val createdAt: Instant?,
     val projectId: String?,
@@ -111,11 +111,7 @@ class RestSourceUserDTO(
     val hasValidToken: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0,
-) : Serializable {
-    companion object {
-        private const val serialVersionUID = 1L
-    }
-}
+)
 
 data class RestSourceUsers(
     val users: List<RestSourceUserDTO>,

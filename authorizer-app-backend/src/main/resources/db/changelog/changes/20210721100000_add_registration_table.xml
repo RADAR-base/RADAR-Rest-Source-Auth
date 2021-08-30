@@ -22,6 +22,9 @@
             <column name="expires_at" type="datetime">
                 <constraints nullable="false"/>
             </column>
+            <column name="persistent" type="bool" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>
