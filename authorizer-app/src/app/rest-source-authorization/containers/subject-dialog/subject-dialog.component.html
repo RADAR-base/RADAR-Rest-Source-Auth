@@ -1,0 +1,162 @@
+<div mat-dialog-title style="display: flex; align-items: center; justify-content: space-between;">
+  <p *ngIf="mode=='edit'" style="margin: 0">Edit Subject</p>
+  <p *ngIf="mode=='view'" style="margin: 0">View Subject</p>
+  <p *ngIf="mode=='add'" style="margin: 0">Link Subject to an External Source</p>
+  <button mat-icon-button class="close-button" [mat-dialog-close]="true">
+    <mat-icon class="close-icon">close</mat-icon>
+  </button>
+</div>
+<mat-dialog-content>
+<!--  <p>This will pull all the data for the user (Project: <strong>{{data.projectId}}</strong>, User ID: <strong>{{ data.externalId }} ({{data.userId}})</strong> with Service User ID: <strong>{{data.serviceUserId}}</strong>) again in the specified date range.</p>-->
+<!--  <p>Are you sure you want to continue resetting?</p>-->
+<!--  <p>If yes, please proceed by pressing the <strong>Ok</strong> button.</p>-->
+<!--  <br>-->
+<!--  <p>Optionally, you can change the date range if required:</p>-->
+
+
+  <form [formGroup]="form" novalidate (ngSubmit)="onSubmit($event)">
+<!--    <mat-card-header>-->
+<!--      <mat-card-title>-->
+<!--        <h5>Linking a User</h5>-->
+<!--        Enter details fo User-->
+<!--      </mat-card-title>-->
+<!--    </mat-card-header>-->
+
+<!--    <mat-card-content>-->
+
+<!--      <div class="row">-->
+<!--        <span class="col label">Source Type</span>-->
+        <mat-form-field class="col field full-width" appearance="outline">
+          <mat-label>Source Type</mat-label>
+<!--            <mat-select placeholder="Select a Source Type" formControlName="sourceType" >-->
+<!--              <mat-option *ngFor="let sourceType of sourceTypes$ | async" [value]="sourceType['sourceType']">{{sourceType['sourceType']}}</mat-option>-->
+<!--            </mat-select>-->
+          <input matInput placeholder="Enter Source Type" formControlName="sourceType" readonly>
+          <mat-error *ngIf="form.controls['sourceType'].hasError('required')">Source Type is required</mat-error>
+        </mat-form-field>
+<!--      </div>-->
+
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Project</mat-label>
+            <input matInput placeholder="Enter Project" formControlName="projectId">
+<!--            <mat-error *ngIf="form.controls['projectId'].hasError('required')">Project is required</mat-error>-->
+          </mat-form-field>
+
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Subject ID</mat-label>
+            <input matInput placeholder="Enter Subject" formControlName="userId">
+<!--            <mat-error *ngIf="form.controls['userId'].hasError('required')">User is required</mat-error>-->
+          </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Subject External ID</mat-label>
+      <input matInput formControlName="externalId">
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline" floatLabel="always">
+      <mat-label>Start/End Dates</mat-label>
+      <mat-date-range-input [rangePicker]="picker">
+        <input matStartDate formControlName="startDate" placeholder="Enter Start Date" (focus)="picker.open()" (click)="picker.open()">
+        <input matEndDate formControlName="endDate" placeholder="Enter End Date" (focus)="picker.open()" (click)="picker.open()">
+      </mat-date-range-input>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+      <mat-error *ngIf="form.controls['startDate'].hasError('required')">Start Date is required</mat-error>
+<!--      <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>-->
+<!--      <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error>-->
+    </mat-form-field>
+
+<!--    <p>Selected range: {{startDate.value | json}}</p>-->
+
+<!--          <mat-form-field class="full-width" appearance="outline" floatLabel="always">-->
+<!--            <mat-label>Start Date</mat-label>-->
+<!--            <input matInput [matDatepicker]="startDatePicker" placeholder="Select Start Date" formControlName="startDate" (focus)="startDatePicker.open()" (click)="startDatePicker.open()">-->
+<!--            <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>-->
+<!--            <mat-datepicker #startDatePicker></mat-datepicker>-->
+<!--            <mat-error *ngIf="form.controls['startDate'].hasError('required')">Start Date is required</mat-error>-->
+<!--          </mat-form-field>-->
+
+<!--          <mat-form-field class="full-width" appearance="outline" floatLabel="always">-->
+<!--            <mat-label>End Date</mat-label>-->
+<!--            <input matInput [matDatepicker]="endDatePicker" placeholder="Select End Date" formControlName="endDate" (focus)="endDatePicker.open()" (click)="endDatePicker.open()">-->
+<!--            <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>-->
+<!--            <mat-datepicker #endDatePicker></mat-datepicker>-->
+<!--          </mat-form-field>-->
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Authorized</mat-label>
+      <input matInput formControlName="isAuthorized">
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Source ID</mat-label>
+      <input matInput formControlName="sourceId">
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Service User ID</mat-label>
+      <input matInput formControlName="serviceUserId">
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Has Valid Token</mat-label>
+      <input matInput formControlName="hasValidToken">
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Times Reset</mat-label>
+      <input matInput formControlName="timesReset">
+    </mat-form-field>
+
+    <div class="row" *ngIf="error">
+        <div class="col">
+          <mat-error>{{ error }}</mat-error>
+        </div>
+      </div>
+<!--    </mat-card-content>-->
+
+    <div *ngIf="mode!='view'" class="row">
+      <div class="col">
+<!--        <mat-card-actions>-->
+<!--          <button mat-raised-button color="primary" type="button" (click)="onBack()">Back</button>-->
+          <button mat-raised-button color="primary" type="submit" name="authorize" [class.spinner]="authorizationLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Authorize</button>
+          <button mat-raised-button color="primary" type="submit" name="link" [class.spinner]="linkGeneratingLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Copy Link</button>
+<!--        </mat-card-actions>-->
+      </div>
+    </div>
+
+    <!--    <p *ngIf="linkForUser">{{linkForUser}}</p>-->
+  </form>
+
+  <div class="row" *ngIf="linkForUser">
+    <div class="col">
+      Send this link to Subject
+      <mat-form-field class="full-width" appearance="outline">
+        <!--          <mat-label></mat-label>-->
+        <input matInput [type]="'text'" [value]="linkForUser">
+        <button mat-icon-button matSuffix (click)="copyToClipboard()" [attr.aria-label]="'Hide password'" >
+          <!--          [attr.aria-pressed]="hide"-->
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>
+<!--  <mat-form-field>-->
+<!--    <input matInput [matDatepicker]="picker1" placeholder="Choose a Start Date"-->
+<!--           [formControl]="startDateFormControl" (dateChange)="updateStartDateValue($event)">-->
+<!--    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>-->
+<!--    <mat-datepicker #picker1></mat-datepicker>-->
+<!--  </mat-form-field>-->
+<!--  <br/>-->
+<!--  <mat-form-field>-->
+<!--    <input matInput [matDatepicker]="picker2" placeholder="Choose an End Date"-->
+<!--           [formControl]="endDateFormControl" (dateChange)="updateEndDateValue($event)">-->
+<!--    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>-->
+<!--    <mat-datepicker #picker2></mat-datepicker>-->
+<!--  </mat-form-field>-->
+</mat-dialog-content>
+<!--<mat-dialog-actions>-->
+<!--  <button mat-button (click)="closeResetDialog()">Cancel</button>-->
+<!--&lt;!&ndash;  <button mat-button color="accent" [mat-dialog-close]="dataCopy">Ok</button>&ndash;&gt;-->
+<!--</mat-dialog-actions>-->
+

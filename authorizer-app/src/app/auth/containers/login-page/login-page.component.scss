@@ -1,0 +1,23 @@
+//.logo {
+//  animation-name: fade-in;
+//  animation-duration: 1s;
+//  animation-fill-mode: both;
+//}
+//
+//button {
+//  border-radius: 8px;
+//  font-weight: bold;
+//}
+//
+//.btn-container {
+//  text-align: center;
+//}
+.container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100% - 64px);
+}
+mat-card{
+  width: 400px;
+}
