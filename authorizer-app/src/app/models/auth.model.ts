@@ -9,6 +9,11 @@ export interface AuthResponse {
   roles: string[];
 }
 
+export interface AuthData {
+  token: string;
+  user: User;
+}
+
 export interface User {
   username: string;
   name: string;
@@ -21,6 +26,7 @@ export interface RequestTokenPayload {
   state?: string;
 }
 
-export interface AuthEndpointResponse {
+export interface AuthorizationEndpoint {
   url: string;
+  tokens?;
 }

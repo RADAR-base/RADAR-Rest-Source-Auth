@@ -4,9 +4,7 @@ import {
   MatMomentDateModule
 } from '@angular/material-moment-adapter';
 import {
-  MatButtonModule,
-  MatCardModule,
-  MatCheckboxModule,
+  MatButtonModule, MatCardModule,
   MatDatepickerModule,
   MatDialogModule,
   MatFormFieldModule,
@@ -14,8 +12,7 @@ import {
   MatInputModule,
   MatMenuModule,
   MatNativeDateModule,
-  MatPaginatorModule,
-  MatSelectModule,
+  MatPaginatorModule, MatRadioModule, MatSelectModule,
   MatSortModule,
   MatTableModule,
   MatToolbarModule,
@@ -42,7 +39,7 @@ import { LoginPageComponent } from './components/auth/login-page.component';
 import { ManagementPortalAuthService } from './services/management-portal-auth.service';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import {RestSourceUserRegistrationFormComponent} from './components/rest-source-authorization/rest-source-user-registration-form.component';
+import { RestSourceUserRegistrationFormComponent } from './components/rest-source-authorization/rest-source-user-registration-form.component';
 import { RestSourceUserService } from './services/rest-source-user.service';
 import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
@@ -52,14 +49,17 @@ import { ErrorInterceptor } from './error.interceptor';
 import {RestSourceUserListDeleteDialog} from './components/rest-source-authorization/rest-source-user-list-delete-dialog.component';
 import {RestSourceUserListResetDialog} from './components/rest-source-authorization/rest-source-user-list-reset-dialog.component';
 import {LinkRestSourceUserComponent} from './components/rest-source-authorization/link-rest-source-user.component';
-import {AuthorizeRestSourceUserComponent} from './components/rest-source-authorization/authorize-rest-source-user.component';
 import {AuthorizedRestSourceUserComponent} from './components/rest-source-authorization/authorized-rest-source-user.component';
+import {RestSourceUserMockService} from './services/rest-source-user-mock.service';
+import {SourceClientAuthorizationMockService} from './services/source-client-authorization-mock.service';
+import {AuthorizeRestSourceUserComponent} from './components/rest-source-authorization/authorize-rest-source-user.component';
+// import { ClipboardModule } from '@angular/cdk/clipboard';
 
 const appRoutes: Routes = [
   {
     path: '',
     component: RestSourceUserDashboardComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   {
     path: 'login',
@@ -68,15 +68,31 @@ const appRoutes: Routes = [
   {
     path: 'users',
     component: RestSourceUserDashboardComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
+  },
+  // {
+  //   path: 'users:new',
+  //   component: UpdateRestSourceUserComponent,
+  //   canActivate: [AuthGuard]
+  // },
+  {
+    path: 'users:link',
+    component: LinkRestSourceUserComponent,
+    // canActivate: [AuthGuard]
   },
   {
     path: 'users:new',
-    component: UpdateRestSourceUserComponent,
-    canActivate: [AuthGuard]
+    component: AuthorizedRestSourceUserComponent,
+    // canActivate: [AuthGuard]
+  },
+  {
+    path: 'users:auth',
+    component: AuthorizeRestSourceUserComponent,
+    // canActivate: [AuthGuard]
   },
   {
     path: 'users/:id',
+    // component: LinkRestSourceUserComponent,
     component: UpdateRestSourceUserComponent,
     canActivate: [AuthGuard]
   },
@@ -110,8 +126,8 @@ const appRoutes: Routes = [
     RestSourceUserListResetDialog,
     RestSourceUserListDeleteDialog,
     LinkRestSourceUserComponent,
-    AuthorizeRestSourceUserComponent,
     AuthorizedRestSourceUserComponent,
+    AuthorizeRestSourceUserComponent,
   ],
   entryComponents: [
     RestSourceUserListDeleteDialog,
@@ -132,7 +148,6 @@ const appRoutes: Routes = [
     MatMenuModule,
     MatToolbarModule,
     MatIconModule,
-    MatCardModule,
     RouterModule.forRoot(appRoutes),
     NgbModule.forRoot(),
     JwtModule.forRoot({config: {tokenGetter: AuthService.getAccessToken}}),
@@ -141,12 +156,16 @@ const appRoutes: Routes = [
     MatDatepickerModule,
     MatNativeDateModule,
     MatMomentDateModule,
-    MatCheckboxModule,
+    MatCardModule,
     MatSelectModule,
+    MatRadioModule,
+    // ClipboardModule
   ],
   providers: [
     RestSourceUserService,
+    RestSourceUserMockService,
     SourceClientAuthorizationService,
+    SourceClientAuthorizationMockService,
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

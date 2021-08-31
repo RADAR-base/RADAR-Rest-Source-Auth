@@ -66,11 +66,11 @@ export class LinkRestSourceUserComponent implements OnInit {
     // send POST req to /users {RestSourceUserReq} = {}
     // subscribe
     // success => send POST to /registrations = {}
-      // subscribe
-      // success =>
-        // 1) redirect to endpointUrl (researcher)
-        // 2) ? (subject) generate link and show it / copy to clipboard or ...
-      // error: show error
+    // subscribe
+    // success =>
+    // 1) redirect to endpointUrl (researcher)
+    // 2) ? (subject) generate link and show it / copy to clipboard or ...
+    // error: show error
     // error: show error
     const user = {
       projectId: this.form.value.projectId,
@@ -85,17 +85,17 @@ export class LinkRestSourceUserComponent implements OnInit {
     this.service.createUser(user).subscribe(
       resp => {
         console.log(resp);
-        this.registerUser(resp.userId, persistent);
+        this.registerUser(resp.id, persistent);
       },
       err => {
         console.log(err);
-        if (err.status === 409 && err.error.error === 'user_exists') {
-          this.registerUser(user.userId, persistent);
-        } else {
+        // if (err.status === 409 && err.error.error === 'user_exists') {
+        //   this.registerUser(user.userId, persistent);
+        // } else {
           this.error = err.error.error_description; // message;
           this.linkGeneratingLoading = false;
           this.authorizationLoading = false;
-        }
+        // }
       }
     );
   }

@@ -11,7 +11,7 @@ import { RestSourceUser } from '../../models/rest-source-user.model';
 import {FormControl} from '@angular/forms';
 import * as moment from 'moment';
 import deepcopy from 'ts-deepcopy';
-import {RestSourceUserListDeleteDialog} from './rest-source-user-list-delete-dialog.component';
+import {RestSourceUserListDeleteDialog} from "./rest-source-user-list-delete-dialog.component";
 
 @Component({
   selector: 'rest-source-user-list-reset-dialog',

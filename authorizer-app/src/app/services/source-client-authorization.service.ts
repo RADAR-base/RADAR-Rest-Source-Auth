@@ -2,12 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
-import { map, tap } from 'rxjs/operators';
-import {
-  RestSourceClientDetails,
-  RestSourceClientDetailsList
-} from "../models/source-client-details.model";
-import { AuthEndpointResponse } from "../models/auth.model";
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -19,27 +14,33 @@ export class SourceClientAuthorizationService {
 
   constructor(private http: HttpClient) {}
 
-  getDeviceTypes(): Observable<RestSourceClientDetailsList> {
-    return this.http.get<RestSourceClientDetailsList>(this.serviceUrl + '/source-clients');
+  getDeviceTypes(): Observable<any[]> {
+    return this.http.get<{sourceClients: any[]}>(this.serviceUrl + '/source-clients').pipe(
+      map(result => result.sourceClients)
+    );
+  }
+
+  getSourceClientAuthDetails(sourceType: string): Observable<any> {
+    return this.http.get(this.serviceUrl + '/source-clients/' + sourceType);
   }
 
   getAuthorizationEndpoint(
-    sourceType: RestSourceClientDetails,
+    sourceType: string,
     callbackurl: string
   ): Observable<any> {
     const url =
       this.serviceUrl +
       '/source-clients/' +
-      sourceType.sourceType +
+      sourceType +
       '/auth-endpoint?callbackUrl=' +
       callbackurl;
-    return this.http.get<AuthEndpointResponse>(url)
-      .pipe(
-        tap(authEndpoint => {
-          this.storeAuthorizationEndpointParams(authEndpoint.url);
-          this.storeSourceType(sourceType);
-        })
-      );
+    return this.http.get(url, { responseType: 'text' }).pipe(
+      map(url => {
+        this.storeAuthorizationEndpointParams(url);
+        this.storeSourceType(sourceType);
+        return url;
+      })
+    );
   }
 
   storeSourceType(type) {
@@ -58,7 +59,7 @@ export class SourceClientAuthorizationService {
     const query = url.split('?')[1];
     const result = {};
     query.split('&').forEach(function(part) {
-      const item = part.split('=');
+      let item = part.split('=');
       result[item[0]] = decodeURIComponent(item[1]);
     });
     return result;

@@ -23,7 +23,7 @@
            [(ngModel)]="restSourceUser.sourceType" id="sourceType">
   </div>
 
-<!--  {{restSourceProjects | json}}-->
+  <!--  {{restSourceProjects | json}}-->
   <div class="form-group">
     <label for="projectId">Project ID:</label>
     <select class="form-control" id="projectId" [(ngModel)]="restSourceUser.projectId" #projectId="ngModel" disabled
@@ -33,7 +33,7 @@
     </select>
   </div>
 
-<!--  {{subjects | json}}-->
+  <!--  {{subjects | json}}-->
   <div class="form-group" *ngIf="restSourceUser.projectId">
     <label for="userId">User ID:</label>
     <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" #userId="ngModel" disabled>
@@ -53,7 +53,7 @@
     <div class="input-group" placement="top"
          ngbTooltip="Start date to collect data from this source">
       <input id="startDate" class="form-control" placeholder="yyyy-mm-dd"
-        required name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker" disabled>
+             required name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker" disabled>
       <div class="input-group-append">
         <button class="btn btn-outline-secondary calendar" (click)="e.toggle()"
                 type="button"></button>
@@ -66,7 +66,7 @@
     <div class="input-group" placement="top"
          ngbTooltip="End date to collect data from this source">
       <input id="endDate" class="form-control" placeholder="yyyy-mm-dd"
-        required name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker" disabled>
+             required name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker" disabled>
       <div class="input-group-append">
         <button class="btn btn-outline-secondary calendar" (click)="d.toggle()"
                 type="button"></button>
@@ -92,16 +92,16 @@
            id="timesReset" [(ngModel)]="restSourceUser.timesReset">
   </div>
 
-<!--  <button *ngIf="isEditing" type="button" (click)="cancelUpdateUser()" class="btn btn-outline-primary"-->
-<!--          style="margin-right: 16px">Cancel-->
-<!--  </button>-->
+  <!--  <button *ngIf="isEditing" type="button" (click)="cancelUpdateUser()" class="btn btn-outline-primary"-->
+  <!--          style="margin-right: 16px">Cancel-->
+  <!--  </button>-->
   <button type="button" (click)="backClicked()" class="btn btn-outline-primary"
           style="margin-right: 16px">Back
   </button>
 
-<!--  <button *ngIf="isEditing && restSourceUser.projectId" type="button" (click)="updateRestSourceUser()"-->
-<!--                   class="btn btn-success">Submit-->
-<!--  </button>-->
+  <!--  <button *ngIf="isEditing && restSourceUser.projectId" type="button" (click)="updateRestSourceUser()"-->
+  <!--                   class="btn btn-success">Submit-->
+  <!--  </button>-->
 
   <button *ngIf="isEditing && restSourceUser.projectId" type="button" name="authorize" (click)="onSubmit('authorize')"
           class="btn btn-success">Authorize
@@ -118,23 +118,23 @@
   </div>
 
 
-<!--  <div class="row" *ngIf="linkForUser">-->
-<!--    <div class="col">-->
-<!--      Send this link to Subject-->
-<!--      <mat-form-field class="full-width" appearance="outline">-->
-<!--        &lt;!&ndash;          <mat-label></mat-label>&ndash;&gt;-->
-<!--        <input class="form-control" name="isAuthorized" disabled type="text"-->
-<!--               id="isAuthorized" [type]="'text'" [value]="linkForUser">-->
-<!--&lt;!&ndash;        <button mat-icon-button matSuffix (click)="copyToClipboard()" [attr.aria-label]="'Hide password'" >&ndash;&gt;-->
-<!--&lt;!&ndash;          &lt;!&ndash;          [attr.aria-pressed]="hide"&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;          <mat-icon>content_copy</mat-icon>&ndash;&gt;-->
-<!--&lt;!&ndash;        </button>&ndash;&gt;-->
-<!--      </mat-form-field>-->
-<!--    </div>-->
-<!--  </div>-->
+  <!--  <div class="row" *ngIf="linkForUser">-->
+  <!--    <div class="col">-->
+  <!--      Send this link to Subject-->
+  <!--      <mat-form-field class="full-width" appearance="outline">-->
+  <!--        &lt;!&ndash;          <mat-label></mat-label>&ndash;&gt;-->
+  <!--        <input class="form-control" name="isAuthorized" disabled type="text"-->
+  <!--               id="isAuthorized" [type]="'text'" [value]="linkForUser">-->
+  <!--&lt;!&ndash;        <button mat-icon-button matSuffix (click)="copyToClipboard()" [attr.aria-label]="'Hide password'" >&ndash;&gt;-->
+  <!--&lt;!&ndash;          &lt;!&ndash;          [attr.aria-pressed]="hide"&ndash;&gt;&ndash;&gt;-->
+  <!--&lt;!&ndash;          <mat-icon>content_copy</mat-icon>&ndash;&gt;-->
+  <!--&lt;!&ndash;        </button>&ndash;&gt;-->
+  <!--      </mat-form-field>-->
+  <!--    </div>-->
+  <!--  </div>-->
 
-<!--  <button mat-raised-button color="primary" type="button" (click)="onBack()">Back</button>-->
-<!--  <button mat-raised-button color="primary" type="submit" name="authorize" [class.spinner]="authorizationLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Authorize</button>-->
-<!--  <button mat-raised-button color="primary" type="submit" name="link" [class.spinner]="linkGeneratingLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Copy Link</button>-->
+  <!--  <button mat-raised-button color="primary" type="button" (click)="onBack()">Back</button>-->
+  <!--  <button mat-raised-button color="primary" type="submit" name="authorize" [class.spinner]="authorizationLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Authorize</button>-->
+  <!--  <button mat-raised-button color="primary" type="submit" name="link" [class.spinner]="linkGeneratingLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Copy Link</button>-->
 
 </div>
