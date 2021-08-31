@@ -5,6 +5,7 @@ import {
 } from '@angular/material-moment-adapter';
 import {
   MatButtonModule,
+  MatCardModule,
   MatCheckboxModule,
   MatDatepickerModule,
   MatDialogModule,
@@ -14,6 +15,7 @@ import {
   MatMenuModule,
   MatNativeDateModule,
   MatPaginatorModule,
+  MatSelectModule,
   MatSortModule,
   MatTableModule,
   MatToolbarModule,
@@ -130,6 +132,7 @@ const appRoutes: Routes = [
     MatMenuModule,
     MatToolbarModule,
     MatIconModule,
+    MatCardModule,
     RouterModule.forRoot(appRoutes),
     NgbModule.forRoot(),
     JwtModule.forRoot({config: {tokenGetter: AuthService.getAccessToken}}),
@@ -138,7 +141,8 @@ const appRoutes: Routes = [
     MatDatepickerModule,
     MatNativeDateModule,
     MatMomentDateModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatSelectModule,
   ],
   providers: [
     RestSourceUserService,
