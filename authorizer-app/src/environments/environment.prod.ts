@@ -2,6 +2,7 @@ export const environment = {
   production: true,
   // base url of the rest-sources authorizer app
   BASE_HREF: 'BASE_HREF',
+  baseUrl: 'BASE_URL',
   // base url of the rest-sources-auth-backend
   backendBaseUrl: 'BACKEND_BASE_URL',
   // If user validation is enabled

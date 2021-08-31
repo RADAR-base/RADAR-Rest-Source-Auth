@@ -45,6 +45,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   loginWithAuthCode() {
+    console.log("4534534")
     this.routerSubscription = this.route.queryParams.subscribe(params => {
       if (params.code) {
         this.authCodeSubscription = this.authService

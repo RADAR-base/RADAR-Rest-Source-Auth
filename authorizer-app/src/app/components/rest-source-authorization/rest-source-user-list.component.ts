@@ -28,6 +28,7 @@ import {
   filter,
   switchMap,
 } from 'rxjs/operators';
+import {RestSourceUserMockService} from '../../services/rest-source-user-mock.service';
 
 @Component({
   selector: 'rest-source-list',
@@ -65,6 +66,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
 
   constructor(
     private restSourceUserService: RestSourceUserService,
+    // private restSourceUserService: RestSourceUserMockService,
     public dialog: MatDialog,
   ) {}
 
@@ -82,7 +84,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
   subscribeToUsers(): Subscription {
     const filterInput = this.filterValue
       .pipe(
-        debounceTime(150),
+        debounceTime(300),
         distinctUntilChanged(),
       );
     const projectInput = this.project$
@@ -100,6 +102,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
         switchMap(([page, filterValue, _, project, onlyUnauthorized]) => this.loadUsers(filterValue, page, project, onlyUnauthorized))
       )
       .subscribe(users => {
+        console.log(users);
         this.dataSource.data = users.users;
         this.paginator.pageIndex = users.metadata.pageNumber - 1;
         this.paginator.length = users.metadata.totalElements;
@@ -178,5 +181,9 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
         this.resetUser(user);
       }
     });
+  }
+
+  registerUser() {
+
   }
 }

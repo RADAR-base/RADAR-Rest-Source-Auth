@@ -14,6 +14,8 @@ import { Location } from '@angular/common';
 import { RequestTokenPayload } from 'src/app/models/auth.model';
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
+import {RestSourceUserMockService} from '../../services/rest-source-user-mock.service';
+import {environment} from '../../../environments/environment';
 
 @Component({
   selector: 'update-rest-source-user',
@@ -29,8 +31,14 @@ export class UpdateRestSourceUserComponent implements OnInit {
   subjects: RadarSubject[] = [];
   restSourceProjects: RadarProject[] = [];
 
+  linkGeneratingLoading = false;
+  authorizationLoading = false;
+
+  linkForUser?: string;
+
   constructor(
     private restSourceUserService: RestSourceUserService,
+    // private restSourceUserService: RestSourceUserMockService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private _location: Location
@@ -41,35 +49,76 @@ export class UpdateRestSourceUserComponent implements OnInit {
   }
 
   initialize() {
-    this.activatedRoute.params.subscribe(params => {
-      if (params.hasOwnProperty('id')) {
-        this.restSourceUserService.getUserById(params['id']).subscribe(
-          user => {
-            this.restSourceUser = user;
-            this.subjects = [{ id: this.restSourceUser.userId }];
-            this.isEditing = true;
-            this.startDate = new Date(this.restSourceUser.startDate);
-            this.endDate = new Date(this.restSourceUser.endDate);
-            this.loadAllSubjectsOfProject(user.projectId);
-          },
-          (err: Response) => {
-            console.log('Cannot retrieve current user details', err);
-            this.errorMessage = 'Cannot retrieve current user details';
-            window.setTimeout(() => this.router.navigate(['']), 5000);
-          }
-        );
-      } else {
-        this.activatedRoute.queryParams.subscribe((params: Params) => {
-          if (params.hasOwnProperty('error')) {
-            this.errorMessage = 'Access Denied';
-            window.setTimeout(() => this.router.navigate(['']), 5000);
-          } else {
-            this.errorMessage = null;
-            this.handleAuthRedirect(params);
-          }
-        });
-      }
-    });
+    const {params, queryParams} = this.activatedRoute.snapshot;
+
+    if (params.hasOwnProperty('id')) {
+      this.restSourceUserService.getUserById(params['id']).subscribe(
+        user => {
+          this.restSourceUser = user;
+          this.subjects = [{ id: this.restSourceUser.userId }];
+          // this.isEditing = false; // true;
+          this.startDate = new Date(this.restSourceUser.startDate);
+          this.endDate = new Date(this.restSourceUser.endDate);
+          this.loadAllSubjectsOfProject(user.projectId);
+        },
+        (err: Response) => {
+          console.log('Cannot retrieve current user details', err);
+          this.errorMessage = 'Cannot retrieve current user details';
+          window.setTimeout(() => this.router.navigate(['']), 5000);
+        }
+      );
+      this.isEditing = queryParams.hasOwnProperty('link');
+    } else {
+      this.activatedRoute.queryParams.subscribe((_params: Params) => {
+        if (_params.hasOwnProperty('error')) {
+          this.errorMessage = 'Access Denied';
+          window.setTimeout(() => this.router.navigate(['']), 5000);
+        } else {
+          this.errorMessage = null;
+          this.handleAuthRedirect(_params);
+        }
+      });
+    }
+
+    // if (params.hasOwnProperty('id') && queryParams.hasOwnProperty('link')) {
+    //   console.log('has id & link');
+    //   this.isEditing = true;
+    // } else {
+    //   console.log(' doesn\'t have id or link');
+    //   this.isEditing = false;
+    // }
+    //
+    // this.activatedRoute.params.subscribe(params => {
+    //   console.log(params);
+    //   if (params.hasOwnProperty('id')) {
+    //     console.log('has id');
+    //     this.restSourceUserService.getUserById(params['id']).subscribe(
+    //       user => {
+    //         this.restSourceUser = user;
+    //         this.subjects = [{ id: this.restSourceUser.userId }];
+    //         this.isEditing = false; // true;
+    //         this.startDate = new Date(this.restSourceUser.startDate);
+    //         this.endDate = new Date(this.restSourceUser.endDate);
+    //         this.loadAllSubjectsOfProject(user.projectId);
+    //       },
+    //       (err: Response) => {
+    //         console.log('Cannot retrieve current user details', err);
+    //         this.errorMessage = 'Cannot retrieve current user details';
+    //         window.setTimeout(() => this.router.navigate(['']), 5000);
+    //       }
+    //     );
+    //   } else {
+    //     this.activatedRoute.queryParams.subscribe((_params: Params) => {
+    //       if (_params.hasOwnProperty('error')) {
+    //         this.errorMessage = 'Access Denied';
+    //         window.setTimeout(() => this.router.navigate(['']), 5000);
+    //       } else {
+    //         this.errorMessage = null;
+    //         this.handleAuthRedirect(_params);
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   handleAuthRedirect(params) {
@@ -108,7 +157,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
           // The response body may contain clues as to what went wrong,
           this.errorMessage = `Backend Error: Status=${err.status},
           Body: ${err.error.error}, ${err.error.message}`;
-          if (err.status == 417) {
+          if (err.status === 417) {
             this.errorMessage +=
               ' Please check the details are correct and try again.';
           }
@@ -134,7 +183,8 @@ export class UpdateRestSourceUserComponent implements OnInit {
   private loadAllRestSourceProjects() {
     this.restSourceUserService.getAllProjects().subscribe(
       (data: any) => {
-        this.restSourceProjects = data.projects;
+        console.log(data);
+        this.restSourceProjects = data; // .projects;
         this.initialize();
       },
       () => {
@@ -152,7 +202,7 @@ export class UpdateRestSourceUserComponent implements OnInit {
   private loadAllSubjectsOfProject(projectId: string) {
     this.restSourceUserService.getAllSubjectsOfProjects(projectId).subscribe(
       (data: any) => {
-        this.subjects = data.users;
+        this.subjects = data; // .users;
         let withExternalId = this.subjects.filter(s => s.externalId);
         let withoutExternalId = this.subjects.filter(s => !s.externalId);
         withExternalId = withExternalId.sort((a, b) => {
@@ -169,9 +219,98 @@ export class UpdateRestSourceUserComponent implements OnInit {
     );
   }
 
-  cancelUpdateUser() {
-    return this.router.navigate(['/users']);
+  onSubmit(actionName: string): void {
+    // alert('Thanks!');
+    this.errorMessage = null;
+
+    // console.log(e.submitter.name);
+    // console.log(this.form.value);
+    // console.log(this.form.value.startDate.unix());
+    // console.log(this.form.value.startDate.valueOf());
+    const persistent = actionName === 'link';
+    this.linkGeneratingLoading = persistent;
+    this.authorizationLoading = !persistent;
+    // send POST req to /users {RestSourceUserReq} = {}
+    // subscribe
+    // success => send POST to /registrations = {}
+    // subscribe
+    // success =>
+    // 1) redirect to endpointUrl (researcher)
+    // 2) ? (subject) generate link and show it / copy to clipboard or ...
+    // error: show error
+    // error: show error
+    // const user = this.restSourceUser;
+    // const user = {
+    //   projectId: this.restSourceUser.projectId, // this.form.value.projectId,
+    //   userId: this.restSourceUser.userId, // this.form.value.userId,
+    //   // sourceId: '789', // this.form.value.sourceId,
+    //   startDate: this.restSourceUser.startDate, // this.form.value.startDate, // .valueOf(),
+    //   endDate: this.restSourceUser.endDate ? this.restSourceUser.endDate : null,
+    //   // this.form.value.endDate ? this.form.value.endDate : null, // .valueOf() : null,
+    //   sourceType: this.restSourceUser.sourceType, // this.form.value.sourceType,
+    // };
+
+    this.restSourceUserService.registerUser({userId: this.restSourceUser.id, persistent}).subscribe(
+      registrationResp => {
+        console.log(registrationResp);
+        if (registrationResp.authEndpointUrl) {
+          // redirect to endpointUrl
+          window.location.href = registrationResp.authEndpointUrl;
+        } else if (registrationResp.secret) {
+          // generate link // show // copy to clipboard
+          this.linkForUser =
+            `${environment.baseUrl}/users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}`;
+          this.linkGeneratingLoading = false;
+        }
+      },
+      err => {
+        console.log(err);
+        this.errorMessage = err.error.error_description; // err.message;
+        this.linkGeneratingLoading = false;
+        this.authorizationLoading = false;
+      }
+    );
+    //
+    // this.restSourceUserService.createUser(user).subscribe(
+    //   resp => {
+    //     console.log(resp);
+    //
+    //   },
+    //   err => {
+    //     console.log(err);
+    //     if (err.status === 409 && err.error.error === 'user_exists') {
+    //       this.restSourceUserService.registerUser({userId: '11', persistent}).subscribe(
+    //         registrationResp => {
+    //           console.log(registrationResp);
+    //           if (registrationResp.authEndpointUrl) {
+    //             // redirect to endpointUrl
+    //             window.location.href = registrationResp.authEndpointUrl;
+    //           } else if (registrationResp.secret) {
+    //             // generate link // show // copy to clipboard
+    //             this.linkForUser =
+    //               `${environment.baseUrl}/users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}`;
+    //             this.linkGeneratingLoading = false;
+    //           }
+    //         },
+    //         error => {
+    //           console.log(error);
+    //           this.errorMessage = err.error.error_description; // err.message;
+    //           this.linkGeneratingLoading = false;
+    //           this.authorizationLoading = false;
+    //         }
+    //       );
+    //     } else {
+    //       this.errorMessage = err.error.error_description; // message;
+    //       this.linkGeneratingLoading = false;
+    //       this.authorizationLoading = false;
+    //     }
+    //   }
+    // );
   }
+
+  // cancelUpdateUser() {
+  //   return this.router.navigate(['/users']);
+  // }
 
   backClicked() {
     this._location.back();

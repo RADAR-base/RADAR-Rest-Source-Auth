@@ -1,0 +1,206 @@
+<toolbar [showMenu]="true"></toolbar>
+<!--{{ sourceTypes$ | async | json }}-->
+<!--<p></p>-->
+<!--{{ projects$ | async | json }}-->
+<!--<p></p>-->
+<!--{{ subjects$ | async | json }}-->
+<!--<p></p>-->
+<mat-card class="link-rest-source-user-card" style="width: 400px;">
+  <form [formGroup]="form" novalidate (ngSubmit)="onSubmit($event)">
+    <mat-card-header>
+      <mat-card-title>
+        <h5>Linking a User</h5>
+        Enter details fo User
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <div class="row">
+        <div class="col">
+          Source Type
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-select placeholder="Select a Source Type" formControlName="sourceType" >
+              <mat-option *ngFor="let sourceType of sourceTypes$ | async" [value]="sourceType['sourceType']">{{sourceType['sourceType']}}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.controls['sourceType'].hasError('required')">Source Type is required</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          Project
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-select placeholder="Select a Project" formControlName="projectId" (selectionChange)="onProjectSelectionChange($event)">
+              <mat-option *ngFor="let project of projects$ | async" [value]="project.id">{{project.id}}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.controls['projectId'].hasError('required')">Project is required</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          User
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-select placeholder="Select a User" formControlName="userId" [disabled]="!(subjects$ | async)">
+              <mat-option *ngFor="let subject of subjects$ | async" [value]="subject.id">{{subject.externalId}} ({{subject.id}})</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.controls['userId'].hasError('required')">User is required</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          Start Date
+          <mat-form-field class="full-width" appearance="outline">
+            <input matInput [matDatepicker]="startDatePicker" placeholder="Select Start Date" formControlName="startDate" (focus)="startDatePicker.open()" (click)="startDatePicker.open()">
+            <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #startDatePicker></mat-datepicker>
+            <mat-error *ngIf="form.controls['startDate'].hasError('required')">Start Date is required</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          End Date
+          <mat-form-field class="full-width" appearance="outline">
+            <input matInput [matDatepicker]="endDatePicker" placeholder="Select End Date" formControlName="endDate" (focus)="endDatePicker.open()" (click)="endDatePicker.open()">
+            <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #endDatePicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="error">
+        <div class="col">
+          <mat-error>{{ error }}</mat-error>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <div class="row">
+      <div class="col">
+        <mat-card-actions>
+          <button mat-raised-button color="primary" type="button" (click)="onBack()">Back</button>
+          <button mat-raised-button color="primary" type="submit" name="authorize" [class.spinner]="authorizationLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Authorize</button>
+          <button mat-raised-button color="primary" type="submit" name="link" [class.spinner]="linkGeneratingLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Copy Link</button>
+        </mat-card-actions>
+      </div>
+    </div>
+
+<!--    <p *ngIf="linkForUser">{{linkForUser}}</p>-->
+  </form>
+
+  <div class="row" *ngIf="linkForUser">
+    <div class="col">
+      Send this link to Subject
+      <mat-form-field class="full-width" appearance="outline">
+        <!--          <mat-label></mat-label>-->
+        <input matInput [type]="'text'" [value]="linkForUser">
+<!--        <button mat-icon-button matSuffix (click)="copyToClipboard()" [attr.aria-label]="'Hide password'" >-->
+<!--          &lt;!&ndash;          [attr.aria-pressed]="hide"&ndash;&gt;-->
+<!--          <mat-icon>content_copy</mat-icon>-->
+<!--        </button>-->
+      </mat-form-field>
+    </div>
+  </div>
+</mat-card>
+
+
+<!--<div *ngIf="restSourceUser" class="container col-md-4" style="padding: 32px">-->
+<!--  <h3 *ngIf="!isEditing">Enter details for User</h3>-->
+<!--  <h3 *ngIf="isEditing">Details for User</h3>-->
+<!--  <div class="form-group">-->
+<!--    <label for="externalUserId">Service User ID:</label>-->
+<!--    <input class="form-control" name="externalUserId" disabled type="text"-->
+<!--           [(ngModel)]="restSourceUser.serviceUserId" id="externalUserId">-->
+<!--  </div>-->
+
+<!--  <div class="form-group">-->
+<!--    <label for="sourceType">Source Type:</label>-->
+<!--    <input class="form-control" name="sourceType" disabled type="text"-->
+<!--           [(ngModel)]="restSourceUser.sourceType" id="sourceType">-->
+<!--  </div>-->
+
+<!--  <div class="form-group">-->
+<!--    <label for="projectId">Project ID:</label>-->
+<!--    <select class="form-control" id="projectId" [(ngModel)]="restSourceUser.projectId" #projectId="ngModel" [disabled]="isEditing"-->
+<!--            (change)="onChangeProject($event.target.value)">-->
+<!--      <option [selected]="true" [ngValue]="null">Select a project</option>-->
+<!--      <option [value]="project.id" *ngFor="let project of restSourceProjects">{{project.id}}</option>-->
+<!--    </select>-->
+<!--  </div>-->
+
+<!--  <div class="form-group" *ngIf="restSourceUser.projectId">-->
+<!--    <label for="userId">User ID:</label>-->
+<!--    <select class="form-control" id="userId" [(ngModel)]="restSourceUser.userId" #userId="ngModel" [disabled]="isEditing">-->
+<!--      <option [selected]="true" [ngValue]="null">Select a user</option>-->
+<!--      <option *ngFor="let user of subjects" [value]="user.id">{{user.externalId}} ({{ user.id }})</option>-->
+<!--    </select>-->
+<!--  </div>-->
+
+<!--  <div class="form-group" *ngIf="restSourceUser.projectId">-->
+<!--    <label for="sourceId">Source ID:</label>-->
+<!--    <input class="form-control" name="sourceId" disabled type="text"-->
+<!--           [(ngModel)]="restSourceUser.sourceId" id="sourceId">-->
+<!--  </div>-->
+
+<!--  <div class="form-group" *ngIf="restSourceUser.projectId">-->
+<!--    <label for="startDate">Start Date:</label>-->
+<!--    <div class="input-group" placement="top"-->
+<!--         ngbTooltip="Start date to collect data from this source">-->
+<!--      <input id="startDate" class="form-control" placeholder="yyyy-mm-dd"-->
+<!--             required name="startDate" [(ngModel)]="startDate" ngbDatepicker #e="ngbDatepicker" [disabled]="isEditing">-->
+<!--      <div class="input-group-append">-->
+<!--        <button class="btn btn-outline-secondary calendar" (click)="e.toggle()"-->
+<!--                type="button"></button>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  <div class="form-group" *ngIf="restSourceUser.projectId">-->
+<!--    <label for="endDate">End Date:</label>-->
+<!--    <div class="input-group" placement="top"-->
+<!--         ngbTooltip="End date to collect data from this source">-->
+<!--      <input id="endDate" class="form-control" placeholder="yyyy-mm-dd"-->
+<!--             required name="endDate" [(ngModel)]="endDate" ngbDatepicker #d="ngbDatepicker" [disabled]="isEditing">-->
+<!--      <div class="input-group-append">-->
+<!--        <button class="btn btn-outline-secondary calendar" (click)="d.toggle()"-->
+<!--                type="button"></button>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  <div class="form-group" *ngIf="isEditing">-->
+<!--    <label for="isAuthorized">Authorized:</label>-->
+<!--    <input class="form-control" name="isAuthorized" disabled type="text"-->
+<!--           id="isAuthorized" [value]= "restSourceUser.isAuthorized? 'Yes':'No'">-->
+<!--  </div>-->
+
+<!--  <div class="form-group" *ngIf="isEditing">-->
+<!--    <label for="timesReset">Reset Version:</label>-->
+<!--    <input class="form-control" name="resetVersion" disabled type="text"-->
+<!--           id="resetVersion" [(ngModel)]="restSourceUser.version">-->
+<!--  </div>-->
+
+<!--  <div class="form-group" *ngIf="isEditing">-->
+<!--    <label for="timesReset">Times Reset:</label>-->
+<!--    <input class="form-control" name="timesReset" disabled type="text"-->
+<!--           id="timesReset" [(ngModel)]="restSourceUser.timesReset">-->
+<!--  </div>-->
+
+<!--  <button *ngIf="!isEditing" type="button" (click)="cancelUpdateUser()" class="btn btn-outline-primary"-->
+<!--          style="margin-right: 16px">Cancel-->
+<!--  </button>-->
+<!--  <button *ngIf="isEditing" type="button" (click)="backClicked()" class="btn btn-outline-primary"-->
+<!--          style="margin-right: 16px">Back-->
+<!--  </button>-->
+
+<!--  <button *ngIf="!isEditing && restSourceUser.projectId" type="button" (click)="updateRestSourceUser()"-->
+<!--          class="btn btn-success">Submit-->
+<!--  </button>-->
+<!--</div>-->

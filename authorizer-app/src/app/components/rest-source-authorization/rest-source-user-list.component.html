@@ -43,7 +43,7 @@
     </ng-container>
     <ng-container matColumnDef="startDate">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Start Date </th>
-      <td mat-cell *matCellDef="let user"> {{user.startDate | date}} </td>
+      <td mat-cell *matCellDef="let user">{{user.startDate | date}} </td>
     </ng-container>
     <ng-container matColumnDef="endDate">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> End Date </th>
@@ -58,6 +58,10 @@
       <td mat-cell *matCellDef="let user">
         <button mat-icon-button color="primary" [routerLink]="['/users', user.id]" ngbTooltip="Info/Edit">
           <mat-icon>info</mat-icon>
+        </button>
+        <button *ngIf="!user.isAuthorized" mat-icon-button matTooltip="Register/Link" color="primary" [routerLink]="['/users', user.id]" [queryParams]="{ link: true }">
+<!--          (click)="registerUser()"-->
+          <mat-icon>person_add</mat-icon>
         </button>
         <button mat-icon-button ngbTooltip="Reset" matTooltip="This will re-pull all the data for this user"
                 color="warn" (click)="openResetDialog(user)">
