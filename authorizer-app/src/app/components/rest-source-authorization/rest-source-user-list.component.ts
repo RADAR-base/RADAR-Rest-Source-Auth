@@ -97,7 +97,9 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
         distinctUntilChanged((p1, p2) =>
           p1.pageIndex === p2.pageIndex && p1.pageSize === p2.pageSize)
       );
-    return combineLatest<PageEvent, string, string, string, boolean>(pageInput, filterInput, this.updateTrigger, projectInput, this.onlyUnauthorized)
+    return combineLatest<PageEvent, string, string, string, boolean>(
+      pageInput, filterInput, this.updateTrigger, projectInput, this.onlyUnauthorized
+    )
       .pipe(
         switchMap(([page, filterValue, _, project, onlyUnauthorized]) => this.loadUsers(filterValue, page, project, onlyUnauthorized))
       )
@@ -125,7 +127,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
   }
 
   applyIsAuthorized(onlyUnauthorized: boolean) {
-    this.onlyUnauthorized.next(onlyUnauthorized)
+    this.onlyUnauthorized.next(onlyUnauthorized);
   }
 
   loadUsers(filterValue: string, page: PageEvent, project: string, onlyUnauthorized: boolean): Observable<RestSourceUsers> {

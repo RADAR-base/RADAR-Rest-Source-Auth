@@ -40,7 +40,7 @@ import { LoginPageComponent } from './components/auth/login-page.component';
 import { ManagementPortalAuthService } from './services/management-portal-auth.service';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { RestSourceUserRegistrationFormComponent } from './components/rest-source-authorization/rest-source-user-registration-form.component';
+import {RestSourceUserRegistrationFormComponent} from './components/rest-source-authorization/rest-source-user-registration-form.component';
 import { RestSourceUserService } from './services/rest-source-user.service';
 import { SourceClientAuthorizationService } from './services/source-client-authorization.service';
 import { ToolbarComponent } from './components/shared/toolbar/toolbar.component';
@@ -49,6 +49,9 @@ import { AuthInterceptor } from './auth.interceptor';
 import { ErrorInterceptor } from './error.interceptor';
 import {RestSourceUserListDeleteDialog} from './components/rest-source-authorization/rest-source-user-list-delete-dialog.component';
 import {RestSourceUserListResetDialog} from './components/rest-source-authorization/rest-source-user-list-reset-dialog.component';
+import {LinkRestSourceUserComponent} from './components/rest-source-authorization/link-rest-source-user.component';
+import {AuthorizeRestSourceUserComponent} from './components/rest-source-authorization/authorize-rest-source-user.component';
+import {AuthorizedRestSourceUserComponent} from './components/rest-source-authorization/authorized-rest-source-user.component';
 
 const appRoutes: Routes = [
   {
@@ -103,7 +106,10 @@ const appRoutes: Routes = [
     LoginPageComponent,
     ToolbarComponent,
     RestSourceUserListResetDialog,
-    RestSourceUserListDeleteDialog
+    RestSourceUserListDeleteDialog,
+    LinkRestSourceUserComponent,
+    AuthorizeRestSourceUserComponent,
+    AuthorizedRestSourceUserComponent,
   ],
   entryComponents: [
     RestSourceUserListDeleteDialog,
