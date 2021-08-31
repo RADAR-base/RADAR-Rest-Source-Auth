@@ -15,7 +15,7 @@ export class AuthorizedRestSourceUserComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private service: RestSourceUserService,
-    private mockService: RestSourceUserMockService,
+    // private mockService: RestSourceUserMockService,
   ) {
   }
 
@@ -29,7 +29,7 @@ export class AuthorizedRestSourceUserComponent implements OnInit {
       oauth_verifier,
       oauth_token_secret
     };
-    this.mockService.authorizeUser(authorizeRequest, state).subscribe(
+    this.service.authorizeUser(authorizeRequest, state).subscribe(
       resp => {
         console.log(resp);
         if (resp.persistent) {

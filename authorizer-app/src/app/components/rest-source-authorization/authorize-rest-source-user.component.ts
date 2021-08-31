@@ -15,14 +15,14 @@ export class AuthorizeRestSourceUserComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private service: RestSourceUserService,
-    private mockService: RestSourceUserMockService,
+    // private mockService: RestSourceUserMockService,
   ) {
   }
 
   ngOnInit(): void {
     console.log(this.activatedRoute.snapshot.queryParams);
     const {token, secret} = this.activatedRoute.snapshot.queryParams;
-    this.mockService.getAuthEndpointUrl({secret}, token).subscribe(
+    this.service.getAuthEndpointUrl({secret}, token).subscribe(
       registrationResp => {
         if (registrationResp.authEndpointUrl) {
           window.location.href = registrationResp.authEndpointUrl;

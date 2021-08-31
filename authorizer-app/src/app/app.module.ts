@@ -92,6 +92,7 @@ const appRoutes: Routes = [
   },
   {
     path: 'users/:id',
+    // component: LinkRestSourceUserComponent,
     component: UpdateRestSourceUserComponent,
     canActivate: [AuthGuard]
   },
