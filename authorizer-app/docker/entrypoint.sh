@@ -16,6 +16,7 @@ do
   sed -i 's|AUTH_CLIENT_SECRET|'${AUTH_CLIENT_SECRET}'|g' $file
   sed -i 's|AUTH_CALLBACK_URL|'${AUTH_CALLBACK_URL}'|g' $file
   sed -i 's|AUTH_URI|'${AUTH_URI}'|g' $file
+  sed -i 's|RADAR_BASE_URL|'${RADAR_BASE_URL}'|g' $file
 done
 
 echo "Static files ready"
