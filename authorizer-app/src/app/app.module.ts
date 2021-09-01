@@ -4,7 +4,7 @@ import {
   MatMomentDateModule
 } from '@angular/material-moment-adapter';
 import {
-  MatButtonModule, MatCardModule,
+  MatButtonModule, MatCardModule, MatCheckboxModule,
   MatDatepickerModule,
   MatDialogModule,
   MatFormFieldModule,
@@ -159,6 +159,7 @@ const appRoutes: Routes = [
     MatCardModule,
     MatSelectModule,
     MatRadioModule,
+    MatCheckboxModule,
     // ClipboardModule
   ],
   providers: [

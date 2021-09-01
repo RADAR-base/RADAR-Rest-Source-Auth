@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {RestSourceUserService} from '../../services/rest-source-user.service';
 import {RestSourceUserMockService} from '../../services/rest-source-user-mock.service';
+import {storageItems} from '../../enums/storage';
 
 @Component({
   selector: 'app-authorize-rest-source-user',
@@ -22,6 +23,7 @@ export class AuthorizeRestSourceUserComponent implements OnInit {
   ngOnInit(): void {
     console.log(this.activatedRoute.snapshot.queryParams);
     const {token, secret} = this.activatedRoute.snapshot.queryParams;
+    localStorage.setItem(storageItems.authorizationToken, token);
     this.service.getAuthEndpointUrl({secret}, token).subscribe(
       registrationResp => {
         if (registrationResp.authEndpointUrl) {

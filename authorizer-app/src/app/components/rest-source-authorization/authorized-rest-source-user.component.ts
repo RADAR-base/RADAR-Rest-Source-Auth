@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {RestSourceUserService} from '../../services/rest-source-user.service';
-import {RestSourceUserMockService} from '../../services/rest-source-user-mock.service';
+import {storageItems} from '../../enums/storage';
 
 @Component({
   selector: 'app-authorized-rest-source-user',
@@ -21,15 +21,19 @@ export class AuthorizedRestSourceUserComponent implements OnInit {
 
   ngOnInit(): void {
     console.log(this.activatedRoute.snapshot.queryParams);
-    const {state, oauth_token, oauth_verifier, oauth_token_secret} = this.activatedRoute.snapshot.queryParams;
-    // todo if state not available get token from storage
+    const {state, oauth_token, oauth_verifier, oauth_token_secret, code} = this.activatedRoute.snapshot.queryParams;
+
+    let stateOrToken = state;
+    if (!state) {
+      stateOrToken = localStorage.getItem(storageItems.authorizationToken);
+    }
     const authorizeRequest = {
-      code: '456',
+      code,
       oauth_token,
       oauth_verifier,
       oauth_token_secret
     };
-    this.service.authorizeUser(authorizeRequest, state).subscribe(
+    this.service.authorizeUser(authorizeRequest, stateOrToken).subscribe(
       resp => {
         console.log(resp);
         if (resp.persistent) {

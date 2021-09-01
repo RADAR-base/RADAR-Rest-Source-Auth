@@ -8,6 +8,7 @@ import {SourceClientAuthorizationService} from '../../services/source-client-aut
 import {ActivatedRoute, Router} from '@angular/router';
 // import {NgbDateAdapter} from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../../../environments/environment';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-link-rest-source-user',
@@ -41,7 +42,8 @@ export class LinkRestSourceUserComponent implements OnInit {
     // private sourceTypeService: SourceClientAuthorizationMockService,
     private sourceTypeService: SourceClientAuthorizationService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private _location: Location
   ) {
     console.log(this.activatedRoute.snapshot.params);
     console.log(this.activatedRoute.snapshot.queryParams);
@@ -131,7 +133,8 @@ export class LinkRestSourceUserComponent implements OnInit {
   }
 
   onBack() {
-    this.router.navigateByUrl('/');
+    // this.router.navigateByUrl('/');
+    this._location.back();
   }
 
   // copyToClipboard() {

@@ -54,6 +54,7 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
   @ViewChild(MatSort) sort: MatSort;
   updateTrigger = new BehaviorSubject<string>('init');
   filterValue = new BehaviorSubject<string>('');
+  onlyUnauthorized = new BehaviorSubject<boolean>(false);
   page = new BehaviorSubject<PageEvent>({
     pageIndex: 0,
     pageSize: 50,
@@ -96,9 +97,15 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
         distinctUntilChanged((p1, p2) =>
           p1.pageIndex === p2.pageIndex && p1.pageSize === p2.pageSize)
       );
-    return combineLatest<PageEvent, string, string, string>(pageInput, filterInput, this.updateTrigger, projectInput)
+    return combineLatest<PageEvent, string, string, string, boolean>(
+      pageInput, filterInput, this.updateTrigger, projectInput, this.onlyUnauthorized
+    )
       .pipe(
-        switchMap(([page, filterValue, _, project]) => this.loadUsers(filterValue, page, project))
+        switchMap(
+          (
+            [page, filterValue, _, project, onlyUnauthorized]
+          ) => this.loadUsers(filterValue, page, project, onlyUnauthorized)
+        )
       )
       .subscribe(users => {
         console.log(users);
@@ -123,7 +130,13 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
     }
   }
 
-  loadUsers(filterValue: string, page: PageEvent, project: string): Observable<RestSourceUsers> {
+  applyIsAuthorized(onlyUnauthorized: boolean) {
+    this.onlyUnauthorized.next(onlyUnauthorized);
+  }
+
+  loadUsers(filterValue: string, page: PageEvent, project: string, onlyUnauthorized: boolean): Observable<RestSourceUsers> {
+
+  // loadUsers(filterValue: string, page: PageEvent, project: string): Observable<RestSourceUsers> {
     const params = {
       page: page.pageIndex + 1,
       size: page.pageSize
@@ -131,6 +144,10 @@ export class RestSourceUserListComponent implements OnInit, AfterViewInit, OnDes
 
     if (filterValue) {
       params['search'] = filterValue;
+    }
+
+    if (onlyUnauthorized) {
+      params['authorized'] = 'false';
     }
 
     return this.restSourceUserService.getAllUsersOfProject(project, params)
