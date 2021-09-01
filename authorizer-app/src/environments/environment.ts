@@ -3,7 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  baseUrl: 'https://radar-k3s-test.thehyve.net',
+  radarBaseUrl: 'https://radar-k3s-test.thehyve.net',
   production: false,
   backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend', // 'http://localhost:8080',
   // backendBaseUrl: 'https://radar-test.thehyve.net/rest-sources/backend', // 'http://localhost:8080',

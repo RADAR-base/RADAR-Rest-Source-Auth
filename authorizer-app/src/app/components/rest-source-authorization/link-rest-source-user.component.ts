@@ -112,7 +112,7 @@ export class LinkRestSourceUserComponent implements OnInit {
         } else if (registrationResp.secret) {
           // generate link // show // copy to clipboard
           this.linkForUser =
-            `${environment.baseUrl}/users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}`;
+            `${environment.radarBaseUrl}${environment.BASE_HREF}users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}`;
           this.linkGeneratingLoading = false;
         }
       },
