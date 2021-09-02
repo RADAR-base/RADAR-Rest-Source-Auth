@@ -51,6 +51,7 @@ class OAuth2RestSourceAuthorizationService(
             payload.code?.let { add("code", it) }
             add("grant_type", "authorization_code")
             add("client_id", clientId)
+            add("redirect_uri", config.service.callbackUrl.toString())
         }.build()
         logger.info("Requesting access token with authorization code")
         return httpClient.requestJson(post(form, sourceType), tokenReader)
