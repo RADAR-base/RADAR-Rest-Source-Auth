@@ -8,7 +8,7 @@ for file in $ROOT_DIR/main.*.js* $ROOT_DIR/index.html
 do
   echo "Processing $file ...";
 
-  sed -i 's|/\?BASE_HREF|'${BASE_HREF}'|g' $ROOT_DIR/index.html
+  sed -i 's|/\?BASE_HREF|'${BASE_HREF}'|g' $file
   sed -i 's|BACKEND_BASE_URL|'${BACKEND_BASE_URL}'|g' $file
   sed -i 's|VALIDATE|'${VALIDATE}'|g' $file
   sed -i 's|AUTH_GRANT_TYPE|'${AUTH_GRANT_TYPE}'|g' $file

@@ -6,7 +6,8 @@
 <!--{{ subjects$ | async | json }}-->
 <!--<p></p>-->
 <mat-card class="link-rest-source-user-card" style="width: 400px;">
-  <form [formGroup]="form" novalidate (ngSubmit)="onSubmit($event)">
+  <form [formGroup]="form" novalidate>
+<!--    (ngSubmit)="onSubmit($event)"-->
     <mat-card-header>
       <mat-card-title>
         <h5>Linking a User</h5>
@@ -86,8 +87,8 @@
       <div class="col">
         <mat-card-actions>
           <button mat-raised-button color="primary" type="button" (click)="onBack()">Back</button>
-          <button mat-raised-button color="primary" type="submit" name="authorize" [class.spinner]="authorizationLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Authorize</button>
-          <button mat-raised-button color="primary" type="submit" name="link" [class.spinner]="linkGeneratingLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Copy Link</button>
+          <button mat-raised-button color="primary" type="submit" name="authorize" [class.spinner]="authorizationLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid" (click)="onSubmit('authorize')">Authorize</button>
+          <button mat-raised-button color="primary" type="submit" name="link" [class.spinner]="linkGeneratingLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid" (click)="onSubmit('link')">Copy Link</button>
         </mat-card-actions>
       </div>
     </div>
@@ -97,10 +98,13 @@
 
   <div class="row" *ngIf="linkForUser">
     <div class="col">
-      Send this link to Subject
+      Send this link to the user
+      <button mat-mini-fab color="primary" aria-label="Copy to clipboard" (click)="copyInputMessage(linkTextArea)">
+        <mat-icon>content_copy</mat-icon>
+      </button>
       <mat-form-field class="full-width" appearance="outline">
         <!--          <mat-label></mat-label>-->
-        <input matInput [type]="'text'" [value]="linkForUser">
+        <textarea matInput rows="6" [type]="'text'" [value]="linkForUser" style="resize: none;" #linkTextArea></textarea>
         <!--        <button mat-icon-button matSuffix (click)="copyToClipboard()" [attr.aria-label]="'Hide password'" >-->
         <!--          &lt;!&ndash;          [attr.aria-pressed]="hide"&ndash;&gt;-->
         <!--          <mat-icon>content_copy</mat-icon>-->

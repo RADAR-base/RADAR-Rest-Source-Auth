@@ -54,15 +54,15 @@ export class LinkRestSourceUserComponent implements OnInit {
     console.log('LinkRestSourceUserComponent');
   }
 
-  onSubmit(e: any): void {
+  onSubmit(submitterName: string): void {
     // alert('Thanks!');
     this.error = null;
 
-    console.log(e.submitter.name);
+    // console.log(e.submitter.name);
     console.log(this.form.value);
     console.log(this.form.value.startDate.unix());
     console.log(this.form.value.startDate.valueOf());
-    const persistent = e.submitter.name === 'link';
+    const persistent = submitterName === 'link';
     this.linkGeneratingLoading = persistent;
     this.authorizationLoading = !persistent;
     // send POST req to /users {RestSourceUserReq} = {}
@@ -140,4 +140,10 @@ export class LinkRestSourceUserComponent implements OnInit {
   // copyToClipboard() {
   //   console.log('copy to clipboard');
   // }
+  copyInputMessage(inputElement: HTMLTextAreaElement) {
+    inputElement.select();
+    document.execCommand('copy');
+    inputElement.setSelectionRange(0, 0);
+  }
+
 }

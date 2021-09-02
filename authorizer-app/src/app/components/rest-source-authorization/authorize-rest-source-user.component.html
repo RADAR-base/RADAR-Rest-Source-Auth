@@ -1,2 +1,8 @@
 <toolbar [showMenu]="true"></toolbar>
 <h2 *ngIf="showThankYou">Thank You!</h2>
+<div class="container col-md-4">
+  <ngb-alert *ngIf="errorMessage" type="danger"
+             (close)="errorMessage = null">
+    {{ errorMessage}}
+  </ngb-alert>
+</div>

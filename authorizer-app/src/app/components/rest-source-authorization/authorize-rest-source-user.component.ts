@@ -11,6 +11,7 @@ import {storageItems} from '../../enums/storage';
 })
 export class AuthorizeRestSourceUserComponent implements OnInit {
   showThankYou = false;
+  errorMessage?: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -29,6 +30,10 @@ export class AuthorizeRestSourceUserComponent implements OnInit {
         if (registrationResp.authEndpointUrl) {
           window.location.href = registrationResp.authEndpointUrl;
         }
+      },
+      error => {
+        console.log(error);
+        this.errorMessage = error.error.error_description;
       }
     );
   }
