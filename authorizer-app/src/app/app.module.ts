@@ -5,6 +5,7 @@ import {
 } from '@angular/material-moment-adapter';
 import {
   MatButtonModule,
+  MatCheckboxModule,
   MatDatepickerModule,
   MatDialogModule,
   MatFormFieldModule,
@@ -46,8 +47,8 @@ import { ToolbarComponent } from './components/shared/toolbar/toolbar.component'
 import { UpdateRestSourceUserComponent } from './components/rest-source-authorization/update-rest-source-user.component';
 import { AuthInterceptor } from './auth.interceptor';
 import { ErrorInterceptor } from './error.interceptor';
-import {RestSourceUserListDeleteDialog} from "./components/rest-source-authorization/rest-source-user-list-delete-dialog.component";
-import {RestSourceUserListResetDialog} from "./components/rest-source-authorization/rest-source-user-list-reset-dialog.component";
+import {RestSourceUserListDeleteDialog} from './components/rest-source-authorization/rest-source-user-list-delete-dialog.component';
+import {RestSourceUserListResetDialog} from './components/rest-source-authorization/rest-source-user-list-reset-dialog.component';
 
 const appRoutes: Routes = [
   {
@@ -125,12 +126,13 @@ const appRoutes: Routes = [
     MatIconModule,
     RouterModule.forRoot(appRoutes),
     NgbModule.forRoot(),
-    JwtModule.forRoot({ config: { tokenGetter: AuthService.getAccessToken } }),
+    JwtModule.forRoot({config: {tokenGetter: AuthService.getAccessToken}}),
     MatTooltipModule,
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatMomentDateModule
+    MatMomentDateModule,
+    MatCheckboxModule
   ],
   providers: [
     RestSourceUserService,

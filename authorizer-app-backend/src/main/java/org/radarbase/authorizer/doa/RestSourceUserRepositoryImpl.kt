@@ -116,6 +116,7 @@ class RestSourceUserRepositoryImpl(
         sourceType: String?,
         search: String?,
         userIds: List<String>,
+        isAuthorized: Boolean?,
     ): Pair<List<RestSourceUser>, Page> {
         val queryString = "SELECT u FROM RestSourceUser u WHERE u.projectId IN :projectIds"
         val countQueryString = "SELECT count(u) FROM RestSourceUser u WHERE u.projectId IN :projectIds"
@@ -126,6 +127,9 @@ class RestSourceUserRepositoryImpl(
         }
         if (search != null) {
             whereClauses += " AND (u.userId LIKE :search OR u.userId IN :userIds)"
+        }
+        if (isAuthorized != null) {
+            whereClauses += " AND u.authorized = :isAuthorized"
         }
 
         val actualPage = page.createValid(maximum = Integer.MAX_VALUE)
@@ -150,6 +154,10 @@ class RestSourceUserRepositoryImpl(
                 query.setParameter("userIds", userIds)
                 countQuery.setParameter("search", searchMatch)
                 countQuery.setParameter("userIds", userIds)
+            }
+            if (isAuthorized != null) {
+                query.setParameter("isAuthorized", isAuthorized)
+                countQuery.setParameter("isAuthorized", isAuthorized)
             }
 
             val users = query.resultList

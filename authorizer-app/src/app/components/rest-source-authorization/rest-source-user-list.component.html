@@ -1,14 +1,21 @@
 <div class="users-container">
 
-  <mat-form-field class="container col-md-4">
-    <label>
-      <input
-        matInput
-        (keyup)="applyFilter($event.target.value)"
-        placeholder="Filter by User ID or External User ID"
-      />
-    </label>
-  </mat-form-field>
+  <div class="container col-md-4">
+    <mat-form-field class="row col">
+      <label>
+        <input
+                matInput
+                (keyup)="applyFilter($event.target.value)"
+                placeholder="Filter by User ID or External User ID"
+        />
+      </label>
+    </mat-form-field>
+    <div class="row justify-content-end">
+      <label>
+        <mat-checkbox (change)="applyIsAuthorized($event.checked)">Only unauthorized</mat-checkbox>
+      </label>
+    </div>
+  </div>
 
   <table mat-table [dataSource]="dataSource" matSort>
     <ng-container matColumnDef="id">
