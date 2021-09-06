@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -11,6 +12,10 @@ plugins {
 
 application {
     mainClass.set("org.radarbase.authorizer.Main")
+    applicationDefaultJvmArgs = listOf(
+        "-Djava.security.egd=file:/dev/./urandom",
+        "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager",
+    )
 }
 
 repositories {
@@ -55,11 +60,18 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+tasks.withType<JavaCompile> {
+    options.release.set(11)
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = FULL
     }
+    systemProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
 }
 
 allOpen {
