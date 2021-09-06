@@ -71,7 +71,11 @@ class OAuth2RestSourceAuthorizationService(
                 200 -> response.body?.byteStream()
                     ?.let { tokenReader.readValue<RestOauth2AccessToken>(it) }
                     ?: throw HttpBadGatewayException("Service ${user.sourceType} did not provide a result")
-                400, 401, 403 -> null
+                400, 401, 403 -> {
+                    val body = response.body?.string()
+                    logger.error("Failed to refresh token (HTTP status code {}): {}", response.code, body)
+                    null
+                }
                 else -> throw HttpBadGatewayException("Cannot connect to ${request.url}: HTTP status ${response.code}")
             }
         }
