@@ -1,7 +1,7 @@
 service:
   # Interval time in minutes for syncing projects and subjects.
   baseUri: http://0.0.0.0:8085/rest-sources/backend/
-  advertisedBaseUri: http://0.0.0.0:8080/rest-sources/backend/
+  advertisedBaseUri: http://example.org/rest-sources/backend/
   enableCors: true
 
 auth:
