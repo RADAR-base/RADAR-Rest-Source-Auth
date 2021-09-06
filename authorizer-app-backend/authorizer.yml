@@ -1,12 +1,12 @@
 service:
   # Interval time in minutes for syncing projects and subjects.
   baseUri: http://0.0.0.0:8085/rest-sources/backend/
-  advertisedBaseUri: http://0.0.0.0:8080/rest-sources/backend/
+  advertisedBaseUri: http://example.org/rest-sources/backend/
   enableCors: true
 
 auth:
   # Management Portal URL
-  managementPortalUrl: https://radar-test.thehyve.net/managementportal/
+  managementPortalUrl: https://radar-test.thehyve.net/managementportal
   # OAuth2 Client id of rest source auth application
   clientId: radar_rest_sources_auth
   # OAuth2 Client Secret of rest source auth client

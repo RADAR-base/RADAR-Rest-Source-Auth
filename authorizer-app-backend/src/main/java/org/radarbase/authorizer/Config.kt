@@ -69,7 +69,7 @@ data class AuthorizerServiceConfig(
 }
 
 data class AuthConfig(
-    var managementPortalUrl: String = "http://managementportal-app:8080/managementportal/",
+    var managementPortalUrl: String = "http://managementportal-app:8080/managementportal",
     var clientId: String = "radar_rest_sources_auth_backend",
     var clientSecret: String? = null,
     var jwtECPublicKeys: List<String>? = null,

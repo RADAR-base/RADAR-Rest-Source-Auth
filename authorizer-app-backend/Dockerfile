@@ -27,7 +27,7 @@ RUN gradle --no-watch-fs :authorizer-app-backend:distTar \
     && tar xf *.tar \
     && rm *.tar authorizer-app-backend-*/lib/authorizer-app-backend-*.jar
 
-FROM openjdk:11-jre-slim
+FROM azul/zulu-openjdk-alpine:11-jre-headless
 
 LABEL description="RADAR-base rest sources authorizer backend application"
 
@@ -35,9 +35,7 @@ LABEL description="RADAR-base rest sources authorizer backend application"
 ENV JAVA_OPTS="" \
     AUTHORIZER_APP_BACKEND_OPTS=""
 
-RUN apt-get update && apt-get install -y \
-  curl \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl
 
 COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/bin/* /usr/bin/
 COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/lib/* /usr/lib/
