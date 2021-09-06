@@ -55,7 +55,7 @@ client-id: radar_rest_sources_authorizer
 client-secret: Empty
 grant-type: authorization_code
 resources: res_restAuthorizer
-scope: SOURCETYPE.READ,PROJECT.READ,SUBJECT.READ,SUBJECT.UPDATE
+scope: SOURCETYPE.READ,PROJECT.READ,SUBJECT.READ,SUBJECT.UPDATE,SUBJECT.CREATE
 callback-url: <advertised-url-of-rest-sources-authorizer-app>/login 
 # the callback-url should be resolvable and match with the environment variable of radar-rest-sources-authorizer -> AUTH_CALLBACK_URL in the docker-compose.yml file. 
 ```
