@@ -23,6 +23,7 @@ import okhttp3.Credentials
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.SignRequestParams
@@ -40,6 +41,7 @@ class OAuth2RestSourceAuthorizationService(
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
     @Context private val stateStore: StateStore,
+    @Context private val config: Config,
 ) : RestSourceAuthorizationService {
     private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
 
@@ -51,6 +53,7 @@ class OAuth2RestSourceAuthorizationService(
             payload.code?.let { add("code", it) }
             add("grant_type", "authorization_code")
             add("client_id", clientId)
+            add("redirect_uri", config.service.callbackUrl.toString())
         }.build()
         logger.info("Requesting access token with authorization code")
         return httpClient.requestJson(post(form, sourceType), tokenReader)
@@ -93,6 +96,7 @@ class OAuth2RestSourceAuthorizationService(
             .queryParam("state", stateId)
             .queryParam("scope", authConfig.scope)
             .queryParam("prompt", "login")
+            .queryParam("redirect_uri", callBackUrl)
             .build().toString()
     }
 
