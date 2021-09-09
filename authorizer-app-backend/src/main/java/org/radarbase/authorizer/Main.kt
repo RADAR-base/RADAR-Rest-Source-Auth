@@ -16,6 +16,7 @@
 
 package org.radarbase.authorizer
 
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
 import org.slf4j.Logger
@@ -36,7 +37,7 @@ object Main {
             exitProcess(0)
         }
 
-        val config: Config = ConfigLoader.loadConfig("authorizer.yml", args)
+        val config: AuthorizerConfig = ConfigLoader.loadConfig("authorizer.yml", args)
         val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
 
         val server = GrizzlyServer(config.service.baseUri, resources)

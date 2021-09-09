@@ -26,6 +26,7 @@ import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
+import org.radarbase.authorizer.service.LockService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.util.StateStore
@@ -40,6 +41,7 @@ import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
+import java.time.Duration
 
 @Path("users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -54,7 +56,8 @@ class RestSourceUserResource(
     @Context private val stateStore: StateStore,
     @Context private val auth: Auth,
     @Context private val authorizationService: RestSourceAuthorizationService,
-    @Context private val sourceClientService: RestSourceClientService
+    @Context private val sourceClientService: RestSourceClientService,
+    @Context private val lockService: LockService,
 ) {
     @GET
     @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
@@ -191,13 +194,15 @@ class RestSourceUserResource(
     @Path("{id}/token")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.CREATE)
     fun requestToken(@PathParam("id") userId: Long): TokenDTO {
-        val user = ensureUser(userId)
-        auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
-        return if (user.hasValidToken()) {
-            TokenDTO(user.accessToken, user.expiresAt)
-        } else {
-            // refresh token if current token is already expired.
-            refreshToken(userId, user)
+        return lockService.runLocked("token-$userId", Duration.ofSeconds(10)) {
+            val user = ensureUser(userId)
+            auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
+            if (user.hasValidToken()) {
+                TokenDTO(user.accessToken, user.expiresAt)
+            } else {
+                // refresh token if current token is already expired.
+                refreshToken(userId, user)
+            }
         }
     }
 
@@ -205,9 +210,11 @@ class RestSourceUserResource(
     @Path("{id}/token")
     @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.CREATE)
     fun refreshToken(@PathParam("id") userId: Long): TokenDTO {
-        val user = ensureUser(userId)
-        auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
-        return refreshToken(userId, user)
+        return lockService.runLocked("token-$userId", Duration.ofSeconds(10)) {
+            val user = ensureUser(userId)
+            auth.checkPermissionOnSubject(Permission.MEASUREMENT_CREATE, user.projectId, user.userId)
+            refreshToken(userId, user)
+        }
     }
 
     @POST

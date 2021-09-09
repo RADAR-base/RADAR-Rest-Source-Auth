@@ -16,7 +16,7 @@
 
 package org.radarbase.authorizer.inject
 
-import org.radarbase.authorizer.Config
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
@@ -26,7 +26,7 @@ import org.radarbase.jersey.config.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
-class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFactory {
+class ManagementPortalEnhancerFactory(private val config: AuthorizerConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
         val authConfig = AuthConfig(
             managementPortal = MPConfig(
@@ -48,6 +48,7 @@ class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFact
             ConfigLoader.Enhancers.health,
             HibernateResourceEnhancer(dbConfig),
             ConfigLoader.Enhancers.managementPortal(authConfig),
+            JedisResourceEnhancer(),
             ConfigLoader.Enhancers.generalException,
             ConfigLoader.Enhancers.httpException,
             AuthorizerResourceEnhancer(config),

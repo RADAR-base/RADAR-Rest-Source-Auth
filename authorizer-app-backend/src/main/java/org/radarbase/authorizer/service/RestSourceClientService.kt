@@ -1,7 +1,7 @@
 package org.radarbase.authorizer.service
 
 import jakarta.ws.rs.core.Context
-import org.radarbase.authorizer.RestSourceClients
+import org.radarbase.authorizer.config.RestSourceClients
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpNotFoundException
 
