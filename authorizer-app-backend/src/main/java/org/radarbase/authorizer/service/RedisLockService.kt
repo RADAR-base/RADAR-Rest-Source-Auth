@@ -30,9 +30,11 @@ class RedisLockService(
         val lockKey = "$lockPrefix/$lockName.lock"
         val setParams = SetParams()
             .nx() // only set if not already set
-            .px(timeout
-                .multipliedBy(3L)
-                .toMillis()) // limit the duration based on expected lock time
+            .px(
+                timeout
+                    .multipliedBy(3L)
+                    .toMillis()
+            ) // limit the duration based on expected lock time
 
         val startTime = System.nanoTime()
         val totalTime = timeout.toNanos()

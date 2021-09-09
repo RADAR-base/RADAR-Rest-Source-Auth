@@ -6,7 +6,7 @@ import org.radarbase.authorizer.service.LockService
 import org.radarbase.authorizer.service.RedisLockService
 import org.radarbase.jersey.config.JerseyResourceEnhancer
 
-class JedisResourceEnhancer: JerseyResourceEnhancer {
+class JedisResourceEnhancer : JerseyResourceEnhancer {
     override fun AbstractBinder.enhance() {
         bind(RedisLockService::class.java)
             .to(LockService::class.java)
