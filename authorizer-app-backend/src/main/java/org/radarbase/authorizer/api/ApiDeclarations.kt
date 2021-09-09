@@ -60,6 +60,7 @@ data class RegistrationResponse(
     val userId: String,
     val expiresAt: Instant,
     val persistent: Boolean,
+    val project: Project? = null,
     val authEndpointUrl: String? = null,
 )
 
