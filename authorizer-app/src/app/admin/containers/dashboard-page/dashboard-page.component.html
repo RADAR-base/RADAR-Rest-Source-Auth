@@ -1,0 +1,29 @@
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <form [formGroup]="form" novalidate>
+        <div class="form-wrapper">
+          <mat-form-field class="form-field" appearance="outline" floatLabel="always">
+            <mat-label>{{ 'ADMIN.GENERAL.project' | translate }}</mat-label>
+            <mat-select formControlName="projectId"
+                        [placeholder]="'ADMIN.DASHBOARD_PAGE.projectSelect.placeholder' | translate"
+                        (selectionChange)="onProjectSelectionChange($event)">
+              <mat-option *ngFor="let project of projects"
+                          [value]="project.id">
+                {{project.id}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.controls['projectId'].hasError('required')">
+              {{ 'ADMIN.DASHBOARD_PAGE.projectSelect.error' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </form>
+      <app-users-list *ngIf="selectedProject"
+                      [sourceTypes]="sourceTypes"
+                      [projects]="projects"
+                      [project]="selectedProject">
+      </app-users-list>
+    </mat-card-content>
+  </mat-card>
+</div>

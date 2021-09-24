@@ -1,0 +1,13 @@
+.container{
+  padding: 16px;
+}
+
+.form-wrapper{
+  display: flex;
+  justify-content: center;
+  .form-field{
+    width: 300px;
+  }
+}
+
+//mat-card-content

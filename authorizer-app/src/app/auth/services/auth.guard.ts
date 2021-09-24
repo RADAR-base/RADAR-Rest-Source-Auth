@@ -1,16 +1,26 @@
-import { CanActivate, Router } from '@angular/router';
-import { AuthService } from './auth.service';
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from "@angular/router";
+import { Observable } from "rxjs";
+import { tap } from "rxjs/operators";
+import {AuthService} from "./auth.service";
+import {AuthStateCommand} from "../enums/auth-state-command";
+import {StorageItem} from "../enums/storage-item";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
-  canActivate(): boolean {
-    if (!this.authService.isAuthorized()) {
-      this.router.navigate(['/login']);
-      return false;
-    }
-    return true;
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> | Promise<boolean> | boolean {
+    return this.authService.isAuthorized().pipe(
+      tap(loggedIn => {
+        if (!loggedIn) {
+          localStorage.setItem(StorageItem.RETURN_URL, state.url)
+          this.router.navigate(['/login'], {state: {command: AuthStateCommand.AUTH_GUARD}}).finally();
+        }
+      })
+    )
   }
 }

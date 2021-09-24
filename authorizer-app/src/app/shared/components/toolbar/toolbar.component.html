@@ -1,0 +1,31 @@
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <div class="box left-box logo-wrapper">
+      <img class="logo" src="../../../assets/images/radar-logo.svg" alt="RADAR-base Logo" />
+    </div>
+    <div class="box center-box"><span class="title">{{ 'SHARED.TOOLBAR.title' | translate }}</span></div>
+    <div class="box right-box">
+<!--      <div>-->
+<!--        <label>-->
+<!--          {{ 'CHANGE_LANGUAGE' | translate }}-->
+<!--          <select #langSelect (change)="translate.use(langSelect.value)">-->
+<!--            <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>-->
+<!--          </select>-->
+<!--        </label>-->
+<!--      </div>-->
+
+      <button mat-button [matMenuTriggerFor]="languageMenu" aria-label="Language button with a menu">
+        <mat-icon>language</mat-icon>
+        <span style="margin: 0 8px; text-transform: uppercase;">{{translate.currentLang}}</span>
+      </button>
+      <mat-menu #languageMenu="matMenu">
+        <button *ngFor="let language of languages" mat-menu-item (click)="switchLanguage(language)">
+          <span style="text-transform: uppercase;">{{ language }}</span>
+        </button>
+      </mat-menu>
+      <button *ngIf="authService.isLoggedIn$ | async" mat-icon-button (click)="logout()" >
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>

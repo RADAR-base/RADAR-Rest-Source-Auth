@@ -1,0 +1,60 @@
+{
+  "GENERAL": {
+    "userId": "gebruikersnaam",
+    "externalId": "Externe gebruikers-ID",
+    "sourceType": "Bron Type",
+    "startDate": "Startdatum",
+    "endDate": "Einddatum",
+    "authorized": "Geautoriseerd",
+    "project": "Project",
+    "sourceId": "Bron-ID",
+    "serviceUserId": "Gebruikers-ID service",
+    "hasValidToken": "Heeft geldige token",
+    "timesReset": "Tijden resetten",
+    "all": "Alle",
+    "no": "Nee",
+    "yes": "Ja",
+    "cancel": "Annuleren",
+    "edit": "Bewerking",
+    "update": "Update"
+  },
+  "DASHBOARD_PAGE": {
+    "projectSelect": {
+      "placeholder": "Selecteer een project",
+      "error": "Project is vereist"
+    }
+  },
+  "USERS_LIST": {
+    "actions": "Acties",
+    "noData": "Geen gegevens die overeenkomen met het filter",
+    "filters": {
+      "clearFilters": "Filters wissen",
+      "userIdLabel": "Filteren op gebruikers-ID of externe ID",
+      "authorizedLabel": "Geautoriseerd?"
+    },
+    "PAGINATOR": {
+      "ITEMS_PER_PAGE": "Artikelen per pagina",
+      "NEXT_PAGE": "Volgende bladzijde",
+      "PREVIOUS_PAGE":  "Vorige pagina",
+      "OF_LABEL": "van"
+    }
+  },
+  "USER_DIALOG": {
+    "linkUserExternalDevice": "Extern apparaat van gebruiker koppelen",
+    "startEndDate": "Start-/einddatums",
+    "startEndDateError": "Startdatum is vereist",
+    "startDatePlaceholder": "Voer de startdatum in",
+    "endDatePlaceholder": "Einddatum invoeren",
+    "sendThisLinkToUser": "Stuur deze link naar de gebruiker",
+    "authorizeTheUser": "Autoriseer de gebruiker",
+    "generateALinkForUser": "Genereer een link voor Gebruiker",
+    "linkForUserMessage": "Klik op de onderstaande link om je Fitbit-account te verbinden met RADAR-base",
+    "linkForUserExpirationDate": "Vervaldatum"
+  },
+  "DELETE_DIALOG": {
+    "title": "Waarschuwing!",
+    "description": "U gaat de gebruiker ontkoppelen van het externe apparaat",
+    "warningMessage": "Weet je zeker dat?",
+    "deleting": "Verwijderen"
+  }
+}

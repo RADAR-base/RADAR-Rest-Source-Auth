@@ -1,0 +1,60 @@
+{
+  "GENERAL": {
+    "userId": "Participant ID",
+    "externalId": "Participant External ID",
+    "sourceType": "Source Type",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "authorized": "Authorized",
+    "project": "Project",
+    "sourceId": "Source ID",
+    "serviceUserId": "Service Participant ID",
+    "hasValidToken": "Has Valid Token",
+    "timesReset": "Times Reset",
+    "all": "All",
+    "no": "No",
+    "yes": "Yes",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "update": "Update"
+  },
+  "DASHBOARD_PAGE": {
+    "projectSelect": {
+      "placeholder": "Select a Project",
+      "error": "Project is required"
+    }
+  },
+  "USERS_LIST": {
+    "actions": "Actions",
+    "noData": "No data matching the filter",
+    "filters": {
+      "clearFilters": "Clear Filters",
+      "userIdLabel": "Filter by Participant ID or External ID",
+      "authorizedLabel": "Authorized?"
+    },
+    "PAGINATOR": {
+      "ITEMS_PER_PAGE": "Items per page",
+      "NEXT_PAGE": "Next page",
+      "PREVIOUS_PAGE":  "Previous page",
+      "OF_LABEL": "of"
+    }
+  },
+  "USER_DIALOG": {
+    "linkUserExternalDevice": "Link Participant External Device",
+    "startEndDate": "Start/End Dates",
+    "startDatePlaceholder": "Enter Start Date",
+    "endDatePlaceholder": "Enter End Date",
+    "startEndDateError": "Start Date is required",
+    "sendThisLinkToUser": "Send this link to the Participant",
+    "authorizeTheUser": "Authorize the Participant",
+    "generateALinkForUser": "Generate a link for Participant",
+    "linkForUserMessage": "Please click the link below to connect your Fitbit account to RADAR-base",
+    "linkForUserExpirationDate": "Expiration date"
+  },
+  "DELETE_DIALOG": {
+    "title": "Warning!",
+    "description": "You are going to unlink the participant from the external device",
+    "warningMessage": "Are you sure?",
+    "deleting": "Deleting"
+  }
+}

@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {LoginPageComponent} from './containers/login-page/login-page.component';
-// import {RestSourceUserDashboardComponent} from './rest-source-authorization/containers/dashboard-page/rest-source-user-dashboard.component';
-// import {AuthGuard} from './auth/services/auth.guard';
+import {GuestGuard} from "./services/guest.guard";
 
 const routes: Routes = [
   {
     path: 'login',
     component: LoginPageComponent,
-    // canActivate: [AuthGuard]
+    canActivate: [GuestGuard]
   }
 ];
 

@@ -4,6 +4,7 @@
 
 export const environment = {
   production: false,
+  radarBaseUrl: 'http://localhost:8080', // https://radar-k3s-test.thehyve.net',
   backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend', // 'http://localhost:8080',
   // backendBaseUrl: 'https://radar-test.thehyve.net/rest-sources/backend', // 'http://localhost:8080',
   doValidate: false,
@@ -14,10 +15,11 @@ export const environment = {
   appClientSecret: '',
   // appClientSecret: '',
   authCallbackUrl: 'http://localhost:8080/login', //https://radar-k3s-test.thehyve.net/rest-sources/authorizer/login', //'http://localhost:8080/oauth/callback',
-  BASE_HREF: '/rest-sources/authorizer/',
+  BASE_HREF: '/', // '/rest-sources/authorizer/',
   // authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
   // authBaseUrl: 'https://radar-test.thehyve.net/managementportal/oauth',
   authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
+  languages: ['en', 'nl'],
   // authBaseUrl: 'http://localhost:8080/oauth'
 };
 

@@ -2,19 +2,26 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MaterialModule} from './material/material.module';
 import {RouterModule} from '@angular/router';
-import {ToolbarComponent} from './toolbar/toolbar.component';
-// import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import {ToolbarComponent} from "./components/toolbar/toolbar.component";
+import {AuthorizationPageComponent} from "./containers/authorization-page/authorization-page.component";
+import {AuthorizationCompletePageComponent} from "./containers/authorization-complete-page/authorization-complete-page.component";
+import {ErrorComponent} from "./components/error/error.component";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {TranslateModule} from "@ngx-translate/core";
 
 @NgModule({
-  declarations: [ToolbarComponent],
-  imports: [
-    CommonModule,
-    RouterModule,
-    MaterialModule,
-  ],
+  declarations: [ToolbarComponent, AuthorizationPageComponent, AuthorizationCompletePageComponent, ErrorComponent],
+    imports: [
+        CommonModule,
+        RouterModule,
+        MaterialModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+    ],
   exports: [
     MaterialModule,
-    ToolbarComponent
+    ToolbarComponent,
+    ErrorComponent,
   ]
 })
 export class SharedModule { }

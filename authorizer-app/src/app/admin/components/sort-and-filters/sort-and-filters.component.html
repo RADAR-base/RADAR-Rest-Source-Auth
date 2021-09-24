@@ -1,0 +1,50 @@
+<div class="filter-container">
+  <mat-form-field *ngFor="let filter of filters"
+                  class="form-field"
+                  [style]="'width: '+ filter.width +'px;'"
+                  appearance="standard">
+    <mat-label>{{filter.name}}</mat-label>
+    <mat-select *ngIf="filter.type == 'select'"
+                name="{{filter.columnProp}}"
+                [(ngModel)]="filter.modelValue"
+                (selectionChange)="filterChange(filter, $event)">
+      <mat-option value="">All</mat-option>
+      <mat-option *ngFor="let item of filter.options" [value]="item.value" >{{item.label}}</mat-option>
+    </mat-select>
+    <input *ngIf="filter.type == 'input'"
+           matInput
+           name="{{filter.columnProp}}"
+           [(ngModel)]="filter.modelValue"
+           (keyup)="filterChange(filter, $event.target)">
+  </mat-form-field>
+  <button mat-icon-button
+
+          color="warn"
+          class="reset-filters"
+          (click)="resetFilters()">
+    <mat-icon>cancel</mat-icon>
+    <!--      mat-raised-button-->
+    <!--      Clear Filters-->
+  </button>
+</div>
+<!--<mat-nav-list>-->
+<!--  <a href="https://keep.google.com/" mat-list-item (click)="openLink($event)">-->
+<!--    <span mat-line>Google Keep</span>-->
+<!--    <span mat-line>Add to a note</span>-->
+<!--  </a>-->
+
+<!--  <a href="https://docs.google.com/" mat-list-item (click)="openLink($event)">-->
+<!--    <span mat-line>Google Docs</span>-->
+<!--    <span mat-line>Embed in a document</span>-->
+<!--  </a>-->
+
+<!--  <a href="https://plus.google.com/" mat-list-item (click)="openLink($event)">-->
+<!--    <span mat-line>Google Plus</span>-->
+<!--    <span mat-line>Share with your friends</span>-->
+<!--  </a>-->
+
+<!--  <a href="https://hangouts.google.com/" mat-list-item (click)="openLink($event)">-->
+<!--    <span mat-line>Google Hangouts</span>-->
+<!--    <span mat-line>Show to your coworkers</span>-->
+<!--  </a>-->
+<!--</mat-nav-list>-->

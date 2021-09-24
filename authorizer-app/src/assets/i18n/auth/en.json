@@ -1,0 +1,12 @@
+{
+  "LOGIN_PAGE": {
+    "title": "Login",
+    "subtitle": "Log in to External Device Authorizer App",
+    "description": "With this app you can link participants from RADAR-base Management Portal to External Device APIs (e.g. Fitbit, Withings and ...)",
+    "loginButton": "Login with Management Portal"
+  },
+  "ERROR": {
+    "sessionExpired": "The session has been expired. Log in again.",
+    "authGuard": "You need to be logged in to see the requested page."
+  }
+}

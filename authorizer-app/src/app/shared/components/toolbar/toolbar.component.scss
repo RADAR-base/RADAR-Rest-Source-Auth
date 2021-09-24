@@ -1,0 +1,52 @@
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+  overflow: hidden;
+}
+
+mat-toolbar-row{
+  display: flex;
+}
+
+.title {
+  text-transform: uppercase;
+  text-align: center !important;
+  flex: 1 1 auto;
+}
+
+.logo-wrapper{
+  padding: 8px 0;
+}
+
+.logo {
+  display: block;
+  height: 48px;
+}
+
+.left-box.box, .right-box.box {
+  flex: 1;
+  display: flex;
+  min-width: -webkit-min-content;
+}
+
+.right-box.box {
+  justify-content: flex-end;
+}
+
+@media only screen and (max-width: 1200px){
+  /*Tablets [601px -> 1200px]*/
+  .title {
+    font-size: 14px;
+  }
+  .logo {
+    height: 32px;
+  }
+}
+//@media only screen and (max-width: 600px){
+//  /*Big smartphones [426px -> 600px]*/
+//}
+//@media only screen and (max-width: 425px){
+//  /*Small smartphones [325px -> 425px]*/
+//}

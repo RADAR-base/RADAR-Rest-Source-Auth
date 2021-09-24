@@ -1,0 +1,54 @@
+<div mat-dialog-title style="display: flex; align-items: center; justify-content: space-between;">
+  <p style="margin: 0">{{ 'ADMIN.DELETE_DIALOG.title' | translate }}</p>
+  <button mat-icon-button class="close-button" [mat-dialog-close]="true">
+    <mat-icon class="close-icon">close</mat-icon>
+  </button>
+  <div class="row" *ngIf="error" style="font-size: 14px; line-height: initial; font-weight: normal;">
+    <div class="col">
+      <mat-error>{{ error }}</mat-error>
+    </div>
+  </div>
+</div>
+<mat-dialog-content>
+  <p>{{ 'ADMIN.DELETE_DIALOG.description' | translate }}:</p>
+  <p>
+    {{ 'ADMIN.GENERAL.userId' | translate }}: <strong>{{subject.userId}}</strong><br>
+    {{ 'ADMIN.GENERAL.externalId' | translate }}: <strong>{{subject.externalId}}</strong><br>
+    {{ 'ADMIN.GENERAL.project' | translate }}: <strong>{{subject.projectId}}</strong>
+  </p>
+  <p>{{ 'ADMIN.DELETE_DIALOG.warningMessage' | translate }}</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="closeDeleteDialog()">{{ 'ADMIN.GENERAL.no' | translate }}</button>
+  <button mat-raised-button color="warn" [disabled]="deleteLoading" (click)="closeDeleteDialog(subject)">
+<!--    [mat-dialog-close]="subject"-->
+    <ng-container *ngIf="deleteLoading">
+      <mat-icon><mat-spinner diameter="20"></mat-spinner></mat-icon>{{ 'ADMIN.DELETE_DIALOG.deleting' | translate }}
+    </ng-container>
+    <ng-container *ngIf="!deleteLoading">{{ 'ADMIN.GENERAL.yes' | translate }}</ng-container>
+  </button>
+
+
+
+
+<!--    <button mat-raised-button color="primary" type="submit" name="authorize" [class.spinner]="authorizationLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Authorize</button>-->
+<!--    <button mat-raised-button color="primary" type="submit" name="link" [class.spinner]="linkGeneratingLoading" [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid">Copy Link</button>-->
+
+    <!--  <button mat-button (click)="closeResetDialog()">Cancel</button>-->
+    <!--  <button mat-button color="accent" [mat-dialog-close]="dataCopy">Ok</button>-->
+</mat-dialog-actions>
+
+<!--<h1 mat-dialog-title>WARNING!</h1>-->
+<!--<div mat-dialog-content>-->
+<!--  <p>You are going to delete the user:</p>-->
+<!--  <p>-->
+<!--    User ID: <strong>{{subject.userId}}</strong><br>-->
+<!--    User External ID: <strong>{{subject.externalId}}</strong><br>-->
+<!--    Project ID: <strong>{{subject.projectId}}</strong>-->
+<!--  </p>-->
+<!--  <p>Are you sure?</p>-->
+<!--</div>-->
+<!--<div mat-dialog-actions>-->
+<!--  <button mat-button (click)="closeDeleteDialog()">No</button>-->
+<!--  <button mat-button color="warn" [mat-dialog-close]="subject">Yes</button>-->
+<!--</div>-->

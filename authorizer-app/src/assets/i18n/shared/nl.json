@@ -1,0 +1,22 @@
+{
+  "ERROR": {
+    "supportMessage": "Try again by refreshing the page. If the error persists please contact your system administrator"
+  },
+  "TOOLBAR": {
+    "title": "External Device Authorizer"
+  },
+  "AUTHORIZATION_COMPLETE_PAGE": {
+    "title": "Thank you!",
+    "errorTitle": "Something went wrong!",
+    "subtitle": "Your fitbit account has been linked to RADAR-base.",
+    "description": "Your fitbit account has been linked to RADAR-base.",
+    "actionMessage": "Your can close this page or log in to the app.",
+    "actionButton": "Login"
+  },
+  "AUTHORIZATION_PAGE": {
+    "title": "Authorization Page",
+    "subtitle": "Authorization page subtitle",
+    "description": "Authorization page description.<br>Project: {{registrationResponse?.project | json}}",
+    "authorizeButton": "Authorize"
+  }
+}
