@@ -5,6 +5,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy
 import org.hibernate.annotations.Immutable
 import org.hibernate.proxy.HibernateProxy
 import org.hibernate.proxy.HibernateProxyHelper
+import java.time.Duration
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
@@ -24,6 +25,8 @@ class RegistrationState(
     val salt: ByteArray?,
     @Column(name = "secret_hash", nullable = true)
     val secretHash: ByteArray?,
+    @Column(name = "created_at", nullable = false)
+    val createdAt: Instant,
     @Column(name = "expires_at", nullable = false)
     val expiresAt: Instant,
     @Column(nullable = false)

@@ -68,6 +68,7 @@ class RegistrationResource(
         return RegistrationResponse(
             token = registration.token,
             userId = registration.user.id!!.toString(),
+            createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
         )
@@ -110,6 +111,7 @@ class RegistrationResource(
             ),
             userId = registration.user.id!!.toString(),
             project = project,
+            createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
         )
@@ -133,6 +135,7 @@ class RegistrationResource(
             token = registration.token,
             userId = registration.user.id!!.toString(),
             project = project,
+            createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
         )

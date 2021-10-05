@@ -5,10 +5,13 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
-    <changeSet author="yatharth" id="addColumnResetTimes">
-        <addColumn tableName="rest_source_user">
-            <column name="times_reset" type="bigint" defaultValueNumeric="0" valueNumeric="0" >
-                <constraints nullable="true" />
+    <property name="now" value="now()" dbms="h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+
+    <changeSet author="joris" id="Add registration creation date">
+        <addColumn tableName="registration">
+            <column name="created_at" type="datetime" beforeColumn="expires_at" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
             </column>
         </addColumn>
     </changeSet>

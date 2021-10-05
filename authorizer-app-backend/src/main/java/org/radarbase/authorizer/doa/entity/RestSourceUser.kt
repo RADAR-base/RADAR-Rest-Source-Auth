@@ -16,11 +16,14 @@
 
 package org.radarbase.authorizer.doa.entity
 
+import org.hibernate.annotations.*
 import org.hibernate.annotations.Cache
-import org.hibernate.annotations.CacheConcurrencyStrategy
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
+import javax.persistence.CascadeType
+import javax.persistence.Entity
+import javax.persistence.Table
 
 @Entity
 @Table(name = "rest_source_user")
@@ -95,10 +98,13 @@ class RestSourceUser(
     var timesReset: Long = 0,
 
     @OneToMany(
+        fetch = FetchType.EAGER,
         targetEntity = RegistrationState::class,
         cascade = [CascadeType.REMOVE],
-        mappedBy = "user",
     )
+    @JoinColumn(name = "user_id")
+    @Fetch(FetchMode.SELECT)
+    @BatchSize(size = 2)
     var registrations: List<RegistrationState> = listOf(),
 ) {
     override fun equals(other: Any?): Boolean {

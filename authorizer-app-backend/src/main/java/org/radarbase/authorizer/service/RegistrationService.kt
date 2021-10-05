@@ -24,6 +24,7 @@ class RegistrationService(
             token = tokenState.token,
             secret = secret.secret,
             userId = tokenState.user.id?.toString() ?: throw HttpInternalServerException("token_incomplete", "Failed to generate complete token."),
+            createdAt = tokenState.createdAt,
             expiresAt = tokenState.expiresAt,
             persistent = tokenState.persistent,
         )
