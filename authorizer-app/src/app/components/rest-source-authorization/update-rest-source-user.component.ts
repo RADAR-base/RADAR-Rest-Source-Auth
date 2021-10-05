@@ -10,7 +10,7 @@ import {
 } from '../../models/rest-source-project.model';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Location } from '@angular/common';
+import {DatePipe, Location, PlatformLocation} from '@angular/common';
 import { RequestTokenPayload } from 'src/app/models/auth.model';
 import { RestSourceUser } from '../../models/rest-source-user.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
@@ -41,7 +41,9 @@ export class UpdateRestSourceUserComponent implements OnInit {
     // private restSourceUserService: RestSourceUserMockService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private _location: Location
+    private _location: Location,
+    private datePipe: DatePipe,
+    private platformLocation: PlatformLocation
   ) {}
 
   ngOnInit() {
@@ -258,8 +260,15 @@ export class UpdateRestSourceUserComponent implements OnInit {
           window.location.href = registrationResp.authEndpointUrl;
         } else if (registrationResp.secret) {
           // generate link // show // copy to clipboard
+
+          const currentAbsoluteUrl = window.location.href;
+          const currentRelativeUrl = this.router.url;
+          const index = currentAbsoluteUrl.indexOf(currentRelativeUrl);
+          const baseUrl = currentAbsoluteUrl.substring(0, index);
+
           this.linkForUser =
-            `${environment.radarBaseUrl}${environment.BASE_HREF}/users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}`;
+              `${baseUrl}/users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}\n\n`
+              +`Expiration date: ${this.datePipe.transform(new Date(registrationResp.expiresAt), 'EEEE, MMMM d, yyyy hh:mm:ss a')}`;
           this.linkGeneratingLoading = false;
         }
       },
@@ -314,5 +323,11 @@ export class UpdateRestSourceUserComponent implements OnInit {
 
   backClicked() {
     this._location.back();
+  }
+
+  copyInputMessage(inputElement: HTMLTextAreaElement) {
+    inputElement.select();
+    document.execCommand('copy');
+    inputElement.setSelectionRange(0, 0);
   }
 }

@@ -66,8 +66,12 @@
       <td mat-cell *matCellDef="let user"> {{user.endDate | date}} </td>
     </ng-container>authorized
     <ng-container matColumnDef="authorized">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Authorized </th>
-      <td mat-cell *matCellDef="let user"> {{user.isAuthorized? "Yes":"No"}} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Authorized? </th>
+      <td mat-cell *matCellDef="let user">
+        <ng-container *ngIf="user.isAuthorized">Yes</ng-container>
+        <ng-container *ngIf="!user.isAuthorized && user.registrationCreatedAt">Pending ({{user.registrationCreatedAt | date:'MMM d, y, HH:mm:ss'}})</ng-container>
+        <ng-container *ngIf="!user.isAuthorized && !user.registrationCreatedAt">No</ng-container>
+      </td>
     </ng-container>
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>

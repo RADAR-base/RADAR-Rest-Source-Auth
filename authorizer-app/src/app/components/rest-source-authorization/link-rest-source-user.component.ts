@@ -8,7 +8,7 @@ import {SourceClientAuthorizationService} from '../../services/source-client-aut
 import {ActivatedRoute, Router} from '@angular/router';
 // import {NgbDateAdapter} from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../../../environments/environment';
-import {Location} from '@angular/common';
+import {DatePipe, Location, PlatformLocation} from '@angular/common';
 
 @Component({
   selector: 'app-link-rest-source-user',
@@ -43,7 +43,8 @@ export class LinkRestSourceUserComponent implements OnInit {
     private sourceTypeService: SourceClientAuthorizationService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private _location: Location
+    private _location: Location,
+    private datePipe: DatePipe,
   ) {
     console.log(this.activatedRoute.snapshot.params);
     console.log(this.activatedRoute.snapshot.queryParams);
@@ -111,8 +112,14 @@ export class LinkRestSourceUserComponent implements OnInit {
           window.location.href = registrationResp.authEndpointUrl;
         } else if (registrationResp.secret) {
           // generate link // show // copy to clipboard
+          const currentAbsoluteUrl = window.location.href;
+          const currentRelativeUrl = this.router.url;
+          const index = currentAbsoluteUrl.indexOf(currentRelativeUrl);
+          const baseUrl = currentAbsoluteUrl.substring(0, index);
+
           this.linkForUser =
-            `${environment.radarBaseUrl}${environment.BASE_HREF}users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}`;
+            `${baseUrl}/users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}\n\n`
+            +`Expiration date: ${this.datePipe.transform(new Date(registrationResp.expiresAt), 'EEEE, MMMM d, yyyy hh:mm:ss a')}`;
           this.linkGeneratingLoading = false;
         }
       },

@@ -9,7 +9,8 @@ import {storageItems} from '../../enums/storage';
   styleUrls: ['./authorized-rest-source-user.component.scss'],
 })
 export class AuthorizedRestSourceUserComponent implements OnInit {
-  showThankYou = false;
+  loading = false;
+  error?: any;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -19,8 +20,37 @@ export class AuthorizedRestSourceUserComponent implements OnInit {
   ) {
   }
 
+  // ngOnInit(): void {
+  //   console.log(this.activatedRoute.snapshot.queryParams);
+  //   const {state, oauth_token, oauth_verifier, oauth_token_secret, code} = this.activatedRoute.snapshot.queryParams;
+  //
+  //   let stateOrToken = state;
+  //   if (!state) {
+  //     stateOrToken = localStorage.getItem(storageItems.authorizationToken);
+  //   }
+  //   const authorizeRequest = {
+  //     code,
+  //     oauth_token,
+  //     oauth_verifier,
+  //     oauth_token_secret
+  //   };
+  //   this.service.authorizeUser(authorizeRequest, stateOrToken).subscribe(
+  //     resp => {
+  //       console.log(resp);
+  //       if (resp.persistent) {
+  //         this.showThankYou = true;
+  //       } else {
+  //         this.router.navigateByUrl('');
+  //       }
+  //     },
+  //     err => {
+  //       console.log(err);
+  //     }
+  //   );
+  // }
+
   ngOnInit(): void {
-    console.log(this.activatedRoute.snapshot.queryParams);
+    this.loading = true;
     const {state, oauth_token, oauth_verifier, oauth_token_secret, code} = this.activatedRoute.snapshot.queryParams;
 
     let stateOrToken = state;
@@ -33,18 +63,25 @@ export class AuthorizedRestSourceUserComponent implements OnInit {
       oauth_verifier,
       oauth_token_secret
     };
-    this.service.authorizeUser(authorizeRequest, stateOrToken).subscribe(
-      resp => {
-        console.log(resp);
+    this.service.authorizeUser(authorizeRequest, stateOrToken).subscribe({
+      next: (resp) => {
         if (resp.persistent) {
-          this.showThankYou = true;
+          this.loading = false;
         } else {
-          this.router.navigateByUrl('');
+          const project = localStorage.getItem(storageItems.project);
+          if (project) {
+            this.router.navigate(['users'], {
+              queryParams: { project: project }
+            });
+          } else {
+            this.router.navigate(['users']);
+          }
         }
       },
-      err => {
-        console.log(err);
+      error: (error) => {
+        this.error = error.error.error_description || error.message; // error;
+        this.loading = false;
       }
-    );
+    });
   }
 }

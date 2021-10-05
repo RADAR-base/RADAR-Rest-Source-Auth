@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { RadarProject } from '../../models/rest-source-project.model';
 import { RestSourceUserService } from '../../services/rest-source-user.service';
 import {RestSourceUserMockService} from '../../services/rest-source-user-mock.service';
+import {storageItems} from "../../enums/storage";
 
 @Component({
   selector: 'rest-source-dashboard',
@@ -43,9 +44,9 @@ export class RestSourceUserDashboardComponent implements OnInit {
     if (projectId) {
       return this.router.navigate(['/users'], {
         queryParams: { project: projectId }
-      });
+      }).then(()=> localStorage.setItem(storageItems.project, projectId));
     } else {
-      return this.router.navigate(['/users']);
+      return this.router.navigate(['/users']).then(() => localStorage.removeItem(storageItems.project));
     }
   }
 }

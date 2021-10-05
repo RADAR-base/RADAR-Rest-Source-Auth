@@ -111,11 +111,39 @@
           class="btn btn-success">Copy Link
   </button>
 
+<!--  <div class="form-group" *ngIf="isEditing && linkForUser">-->
+<!--    <label for="timesReset">Send this link to Subject</label>-->
+<!--    <input class="form-control" name="linkForUser" [value]="linkForUser" type="text"-->
+<!--           id="linkForUser">-->
+<!--  </div>-->
+
   <div class="form-group" *ngIf="isEditing && linkForUser">
-    <label for="timesReset">Send this link to Subject</label>
-    <input class="form-control" name="linkForUser" [value]="linkForUser" type="text"
-           id="linkForUser">
+    <label for="linkForUser">Send this link to the user</label>
+<!--    <input class="form-control" name="linkForUser" [value]="linkForUser" type="text"-->
+<!--           id="linkForUser">-->
+    <textarea class="form-control" name="linkForUser" [value]="linkForUser"
+              id="linkForUser" rows="8" style="resize: none;" #linkTextArea></textarea>
+    <button mat-mini-fab color="primary" aria-label="Copy to clipboard" (click)="copyInputMessage(linkTextArea)">
+      <mat-icon>content_copy</mat-icon>
+    </button>
   </div>
+
+<!--  <div class="row" *ngIf="linkForUser">-->
+<!--    <div class="col">-->
+<!--      Send this link to the user-->
+<!--      <button mat-mini-fab color="primary" aria-label="Copy to clipboard" (click)="copyInputMessage(linkTextArea)">-->
+<!--        <mat-icon>content_copy</mat-icon>-->
+<!--      </button>-->
+<!--      <mat-form-field class="full-width" appearance="outline">-->
+<!--        &lt;!&ndash;          <mat-label></mat-label>&ndash;&gt;-->
+<!--        <textarea matInput rows="6" [type]="'text'" [value]="linkForUser" style="resize: none;" #linkTextArea></textarea>-->
+<!--        &lt;!&ndash;        <button mat-icon-button matSuffix (click)="copyToClipboard()" [attr.aria-label]="'Hide password'" >&ndash;&gt;-->
+<!--        &lt;!&ndash;          &lt;!&ndash;          [attr.aria-pressed]="hide"&ndash;&gt;&ndash;&gt;-->
+<!--        &lt;!&ndash;          <mat-icon>content_copy</mat-icon>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </button>&ndash;&gt;-->
+<!--      </mat-form-field>-->
+<!--    </div>-->
+<!--  </div>-->
 
 
   <!--  <div class="row" *ngIf="linkForUser">-->

@@ -82,7 +82,7 @@ export class RestSourceUserService {
   }
 
   resetUser(user: RestSourceUser): Observable<any> {
-    return this.http.post(this.serviceUrl + '/users/' + user.id + '/reset', user);
+    return this.http.post(this.serviceUrl + '/users/' + user.id , user);
   }
 
   // --

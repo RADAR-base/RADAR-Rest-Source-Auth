@@ -65,6 +65,7 @@ export interface RegistrationResponse {
   authEndpointUrl?: string; // only defined if the registration is not persistent
   expiresAt: string; // Instant
   persistent: boolean;
+  project?: any;
 }
 // interface RegistrationResponse {
 //   token: String

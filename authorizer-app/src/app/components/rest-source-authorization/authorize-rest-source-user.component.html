@@ -1,8 +1,31 @@
 <toolbar [showMenu]="true"></toolbar>
-<h2 *ngIf="showThankYou">Thank You!</h2>
+<!--<h2 *ngIf="showThankYou">Thank You!</h2>-->
 <div class="container col-md-4">
   <ngb-alert *ngIf="errorMessage" type="danger"
              (close)="errorMessage = null">
     {{ errorMessage}}
   </ngb-alert>
 </div>
+
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Authorization Page</mat-card-title>
+      <mat-card-subtitle>Authorization page subtitle</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+<!--      <div *ngIf="loading" class="loader-container" >-->
+<!--        <mat-spinner diameter="30"></mat-spinner>-->
+<!--      </div>-->
+      <div *ngIf="!errorMessage">
+        <p>Authorization page description.<br>Project: {{registrationResponse?.project | json}}</p>
+        <div>
+          <button mat-raised-button color="primary" (click)="authorize()" [disabled]="!authEndpointUrl">
+            Authorize
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+

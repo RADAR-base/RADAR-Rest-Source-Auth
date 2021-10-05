@@ -53,6 +53,8 @@ import {AuthorizedRestSourceUserComponent} from './components/rest-source-author
 import {RestSourceUserMockService} from './services/rest-source-user-mock.service';
 import {SourceClientAuthorizationMockService} from './services/source-client-authorization-mock.service';
 import {AuthorizeRestSourceUserComponent} from './components/rest-source-authorization/authorize-rest-source-user.component';
+import {DatePipe} from "@angular/common";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 // import { ClipboardModule } from '@angular/cdk/clipboard';
 
 const appRoutes: Routes = [
@@ -160,6 +162,7 @@ const appRoutes: Routes = [
     MatSelectModule,
     MatRadioModule,
     MatCheckboxModule,
+    MatProgressSpinnerModule,
     // ClipboardModule
   ],
   providers: [
@@ -168,6 +171,7 @@ const appRoutes: Routes = [
     SourceClientAuthorizationService,
     SourceClientAuthorizationMockService,
     AuthGuard,
+    DatePipe,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: AuthService, useClass: ManagementPortalAuthService },
