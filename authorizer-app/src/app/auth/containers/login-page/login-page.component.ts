@@ -1,11 +1,13 @@
-import {ActivatedRoute, Router} from '@angular/router';
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {AuthService} from '../../services/auth.service';
+import {ActivatedRoute, Router} from '@angular/router';
 import {first, Subscription} from 'rxjs';
-import {environment} from '../../../../environments/environment';
-import {GrantType} from '../../enums/grant-type';
-import {AuthStateCommand} from "../../enums/auth-state-command";
-import {StorageItem} from "../../enums/storage-item";
+
+import {AuthService} from '@app/auth/services/auth.service';
+import {GrantType} from '@app/auth/enums/grant-type';
+import {AuthStateCommand} from "@app/auth/enums/auth-state-command";
+import {StorageItem} from "@app/auth/enums/storage-item";
+
+import {environment} from '@environments/environment';
 
 @Component({
   selector: 'app-login-page',
@@ -19,7 +21,6 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
   AuthStateCommand = AuthStateCommand;
   stateCommand?: AuthStateCommand;
-
 
   routerSubscription?: Subscription;
 
@@ -41,24 +42,26 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   loginWithAuthCode() {
-    this.routerSubscription = this.activatedRoute.queryParams.subscribe(params => {
-      const { code } = params;
-      if (code) {
-        this.loading = true;
-        this.authService
-          .authenticate(code)
-          .pipe(first())
-          .subscribe({
-            next: () => {
-              const returnUrl = localStorage.getItem(StorageItem.RETURN_URL);
-              if (returnUrl) {
-                this.router.navigateByUrl(returnUrl).then(() => this.authService.clearReturnUrl());
-              } else {
-                this.router.navigateByUrl("/").then(() => this.authService.clearReturnUrl());
-              }
-            },
-            error: (error) => this.error = error
-          });
+    this.routerSubscription = this.activatedRoute.queryParams.subscribe({
+      next: params => {
+        const {code} = params;
+        if (code) {
+          this.loading = true;
+          this.authService
+            .authenticate(code)
+            .pipe(first())
+            .subscribe({
+              next: () => {
+                const returnUrl = localStorage.getItem(StorageItem.RETURN_URL);
+                if (returnUrl) {
+                  this.router.navigateByUrl(returnUrl).then(() => this.authService.clearReturnUrl());
+                } else {
+                  this.router.navigateByUrl("/").then(() => this.authService.clearReturnUrl());
+                }
+              },
+              error: (error) => this.error = error
+            });
+        }
       }
     });
   }

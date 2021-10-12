@@ -1,0 +1,7 @@
+<div *ngIf="message"
+     class="message-box"
+     [ngClass]="type"
+>
+  <p>{{ messageString }}</p>
+  <p *ngIf="showSupport">{{ 'SHARED.ERROR.supportMessage' | translate }}</p>
+</div>

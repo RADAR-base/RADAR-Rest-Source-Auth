@@ -1,48 +1,14 @@
-<app-error *ngIf="error" [error]="error"></app-error>
-<!--<div *ngIf="loading" class="loader-container" >-->
-<!--  <mat-spinner diameter="30"></mat-spinner>-->
-<!--</div>-->
+<app-message *ngIf="error" [message]="error"></app-message>
 <div class="container" >
-<!--  *ngIf="!loading"-->
   <div class="filter-container">
     <ng-container *ngTemplateOutlet="filtersContainer"></ng-container>
-<!--    <mat-form-field *ngFor="let filter of filters"-->
-<!--                    class="form-field"-->
-<!--                    [style]="'width: '+ filter.width +'px;'"-->
-<!--                    appearance="standard">-->
-<!--      <mat-label>{{filter.name}}</mat-label>-->
-<!--      <mat-select *ngIf="filter.type == 'select'"-->
-<!--                  name="{{filter.columnProp}}"-->
-<!--                  [(ngModel)]="filter.modelValue"-->
-<!--                  (selectionChange)="filterChange(filter, $event)">-->
-<!--        <mat-option value="">All</mat-option>-->
-<!--        <mat-option *ngFor="let item of filter.options" [value]="item.value" >{{item.label}}</mat-option>-->
-<!--      </mat-select>-->
-<!--      <input *ngIf="filter.type == 'input'"-->
-<!--             matInput-->
-<!--             name="{{filter.columnProp}}"-->
-<!--             [(ngModel)]="filter.modelValue"-->
-<!--             (keyup)="filterChange(filter, $event.target)">-->
-<!--    </mat-form-field>-->
-<!--    <button mat-icon-button-->
-
-<!--            color="warn"-->
-<!--            class="reset-filters"-->
-<!--            (click)="resetFilters()">-->
-<!--      <mat-icon>cancel</mat-icon>-->
-<!--      &lt;!&ndash;      mat-raised-button&ndash;&gt;-->
-<!--      &lt;!&ndash;      Clear Filters&ndash;&gt;-->
-<!--    </button>-->
   </div>
-<!--  <button mat-mini-fab class="mini-fab-filters" color="primary" (click)="openBottomSheet()"><mat-icon>filter_list</mat-icon></button>-->
   <button mat-mini-fab class="mini-fab-filters" color="primary" (click)="openTemplateSheetMenu()"><mat-icon>filter_list</mat-icon></button>
-
   <ng-template let-bottomSheetRef="bottomSheetRef" #templateBottomSheet>
     <div class="mobile-filter-container">
       <ng-container *ngTemplateOutlet="filtersContainer"></ng-container>
     </div>
   </ng-template>
-
   <div class="table-container">
     <table class="full-width-table"
            mat-table
@@ -50,57 +16,51 @@
            [dataSource]="dataSource"
            aria-label="Users List">
 
-      <!-- ID Column -->
-<!--      <ng-container matColumnDef="id" >-->
-<!--        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>-->
-<!--        <td mat-cell *matCellDef="let user"> {{user.id}} </td>-->
-<!--      </ng-container>-->
-
-      <!-- User ID Column -->
       <ng-container matColumnDef="userId">
         <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-w-150 ellipsis">{{'ADMIN.GENERAL.userId' | translate}}</th>
         <td mat-cell *matCellDef="let user" class="m-w-150 ellipsis">
-<!--          {{(user.userId | slice:0:13) + '...'}}-->
           {{user.userId}}
         </td>
       </ng-container>
 
-      <!-- External User ID Column -->
       <ng-container matColumnDef="externalId" class="m-w-100 ellipsis">
         <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-hide m-w-100 ellipsis">{{'ADMIN.GENERAL.externalId' | translate}}</th>
         <td mat-cell *matCellDef="let user" class="m-hide m-w-100 ellipsis"> {{user.externalId}} </td>
       </ng-container>
 
-      <!-- Source Type Column -->
       <ng-container matColumnDef="sourceType" class="m-w-100 ellipsis">
         <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-hide m-w-100 ellipsis">{{'ADMIN.GENERAL.sourceType' | translate}}</th>
         <td mat-cell *matCellDef="let user" class="m-hide m-w-100 ellipsis"> {{user.sourceType}} </td>
       </ng-container>
 
-      <!-- Start Date Column -->
       <ng-container matColumnDef="startDate">
         <th mat-header-cell *matHeaderCellDef mat-sort-header class="t-hide">{{'ADMIN.GENERAL.startDate' | translate}}</th>
         <td mat-cell *matCellDef="let user" class="t-hide"> {{(user.startDate | date:'dd/MM/y') || '-'}} </td>
       </ng-container>
 
-      <!-- End Date Column -->
       <ng-container matColumnDef="endDate">
         <th mat-header-cell *matHeaderCellDef mat-sort-header class="t-hide">{{'ADMIN.GENERAL.endDate' | translate}}</th>
         <td mat-cell *matCellDef="let user" class="t-hide"> {{(user.endDate | date:'dd/MM/y') || '-'}} </td>
       </ng-container>
 
-      <!-- Authorized Column -->
       <ng-container matColumnDef="isAuthorized">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-hide m-w-80">{{'ADMIN.GENERAL.authorized' | translate}}</th>
-        <td mat-cell *matCellDef="let user" class="m-hide m-w-80">
-        <span class="tag"
-              [ngClass]="user.isAuthorized? 'tag-success': 'tag-warn'">
-          {{(user.isAuthorized? 'ADMIN.GENERAL.yes':'ADMIN.GENERAL.no') | translate}}
-        </span>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-hide m-w-220">{{'ADMIN.GENERAL.authorized' | translate}}</th>
+        <td mat-cell *matCellDef="let user" class="m-hide m-w-220">
+          <span *ngIf="user.isAuthorized" class="tag tag-success">
+            {{ 'ADMIN.GENERAL.yes' | translate }}
+          </span>
+          <span *ngIf="!user.isAuthorized && user.registrationCreatedAt" class="tag tag-info">
+            {{ 'ADMIN.GENERAL.pending' | translate }} ({{user.registrationCreatedAt | date:'dd/MM/y HH:mm:ss'}})
+          </span>
+          <span *ngIf="!user.isAuthorized && !user.registrationCreatedAt && user.id" class="tag tag-error">
+            {{ 'ADMIN.GENERAL.no' | translate }}
+          </span>
+          <span *ngIf="!user.isAuthorized && !user.registrationCreatedAt && !user.id" class="tag tag-warn">
+            {{ 'ADMIN.GENERAL.unset' | translate }}
+          </span>
         </td>
       </ng-container>
 
-      <!-- Actions -->
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef style="text-align: end; width:80px;">{{'ADMIN.USERS_LIST.actions' | translate}}</th>
         <td mat-cell *matCellDef="let user" style="text-align: end; width:80px;">
@@ -110,13 +70,12 @@
           <button *ngIf="!user.isAuthorized" mat-icon-button color="primary" (click)="openSubjectDialog('edit', user)">
             <mat-icon>add_link</mat-icon>
           </button>
-          <button *ngIf="user.isAuthorized" mat-icon-button color="warn" (click)="openRemoveAuthorizationDialog(user)" >
+            <button *ngIf="user.isAuthorized" mat-icon-button color="warn" (click)="openSubjectDialog('delete', user)" >
             <mat-icon>link_off</mat-icon>
           </button>
         </td>
       </ng-container>
 
-<!--      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>-->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let rowData; columns: displayedColumns"></tr>
 
@@ -126,17 +85,10 @@
       </tr>
     </table>
   </div>
-  <mat-paginator
-   [pageIndex]="0"
-   [pageSize]="10"
-   [pageSizeOptions]="[5, 10, 20]"
-   aria-label="Select page of users">
-<!--      [length]="dataSource?.data?.length"-->
-</mat-paginator>
+  <mat-paginator [pageSize]="5" [pageSizeOptions]="[2, 5, 10]" aria-label="Select page of users"></mat-paginator>
 </div>
 
 <ng-template #filtersContainer>
-<!--  <div class="mobile-filter-container">-->
   <div>
     <mat-form-field *ngFor="let filter of filters"
                     class="form-field"
@@ -162,18 +114,5 @@
           class="reset-filters"
           (click)="resetFilters()">
     {{'ADMIN.USERS_LIST.filters.clearFilters' | translate}}
-<!--    <mat-icon>cancel</mat-icon>-->
-    <!--      mat-raised-button-->
-    <!--      Clear Filters-->
   </button>
-<!--  <button mat-icon-button-->
-
-<!--          color="warn"-->
-<!--          class="reset-filters"-->
-<!--          (click)="resetFilters()">-->
-<!--    <mat-icon>cancel</mat-icon>-->
-<!--    &lt;!&ndash;      mat-raised-button&ndash;&gt;-->
-<!--    &lt;!&ndash;      Clear Filters&ndash;&gt;-->
-<!--  </button>-->
-<!--  </div>-->
 </ng-template>

@@ -1,129 +1,128 @@
 <div mat-dialog-title>
   <div class="dialog-title-wrapper">
     <div>
-      <p *ngIf="mode=='edit'">{{ 'ADMIN.GENERAL.edit' | translate }} {{subject.externalId? '('+subject.externalId+')' : ''}} {{(subject.userId | slice:0:13) + '...'}}</p>
-      <p *ngIf="mode=='view'">{{ 'ADMIN.GENERAL.userId' | translate }} {{subject.externalId? '('+subject.externalId+')' : ''}} {{(subject.userId | slice:0:13) + '...'}}</p>
-      <p *ngIf="mode=='add'">{{ 'ADMIN.USER_DIALOG.linkUserExternalDevice' | translate }}</p>    </div>
+      <p *ngIf="mode===SubjectDialogMode.EDIT">{{ 'ADMIN.GENERAL.edit' | translate }}</p>
+      <p *ngIf="mode===SubjectDialogMode.VIEW">{{ 'ADMIN.GENERAL.userId' | translate }}</p>
+      <p *ngIf="mode===SubjectDialogMode.ADD">{{ 'ADMIN.USER_DIALOG.linkUserExternalDevice' | translate }}</p>
+      <p *ngIf="mode===SubjectDialogMode.DELETE">{{ 'ADMIN.DELETE_DIALOG.title' | translate }}</p>
+    </div>
     <button mat-icon-button class="close-button" [mat-dialog-close]="true" (click)="closeDialog()">
       <mat-icon class="close-icon">close</mat-icon>
     </button>
   </div>
-  <app-error *ngIf="error" [error]="error"></app-error>
+  <app-message *ngIf="error" [message]="error"></app-message>
 </div>
 
-<form [formGroup]="form" novalidate>
+<p *ngIf="mode===SubjectDialogMode.DELETE">{{ 'ADMIN.DELETE_DIALOG.description' | translate }}:</p>
+
+<dl class="desc">
+  <dt>{{ 'ADMIN.GENERAL.userId' | translate }}</dt>
+  <dd>{{ subject.userId }}</dd>
+  <dt>{{ 'ADMIN.GENERAL.externalId' | translate }}</dt>
+  <dd>{{ subject.externalId }}</dd>
+  <dt>{{ 'ADMIN.GENERAL.sourceType' | translate }}</dt>
+  <dd>{{ subject.sourceType }}</dd>
+  <dt>{{ 'ADMIN.GENERAL.project' | translate }}</dt>
+  <dd>{{ subject.projectId }}</dd>
+
+  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.isAuthorized != null">
+    <dt>{{ 'ADMIN.GENERAL.authorized' | translate }}</dt>
+    <dd *ngIf="subject.isAuthorized">{{ 'ADMIN.GENERAL.yes' | translate }}</dd>
+    <dd *ngIf="!subject.isAuthorized && subject.registrationCreatedAt">{{ 'ADMIN.GENERAL.pending' | translate }} ({{subject.registrationCreatedAt | date:'dd/MM/y HH:mm:ss'}})</dd>
+    <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && subject.id">{{ 'ADMIN.GENERAL.no' | translate }}</dd>
+    <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && !subject.id">{{ 'ADMIN.GENERAL.unset' | translate }}</dd>
+  </ng-container>
+
+  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.sourceId">
+    <dt>{{ 'ADMIN.GENERAL.sourceId' | translate }}</dt>
+    <dd>{{ subject.sourceId }}</dd>
+  </ng-container>
+
+  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.hasValidToken != null">
+    <dt>{{ 'ADMIN.GENERAL.hasValidToken' | translate }}</dt>
+    <dd>{{ subject.hasValidToken? ('ADMIN.GENERAL.yes' | translate) : ('ADMIN.GENERAL.no' | translate) }}</dd>
+  </ng-container>
+
+  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.serviceUserId">
+    <dt>{{ 'ADMIN.GENERAL.serviceUserId' | translate }}</dt>
+    <dd>{{ subject.serviceUserId }}</dd>
+  </ng-container>
+
+  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.timesReset != null">
+    <dt>{{ 'ADMIN.GENERAL.timesReset' | translate }}</dt>
+    <dd>{{ subject.timesReset }}</dd>
+  </ng-container>
+
+</dl>
+
+<p *ngIf="mode===SubjectDialogMode.DELETE">{{ 'ADMIN.DELETE_DIALOG.warningMessage' | translate }}</p>
+
+<form *ngIf="mode!==SubjectDialogMode.DELETE" [formGroup]="form" novalidate>
   <mat-dialog-content>
-    <mat-form-field class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.userId' | translate }}</mat-label>
-      <input matInput formControlName="userId">
-    </mat-form-field>
-<!--    placeholder="Enter Subject"-->
-
-    <mat-form-field class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.externalId' | translate }}</mat-label>
-      <input matInput formControlName="externalId">
-    </mat-form-field>
-
-    <mat-form-field class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.sourceType' | translate }}</mat-label>
-      <input matInput formControlName="sourceType" readonly>
-<!--      placeholder="Enter Source Type"-->
-      <!--      <mat-error *ngIf="form.controls['sourceType'].hasError('required')">{{ 'ADMIN.USER_DIALOG.userId' | translate }}Source Type is required</mat-error>-->
-    </mat-form-field>
-
-    <mat-form-field class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.project' | translate }}</mat-label>
-      <input matInput formControlName="projectId">
-<!--      placeholder="Enter Project"-->
-    </mat-form-field>
-
-    <mat-form-field *ngIf="mode != 'view' || (subject.startDate || subject.endDate)" class="full-width" appearance="outline" floatLabel="always">
+    <mat-form-field *ngIf="mode!==SubjectDialogMode.VIEW || (subject.startDate || subject.endDate)" appearance="outline" floatLabel="always">
       <mat-label>{{ 'ADMIN.USER_DIALOG.startEndDate' | translate }}</mat-label>
       <mat-date-range-input [rangePicker]="picker" required>
-        <input matStartDate formControlName="startDate" [placeholder]="'ADMIN.USER_DIALOG.startDatePlaceholder' | translate" (focus)="picker.open()" (click)="picker.open()">
-        <input matEndDate formControlName="endDate" [placeholder]="'ADMIN.USER_DIALOG.endDatePlaceholder' | translate" (focus)="picker.open()" (click)="picker.open()">
+        <input matStartDate formControlName="startDate" [placeholder]="'ADMIN.USER_DIALOG.startDatePlaceholder' | translate" >
+        <input matEndDate formControlName="endDate" [placeholder]="'ADMIN.USER_DIALOG.endDatePlaceholder' | translate" >
       </mat-date-range-input>
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
-      <mat-error *ngIf="form.controls['startDate'].hasError('required')">{{ 'ADMIN.USER_DIALOG.startEndDateError' | translate }}</mat-error>
-    </mat-form-field>
-
-    <mat-form-field *ngIf="mode != 'add' && subject.isAuthorized != null" class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.authorized' | translate }}</mat-label>
-      <input matInput formControlName="isAuthorized">
-    </mat-form-field>
-
-    <mat-form-field *ngIf="mode != 'add' && subject.sourceId" class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.sourceId' | translate }}</mat-label>
-      <input matInput formControlName="sourceId">
-    </mat-form-field>
-
-    <mat-form-field *ngIf="mode != 'add' && subject.serviceUserId" class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.serviceUserId' | translate }}</mat-label>
-      <input matInput formControlName="serviceUserId">
-    </mat-form-field>
-
-    <mat-form-field *ngIf="mode != 'add' && subject.hasValidToken != null" class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.hasValidToken' | translate }}</mat-label>
-      <input matInput formControlName="hasValidToken">
-    </mat-form-field>
-
-    <mat-form-field *ngIf="mode != 'add' && subject.timesReset != null" class="full-width" appearance="outline">
-      <mat-label>{{ 'ADMIN.GENERAL.timesReset' | translate }}</mat-label>
-      <input matInput formControlName="timesReset">
+      <mat-error *ngIf="form.controls.startDate.hasError('matStartDateInvalid')">{{ 'ADMIN.USER_DIALOG.error.startDateInvalid' | translate }}</mat-error>
+      <mat-error *ngIf="form.controls.endDate.hasError('matEndDateInvalid')">{{ 'ADMIN.USER_DIALOG.error.endDateInvalid' | translate }}</mat-error>
+      <mat-error *ngIf="form.controls.startDate.errors?.required">{{ 'ADMIN.USER_DIALOG.error.startDateRequired' | translate }}</mat-error>
     </mat-form-field>
 
     <p *ngIf="linkForUser" class="full-width link-for-user-label">{{ 'ADMIN.USER_DIALOG.sendThisLinkToUser' | translate }}</p>
     <div *ngIf="linkForUser" class="full-width link-for-user-container">
-      <!--      <div class="col full-width" style="display: flex;">-->
-<!--      <mat-form-field appearance="outline">-->
-<!--        <mat-label>Send this link to the user</mat-label>-->
-        <p class="link-for-user">{{linkForUser}}</p>
-<!--        <textarea matInput rows="4" [type]="'text'" [value]="linkForUser" disabled></textarea>-->
-<!--      </mat-form-field>-->
+      <p class="link-for-user">{{linkForUser}}</p>
       <button mat-icon-button [cdkCopyToClipboard]="linkForUser" aria-label="Copy to clipboard" >
         <mat-icon>content_copy</mat-icon>
       </button>
-      <!--      </div>-->
     </div>
-    <div class="action-buttons-container">
-      <div>
-        <button mat-stroked-button
-                color="primary" type="button" class="close-button"
-                [mat-dialog-close]="true"
-                (click)="closeDialog()">
-          {{ 'ADMIN.GENERAL.cancel' | translate }}
-        </button>
-      </div>
-      <div>
-        <button *ngIf="!subject.isAuthorized"
-                mat-raised-button color="primary" type="submit" name="authorize"
-                [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid"
-                (click)="onSubmit('authorize')"
-        >
-          <mat-icon *ngIf="authorizationLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
-          {{ 'ADMIN.USER_DIALOG.authorizeTheUser' | translate }}
-        </button>
-        <button *ngIf="!subject.isAuthorized"
-                mat-raised-button color="primary" type="submit" name="link"
-                [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid"
-                (click)="onSubmit('link')"
-        >
-          <mat-icon *ngIf="linkGeneratingLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
-          {{ 'ADMIN.USER_DIALOG.generateALinkForUser' | translate }}
-        </button>
-        <button *ngIf="subject.isAuthorized"
-                mat-raised-button color="primary" type="submit" name="update"
-                [disabled]="!form.valid || !form.dirty || updateLoading"
-                (click)="updateUser(subject)"
-        >
-          <mat-icon *ngIf="updateLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
-          {{ 'ADMIN.GENERAL.update' | translate }}
-        </button>
-      </div>
-    </div>
+
   </mat-dialog-content>
-<!--  <mat-dialog-actions>-->
-<!--    -->
-<!--  </mat-dialog-actions>-->
 </form>
+
+<div class="action-buttons-container">
+  <div>
+    <button *ngIf="mode===SubjectDialogMode.DELETE" mat-stroked-button color="primary" (click)="closeDeleteDialog()">{{ 'ADMIN.GENERAL.no' | translate }}</button>
+    <button *ngIf="mode!==SubjectDialogMode.DELETE" mat-stroked-button
+            color="primary" type="button" class="close-button"
+            [mat-dialog-close]="true"
+            (click)="closeDialog()">
+      {{ 'ADMIN.GENERAL.cancel' | translate }}
+    </button>
+  </div>
+  <div>
+    <button *ngIf="mode===SubjectDialogMode.DELETE" mat-raised-button color="warn" [disabled]="deleteLoading" (click)="closeDeleteDialog(subject)">
+      <ng-container *ngIf="deleteLoading">
+        <mat-icon><mat-spinner diameter="20"></mat-spinner></mat-icon>{{ 'ADMIN.DELETE_DIALOG.deleting' | translate }}
+      </ng-container>
+      <ng-container *ngIf="!deleteLoading">{{ 'ADMIN.GENERAL.yes' | translate }}</ng-container>
+    </button>
+    <button *ngIf="mode!==SubjectDialogMode.DELETE && !subject.isAuthorized"
+            mat-raised-button color="primary" type="submit" name="authorize"
+            [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid"
+            (click)="onSubmit('authorize')"
+    >
+      <mat-icon *ngIf="authorizationLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
+      {{ 'ADMIN.USER_DIALOG.authorizeTheUser' | translate }}
+    </button>
+    <button *ngIf="mode!==SubjectDialogMode.DELETE && !subject.isAuthorized"
+            mat-raised-button color="primary" type="submit" name="link"
+            [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid"
+            (click)="onSubmit('link')"
+    >
+      <mat-icon *ngIf="linkGeneratingLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
+      {{ 'ADMIN.USER_DIALOG.generateALinkForUser' | translate }}
+    </button>
+    <button *ngIf="mode!==SubjectDialogMode.DELETE && subject.isAuthorized"
+            mat-raised-button color="primary" type="submit" name="update"
+            [disabled]="!form.valid || !form.dirty || updateLoading"
+            (click)="updateUser(subject)"
+    >
+      <mat-icon *ngIf="updateLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
+      {{ 'ADMIN.GENERAL.update' | translate }}
+    </button>
+  </div>
+</div>

@@ -1,20 +1,22 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, shareReplay } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from "rxjs";
-import { RestSourceUser } from "../models/rest-source-user.model";
+import { map, shareReplay } from 'rxjs/operators';
+
+import { RadarSubject } from "@app/admin/models/radar-entities.model";
+
+import { environment } from '@environments/environment';
 
 @Injectable()
 export class SubjectService {
+
   constructor(private http: HttpClient) {}
 
-  getSubjectsOfProjects(projectId: string): Observable<RestSourceUser[]> {
-    console.log('getAllSubjectsOfProjects');
+  getSubjectsOfProject(projectId: string): Observable<RadarSubject[]> {
     const url = encodeURI(
       environment.backendBaseUrl + '/projects/' + projectId + '/users'
     );
-    return this.http.get<{users: RestSourceUser[]}>(url).pipe(
+    return this.http.get<{users: RadarSubject[]}>(url).pipe(
       map(result => result.users),
       shareReplay()
     );

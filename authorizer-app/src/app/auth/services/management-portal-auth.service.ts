@@ -5,9 +5,11 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import {BehaviorSubject, Observable, of, tap} from 'rxjs';
 import {catchError, map, shareReplay} from 'rxjs/operators';
 
-import { AuthService } from './auth.service';
-import {AuthResponse, User} from '../models/auth.model';
-import {environment} from "../../../environments/environment";
+import { AuthService } from '@app/auth/services/auth.service';
+import {AuthResponse, User} from '@app/auth/models/auth.model';
+import {AUTH_ROUTE} from "@app/auth/auth-routing.module";
+
+import {environment} from "@environments/environment";
 
 @Injectable()
 export class ManagementPortalAuthService extends AuthService {
@@ -62,7 +64,7 @@ export class ManagementPortalAuthService extends AuthService {
     this.subject.next(null);
 
     this.clearAuth();
-    this.router.navigate(['/login']).finally();
+    this.router.navigate([AUTH_ROUTE.LOGIN]).finally();
   }
 
   isAuthorized(): Observable<boolean> {

@@ -1,24 +1,38 @@
 <div class="container">
-  <div *ngIf="stateCommand === AuthStateCommand.SESSION_EXPIRED" class="message-box info">
-    <p>{{ 'AUTH.ERROR.sessionExpired' | translate }}</p>
-  </div>
-  <div *ngIf="stateCommand === AuthStateCommand.AUTH_GUARD" class="message-box info">
-    <p>{{ 'AUTH.ERROR.authGuard' | translate }}</p>
-  </div>
   <mat-card>
+    <app-message *ngIf="stateCommand === AuthStateCommand.SESSION_EXPIRED"
+                 [type]="'warn'"
+                 [message]="'AUTH.ERROR.sessionExpired' | translate"
+    ></app-message>
+
+    <app-message *ngIf="stateCommand === AuthStateCommand.AUTH_GUARD"
+                 [type]="'warn'"
+                 [message]="'AUTH.ERROR.authGuard' | translate"
+    ></app-message>
+
     <mat-card-header>
       <mat-card-title>{{ 'AUTH.LOGIN_PAGE.title' | translate }}</mat-card-title>
       <mat-card-subtitle>{{ 'AUTH.LOGIN_PAGE.subtitle' | translate }}</mat-card-subtitle>
     </mat-card-header>
+
     <mat-card-content>
       <p>{{ 'AUTH.LOGIN_PAGE.description' | translate }}</p>
-    </mat-card-content>
-    <mat-card-actions>
-      <app-error *ngIf="error" [error]="error"></app-error>
-      <button mat-raised-button color="primary" class="loader-status" [disabled]="loading" (click)="loginHandler()" >
+
+      <app-message *ngIf="error"
+                   [type]="'error'"
+                   [message]="error"
+      ></app-message>
+
+      <button mat-raised-button
+              class="loader-status"
+              color="primary"
+              [disabled]="loading"
+              (click)="loginHandler()"
+      >
         <mat-icon *ngIf="loading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
         {{ 'AUTH.LOGIN_PAGE.loginButton' | translate }}
       </button>
-    </mat-card-actions>
+    </mat-card-content>
+
   </mat-card>
 </div>

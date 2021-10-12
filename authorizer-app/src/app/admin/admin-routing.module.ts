@@ -1,27 +1,22 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {AuthGuard} from "../auth/services/auth.guard";
-import {DashboardPageComponent} from "./containers/dashboard-page/dashboard-page.component";
-import {ProjectsResolver} from "./services/projects.resolver";
-import {SourceTypesResolver} from "./services/sourceTypes.resolver";
+
+import {AuthGuard} from "@app/auth/services/auth.guard";
+import {DashboardPageComponent} from "@app/admin/containers/dashboard-page/dashboard-page.component";
+import {ProjectsResolver} from "@app/admin/services/projects.resolver";
+import {SourceClientsResolver} from "@app/admin/services/source-clients.resolver";
+
+export class ADMIN_ROUTE {
+  public static readonly MAIN = '';
+}
 
 const routes: Routes = [
   {
-    path: '',
+    path: ADMIN_ROUTE.MAIN,
     component: DashboardPageComponent,
-    resolve: {projects: ProjectsResolver, sourceTypes: SourceTypesResolver},
+    resolve: {projects: ProjectsResolver, sourceClients: SourceClientsResolver},
     canActivate: [AuthGuard]
   },
-  // {
-  //   path: 'users',
-  //   component: DashboardPageComponent,
-  //   canActivate: [AuthGuard]
-  // },
-  // {
-  //   path: '**',
-  //   component: DashboardPageComponent,
-  //   canActivate: [AuthGuard]
-  // }
 ];
 
 @NgModule({

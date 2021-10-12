@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100% - 64px);
+  min-height: calc(100vh - 100px);
 }
 
 mat-card {
@@ -29,14 +29,8 @@ mat-card-content{
 
 
 @media only screen and (max-width: 1200px){
-  /*Tablets [601px -> 1200px]*/
+  /* [320px -> 1200px] */
   mat-card {
     width: calc(100% - 32px);
   }
 }
-//@media only screen and (max-width: 600px){
-//  /*Big smartphones [426px -> 600px]*/
-//}
-//@media only screen and (max-width: 425px){
-//  /*Small smartphones [325px -> 425px]*/
-//}

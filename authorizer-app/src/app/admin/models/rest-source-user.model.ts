@@ -1,19 +1,20 @@
 export interface RestSourceUser {
-     id?: string;
-     version?: string;
-     projectId: string;
+     id?: string; // TODO number | string
      userId: string;
-     humanReadableUserId?: string;
-     serviceUserId?: string;
+     projectId: string;
      externalId?: string;
+     externalUserId?: string; // TODO ?
+     humanReadableUserId?: string; // TODO ?
+     serviceUserId?: string;
      sourceId?: string;
      startDate?: string;
      endDate?: string;
-     externalUserId?: string;
      sourceType: string;
      isAuthorized?: boolean;
+     registrationCreatedAt?: string;
      hasValidToken?: boolean;
      timesReset?: number;
+     version?: string;
 }
 
 export interface RestSourceUsers {

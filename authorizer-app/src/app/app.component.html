@@ -2,69 +2,26 @@
   <app-toolbar (languageSwitched)="switchLanguage($event)"></app-toolbar>
   <div *ngIf="loading" class="loader-container" >
     <mat-spinner diameter="30"></mat-spinner>
-    <div><p>Loading ...</p></div>
+    <div><p>{{ 'loading' | translate }} ...</p></div>
   </div>
-  <!--<button (click)="useLanguage('en')">en</button>-->
-  <!--<button (click)="useLanguage('de')">de</button>-->
-  <!--<div>-->
-  <!--  <h1>{{ 'demo.title' | translate }}</h1>-->
-
-  <!--  &lt;!&ndash; translation: translation pipe &ndash;&gt;-->
-  <!--  <p>{{ 'demo.text' | translate }}</p>-->
-
-  <!--  &lt;!&ndash; translation: directive (key as attribute)&ndash;&gt;-->
-  <!--  <p [translate]="'demo.text'"></p>-->
-
-  <!--  &lt;!&ndash; translation: directive (key as content of element) &ndash;&gt;-->
-  <!--  <p translate>demo.text</p>-->
-
-  <!--  <p>{{ 'demo.greeting' | translate:{'name':'Andreas'} }}</p>-->
-
-  <!--  &lt;!&ndash; translation: directive (key as attribute) &ndash;&gt;-->
-  <!--  <p [translate]="'demo.greeting'" [translateParams]="{name: 'Andreas'}"></p>-->
-
-  <!--  &lt;!&ndash; translation: directive (key as content of element)&ndash;&gt;-->
-  <!--  <p translate [translateParams]="{name: 'Andreas'}">demo.greeting</p>-->
-  <!--</div>-->
-  <!--<div>-->
-  <!--  <label>-->
-  <!--    {{ 'CHANGE_LANGUAGE' | translate }}-->
-  <!--    <select #langSelect (change)="translate.use(langSelect.value)">-->
-  <!--      <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>-->
-  <!--    </select>-->
-  <!--  </label>-->
-  <!--</div>-->
-
-  <!--<main>-->
-
-  <!--  <h2>{{ 'TITLE' | translate }}</h2>-->
-
-  <!--  <div>-->
-  <!--    <label>-->
-  <!--      {{ 'CHANGE_LANGUAGE' | translate }}-->
-  <!--      <select #langSelect (change)="translate.use(langSelect.value)">-->
-  <!--        <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>-->
-  <!--      </select>-->
-  <!--    </label>-->
-  <!--  </div>-->
-
-  <!--  <h3>{{ 'FEATURE1.TITLE' | translate }}</h3>-->
-
-  <!--  <h3>{{ 'FEATURE2.TITLE' | translate }}</h3>-->
-
-  <!--  <div>-->
-  <!--    <h2>Translation ({{ translate.currentLang }})</h2>-->
-  <!--    <pre>{{ translation$ | async | json }}</pre>-->
-  <!--  </div>-->
-
-  <!--</main>-->
-  <router-outlet></router-outlet>
+  <div class="main-container">
+    <router-outlet></router-outlet>
+  </div>
+  <footer class="footer">
+    <div>{{ 'title' | translate }} | version: {{ version }}. </div>
+    <div>
+      <span>Powered by </span>
+      <a href="https://radar-base.org/" target="_blank">RADAR-base</a>
+      <span> | </span>
+      <a class="github-link" href="https://github.com/RADAR-base/" target="_blank">
+        <img class="github-logo" src="assets/images/GitHub-Mark-120px-plus.png" alt="Github logo">
+      </a>
+    </div>
+  </footer>
 </ng-container>
+
 <ng-container *ngIf="mainLoading">
   <div class="loader-container" >
     <mat-spinner diameter="30"></mat-spinner>
-<!--    <div>-->
-<!--      <p>Loading ...</p>-->
-<!--    </div>-->
   </div>
 </ng-container>

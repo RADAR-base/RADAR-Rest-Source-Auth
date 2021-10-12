@@ -5,7 +5,6 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatMomentDateModule} from '@angular/material-moment-adapter';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatTableModule} from '@angular/material/table';
 import {MatSortModule} from '@angular/material/sort';
@@ -18,6 +17,8 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {MatListModule} from "@angular/material/list";
 
 @NgModule({
   exports: [
@@ -40,10 +41,11 @@ import {MatToolbarModule} from '@angular/material/toolbar';
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatMomentDateModule,
     MatCardModule,
     MatSelectModule,
     MatRadioModule,
+    MatProgressSpinnerModule,
+    MatListModule,
     ClipboardModule
   ],
 })

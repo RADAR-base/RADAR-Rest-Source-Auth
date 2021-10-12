@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {UserService} from "../../../admin/services/user.service";
-import {RegistrationResponse} from "../../../admin/models/rest-source-user.model";
-import {StorageItem} from "../../enums/storage-item";
+
+import {UserService} from "@app/admin/services/user.service";
+import {RegistrationResponse} from "@app/admin/models/rest-source-user.model";
+import {StorageItem} from "@app/shared/enums/storage-item";
 
 @Component({
   selector: 'app-authorization-page',

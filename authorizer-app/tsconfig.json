@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+//    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -19,6 +19,15 @@
       "es2018",
       "dom"
     ],
+    "baseUrl": "src",
+    "paths": {
+      "@app/*": ["app/*"],
+      "@environments/*": ["environments/*"],
+      "@assets/*": ["assets/*"]
+    },
+    "resolveJsonModule": true, //already there
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

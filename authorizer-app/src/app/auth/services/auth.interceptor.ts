@@ -3,11 +3,14 @@ import {Router} from "@angular/router";
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {BehaviorSubject, filter, Observable, switchMap, take, throwError} from 'rxjs';
 import {catchError} from "rxjs/operators";
-import {AuthService} from './auth.service';
-import {AuthResponse} from "../models/auth.model";
-import {AuthStateCommand} from "../enums/auth-state-command";
-import {environment} from "../../../environments/environment";
-import {StorageItem} from "../enums/storage-item";
+
+import {AuthService} from '@app/auth/services/auth.service';
+import {AuthResponse} from "@app/auth/models/auth.model";
+import {AuthStateCommand} from "@app/auth/enums/auth-state-command";
+import {StorageItem} from "@app/auth/enums/storage-item";
+import {AUTH_ROUTE} from "@app/auth/auth-routing.module";
+
+import {environment} from "@environments/environment";
 
 @Injectable({
   providedIn: "root"
@@ -34,7 +37,7 @@ export class AuthInterceptor implements HttpInterceptor {
           if (request.url === `${environment.authBaseUrl}/token`) {
             localStorage.setItem(StorageItem.RETURN_URL, this.router.routerState.snapshot.url)
             this.authService.logout();
-            this.router.navigate(['/login'], {state: {command: AuthStateCommand.SESSION_EXPIRED}}).finally();
+            this.router.navigate([AUTH_ROUTE.LOGIN], {state: {command: AuthStateCommand.SESSION_EXPIRED}}).finally();
           } else {
             return this.handle401Error(request, next);
           }

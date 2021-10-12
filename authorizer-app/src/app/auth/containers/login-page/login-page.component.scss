@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100% - 128px);
+  min-height: calc(100vh - 100px);
   text-align: center;
 }
 
@@ -16,8 +16,7 @@ mat-card {
   width: 400px;
 }
 
-mat-card-title,
-mat-card-content {
+mat-card-title {
   display: flex;
   justify-content: center;
 }
@@ -32,43 +31,10 @@ mat-card-content {
   stroke: #fff;
 }
 
-.message-box {
-  box-sizing: border-box;
-  width: 400px;
-  padding: 16px;
-  text-align: center;
-  margin-bottom: 32px;
-  color: white;
-}
-
-.error {
-  background-color: red;
-}
-
-.warn {
-  background-color: darkorange;
-}
-
-.info {
-  background-color: dodgerblue;
-}
-
 @media only screen and (max-width: 600px){
-  /*Big and Small Smartphones [320px -> 600px]*/
+  /* [320px -> 600px] */
   mat-card {
     width: calc(100% - 32px);
   }
-  .message-box{
-    width: calc(100% - 32px);
-  }
 }
 
-//@media only screen and (max-width: 1200px){
-//  /*Tablets [601px -> 1200px]*/
-//}
-//@media only screen and (max-width: 600px){
-//  /*Big smartphones [426px -> 600px]*/
-//}
-//@media only screen and (max-width: 425px){
-//  /*Small smartphones [325px -> 425px]*/
-//}

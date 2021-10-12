@@ -2,43 +2,78 @@ import {Component, Inject, OnDestroy} from '@angular/core';
 import {DatePipe} from "@angular/common";
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import {UserService} from "../../services/user.service";
-import { RestSourceUser } from '../../models/rest-source-user.model';
-import { environment } from "../../../../environments/environment";
 import {Subject, takeUntil} from "rxjs";
 import {TranslateService} from "@ngx-translate/core";
-// import {LocalizedDatePipe} from "../../pipes/localized-date.pipe";
 
+import { UserService } from "@app/admin/services/user.service";
+import { RestSourceUser } from '@app/admin/models/rest-source-user.model';
+
+import { environment } from "@environments/environment";
+
+// import {
+//   MAT_MOMENT_DATE_FORMATS,
+//   MomentDateAdapter,
+//   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+// } from '@angular/material-moment-adapter';
+// import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
+// import 'moment/locale/ja';
+// import 'moment/locale/en-gb';
+// import 'moment/locale/nl';
+// import 'moment/locale/fr';
+
+export enum SubjectDialogMode {
+  ADD = 'add',
+  VIEW = 'view',
+  EDIT = 'edit',
+  DELETE = 'delete'
+}
 @Component({
   selector: 'app-user-dialog',
   templateUrl: 'user-dialog.component.html',
-  styleUrls: ['user-dialog.component.scss']
+  styleUrls: ['user-dialog.component.scss'],
+  // providers: [
+  //   // The locale would typically be provided on the root module of your application. We do it at
+  //   // the component level here, due to limitations of our example generation script.
+  //   {provide: MAT_DATE_LOCALE, useValue: 'en-GB'},
+  //
+  //   // `MomentDateAdapter` and `MAT_MOMENT_DATE_FORMATS` can be automatically provided by importing
+  //   // `MatMomentDateModule` in your applications root module. We provide it at the component level
+  //   // here, due to limitations of our example generation script.
+  //   {
+  //     provide: DateAdapter,
+  //     useClass: MomentDateAdapter,
+  //     deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
+  //   },
+  //   {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
+  // ],
 })
 
 export class UserDialogComponent implements OnDestroy {
   linkGeneratingLoading = false;
   authorizationLoading = false;
   updateLoading = false;
+  deleteLoading = false;
 
   error?: any;
 
+  SubjectDialogMode = SubjectDialogMode;
   mode = this.data.mode;
   subject = this.data.subject;
 
   linkForUser?: string;
 
   form = this.fb.group({
-    sourceType: [{value: this.subject.sourceType, disabled: true}, Validators.required],
-    projectId: [{value: this.subject.projectId, disabled: true}],
-    userId: [{value: this.subject.userId, disabled: true}],
-    externalId: [{value: this.subject.externalId, disabled: true}],
-    startDate: [{value: this.subject.startDate, disabled: this.mode == 'view'}, Validators.required],
-    endDate: [{value: this.subject.endDate, disabled: this.mode == 'view'}],
-    isAuthorized: [{value: this.subject.isAuthorized, disabled: true}],
-    sourceId: [{value: this.subject.sourceId, disabled: true}],
-    serviceUserId: [{value: this.subject.serviceUserId, disabled: true}],
-    hasValidToken: [{value: this.subject.hasValidToken, disabled: true}],
-    timesReset: [{value: this.subject.timesReset, disabled: true}],
+    // sourceType: [{value: this.subject.sourceType, disabled: true}, Validators.required],
+    // projectId: [{value: this.subject.projectId, disabled: true}],
+    // userId: [{value: this.subject.userId, disabled: true}],
+    // externalId: [{value: this.subject.externalId, disabled: true}],
+    startDate: [{value: this.subject.startDate, disabled: this.mode == SubjectDialogMode.VIEW}, Validators.required],
+    endDate: [{value: this.subject.endDate, disabled: this.mode == SubjectDialogMode.VIEW}],
+    // isAuthorized: [{value: this.subject.isAuthorized, disabled: true}],
+    // sourceId: [{value: this.subject.sourceId, disabled: true}],
+    // serviceUserId: [{value: this.subject.serviceUserId, disabled: true}],
+    // hasValidToken: [{value: this.subject.hasValidToken, disabled: true}],
+    // timesReset: [{value: this.subject.timesReset, disabled: true}],
   });
 
   unsubscribe: Subject<void> = new Subject<void>();
@@ -181,5 +216,37 @@ export class UserDialogComponent implements OnDestroy {
       this.linkForUserMessage = translation['ADMIN.USER_DIALOG.linkForUserMessage'];
       this.linkForUserExpirationDate = translation['ADMIN.USER_DIALOG.linkForUserExpirationDate'];
     });
+  }
+
+  closeDeleteDialog(user?: RestSourceUser): void {
+    this.error = undefined;
+    // this.userService.deleteUser(user.id).subscribe({
+    //   next: () => {
+    //     console.log(`user ${user.id} deleted.`)
+    //     this.changeProject(this.form.value.projectId)
+    //   }
+    // })
+    if(!user || !user.id){
+      return this.dialogRef.close('closed');
+      // return;
+    }
+    this.deleteLoading = true;
+    this.userService.deleteUser(user.id)
+      .subscribe({
+        next: () => {
+          this.dialogRef.close('deleted');
+        },
+        error: (error) => {
+          this.handleError(error);
+          // console.log(error);
+          // this.error = error.error.description || error.message;
+          // if(error.error === 'invalid_token' && error.status === 401) {
+          //   this.dialogRef.close('error');
+          // }
+          // url: "https://radar-k3s-test.thehyve.net/managementportal/oauth/token"
+        },
+        complete: () => this.deleteLoading = false
+      });
+    // this.dialogRef.close();
   }
 }

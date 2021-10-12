@@ -10,24 +10,8 @@ export interface AuthResponse {
   roles: string[];
 }
 
-export interface AuthData {
-  token: string;
-  user: User;
-}
-
 export interface User {
   username: string;
   name: string;
   roles: string[];
-}
-export interface RequestTokenPayload {
-  code?: string;
-  oauth_token?: string;
-  oauth_verifier?: string;
-  state?: string;
-}
-
-export interface AuthorizationEndpoint {
-  url: string;
-  tokens?: string;
 }

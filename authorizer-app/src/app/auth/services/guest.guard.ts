@@ -2,7 +2,8 @@ import { Injectable } from "@angular/core";
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from "@angular/router";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import {AuthService} from "./auth.service";
+
+import {AuthService} from "@app/auth/services/auth.service";
 
 @Injectable()
 export class GuestGuard implements CanActivate {
@@ -15,7 +16,7 @@ export class GuestGuard implements CanActivate {
     return this.authService.isAuthorized().pipe(
       map(loggedIn => {
         if (loggedIn) {
-          this.router.navigate(["/"]).finally();
+          this.router.navigate(['/']).finally();
         }
         return !loggedIn;
       })

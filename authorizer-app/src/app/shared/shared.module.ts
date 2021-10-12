@@ -2,26 +2,25 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MaterialModule} from './material/material.module';
 import {RouterModule} from '@angular/router';
-import {ToolbarComponent} from "./components/toolbar/toolbar.component";
-import {AuthorizationPageComponent} from "./containers/authorization-page/authorization-page.component";
-import {AuthorizationCompletePageComponent} from "./containers/authorization-complete-page/authorization-complete-page.component";
-import {ErrorComponent} from "./components/error/error.component";
-import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {TranslateModule} from "@ngx-translate/core";
 
+import {ToolbarComponent} from "@app/shared/components/toolbar/toolbar.component";
+import {AuthorizationPageComponent} from "@app/shared/containers/authorization-page/authorization-page.component";
+import {AuthorizationCompletePageComponent} from "@app/shared/containers/authorization-complete-page/authorization-complete-page.component";
+import {MessageBoxComponent} from "@app/shared/components/message-box/message-box.component";
+
 @NgModule({
-  declarations: [ToolbarComponent, AuthorizationPageComponent, AuthorizationCompletePageComponent, ErrorComponent],
+  declarations: [ToolbarComponent, AuthorizationPageComponent, AuthorizationCompletePageComponent, MessageBoxComponent],
     imports: [
         CommonModule,
         RouterModule,
         MaterialModule,
-        MatProgressSpinnerModule,
         TranslateModule,
     ],
   exports: [
     MaterialModule,
     ToolbarComponent,
-    ErrorComponent,
+    MessageBoxComponent,
   ]
 })
 export class SharedModule { }

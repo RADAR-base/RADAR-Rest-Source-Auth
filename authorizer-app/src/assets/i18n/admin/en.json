@@ -7,6 +7,7 @@
     "endDate": "End Date",
     "authorized": "Authorized",
     "project": "Project",
+    "sourceClient": "Source Type",
     "sourceId": "Source ID",
     "serviceUserId": "Service Participant ID",
     "hasValidToken": "Has Valid Token",
@@ -15,14 +16,22 @@
     "no": "No",
     "yes": "Yes",
     "cancel": "Cancel",
-    "edit": "Edit",
-    "update": "Update"
+    "edit": "Edit Participant",
+    "update": "Update",
+    "pending": "Pending",
+    "unset": "Unset"
   },
   "DASHBOARD_PAGE": {
     "projectSelect": {
       "placeholder": "Select a Project",
       "error": "Project is required"
-    }
+    },
+    "sourceClientSelect": {
+      "placeholder": "Select a Source Type",
+      "error": "Source Type is required"
+    },
+    "noProject": "No project assign to you!",
+    "noSourceClient": "No Source Type Defined!"
   },
   "USERS_LIST": {
     "actions": "Actions",
@@ -44,12 +53,16 @@
     "startEndDate": "Start/End Dates",
     "startDatePlaceholder": "Enter Start Date",
     "endDatePlaceholder": "Enter End Date",
-    "startEndDateError": "Start Date is required",
     "sendThisLinkToUser": "Send this link to the Participant",
     "authorizeTheUser": "Authorize the Participant",
     "generateALinkForUser": "Generate a link for Participant",
     "linkForUserMessage": "Please click the link below to connect your Fitbit account to RADAR-base",
-    "linkForUserExpirationDate": "Expiration date"
+    "linkForUserExpirationDate": "Expiration date",
+    "error": {
+      "startDateRequired": "Start Date is required",
+      "startDateInvalid": "Start Date is not valid",
+      "endDateInvalid": "End Date is not valid"
+    }
   },
   "DELETE_DIALOG": {
     "title": "Warning!",

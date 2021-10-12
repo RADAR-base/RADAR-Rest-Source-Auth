@@ -21,8 +21,7 @@
 .link-for-user-container {
   display: flex;
   margin-bottom: 8px;
-  //width: 100%;
-  .link-for-user { //mat-form-field {
+  .link-for-user {
     flex-grow: 1;
     border: 1px solid rgba(0,0,0,0.7);
     border-radius: 5px;
@@ -30,9 +29,6 @@
     overflow-wrap: anywhere;
     margin: 0;
     white-space: pre-wrap
-    //textarea {
-    //  resize: none;
-    //}
   }
 }
 
@@ -41,12 +37,10 @@
   justify-content: space-between;
   width: 100%;
   div {
-    button {
-      margin-left: 8px;
-    }
+    display: flex;
+    gap: 8px;
   }
 }
-
 
 ::ng-deep.mat-form-field-appearance-outline.mat-form-field .mat-form-field-outline{
   color: rgba(0,0,0,0.7);
@@ -79,3 +73,60 @@
   color: rgba(0,0,0,1);
 }
 
+.ie7 dl.desc {
+  overflow: hidden;
+}
+
+.ie7 dt {
+  padding-bottom: 10px;
+  clear: both;
+}
+
+.ie7 dd {
+  margin-left: 40%;
+  overflow: hidden;
+}
+
+dl.desc {
+  border: 1px solid #eee;
+  display: flex;
+  flex-wrap: wrap;
+
+  dt,
+  dd {
+    box-sizing: border-box;
+    padding: 10px;
+  }
+  dd ~ dt,
+  dd ~ dd {
+    border-top: 1px solid #eee;
+  }
+  dt {
+    width: 35%;
+  }
+  dt:nth-of-type(even){
+    background-color: #fafafa;
+  }
+  dd {
+    margin: 0;
+    width: 65%;
+    border-left: 1px #eee;
+  }
+  dd:nth-of-type(even) {
+    background-color: #fafafa;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  /* [325px -> 600px] */
+  .action-buttons-container {
+    display: block;
+    justify-content: space-between;
+    width: 100%;
+
+    div {
+      display: flex;
+      gap: 0;
+    }
+  }
+}

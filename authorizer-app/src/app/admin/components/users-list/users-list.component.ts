@@ -1,32 +1,26 @@
-import {AfterViewInit, Component, Injectable, Input, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {MatPaginator, MatPaginatorIntl} from '@angular/material/paginator';
+import {
+  AfterViewInit,
+  Component, EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
+import {ActivatedRoute, Router} from "@angular/router";
+import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatDialog} from '@angular/material/dialog';
-import {MatSort} from '@angular/material/sort';
-import {
-  BehaviorSubject,
-  combineLatest,
-  distinctUntilChanged,
-  filter,
-  Observable,
-  Subject,
-  switchMap,
-  takeUntil
-} from "rxjs";
-import {map} from "rxjs/operators";
-import {SubjectService} from "../../services/subject.service";
-import {UserService} from "../../services/user.service";
-import {UserDialogComponent} from "../../containers/user-dialog/user-dialog.component";
-import {UserDeleteDialog} from "../../containers/user-delete-dialog/user-delete-dialog.component";
-import {RadarProject, RadarSourceType} from "../../models/rest-source-project.model";
-import {RestSourceUser} from '../../models/rest-source-user.model';
+import {MatSort, MatSortable, Sort} from '@angular/material/sort';
 import {MatBottomSheet} from "@angular/material/bottom-sheet";
-import {TranslateService} from "@ngx-translate/core";
-// import {SortAndFiltersComponent} from "../sort-and-filters/sort-and-filters.component";
 
-export interface UserData {
+import {SubjectService} from "@app/admin/services/subject.service";
+import {UserService} from "@app/admin/services/user.service";
+import {RestSourceUser} from '@app/admin/models/rest-source-user.model';
+
+export interface UserData extends RestSourceUser{
   [key: string]: any;
-  id: number;
+  id: string;
   projectId: string;
   userId: string;
   externalId: string;
@@ -54,26 +48,13 @@ export interface FilterItem {
   templateUrl: './users-list.component.html',
   styleUrls: ['./users-list.component.scss']
 })
-export class UsersListComponent implements OnInit, AfterViewInit, OnDestroy {
+export class UsersListComponent implements OnInit, AfterViewInit {
   loading = true;
   error?: any;
 
-  @Input()
-  projects: RadarProject[] = [];
-
-  @Input()
-  sourceTypes: RadarSourceType[] = [];
-
-  @Input('project') set project(project: string) { this.projectSubject.next(project); }
-  private projectSubject = new BehaviorSubject<string>('');
-
-  project$ = this.projectSubject.asObservable().pipe(
-      filter(p => !!p),
-      distinctUntilChanged(),
-    );
-
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort: MatSort = new MatSort();
+
   displayedColumns: string[] = [
     'userId',
     'externalId',
@@ -83,11 +64,8 @@ export class UsersListComponent implements OnInit, AfterViewInit, OnDestroy {
     'isAuthorized',
     'actions'
   ];
-  dataSource: MatTableDataSource<UserData> = new MatTableDataSource<UserData>();
 
-  updateTriggerSubject = new BehaviorSubject<string>('init');
-  subjects$?: Observable<RestSourceUser[]>;
-  users$?: Observable<RestSourceUser[]>;
+  dataSource: MatTableDataSource<UserData> = new MatTableDataSource<UserData>();
 
   filterValues: any = {}; // todo type
   filters: FilterItem[] = [
@@ -101,114 +79,68 @@ export class UsersListComponent implements OnInit, AfterViewInit, OnDestroy {
       name: 'ADMIN.USERS_LIST.filters.authorizedLabel',
       columnProp: 'isAuthorized',
       type: 'select',
-      options: [{value: true, label: 'ADMIN.GENERAL.yes'}, {value: false, label: 'ADMIN.GENERAL.no'}],
+      options: [{value: 'yes', label: 'ADMIN.GENERAL.yes'}, {value: 'pending', label: 'ADMIN.GENERAL.pending'}, {value: 'no', label: 'ADMIN.GENERAL.no'}, {value: 'unset', label: 'ADMIN.GENERAL.unset'}],
       width: 150,
     }
   ]
 
   @ViewChild('templateBottomSheet') TemplateBottomSheet!: TemplateRef<any>;
 
+  matSortActive!: string;
+  matSortDirection!: 'asc' | 'desc';
+
+  @Input('users') set users(users: RestSourceUser[]) { this.dataSource.data = users as UserData[]; }
+
+  @Output()
+  action: EventEmitter<any> = new EventEmitter<any>();
+
   constructor(
     private userService: UserService,
     private subjectService: SubjectService,
     public dialog: MatDialog,
     private bottomSheet: MatBottomSheet,
-    // private translateService: TranslateService,
-  ) {
-    // this.translateService.get(['']).subscribe(translations => {
-    //   console.info(this.translateService.instant('ADMIN.USERS_LIST.filters.userIdLabel'));
-    //   // console.info(this.translateService.instant('AD'));
-    //   // console.info(this.translateService.instant('key2'));
-    //   // console.info(this.translateService.instant('key3'));
-    // });
-  }
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
-  openTemplateSheetMenu() {
-    this.bottomSheet.open(this.TemplateBottomSheet);
-  }
 
-  closeTemplateSheetMenu() {
-    this.bottomSheet.dismiss();
-  }
-
-  ngOnInit() {
-    // this.dataSource = new MatTableDataSource<UserData>();
-  }
-
-  ngOnDestroy() {
-    this.updateTriggerSubject.complete();
-  }
+  ngOnInit() {}
 
   ngAfterViewInit() {
     this.applyTableSort();
     this.dataSource.paginator = this.paginator;
     this.dataSource.filterPredicate = this.createTableFilterPredicate();
-    this.loadTableData();
-  }
-
-  loadTableData(): void {
-    combineLatest([this.updateTriggerSubject, this.project$]).pipe(
-      switchMap(
-        ([_, project]) => this.loadAndModifyUsers(project)
-      )
-    ).subscribe({
-      next: users => {
-        console.log(users);
-        this.dataSource.data = users;
-        this.loading = false;
-      },
-      error: (error) => {
-        this.error = error;
-        this.loading = false;
-      }
-    });
-  }
-
-  loadAndModifyUsers(project: string): Observable<UserData[]> {
-    this.subjects$ = this.subjectService.getSubjectsOfProjects(project);
-    this.users$ = this.userService.getUsersOfProject(project).pipe(
-      map(resp => resp.users)
-    );
-    return combineLatest([this.subjects$, this.users$]).pipe(
-      map(([subjects, users]) => {
-        const newSubjects: any[] = [];
-        subjects.map(subject => {
-          this.sourceTypes.map((sourceType: any) => {
-            const newSubject = {...subject, sourceType: sourceType.sourceType}
-            newSubjects.push(newSubject)
-          })
-        });
-        return newSubjects.map(subject => {
-          const user = users.filter(user => {
-            return user.userId === subject.id && user.sourceType === subject.sourceType
-          })[0];
-          return {
-            ...subject,
-            id: null,
-            ...user,
-            userId: subject.id,
-            isAuthorized: !user?.isAuthorized ? false : user.isAuthorized
-          }
-        })
-      }),
-    )
-    // return this.userService.getUsersOfProject(project).pipe(
-    //     catchError(() => of({users: [], metadata: { pageNumber: 1, pageSize: page.pageSize, totalElements: 0 }} as RestSourceUsers)),
-    //   );
+    setTimeout(() => this._initialSetup());
+    this.listenToStateChangeEvents();
   }
 
   //#region Sort and Filter
   applyTableSort(): void {
     this.dataSource.sort = this.sort;
+    console.log(this.dataSource.sort);
     this.dataSource.sortingDataAccessor = (item: UserData, property: string) => {
       if(property === 'isAuthorized'){
-        return item[property].toString().toLocaleLowerCase();
+        if (item[property]) {
+          return 1; //'Yes';
+        } else {
+          if (item.id) {
+            if (item.registrationCreatedAt) {
+              return 2; //'Pending';
+            }else {
+              return 3; //'No';
+            }
+          } else {
+            return 4; //'Unset';
+          }
+        }
+      }
+      if(property === 'startDate' || property === 'endDate'){
+        return item[property]? new Date(item[property]) : null;
       }
       return item[property].toLocaleLowerCase();
     };
   }
 
-  // Custom filter method fot Angular Material Datatable
   createTableFilterPredicate() {
     return function (data: UserData, filter: string): boolean {
       let searchTerms = JSON.parse(filter);
@@ -233,7 +165,21 @@ export class UsersListComponent implements OnInit, AfterViewInit, OnDestroy {
               }
               break;
             case 'isAuthorized':
-              if (data[key] !== searchTerms[key]){
+              let isAuthorized = 'yes';
+              if (data.isAuthorized) {
+                isAuthorized = 'yes';
+              } else {
+                if (data.id) {
+                  if (data.registrationCreatedAt) {
+                    isAuthorized = 'pending';
+                  }else {
+                    isAuthorized = 'no';
+                  }
+                } else {
+                  isAuthorized = 'unset';
+                }
+              }
+              if (isAuthorized !== searchTerms[key]){
                 return false;
               }
               break;
@@ -245,125 +191,125 @@ export class UsersListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   filterChange(filter: any, event: any) {
-    console.log(event)
-    console.log(event.value)
-    this.filterValues[filter.columnProp] = event.value; //filterValue; //.trim().toLowerCase()
-    this.dataSource.filter = JSON.stringify(this.filterValues)
+    this.filterValues[filter.columnProp] = event.value;
+    this.dataSource.filter = JSON.stringify(this.filterValues);
+    this.applyStateChangesToUrlQueryParams({[filter.columnProp]: event.value})
   }
 
-  // Reset table filters
   resetFilters() {
     this.filterValues = {}
-    this.filters.forEach((value: any, key: any) => {
+    this.filters.forEach((value: any, _: any) => {
       value.modelValue = undefined;
     })
     this.dataSource.filter = "";
+    this.applyStateChangesToUrlQueryParams({isAuthorized: null, userId: null});
   }
   //#endregion
 
   //#region User Actions
-  openRemoveAuthorizationDialog(restSourceUser: RestSourceUser) {
-    const dialogRef = this.dialog.open(UserDeleteDialog, {
-      data: {subject: restSourceUser},
-      // width: "50%",
-      disableClose: true
-    });
-
-    dialogRef.afterClosed().subscribe({
-      next: (command) => {
-        if(command === 'deleted'){
-          console.log(command, 'DEL');
-          this.updateTriggerSubject.next('deleted');
-        } else {
-        }
-      },
-      error: (error) => this.error = error
-    });
-  }
-
   openSubjectDialog(mode: string, user: RestSourceUser) {
-
-    const dialogRef = this.dialog.open(UserDialogComponent, {
-      data: {subject: user, mode},
-      panelClass: 'full-width-dialog',
-      // width: "50%",
-      disableClose: true
-    });
-
-    dialogRef.afterClosed().subscribe({
-      next: (command) => {
-        if(command === 'updated'){
-          console.log(command, 'UPD');
-          this.updateTriggerSubject.next('updated');
-        } else {
-        }
-      },
-      error: (error) => this.error = error
-    });
+    this.action.emit({mode, user});
   }
   //#endregion
+
+  private _initialSetup(): void {
+    this.checkActivePageQuery();
+    this.checkActiveSortQuery();
+    this.checkActiveFilterQuery();
+  }
+
+  private checkActiveFilterQuery(): void {
+    const queryParams = this.activatedRoute.snapshot.queryParams;
+    if (queryParams.hasOwnProperty('userId') || queryParams.hasOwnProperty('isAuthorized')) {
+      this.filters.forEach((value: any, _: any) => {
+        if(value.columnProp === 'userId'){
+          if (queryParams.userId) {
+            value.modelValue = queryParams.userId;
+            this.filterValues.userId = queryParams.userId;
+          } else {
+            value.modelValue = undefined;
+            this.filterValues.userId = undefined;
+          }
+        }
+        if(value.columnProp === 'isAuthorized') {
+          if (queryParams.isAuthorized) {
+            value.modelValue = queryParams.isAuthorized;
+            this.filterValues.isAuthorized = queryParams.isAuthorized;
+          } else {
+            value.modelValue = undefined;
+            this.filterValues.isAuthorized = undefined;
+          }
+        }
+      })
+      this.dataSource.filter = JSON.stringify(this.filterValues);
+    }
+  }
+
+  private checkActiveSortQuery(): void {
+    const queryParams = this.activatedRoute.snapshot.queryParams;
+    if (queryParams.hasOwnProperty('sortField') && queryParams.hasOwnProperty('sortOrder')) {
+      const sortActiveColumn = queryParams.sortField || this.matSortActive;
+      const sortable: MatSortable = {
+        id: sortActiveColumn,
+        start: queryParams.sortOrder || this.matSortDirection,
+        disableClear: true
+      };
+      this.dataSource.sort!.sort(sortable);
+
+      const activeSortHeader: any = this.dataSource.sort!.sortables.get(sortActiveColumn);
+      if (!activeSortHeader) { return; }
+      activeSortHeader['_setAnimationTransitionState']({
+        fromState: this.dataSource.sort!.direction,
+        toState: 'active',
+      });
+    }
+  }
+
+  private checkActivePageQuery(): void {
+    const queryParams = this.activatedRoute.snapshot.queryParams;
+    if (queryParams.hasOwnProperty('pageSize') && queryParams.hasOwnProperty('pageIndex')) {
+      this.dataSource.paginator!.pageIndex = queryParams.pageIndex;
+      this.dataSource.paginator!.pageSize = queryParams.pageSize;
+
+      this.dataSource.paginator!.page.next({
+        pageIndex: queryParams.pageIndex,
+        pageSize: queryParams.pageSize,
+        length: this.dataSource.paginator!.length
+      });
+    }
+  }
+
+  private listenToStateChangeEvents(): void {
+    this.dataSource.sort!.sortChange
+      .subscribe((sortChange: Sort) => {
+        this.applyStateChangesToUrlQueryParams({
+          sortField: sortChange.direction? sortChange.active || null : null,
+          sortOrder: sortChange.direction || null,
+        });
+      });
+
+    this.dataSource.paginator!.page
+      .subscribe((pageChange: PageEvent) => {
+        this.applyStateChangesToUrlQueryParams({
+          pageSize: pageChange.pageSize,
+          pageIndex: pageChange.pageIndex,
+        })
+      });
+  }
+
+  private applyStateChangesToUrlQueryParams(queryParams: any): void {
+    this.router.navigate([], { queryParams: queryParams, queryParamsHandling: 'merge' }).finally();
+  }
+
+  openTemplateSheetMenu() {
+    this.bottomSheet.open(this.TemplateBottomSheet);
+  }
+
+  // closeTemplateSheetMenu() {
+  //   this.bottomSheet.dismiss();
+  // }
 
   // openBottomSheet(): void {
   //   this._bottomSheet.open(SortAndFiltersComponent);
   // }
-
-}
-
-@Injectable()
-export class CustomMatPaginatorIntl extends MatPaginatorIntl
-  implements OnDestroy {
-  unsubscribe: Subject<void> = new Subject<void>();
-  OF_LABEL = 'of';
-
-  constructor(private translate: TranslateService) {
-    super();
-
-    this.translate.onLangChange.pipe(
-      takeUntil(this.unsubscribe)
-    ).subscribe(() => {
-      this.getAndInitTranslations();
-    });
-
-    this.getAndInitTranslations();
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe.next();
-    this.unsubscribe.complete();
-  }
-
-  getAndInitTranslations() {
-    this.translate
-      .get([
-        'ADMIN.USERS_LIST.PAGINATOR.ITEMS_PER_PAGE',
-        'ADMIN.USERS_LIST.PAGINATOR.NEXT_PAGE',
-        'ADMIN.USERS_LIST.PAGINATOR.PREVIOUS_PAGE',
-        'ADMIN.USERS_LIST.PAGINATOR.OF_LABEL',
-      ]).pipe(
-        takeUntil(this.unsubscribe)
-      ).subscribe(translation => {
-        this.itemsPerPageLabel =
-          translation['ADMIN.USERS_LIST.PAGINATOR.ITEMS_PER_PAGE'];
-        this.nextPageLabel = translation['ADMIN.USERS_LIST.PAGINATOR.NEXT_PAGE'];
-        this.previousPageLabel =
-          translation['ADMIN.USERS_LIST.PAGINATOR.PREVIOUS_PAGE'];
-        this.OF_LABEL = translation['ADMIN.USERS_LIST.PAGINATOR.OF_LABEL'];
-        this.changes.next();
-      });
-  }
-
-  getRangeLabel = (page: number, pageSize: number, length: number) => {
-    if (length === 0 || pageSize === 0) {
-      return `0 ${this.OF_LABEL} ${length}`;
-    }
-    length = Math.max(length, 0);
-    const startIndex = page * pageSize;
-    const endIndex =
-      startIndex < length
-        ? Math.min(startIndex + pageSize, length)
-        : startIndex + pageSize;
-    return `${startIndex + 1} - ${endIndex} ${
-      this.OF_LABEL
-    } ${length}`;
-  };
 }

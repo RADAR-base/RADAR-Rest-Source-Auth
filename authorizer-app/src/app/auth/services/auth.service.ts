@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthResponse, User } from '../models/auth.model';
-import {StorageItem} from "../enums/storage-item";
+
+import { AuthResponse, User } from '@app/auth/models/auth.model';
+import {StorageItem} from "@app/auth/enums/storage-item";
 
 @Injectable()
 export class AuthService {

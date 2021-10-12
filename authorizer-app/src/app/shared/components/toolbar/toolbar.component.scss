@@ -2,51 +2,48 @@ mat-toolbar {
   position: sticky;
   top: 0;
   z-index: 2;
-  width: 100%;
   overflow: hidden;
 }
 
-mat-toolbar-row{
-  display: flex;
-}
-
-.title {
-  text-transform: uppercase;
-  text-align: center !important;
-  flex: 1 1 auto;
-}
-
-.logo-wrapper{
-  padding: 8px 0;
-}
-
-.logo {
-  display: block;
-  height: 48px;
-}
-
-.left-box.box, .right-box.box {
+.left-box, .right-box {
   flex: 1;
   display: flex;
-  min-width: -webkit-min-content;
 }
 
-.right-box.box {
+.right-box {
   justify-content: flex-end;
 }
 
+.logo {
+  height: 48px;
+}
+
+mat-icon + span {
+  margin: 0 8px;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
 @media only screen and (max-width: 1200px){
-  /*Tablets [601px -> 1200px]*/
+  /* [320px -> 1200px] */
   .title {
     font-size: 14px;
   }
+
   .logo {
     height: 32px;
   }
 }
-//@media only screen and (max-width: 600px){
-//  /*Big smartphones [426px -> 600px]*/
-//}
-//@media only screen and (max-width: 425px){
-//  /*Small smartphones [325px -> 425px]*/
-//}
+
+@media only screen and (max-width: 600px){
+  /* [320px -> 600px] */
+  .logo-wrapper {
+    display: none;
+  }
+
+  .mat-button {
+    padding: 0 4px;
+  }
+}

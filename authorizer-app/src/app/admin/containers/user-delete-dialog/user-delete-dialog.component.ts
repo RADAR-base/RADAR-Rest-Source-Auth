@@ -1,14 +1,8 @@
-import {
-  Component,
-  Inject,
-} from '@angular/core';
-// import {
-//   MAT_DIALOG_DATA,
-//   MatDialogRef,
-// } from '@angular/material';
-import { RestSourceUser } from '../../models/rest-source-user.model';
+import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {UserService} from "../../services/user.service";
+
+import { RestSourceUser } from '@app/admin/models/rest-source-user.model';
+import {UserService} from "@app/admin/services/user.service";
 
 @Component({
   selector: 'app-delete-dialog',

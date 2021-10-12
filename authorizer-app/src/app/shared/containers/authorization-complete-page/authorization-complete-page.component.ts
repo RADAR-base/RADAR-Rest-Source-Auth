@@ -1,8 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {UserService} from "../../../admin/services/user.service";
-import {AuthService} from "../../../auth/services/auth.service";
-import {StorageItem} from "../../enums/storage-item";
+
+import {UserService} from "@app/admin/services/user.service";
+import {AuthService} from "@app/auth/services/auth.service";
+import {StorageItem} from "@app/shared/enums/storage-item";
+import {AUTH_ROUTE} from "@app/auth/auth-routing.module";
 
 @Component({
   selector: 'app-authorization-complete-page',
@@ -51,6 +53,6 @@ export class AuthorizationCompletePageComponent implements OnInit {
   }
 
   redirect() {
-    this.router.navigateByUrl('/login').finally()
+    this.router.navigateByUrl(AUTH_ROUTE.LOGIN).finally()
   }
 }

@@ -1,9 +1,11 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { RadarProject } from '../models/rest-source-project.model';
-import { environment } from '../../../environments/environment';
+import {map, shareReplay} from 'rxjs/operators';
+
+import { RadarProject } from '@app/admin/models/radar-entities.model';
+
+import { environment } from '@environments/environment';
 
 @Injectable()
 export class ProjectService {
@@ -14,7 +16,8 @@ export class ProjectService {
     return this.http.get<{projects: RadarProject[]}>(
       environment.backendBaseUrl + '/projects'
     ).pipe(
-      map(result => result.projects)
+      map(result => result.projects),
+      shareReplay()
     );
   }
 }

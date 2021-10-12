@@ -1,6 +1,6 @@
 {
   "GENERAL": {
-    "userId": "gebruikersnaam",
+    "userId": "Gebruikersnaam",
     "externalId": "Externe gebruikers-ID",
     "sourceType": "Bron Type",
     "startDate": "Startdatum",
@@ -8,6 +8,7 @@
     "authorized": "Geautoriseerd",
     "project": "Project",
     "sourceId": "Bron-ID",
+    "sourceClient": "Bron Type",
     "serviceUserId": "Gebruikers-ID service",
     "hasValidToken": "Heeft geldige token",
     "timesReset": "Tijden resetten",
@@ -16,12 +17,18 @@
     "yes": "Ja",
     "cancel": "Annuleren",
     "edit": "Bewerking",
-    "update": "Update"
+    "update": "Update",
+    "pending": "In afwachting",
+    "unset": "Uitgeschakeld"
   },
   "DASHBOARD_PAGE": {
     "projectSelect": {
       "placeholder": "Selecteer een project",
       "error": "Project is vereist"
+    },
+    "sourceClientSelect": {
+      "placeholder": "Selecteer een Bron Type",
+      "error": "Bron Type is vereist"
     }
   },
   "USERS_LIST": {
@@ -49,7 +56,12 @@
     "authorizeTheUser": "Autoriseer de gebruiker",
     "generateALinkForUser": "Genereer een link voor Gebruiker",
     "linkForUserMessage": "Klik op de onderstaande link om je Fitbit-account te verbinden met RADAR-base",
-    "linkForUserExpirationDate": "Vervaldatum"
+    "linkForUserExpirationDate": "Vervaldatum",
+    "error": {
+      "startDateRequired": "Startdatum is vereist",
+      "startDateInvalid": "Startdatum is niet geldig",
+      "endDateInvalid": "Einddatum is niet geldig"
+    }
   },
   "DELETE_DIALOG": {
     "title": "Waarschuwing!",

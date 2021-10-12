@@ -1,24 +1,21 @@
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
 import {
   AuthorizeRequest,
   RegistrationCreateRequest, RegistrationRequest, RegistrationResponse,
   RestSourceUser, RestSourceUserRequest, RestSourceUserResponse,
   RestSourceUsers
-} from '../models/rest-source-user.model';
+} from '@app/admin/models/rest-source-user.model';
+import {createRequestOption} from '@app/shared/utilities/request.util';
 
-import { Injectable } from '@angular/core';
-import {Observable} from 'rxjs';
-import {environment} from '../../../environments/environment';
-import {createRequestOption} from '../../shared/utilities/request.util';
-import {RequestTokenPayload} from '../../auth/models/auth.model';
+import {environment} from '@environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private serviceUrl = environment.backendBaseUrl;
-  AUTH_ENDPOINT_PARAMS_STORAGE_KEY = 'auth_endpoint_params';
-  AUTH_SOURCE_TYPE_STORAGE_KEY = 'auth_source_type';
 
   constructor(private http: HttpClient) {}
 
@@ -31,53 +28,45 @@ export class UserService {
     return this.http.get<RestSourceUsers>(environment.backendBaseUrl + '/users', { params });
   }
 
-  updateUser(sourceUser: RestSourceUser): Observable<any> {
-    return this.http.post(this.serviceUrl + '/users/' + sourceUser.id, sourceUser);
-  }
-
-  addAuthorizedUser(payload: RequestTokenPayload): Observable<any> {
-    const sourceType = localStorage.getItem(this.AUTH_SOURCE_TYPE_STORAGE_KEY);
-    const redirectParams = JSON.parse(
-      <string>localStorage.getItem(this.AUTH_ENDPOINT_PARAMS_STORAGE_KEY)
-    );
-    const newPayload = Object.assign(
-      {},
-      payload,
-      { sourceType },
-      redirectParams
-    );
-    return this.http.post(this.serviceUrl, newPayload, {
-      responseType: 'json'
-    });
-  }
-
-  getUserById(userId: string): Observable<RestSourceUser> {
-    return this.http.get<RestSourceUser>(this.serviceUrl + '/users/' + userId);
-  }
-
-  deleteUser(userId: string): Observable<any> {
-    return this.http.delete(this.serviceUrl + '/users/' + userId);
-  }
-
-  resetUser(user: RestSourceUser): Observable<any> {
-    // return this.http.post(this.serviceUrl + '/users/' + user.id + '/reset', user);
-    return this.http.post(this.serviceUrl + '/users/' + user.id, user);
-  }
-
-  // --
   createUser(restSourceUserRequest: RestSourceUserRequest): Observable<RestSourceUserResponse> {
-    return this.http.post<RestSourceUserResponse>(this.serviceUrl + '/users', restSourceUserRequest);
+    return this.http.post<RestSourceUserResponse>(
+      environment.backendBaseUrl + '/users',
+      restSourceUserRequest
+    );
   }
 
   registerUser(registrationCreateRequest: RegistrationCreateRequest): Observable<RegistrationResponse> {
-    return this.http.post<RegistrationResponse>(this.serviceUrl + '/registrations', registrationCreateRequest);
+    return this.http.post<RegistrationResponse>(
+      environment.backendBaseUrl + '/registrations',
+      registrationCreateRequest
+    );
   }
 
   authorizeUser(authorizeRequest: AuthorizeRequest, state: string): Observable<RegistrationResponse> {
-    return this.http.post<RegistrationResponse>(this.serviceUrl + '/registrations/' + state + '/authorize', authorizeRequest);
+    const url = encodeURI(
+      environment.backendBaseUrl + '/registrations/' + state + '/authorize'
+    );
+    return this.http.post<RegistrationResponse>(url, authorizeRequest);
   }
 
   getAuthEndpointUrl(registrationRequest: RegistrationRequest, token: string): Observable<RegistrationResponse> {
-    return this.http.post<RegistrationResponse>(this.serviceUrl + '/registrations/' + token, registrationRequest);
+    const url = encodeURI(
+      environment.backendBaseUrl + '/registrations/' + token
+    );
+    return this.http.post<RegistrationResponse>(url, registrationRequest);
+  }
+
+  resetUser(user: RestSourceUser): Observable<any> {
+    const url = encodeURI(
+      environment.backendBaseUrl + '/users/' + user.id
+    );
+    return this.http.post(url, user);
+  }
+
+  deleteUser(userId: string): Observable<any> {
+    const url = encodeURI(
+      environment.backendBaseUrl + '/users/' + userId
+    );
+    return this.http.delete(url);
   }
 }
