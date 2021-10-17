@@ -22,9 +22,9 @@
         <button *ngFor="let language of languages"
                 class="language-item"
                 mat-menu-item
-                (click)="switchLanguage(language)"
+                (click)="switchLanguage(language.lang)"
         >
-          <span class="uppercase">{{ language }}</span>
+          <span class="uppercase">{{ language.label }}</span>
         </button>
       </mat-menu>
 

@@ -1,19 +1,36 @@
 <div mat-dialog-title>
   <div class="dialog-title-wrapper">
     <div>
-      <p *ngIf="mode===SubjectDialogMode.EDIT">{{ 'ADMIN.GENERAL.edit' | translate }}</p>
-      <p *ngIf="mode===SubjectDialogMode.VIEW">{{ 'ADMIN.GENERAL.userId' | translate }}</p>
-      <p *ngIf="mode===SubjectDialogMode.ADD">{{ 'ADMIN.USER_DIALOG.linkUserExternalDevice' | translate }}</p>
-      <p *ngIf="mode===SubjectDialogMode.DELETE">{{ 'ADMIN.DELETE_DIALOG.title' | translate }}</p>
+      <p *ngIf="mode===SubjectDialogMode.EDIT">
+        {{ 'ADMIN.USER_DIALOG.EDIT.title' | translate }}
+      </p>
+      <p *ngIf="mode===SubjectDialogMode.VIEW">
+        {{ 'ADMIN.USER_DIALOG.VIEW.title' | translate }}
+      </p>
+      <p *ngIf="mode===SubjectDialogMode.ADD">
+        {{ 'ADMIN.USER_DIALOG.ADD.title' | translate:{sourceType: subject.sourceType} }}
+      </p>
+      <p *ngIf="mode===SubjectDialogMode.DELETE">
+        {{ 'ADMIN.USER_DIALOG.DELETE.title' | translate }}
+      </p>
     </div>
-    <button mat-icon-button class="close-button" [mat-dialog-close]="true" (click)="closeDialog()">
+
+    <button mat-icon-button
+            class="close-button"
+            [mat-dialog-close]="true"
+            (click)="close(mode)"
+    >
       <mat-icon class="close-icon">close</mat-icon>
     </button>
   </div>
-  <app-message *ngIf="error" [message]="error"></app-message>
+  <app-message *ngIf="error">
+    {{error | translate}}
+  </app-message>
 </div>
 
-<p *ngIf="mode===SubjectDialogMode.DELETE">{{ 'ADMIN.DELETE_DIALOG.description' | translate }}:</p>
+<p *ngIf="mode===SubjectDialogMode.DELETE">
+  {{ 'ADMIN.USER_DIALOG.DELETE.desc' | translate }}:
+</p>
 
 <dl class="desc">
   <dt>{{ 'ADMIN.GENERAL.userId' | translate }}</dt>
@@ -25,57 +42,108 @@
   <dt>{{ 'ADMIN.GENERAL.project' | translate }}</dt>
   <dd>{{ subject.projectId }}</dd>
 
-  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.isAuthorized != null">
-    <dt>{{ 'ADMIN.GENERAL.authorized' | translate }}</dt>
-    <dd *ngIf="subject.isAuthorized">{{ 'ADMIN.GENERAL.yes' | translate }}</dd>
-    <dd *ngIf="!subject.isAuthorized && subject.registrationCreatedAt">{{ 'ADMIN.GENERAL.pending' | translate }} ({{subject.registrationCreatedAt | date:'dd/MM/y HH:mm:ss'}})</dd>
-    <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && subject.id">{{ 'ADMIN.GENERAL.no' | translate }}</dd>
-    <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && !subject.id">{{ 'ADMIN.GENERAL.unset' | translate }}</dd>
-  </ng-container>
+  <ng-container *ngIf="mode!==SubjectDialogMode.DELETE">
+    <ng-container *ngIf="subject.isAuthorized != null">
+      <dt>{{ 'ADMIN.GENERAL.authorized' | translate }}</dt>
+      <dd *ngIf="subject.isAuthorized">
+        {{ 'ADMIN.USERS_LIST.authorizationStatus.yes' | translate }}
+      </dd>
+      <dd *ngIf="!subject.isAuthorized && subject.registrationCreatedAt">
+        {{ 'ADMIN.USERS_LIST.authorizationStatus.pending' | translate }}
+      </dd>
+      <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && subject.id">
+        {{ 'ADMIN.USERS_LIST.authorizationStatus.no' | translate }}
+      </dd>
+      <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && !subject.id">
+        {{ 'ADMIN.USERS_LIST.authorizationStatus.unset' | translate }}
+      </dd>
+    </ng-container>
 
-  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.sourceId">
-    <dt>{{ 'ADMIN.GENERAL.sourceId' | translate }}</dt>
-    <dd>{{ subject.sourceId }}</dd>
-  </ng-container>
+    <ng-container *ngIf="!subject.isAuthorized && subject.registrationCreatedAt != null">
+      <dt>{{ 'ADMIN.GENERAL.registrationCreatedAt' | translate }}</dt>
+      <dd>{{subject.registrationCreatedAt | date:'short':undefined:locale}}</dd>
+    </ng-container>
 
-  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.hasValidToken != null">
-    <dt>{{ 'ADMIN.GENERAL.hasValidToken' | translate }}</dt>
-    <dd>{{ subject.hasValidToken? ('ADMIN.GENERAL.yes' | translate) : ('ADMIN.GENERAL.no' | translate) }}</dd>
-  </ng-container>
+    <ng-container *ngIf="subject.sourceId">
+      <dt>{{ 'ADMIN.GENERAL.sourceId' | translate }}</dt>
+      <dd>{{ subject.sourceId }}</dd>
+    </ng-container>
 
-  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.serviceUserId">
-    <dt>{{ 'ADMIN.GENERAL.serviceUserId' | translate }}</dt>
-    <dd>{{ subject.serviceUserId }}</dd>
-  </ng-container>
+    <ng-container *ngIf="subject.hasValidToken != null">
+      <dt>{{ 'ADMIN.GENERAL.hasValidToken' | translate }}</dt>
+      <dd>{{ subject.hasValidToken? ('ADMIN.GENERAL.yes' | translate) : ('ADMIN.GENERAL.no' | translate) }}</dd>
+    </ng-container>
 
-  <ng-container *ngIf="mode!==SubjectDialogMode.ADD && mode!==SubjectDialogMode.DELETE && subject.timesReset != null">
-    <dt>{{ 'ADMIN.GENERAL.timesReset' | translate }}</dt>
-    <dd>{{ subject.timesReset }}</dd>
+    <ng-container *ngIf="subject.serviceUserId">
+      <dt>{{ 'ADMIN.GENERAL.serviceUserId' | translate }}</dt>
+      <dd>{{ subject.serviceUserId }}</dd>
+    </ng-container>
+
+    <ng-container *ngIf="subject.timesReset != null">
+      <dt>{{ 'ADMIN.GENERAL.timesReset' | translate }}</dt>
+      <dd>{{ subject.timesReset }}</dd>
+    </ng-container>
   </ng-container>
 
 </dl>
 
-<p *ngIf="mode===SubjectDialogMode.DELETE">{{ 'ADMIN.DELETE_DIALOG.warningMessage' | translate }}</p>
+<p *ngIf="mode===SubjectDialogMode.DELETE">
+  {{ 'ADMIN.USER_DIALOG.DELETE.warningMessage' | translate }}
+</p>
 
 <form *ngIf="mode!==SubjectDialogMode.DELETE" [formGroup]="form" novalidate>
   <mat-dialog-content>
-    <mat-form-field *ngIf="mode!==SubjectDialogMode.VIEW || (subject.startDate || subject.endDate)" appearance="outline" floatLabel="always">
-      <mat-label>{{ 'ADMIN.USER_DIALOG.startEndDate' | translate }}</mat-label>
+    <mat-form-field appearance="outline" floatLabel="always">
+      <mat-label>{{ 'ADMIN.USER_DIALOG.startEndDate' | translate }} ({{dateFormatHint}})</mat-label>
       <mat-date-range-input [rangePicker]="picker" required>
-        <input matStartDate formControlName="startDate" [placeholder]="'ADMIN.USER_DIALOG.startDatePlaceholder' | translate" >
-        <input matEndDate formControlName="endDate" [placeholder]="'ADMIN.USER_DIALOG.endDatePlaceholder' | translate" >
+        <input matStartDate formControlName="startDate"
+               [placeholder]="'ADMIN.USER_DIALOG.startDatePlaceholder' | translate" >
+        <input matEndDate formControlName="endDate"
+               [placeholder]="'ADMIN.USER_DIALOG.endDatePlaceholder' | translate" >
       </mat-date-range-input>
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
-      <mat-error *ngIf="form.controls.startDate.hasError('matStartDateInvalid')">{{ 'ADMIN.USER_DIALOG.error.startDateInvalid' | translate }}</mat-error>
-      <mat-error *ngIf="form.controls.endDate.hasError('matEndDateInvalid')">{{ 'ADMIN.USER_DIALOG.error.endDateInvalid' | translate }}</mat-error>
-      <mat-error *ngIf="form.controls.startDate.errors?.required">{{ 'ADMIN.USER_DIALOG.error.startDateRequired' | translate }}</mat-error>
+      <mat-error *ngIf="form.controls.startDate.errors || form.controls.endDate.errors" class="date-errors">
+        <span *ngIf="form.controls.startDate.errors?.required">
+          {{ 'ADMIN.USER_DIALOG.error.startDateRequired' | translate }}
+        </span>
+        <span *ngIf="form.controls.startDate.hasError('matStartDateInvalid')">
+          {{ 'ADMIN.USER_DIALOG.error.startDateInvalid' | translate }}
+        </span>
+        <span *ngIf="form.controls.startDate.hasError('matDatepickerParse')">
+          {{ 'ADMIN.USER_DIALOG.error.startDateInvalid' | translate }}
+        </span>
+        <span *ngIf="form.controls.endDate.hasError('matEndDateInvalid')">
+          {{ 'ADMIN.USER_DIALOG.error.endDateInvalid' | translate }}
+        </span>
+        <span *ngIf="form.controls.endDate.hasError('matDatepickerParse')">
+          {{ 'ADMIN.USER_DIALOG.error.endDateInvalid' | translate }}
+        </span>
+      </mat-error>
     </mat-form-field>
-
-    <p *ngIf="linkForUser" class="full-width link-for-user-label">{{ 'ADMIN.USER_DIALOG.sendThisLinkToUser' | translate }}</p>
-    <div *ngIf="linkForUser" class="full-width link-for-user-container">
-      <p class="link-for-user">{{linkForUser}}</p>
-      <button mat-icon-button [cdkCopyToClipboard]="linkForUser" aria-label="Copy to clipboard" >
+    <p *ngIf="messageForUserLink && messageForUserExpirationDate" class="full-width message-for-user-label">
+      {{ 'ADMIN.USER_DIALOG.ADD.generateUrlDesc' | translate }}
+    </p>
+    <div *ngIf="messageForUserLink && messageForUserExpirationDate" class="full-width message-for-user-container">
+      <p class="message-for-user">
+        {{ 'ADMIN.USER_DIALOG.ADD.generateUrlMessage' | translate:{sourceType: this.subject.sourceType} }}
+        <br/>
+        {{messageForUserLink}}
+        <br/>
+        {{ 'ADMIN.USER_DIALOG.ADD.generateUrlExpirationDate' | translate }}:
+        {{messageForUserExpirationDate | date: 'full': undefined: locale }}
+      </p>
+      <button *ngIf="messageForUserExpirationDate | date:'full':undefined:locale as expDate"
+              mat-icon-button
+              [cdkCopyToClipboard]="
+              ('ADMIN.USER_DIALOG.ADD.generateUrlMessage' | translate:{sourceType: this.subject.sourceType}) +
+              '\n\n' +
+              messageForUserLink +
+              '\n\n' +
+              ('ADMIN.USER_DIALOG.ADD.generateUrlExpirationDate' | translate) +
+              ': ' +
+              expDate"
+              aria-label="Copy to clipboard" >
         <mat-icon>content_copy</mat-icon>
       </button>
     </div>
@@ -84,45 +152,72 @@
 </form>
 
 <div class="action-buttons-container">
-  <div>
-    <button *ngIf="mode===SubjectDialogMode.DELETE" mat-stroked-button color="primary" (click)="closeDeleteDialog()">{{ 'ADMIN.GENERAL.no' | translate }}</button>
-    <button *ngIf="mode!==SubjectDialogMode.DELETE" mat-stroked-button
-            color="primary" type="button" class="close-button"
+  <div class="action-buttons-container__left">
+    <button mat-stroked-button
+            color="primary"
+            type="button"
+            class="close-button"
             [mat-dialog-close]="true"
-            (click)="closeDialog()">
-      {{ 'ADMIN.GENERAL.cancel' | translate }}
+            (click)="close(mode)"
+    >
+      {{ mode!==SubjectDialogMode.DELETE ? ('ADMIN.GENERAL.cancel' | translate) : ('ADMIN.GENERAL.no' | translate) }}
     </button>
   </div>
-  <div>
-    <button *ngIf="mode===SubjectDialogMode.DELETE" mat-raised-button color="warn" [disabled]="deleteLoading" (click)="closeDeleteDialog(subject)">
-      <ng-container *ngIf="deleteLoading">
-        <mat-icon><mat-spinner diameter="20"></mat-spinner></mat-icon>{{ 'ADMIN.DELETE_DIALOG.deleting' | translate }}
+  <div class="action-buttons-container__right">
+    <button *ngIf="mode===SubjectDialogMode.DELETE"
+            mat-raised-button
+            color="warn"
+            [disabled]="isDeleteLoading"
+            (click)="delete()"
+    >
+      <ng-container *ngIf="isDeleteLoading">
+        <mat-icon><mat-spinner diameter="20"></mat-spinner></mat-icon>
+        {{ 'ADMIN.USER_DIALOG.DELETE.deletingButton' | translate }}
       </ng-container>
-      <ng-container *ngIf="!deleteLoading">{{ 'ADMIN.GENERAL.yes' | translate }}</ng-container>
+      <ng-container *ngIf="!isDeleteLoading">
+        {{ 'ADMIN.GENERAL.yes' | translate }}
+      </ng-container>
     </button>
-    <button *ngIf="mode!==SubjectDialogMode.DELETE && !subject.isAuthorized"
-            mat-raised-button color="primary" type="submit" name="authorize"
-            [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid"
-            (click)="onSubmit('authorize')"
-    >
-      <mat-icon *ngIf="authorizationLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
-      {{ 'ADMIN.USER_DIALOG.authorizeTheUser' | translate }}
-    </button>
-    <button *ngIf="mode!==SubjectDialogMode.DELETE && !subject.isAuthorized"
-            mat-raised-button color="primary" type="submit" name="link"
-            [disabled]="authorizationLoading || linkGeneratingLoading || !form.valid"
-            (click)="onSubmit('link')"
-    >
-      <mat-icon *ngIf="linkGeneratingLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
-      {{ 'ADMIN.USER_DIALOG.generateALinkForUser' | translate }}
-    </button>
-    <button *ngIf="mode!==SubjectDialogMode.DELETE && subject.isAuthorized"
-            mat-raised-button color="primary" type="submit" name="update"
-            [disabled]="!form.valid || !form.dirty || updateLoading"
-            (click)="updateUser(subject)"
-    >
-      <mat-icon *ngIf="updateLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
-      {{ 'ADMIN.GENERAL.update' | translate }}
-    </button>
+
+    <ng-container *ngIf="mode!==SubjectDialogMode.DELETE">
+
+      <button *ngIf="!subject.isAuthorized"
+              mat-raised-button
+              color="primary"
+              type="submit"
+              name="authorize"
+              [disabled]="isAuthorizeLoading || isGenerateUrlLoading || !form.valid"
+              (click)="authorize()"
+      >
+        <mat-icon *ngIf="isAuthorizeLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
+        {{ 'ADMIN.USER_DIALOG.ADD.authorizeButton' | translate }}
+      </button>
+
+      <button *ngIf="!subject.isAuthorized"
+              mat-raised-button
+              color="primary"
+              type="submit"
+              name="link"
+              [disabled]="isAuthorizeLoading || isGenerateUrlLoading || !form.valid"
+              (click)="generateLink()"
+      >
+        <mat-icon *ngIf="isGenerateUrlLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
+        {{ 'ADMIN.USER_DIALOG.ADD.generateUrlButton' | translate }}
+      </button>
+
+      <button *ngIf="subject.isAuthorized"
+              mat-raised-button
+              color="primary"
+              type="submit"
+              name="update"
+              [disabled]="!form.valid || !form.dirty || isUpdateLoading"
+              (click)="update()"
+      >
+        <mat-icon *ngIf="isUpdateLoading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
+        {{ 'ADMIN.USER_DIALOG.EDIT.updateButton' | translate }}
+      </button>
+
+    </ng-container>
+
   </div>
 </div>

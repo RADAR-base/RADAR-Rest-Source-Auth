@@ -6,6 +6,7 @@
     "startDate": "Startdatum",
     "endDate": "Einddatum",
     "authorized": "Geautoriseerd",
+    "registrationCreatedAt": "Link gegenereerd op",
     "project": "Project",
     "sourceId": "Bron-ID",
     "sourceClient": "Bron Type",
@@ -15,11 +16,7 @@
     "all": "Alle",
     "no": "Nee",
     "yes": "Ja",
-    "cancel": "Annuleren",
-    "edit": "Bewerking",
-    "update": "Update",
-    "pending": "In afwachting",
-    "unset": "Uitgeschakeld"
+    "cancel": "Annuleren"
   },
   "DASHBOARD_PAGE": {
     "projectSelect": {
@@ -29,7 +26,9 @@
     "sourceClientSelect": {
       "placeholder": "Selecteer een Bron Type",
       "error": "Bron Type is vereist"
-    }
+    },
+    "noProject": "",
+    "noSourceClient": ""
   },
   "USERS_LIST": {
     "actions": "Acties",
@@ -44,29 +43,40 @@
       "NEXT_PAGE": "Volgende bladzijde",
       "PREVIOUS_PAGE":  "Vorige pagina",
       "OF_LABEL": "van"
+    },
+    "authorizationStatus": {
+      "yes": "Ja",
+      "no": "Nee",
+      "pending": "In afwachting",
+      "unset": "Uitgeschakeld"
     }
   },
   "USER_DIALOG": {
-    "linkUserExternalDevice": "Extern apparaat van gebruiker koppelen",
+    "ADD": {
+      "title": "Autoriseer het {{sourceType}}-account van de deelnemer",
+      "authorizeButton": "Autoriseer",
+      "generateUrlButton": "Genereer een URL",
+      "generateUrlDesc": "Stuur deze link naar de gebruiker",
+      "generateUrlMessage": "Klik op de onderstaande link om je {{sourceType}}-account te verbinden met RADAR-base",
+      "generateUrlExpirationDate": "Vervaldatum"
+    },
+    "EDIT": {
+      "title": "Start-/einddatums resetten voor de deelnemer",
+      "updateButton": "Resetten"
+    },
+    "DELETE": {
+      "title": "Waarschuwing!",
+      "desc": "U gaat de gebruiker ontkoppelen van het externe apparaat",
+      "warningMessage": "Weet je zeker dat?",
+      "deletingButton": "Verwijderen"
+    },
     "startEndDate": "Start-/einddatums",
-    "startEndDateError": "Startdatum is vereist",
     "startDatePlaceholder": "Voer de startdatum in",
     "endDatePlaceholder": "Einddatum invoeren",
-    "sendThisLinkToUser": "Stuur deze link naar de gebruiker",
-    "authorizeTheUser": "Autoriseer de gebruiker",
-    "generateALinkForUser": "Genereer een link voor Gebruiker",
-    "linkForUserMessage": "Klik op de onderstaande link om je Fitbit-account te verbinden met RADAR-base",
-    "linkForUserExpirationDate": "Vervaldatum",
     "error": {
       "startDateRequired": "Startdatum is vereist",
       "startDateInvalid": "Startdatum is niet geldig",
       "endDateInvalid": "Einddatum is niet geldig"
     }
-  },
-  "DELETE_DIALOG": {
-    "title": "Waarschuwing!",
-    "description": "U gaat de gebruiker ontkoppelen van het externe apparaat",
-    "warningMessage": "Weet je zeker dat?",
-    "deleting": "Verwijderen"
   }
 }

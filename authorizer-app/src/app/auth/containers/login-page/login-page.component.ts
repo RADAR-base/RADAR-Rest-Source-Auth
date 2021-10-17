@@ -6,6 +6,7 @@ import {AuthService} from '@app/auth/services/auth.service';
 import {GrantType} from '@app/auth/enums/grant-type';
 import {AuthStateCommand} from "@app/auth/enums/auth-state-command";
 import {StorageItem} from "@app/auth/enums/storage-item";
+import {MessageBoxType} from "@app/shared/components/message-box/message-box.component";
 
 import {environment} from '@environments/environment';
 
@@ -16,13 +17,15 @@ import {environment} from '@environments/environment';
 })
 export class LoginPageComponent implements OnInit, OnDestroy {
 
-  loading = false;
-  error?: any;
+  isLoading = false;
+  error?: string;
 
   AuthStateCommand = AuthStateCommand;
   stateCommand?: AuthStateCommand;
 
   routerSubscription?: Subscription;
+
+  MessageBoxType = MessageBoxType
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -46,18 +49,17 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       next: params => {
         const {code} = params;
         if (code) {
-          this.loading = true;
+          this.isLoading = true;
           this.authService
             .authenticate(code)
             .pipe(first())
             .subscribe({
               next: () => {
-                const returnUrl = localStorage.getItem(StorageItem.RETURN_URL);
-                if (returnUrl) {
-                  this.router.navigateByUrl(returnUrl).then(() => this.authService.clearReturnUrl());
-                } else {
-                  this.router.navigateByUrl("/").then(() => this.authService.clearReturnUrl());
-                }
+                const lastLocation = JSON.parse(localStorage.getItem(StorageItem.LAST_LOCATION) || '{}');
+                this.router.navigate(
+                  [lastLocation.url || '/'],
+                  {queryParams: lastLocation.params}
+                ).then(() => this.authService.clearLastLocation());
               },
               error: (error) => this.error = error
             });
@@ -72,7 +74,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
   loginHandler() {
     if (environment.authorizationGrantType === GrantType.AUTHORIZATION_CODE) {
-      this.loading = true;
+      this.isLoading = true;
       this.redirectToAuthRequestLink();
     }
   }

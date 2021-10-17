@@ -1,114 +1,152 @@
-import {Component, Inject, OnDestroy} from '@angular/core';
-import {DatePipe} from "@angular/common";
+import { Component, Inject, OnDestroy } from '@angular/core';
+import { FormatWidth, getLocaleDateFormat } from "@angular/common";
+import { Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
+import { Subject, takeUntil } from "rxjs";
+import { DateAdapter } from "@angular/material/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import {Subject, takeUntil} from "rxjs";
-import {TranslateService} from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
 
 import { UserService } from "@app/admin/services/user.service";
 import { RestSourceUser } from '@app/admin/models/rest-source-user.model';
 
-import { environment } from "@environments/environment";
+import {LANGUAGES} from "@app/app.module";
 
-// import {
-//   MAT_MOMENT_DATE_FORMATS,
-//   MomentDateAdapter,
-//   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-// } from '@angular/material-moment-adapter';
-// import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
-// import 'moment/locale/ja';
-// import 'moment/locale/en-gb';
-// import 'moment/locale/nl';
-// import 'moment/locale/fr';
-
-export enum SubjectDialogMode {
+export enum UserDialogMode {
   ADD = 'add',
   VIEW = 'view',
   EDIT = 'edit',
   DELETE = 'delete'
 }
+
+export enum UserDialogCommand {
+  UPDATED = 'updated',
+  DELETED = 'deleted',
+  ERROR = 'error',
+}
+
 @Component({
   selector: 'app-user-dialog',
   templateUrl: 'user-dialog.component.html',
   styleUrls: ['user-dialog.component.scss'],
-  // providers: [
-  //   // The locale would typically be provided on the root module of your application. We do it at
-  //   // the component level here, due to limitations of our example generation script.
-  //   {provide: MAT_DATE_LOCALE, useValue: 'en-GB'},
-  //
-  //   // `MomentDateAdapter` and `MAT_MOMENT_DATE_FORMATS` can be automatically provided by importing
-  //   // `MatMomentDateModule` in your applications root module. We provide it at the component level
-  //   // here, due to limitations of our example generation script.
-  //   {
-  //     provide: DateAdapter,
-  //     useClass: MomentDateAdapter,
-  //     deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
-  //   },
-  //   {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
-  // ],
 })
 
 export class UserDialogComponent implements OnDestroy {
-  linkGeneratingLoading = false;
-  authorizationLoading = false;
-  updateLoading = false;
-  deleteLoading = false;
+  SubjectDialogMode = UserDialogMode;
 
-  error?: any;
+  isGenerateUrlLoading = false;
+  isAuthorizeLoading = false;
+  isUpdateLoading = false;
+  isDeleteLoading = false;
+  error?: string;
 
-  SubjectDialogMode = SubjectDialogMode;
-  mode = this.data.mode;
+  mode = this.data.mode as UserDialogMode;
   subject = this.data.subject;
 
-  linkForUser?: string;
-
   form = this.fb.group({
-    // sourceType: [{value: this.subject.sourceType, disabled: true}, Validators.required],
-    // projectId: [{value: this.subject.projectId, disabled: true}],
-    // userId: [{value: this.subject.userId, disabled: true}],
-    // externalId: [{value: this.subject.externalId, disabled: true}],
-    startDate: [{value: this.subject.startDate, disabled: this.mode == SubjectDialogMode.VIEW}, Validators.required],
-    endDate: [{value: this.subject.endDate, disabled: this.mode == SubjectDialogMode.VIEW}],
-    // isAuthorized: [{value: this.subject.isAuthorized, disabled: true}],
-    // sourceId: [{value: this.subject.sourceId, disabled: true}],
-    // serviceUserId: [{value: this.subject.serviceUserId, disabled: true}],
-    // hasValidToken: [{value: this.subject.hasValidToken, disabled: true}],
-    // timesReset: [{value: this.subject.timesReset, disabled: true}],
+    startDate: [{value: this.subject.startDate, disabled: this.mode == UserDialogMode.VIEW}, Validators.required],
+    endDate: [{value: this.subject.endDate, disabled: this.mode == UserDialogMode.VIEW}],
   });
+  dateFormatHint = '';
 
-  unsubscribe: Subject<void> = new Subject<void>();
+  messageForUserLink?: string;
+  messageForUserExpirationDate?: Date;
 
-  linkForUserMessage = '';
-  linkForUserExpirationDate = '';
+  translateSubject: Subject<void> = new Subject<void>();
+  locale = LANGUAGES[0].locale;
 
   constructor(
+    private router: Router,
     private fb: FormBuilder,
     private userService: UserService,
-    // private datePipe: LocalizedDatePipe,
-    private datePipe: DatePipe,
     public dialogRef: MatDialogRef<UserDialogComponent>,
+    private translate: TranslateService,
+    private _adapter: DateAdapter<any>,
     @Inject(MAT_DIALOG_DATA) public data: {subject: RestSourceUser; mode: string},
-    private translate: TranslateService
   ) {
-    this.translate.onLangChange.pipe(
-      takeUntil(this.unsubscribe)
-    ).subscribe(() => {
-      this.getAndInitTranslations();
-    });
-
-    this.getAndInitTranslations();
+    this.initLocale();
   }
 
   ngOnDestroy() {
-    this.unsubscribe.next();
-    this.unsubscribe.complete();
+    this.unsubscribeTranslate();
   }
 
-  onSubmit(submitterName: string): void {
-    this.error = null;
-    const persistent = submitterName === 'link';
-    this.linkGeneratingLoading = persistent;
-    this.authorizationLoading = !persistent;
+  //#region Dialog Actions
+  authorize(): void {
+    this.error = undefined;
+    const persistent = false;
+    this.isGenerateUrlLoading = persistent;
+    this.isAuthorizeLoading = !persistent;
+    if (this.subject.id) {
+      this.updateAndRegisterUser(persistent);
+    } else {
+      this.createAndRegisterUser(persistent);
+    }
+  }
+
+  generateLink(): void {
+    this.error = undefined;
+    const persistent = true;
+    this.isGenerateUrlLoading = persistent;
+    this.isAuthorizeLoading = !persistent;
+    if (this.subject.id) {
+      this.updateAndRegisterUser(persistent);
+    } else {
+      this.createAndRegisterUser(persistent);
+    }
+  }
+
+  update(): void {
+    this.isUpdateLoading = true;
+    const updatedUser = {
+      ...this.subject,
+      startDate: this.form.value.startDate,
+      endDate: this.form.value.endDate ? this.form.value.endDate : null,
+    };
+    this.userService.updateUser(updatedUser)
+      .subscribe({
+        next: () => {
+          this.dialogRef.close(UserDialogCommand.UPDATED);
+          this.isUpdateLoading = false;
+        },
+        error: (error) => {
+          this.error = this.handleError(error);
+          this.isUpdateLoading = false;
+        },
+      });
+  }
+
+  delete(): void {
+    this.error = undefined;
+    this.isDeleteLoading = true;
+    if (this.subject.id) {
+      this.userService.deleteUser(this.subject.id)
+        .subscribe({
+          next: () => {
+            this.dialogRef.close(UserDialogCommand.DELETED);
+            this.isDeleteLoading = false;
+          },
+          error: (error) => {
+            this.isDeleteLoading = false;
+            this.handleError(error);
+          },
+        });
+    }
+  }
+
+  close(mode: UserDialogMode): void {
+    if (mode !== UserDialogMode.ADD) {
+      this.dialogRef.close();
+    } else {
+      if (this.messageForUserLink) {
+        this.dialogRef.close(UserDialogCommand.UPDATED);
+      } else {
+        this.dialogRef.close();
+      }
+    }
+  }
+
+  private createAndRegisterUser(persistent: boolean): void {
     const user = {
       projectId: this.subject.projectId,
       userId: this.subject.userId,
@@ -116,137 +154,99 @@ export class UserDialogComponent implements OnDestroy {
       endDate: this.form.value.endDate ? this.form.value.endDate : null,
       sourceType: this.subject.sourceType,
     };
-    if (this.subject.id) {
-      // this.updateLoading = true;
-      const updatedUser = {
-        ...this.subject,
-        startDate: this.form.value.startDate,
-        endDate: this.form.value.endDate ? this.form.value.endDate : null,
-      };
-      this.userService.resetUser(updatedUser)
-        .subscribe({
-          next: () => {
-            this.registerUser(this.subject.id!!, persistent);
-            // this.dialogRef.close('updated');
-          },
-          error: (error) => {
-            this.error = this.handleError(error);
-          },
-          complete: () => this.updateLoading = false
-        });
-    } else {
-      this.userService.createUser(user).subscribe({
-          next: (resp) => {
-            this.registerUser(resp.id, persistent);
-          },
-          error: (error) => {
-            this.error = this.handleError(error);
-            this.linkGeneratingLoading = false;
-            this.authorizationLoading = false;
-          }
-        }
-      );
-    }
-  }
-
-  updateUser(user: RestSourceUser) {
-    this.updateLoading = true;
-    const updatedUser = {
-      ...user,
-      startDate: this.form.value.startDate,
-      endDate: this.form.value.endDate ? this.form.value.endDate : null,
-    };
-    this.userService.resetUser(updatedUser)
-      .subscribe({
-        next: () => {
-          this.dialogRef.close('updated');
+    this.userService.createUser(user).subscribe({
+        next: (resp) => {
+          this.registerUser(resp.id, persistent);
         },
         error: (error) => {
           this.error = this.handleError(error);
-        },
-        complete: () => this.updateLoading = false
-      });
-  }
-
-
-  registerUser(userId: string, persistent: boolean): void {
-    this.userService.registerUser({userId, persistent}).subscribe({
-        next: (registrationResp) => {
-          if (registrationResp.authEndpointUrl) {
-            window.location.href = registrationResp.authEndpointUrl;
-          } else if (registrationResp.secret) {
-            const datePipe: DatePipe = new DatePipe(this.translate.currentLang);
-            const date = datePipe.transform(new Date(registrationResp.expiresAt), 'EEEE, MMMM d, yyyy hh:mm:ss a');
-            this.linkForUser =
-              `${this.linkForUserMessage}\n\n`
-              +`${environment.radarBaseUrl}${environment.BASE_HREF}users:auth?token=${registrationResp.token}&secret=${registrationResp.secret}\n\n`
-              +`${this.linkForUserExpirationDate}: ${date}`;
-            this.linkGeneratingLoading = false;
-            //todo update ui
-          }
-        },
-        error: (error) => {
-          this.error = this.handleError(error);
-          this.linkGeneratingLoading = false;
-          this.authorizationLoading = false;
+          this.isGenerateUrlLoading = false;
+          this.isAuthorizeLoading = false;
         }
       }
     );
   }
 
-  closeDialog(): void {
-    this.dialogRef.close('updated');
-  }
-
-  handleError(error: any): any {
-    this.error = error;
-    if(error.error.error === 'invalid_token' && error.status === 401) {
-      this.dialogRef.close('error');
-    }
-  }
-
-  getAndInitTranslations() {
-    this.translate
-      .get([
-        'ADMIN.USER_DIALOG.linkForUserMessage',
-        'ADMIN.USER_DIALOG.linkForUserExpirationDate'
-      ]).pipe(
-      takeUntil(this.unsubscribe)
-    ).subscribe(translation => {
-      this.linkForUserMessage = translation['ADMIN.USER_DIALOG.linkForUserMessage'];
-      this.linkForUserExpirationDate = translation['ADMIN.USER_DIALOG.linkForUserExpirationDate'];
-    });
-  }
-
-  closeDeleteDialog(user?: RestSourceUser): void {
-    this.error = undefined;
-    // this.userService.deleteUser(user.id).subscribe({
-    //   next: () => {
-    //     console.log(`user ${user.id} deleted.`)
-    //     this.changeProject(this.form.value.projectId)
-    //   }
-    // })
-    if(!user || !user.id){
-      return this.dialogRef.close('closed');
-      // return;
-    }
-    this.deleteLoading = true;
-    this.userService.deleteUser(user.id)
+  private updateAndRegisterUser(persistent: boolean){
+    const updatedUser = {
+      ...this.subject,
+      startDate: this.form.value.startDate,
+      endDate: this.form.value.endDate ? this.form.value.endDate : null,
+    };
+    this.userService.updateUser(updatedUser)
       .subscribe({
         next: () => {
-          this.dialogRef.close('deleted');
+          this.registerUser(this.subject.id!!, persistent);
         },
         error: (error) => {
-          this.handleError(error);
-          // console.log(error);
-          // this.error = error.error.description || error.message;
-          // if(error.error === 'invalid_token' && error.status === 401) {
-          //   this.dialogRef.close('error');
-          // }
-          // url: "https://radar-k3s-test.thehyve.net/managementportal/oauth/token"
-        },
-        complete: () => this.deleteLoading = false
+          this.error = this.handleError(error);
+          this.isGenerateUrlLoading = false;
+          this.isAuthorizeLoading = false;
+        }
       });
-    // this.dialogRef.close();
+  }
+
+  private registerUser(userId: string, persistent: boolean): void {
+    this.userService.registerUser({userId, persistent})
+      .subscribe({
+        next: (resp) => {
+          if (resp.authEndpointUrl) {
+            window.location.href = resp.authEndpointUrl;
+          } else if (resp.secret) {
+            const baseUrl = this.getBaseUrl();
+            this.messageForUserLink = `${baseUrl}/users:auth?token=${resp.token}&secret=${resp.secret}`;
+            this.messageForUserExpirationDate = new Date(resp.expiresAt);
+            this.isGenerateUrlLoading = false;
+          }
+        },
+        error: (error) => {
+          this.error = this.handleError(error);
+          this.isGenerateUrlLoading = false;
+          this.isAuthorizeLoading = false;
+        }
+      }
+    );
+  }
+
+  private handleError(error: any): string {
+    if(error.error.error === 'invalid_token' && error.status === 401) {
+      this.dialogRef.close(UserDialogCommand.ERROR);
+    }
+    return error.error.error_description || error.message || error;
+  }
+  //#endregion
+
+  //#region Locale
+  private initLocale() {
+    this.translate.onLangChange.pipe(
+      takeUntil(this.translateSubject)
+    ).subscribe(() => {
+      this.updateLocale();
+    });
+    this.updateLocale();
+  }
+
+  private updateLocale() {
+    const locale = this.getCurrentLocale();
+    this.locale = locale;
+    this._adapter.setLocale(locale);
+    this.dateFormatHint = getLocaleDateFormat( locale, FormatWidth.Short );
+  }
+
+  private getCurrentLocale(): string {
+    return LANGUAGES.filter(language => language.lang === this.translate.currentLang)[0].locale;
+  }
+
+  private unsubscribeTranslate(): void {
+    this.translateSubject.next();
+    this.translateSubject.complete();
+  }
+  //#endregion
+
+  private getBaseUrl(): string {
+    const currentAbsoluteUrl = window.location.href;
+    const currentRelativeUrl = this.router.url;
+    const index = currentAbsoluteUrl.indexOf(currentRelativeUrl);
+    return currentAbsoluteUrl.substring(0, index);
   }
 }

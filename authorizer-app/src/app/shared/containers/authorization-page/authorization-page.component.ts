@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 import {UserService} from "@app/admin/services/user.service";
-import {RegistrationResponse} from "@app/admin/models/rest-source-user.model";
 import {StorageItem} from "@app/shared/enums/storage-item";
 
 @Component({
@@ -11,11 +10,12 @@ import {StorageItem} from "@app/shared/enums/storage-item";
   styleUrls: ['./authorization-page.component.scss'],
 })
 export class AuthorizationPageComponent implements OnInit {
-  loading = false;
+  isLoading = true;
   error?: any;
 
+  sourceType?: string;
+  project?: string;
   authEndpointUrl?: string;
-  registrationResponse?: RegistrationResponse;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -23,20 +23,33 @@ export class AuthorizationPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loading = true;
     const {token, secret} = this.activatedRoute.snapshot.queryParams;
+    if(!token || !secret){
+      this.error = 'SHARED.AUTHORIZATION_PAGE.ERROR.badUrl';
+      this.isLoading = false;
+      return;
+    }
     localStorage.setItem(StorageItem.AUTHORIZATION_TOKEN, token);
     this.userService.getAuthEndpointUrl({secret}, token).subscribe({
-      next: (registrationResp) => {
-        if (registrationResp.authEndpointUrl) {
-          this.authEndpointUrl = registrationResp.authEndpointUrl;
-          this.registrationResponse = registrationResp;
-          this.loading = false;
+      next: (resp) => {
+        if (resp.authEndpointUrl) {
+          this.sourceType = resp.sourceType;
+          this.project = resp.project.id;
+          this.authEndpointUrl = resp.authEndpointUrl;
+          this.isLoading = false;
         }
       },
       error: (error) => {
-        this.error = error;
-        this.loading = false;
+        this.isLoading = false;
+        if(error.status === 400 && error.error.error === 'registration_not_found'){
+          this.error = 'SHARED.AUTHORIZATION_PAGE.ERROR.registrationNotFound';
+          return;
+        }
+        if(error.status === 400 && error.error.error === 'bad_secret'){
+          this.error = 'SHARED.AUTHORIZATION_PAGE.ERROR.badSecret';
+          return;
+        }
+        this.error = error.error?.error_description || error.message || error;
       },
     });
   }

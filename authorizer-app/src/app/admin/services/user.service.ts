@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
@@ -8,7 +8,6 @@ import {
   RestSourceUser, RestSourceUserRequest, RestSourceUserResponse,
   RestSourceUsers
 } from '@app/admin/models/rest-source-user.model';
-import {createRequestOption} from '@app/shared/utilities/request.util';
 
 import {environment} from '@environments/environment';
 
@@ -19,13 +18,13 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getUsersOfProject(
-    projectId: string,
-    req?: any
-  ): Observable<RestSourceUsers> {
-    let params = createRequestOption(req);
-    params = params.set('project-id', projectId);
-    return this.http.get<RestSourceUsers>(environment.backendBaseUrl + '/users', { params });
+  getUsersOfProject(projectId: string): Observable<RestSourceUsers> {
+    let params = new HttpParams()
+      .set('project-id', projectId);
+    return this.http.get<RestSourceUsers>(
+      environment.backendBaseUrl + '/users',
+      { params }
+    );
   }
 
   createUser(restSourceUserRequest: RestSourceUserRequest): Observable<RestSourceUserResponse> {
@@ -56,7 +55,7 @@ export class UserService {
     return this.http.post<RegistrationResponse>(url, registrationRequest);
   }
 
-  resetUser(user: RestSourceUser): Observable<any> {
+  updateUser(user: RestSourceUser): Observable<any> {
     const url = encodeURI(
       environment.backendBaseUrl + '/users/' + user.id
     );

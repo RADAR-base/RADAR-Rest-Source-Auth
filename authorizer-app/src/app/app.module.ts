@@ -10,14 +10,20 @@ import {AppRoutingModule} from '@app/app-routing.module';
 import {AuthModule} from '@app/auth/auth.module';
 import {SharedModule} from "@app/shared/shared.module";
 import {AuthInterceptor} from "@app/auth/services/auth.interceptor";
+import {ErrorInterceptor} from "@app/shared/services/error.interceptor";
+
+export const LANGUAGES = [
+    {lang: 'en-GB', locale: 'en-GB', label: 'English (GB)'}, // default language
+    {lang: 'nl', locale: 'nl-NL', label: 'Nederlands'},
+    {lang: 'en-US', locale: 'en-US', label: 'English (US)'}
+  ];
 
 export function ModuleHttpLoaderFactory(http: HttpClient) {
-  // const baseTranslateUrl = "https://raw.githubusercontent.com/peyman-mohtashami/ngx-translation-test/main/i18n";
   const baseTranslateUrl = "assets/i18n";
 
   const options: IModuleTranslationOptions = {
     translateError: (error, path) => {
-      console.log("Oops! an error occurred: ", { error, path });
+      console.log("Error on loading translation files: ", { error, path });
     },
     modules: [
       { baseTranslateUrl },
@@ -50,7 +56,7 @@ export function ModuleHttpLoaderFactory(http: HttpClient) {
     ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    // TODO { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })

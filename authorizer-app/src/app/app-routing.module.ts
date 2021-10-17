@@ -25,7 +25,6 @@ const routes: Routes = [
     path: APP_ROUTE.AUTHORIZATION_COMPLETE,
     component: AuthorizationCompletePageComponent,
   },
-  // TODO 404 page
 ];
 
 @NgModule({

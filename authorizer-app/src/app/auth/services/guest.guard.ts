@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 import {AuthService} from "@app/auth/services/auth.service";
+import {StorageItem} from "@app/auth/enums/storage-item";
 
 @Injectable()
 export class GuestGuard implements CanActivate {
@@ -16,7 +17,11 @@ export class GuestGuard implements CanActivate {
     return this.authService.isAuthorized().pipe(
       map(loggedIn => {
         if (loggedIn) {
-          this.router.navigate(['/']).finally();
+          const lastLocation = JSON.parse(localStorage.getItem(StorageItem.LAST_LOCATION) || '{}');
+          this.router.navigate(
+            [lastLocation.url || '/'],
+            {queryParams: lastLocation.params}
+          ).finally();
         }
         return !loggedIn;
       })

@@ -15,9 +15,6 @@ tr:nth-of-type(even) {
   margin-right: 16px;
 }
 
-.full-width-table {
-}
-
 .w-200{
   flex: 0 0 200px !important;
   width: 200px !important;
@@ -33,6 +30,10 @@ tr:nth-of-type(even) {
 
 .w-80{
   width: 80px;
+}
+
+.action-column {
+  width:80px;
 }
 
 .tag {
@@ -59,20 +60,6 @@ tr:nth-of-type(even) {
 
 .reset-filters {
   margin-left: 16px;
-}
-
-.error-container{
-  font-size: 14px;
-  line-height: initial;
-  font-weight: normal;
-}
-
-.loader-container {
-  width: 100%;
-  display: flex;
-  background: rgba(255,255,255,0.5);
-  z-index: 1;
-  justify-content: center;
 }
 
 .filter-container{

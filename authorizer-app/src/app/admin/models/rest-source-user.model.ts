@@ -1,10 +1,8 @@
 export interface RestSourceUser {
-     id?: string; // TODO number | string
+     id?: string;
      userId: string;
      projectId: string;
      externalId?: string;
-     externalUserId?: string; // TODO ?
-     humanReadableUserId?: string; // TODO ?
      serviceUserId?: string;
      sourceId?: string;
      startDate?: string;
@@ -67,6 +65,7 @@ export interface RegistrationResponse {
   expiresAt: string; // Instant
   persistent: boolean;
   project?: any;
+  sourceType?: string;
 }
 // interface RegistrationResponse {
 //   token: String

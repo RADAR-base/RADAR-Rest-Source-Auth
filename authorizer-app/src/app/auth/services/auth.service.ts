@@ -64,8 +64,10 @@ export class AuthService {
     return { username: username, name: '', roles: roles };
   }
 
-  clearReturnUrl(): void {
-    localStorage.removeItem(StorageItem.RETURN_URL);
+  clearLastLocation(): void {
+    localStorage.removeItem(StorageItem.LAST_LOCATION);
+    // localStorage.removeItem(StorageItem.SAVED_PARAMS);
+    // localStorage.removeItem(StorageItem.SAVED_URL);
   }
 
   authenticate(loginParams: any): Observable<any> {

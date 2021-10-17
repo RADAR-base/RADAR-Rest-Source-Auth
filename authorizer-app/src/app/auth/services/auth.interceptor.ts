@@ -7,7 +7,6 @@ import {catchError} from "rxjs/operators";
 import {AuthService} from '@app/auth/services/auth.service';
 import {AuthResponse} from "@app/auth/models/auth.model";
 import {AuthStateCommand} from "@app/auth/enums/auth-state-command";
-import {StorageItem} from "@app/auth/enums/storage-item";
 import {AUTH_ROUTE} from "@app/auth/auth-routing.module";
 
 import {environment} from "@environments/environment";
@@ -35,7 +34,6 @@ export class AuthInterceptor implements HttpInterceptor {
       catchError(error => {
         if (error instanceof HttpErrorResponse && error.status === 401) {
           if (request.url === `${environment.authBaseUrl}/token`) {
-            localStorage.setItem(StorageItem.RETURN_URL, this.router.routerState.snapshot.url)
             this.authService.logout();
             this.router.navigate([AUTH_ROUTE.LOGIN], {state: {command: AuthStateCommand.SESSION_EXPIRED}}).finally();
           } else {

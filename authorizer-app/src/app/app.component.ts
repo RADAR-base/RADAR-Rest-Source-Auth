@@ -3,9 +3,7 @@ import {NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Route
 import {TranslateService} from "@ngx-translate/core";
 
 import {StorageItem} from "@app/shared/enums/storage-item";
-import {environment} from "@environments/environment";
-
-import packageJson from '../../package.json';
+import {LANGUAGES} from "@app/app.module";
 
 @Component({
   selector: 'app-root',
@@ -15,25 +13,12 @@ import packageJson from '../../package.json';
 export class AppComponent implements OnInit {
   loading = true;
   mainLoading = true;
-  version = packageJson.version;
 
   constructor(
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
-    translate.addLangs(environment.languages);
-    const browserLang = translate.getBrowserLang();
-    let language = environment.languages.includes(browserLang) ? browserLang : environment.languages[0];
-    const storedLocale = localStorage.getItem(StorageItem.LOCALE);
-    if (storedLocale) {
-      language = storedLocale;
-    } else {
-      localStorage.setItem(StorageItem.LOCALE, language);
-      translate.setDefaultLang(language);
-    }
-    translate.use(language).subscribe({
-      next: () => this.mainLoading = false
-    });
+    this.initLanguages();
   }
 
   ngOnInit(): void {
@@ -59,6 +44,23 @@ export class AppComponent implements OnInit {
           }
         }
       }
+    });
+  }
+
+  private initLanguages(): void {
+    const languages = LANGUAGES.map(language => language.lang);
+    this.translate.addLangs(languages);
+    const browserLang = this.translate.getBrowserLang();
+    let language = languages.includes(browserLang) ? browserLang : languages[0];
+    const storedLocale = localStorage.getItem(StorageItem.LOCALE);
+    if (storedLocale) {
+      language = storedLocale;
+    } else {
+      localStorage.setItem(StorageItem.LOCALE, language);
+      this.translate.setDefaultLang(language);
+    }
+    this.translate.use(language).subscribe({
+      next: () => this.mainLoading = false
     });
   }
 

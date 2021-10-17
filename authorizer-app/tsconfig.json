@@ -25,9 +25,6 @@
       "@environments/*": ["environments/*"],
       "@assets/*": ["assets/*"]
     },
-    "resolveJsonModule": true, //already there
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

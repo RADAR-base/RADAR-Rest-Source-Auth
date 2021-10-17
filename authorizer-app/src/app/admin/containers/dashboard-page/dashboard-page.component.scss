@@ -1,7 +1,3 @@
-.container{
-  padding: 16px;
-}
-
 form {
   display: flex;
   justify-content: center;
@@ -12,16 +8,19 @@ form {
   display: flex;
   justify-content: center;
   margin: 0 8px;
+
   .form-field{
     width: 300px;
   }
 }
 
 @media only screen and (max-width: 700px){
-  /* [325px -> 700px] */
+  /* [320px -> 700px] */
+
   form {
     display: block;
   }
+
   .form-wrapper {
     margin: 0;
   }

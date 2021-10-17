@@ -1,22 +1,27 @@
 {
   "ERROR": {
-    "supportMessage": "Try again by refreshing the page. If the error persists please contact your system administrator"
-  },
-  "TOOLBAR": {
-    "title": "External Device Authorizer"
+    "supportMessage": "Probeer het opnieuw door de pagina te vernieuwen. Neem contact op met uw systeembeheerder als de fout zich blijft voordoen"
   },
   "AUTHORIZATION_COMPLETE_PAGE": {
-    "title": "Thank you!",
-    "errorTitle": "Something went wrong!",
-    "subtitle": "Your fitbit account has been linked to RADAR-base.",
-    "description": "Your fitbit account has been linked to RADAR-base.",
-    "actionMessage": "Your can close this page or log in to the app.",
-    "actionButton": "Login"
+    "title": "Bedankt!",
+    "errorTitle": "Er is iets misgegaan!",
+    "subtitle": "Uw account is gekoppeld aan RADAR-base.",
+    "description": "Uw account is gekoppeld aan RADAR-base.",
+    "actionMessage": "U kunt deze pagina sluiten of inloggen op de app.",
+    "actionButton": "Inloggen"
   },
   "AUTHORIZATION_PAGE": {
-    "title": "Authorization Page",
-    "subtitle": "Authorization page subtitle",
-    "description": "Authorization page description.<br>Project: {{registrationResponse?.project | json}}",
-    "authorizeButton": "Authorize"
+    "title": "Koppel je account aan RADAR-base",
+    "subtitle": "",
+    "description": "Project: {{registrationResponse?.project | json}}",
+    "authorizeButton": "Koppelen",
+    "ERROR": {
+      "title": "Error",
+      "subtitle": "",
+      "badUrl": "NL The url is not valid.",
+      "badSecret": "NL Secret does not match token.",
+      "registrationNotFound": "NL State has expired or not found.",
+      "contactSupport": "NL Copy and paste the complete url and try again. If the error persists contact support."
+    }
   }
 }

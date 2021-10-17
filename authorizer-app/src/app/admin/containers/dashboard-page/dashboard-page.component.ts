@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, Validators} from '@angular/forms';
 import {BehaviorSubject, combineLatest, distinctUntilChanged, filter, Observable, switchMap} from "rxjs";
 import {map} from "rxjs/operators";
@@ -8,54 +8,56 @@ import {MatDialog} from "@angular/material/dialog";
 
 import {UserService} from "@app/admin/services/user.service";
 import {SubjectService} from "@app/admin/services/subject.service";
-import {UserDialogComponent} from "@app/admin/containers/user-dialog/user-dialog.component";
+import {
+  UserDialogCommand,
+  UserDialogMode,
+  UserDialogComponent
+} from "@app/admin/containers/user-dialog/user-dialog.component";
 import {UserData} from "@app/admin/components/users-list/users-list.component";
 import {RadarProject, RadarSourceClient, RadarSubject} from "@app/admin/models/radar-entities.model";
 import {RestSourceUser} from "@app/admin/models/rest-source-user.model";
-import {StorageItem} from "@app/shared/enums/storage-item";
+import {StorageItem} from "@app/auth/enums/storage-item";
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard-page.component.html',
   styleUrls: ['./dashboard-page.component.scss']
 })
-export class DashboardPageComponent implements OnInit {
+export class DashboardPageComponent implements OnInit, OnDestroy {
   loading = true;
-  error?: any;
+  error?: string;
 
-  // projects: RadarProject[] = [...[], this.activatedRoute.snapshot.data.projects[0]];
   projects: RadarProject[] = this.activatedRoute.snapshot.data.projects;
+  // projects: RadarProject[] = [...[], this.activatedRoute.snapshot.data.projects[0]];
 
-  // sourceClients: RadarSourceClient[] = this.activatedRoute.snapshot.data.sourceClients;
-  sourceClients: RadarSourceClient[] = [
-      {
-        authorizationEndpoint: "https://www.fitbit.com/oauth2/authorize",
-        clientId: "239Z46",
-        scope: "activity heartrate sleep profile",
-        sourceType: "FitBit",
-        tokenEndpoint: "https://api.fitbit.com/oauth2/token",
-      },
-      {
-        authorizationEndpoint: "https://www.fitbit1.com/oauth2/authorize",
-        clientId: "239Z461",
-        scope: "activity1 heartrate sleep profile",
-        sourceType: "Withings",
-        tokenEndpoint: "https://api.fitbit.com/oauth2/token1",
-      }
-    ];
+  sourceClients: RadarSourceClient[] = this.activatedRoute.snapshot.data.sourceClients;
+  // sourceClients: RadarSourceClient[] = [
+  //     {
+  //       authorizationEndpoint: "https://www.fitbit.com/oauth2/authorize",
+  //       clientId: "239Z46",
+  //       scope: "activity heartrate sleep profile",
+  //       sourceType: "FitBit",
+  //       tokenEndpoint: "https://api.fitbit.com/oauth2/token",
+  //     },
+  //     {
+  //       authorizationEndpoint: "https://www.fitbit1.com/oauth2/authorize",
+  //       clientId: "239Z461",
+  //       scope: "activity1 heartrate sleep profile",
+  //       sourceType: "Withings",
+  //       tokenEndpoint: "https://api.fitbit.com/oauth2/token1",
+  //     }
+  //   ];
 
   selectedProject?: string = this.projects.length === 1 ? this.projects[0].id : undefined;
   selectedSourceClient?: string = this.sourceClients.length === 1 ? this.sourceClients[0].sourceType : undefined;
 
   private projectSubject = new BehaviorSubject<string>('');
-
   project$ = this.projectSubject.asObservable().pipe(
     filter(d => !!d),
     distinctUntilChanged(),
   );
 
   private sourceClientSubject = new BehaviorSubject<string>('');
-
   sourceClient$ = this.sourceClientSubject.asObservable().pipe(
     filter(d => !!d),
     distinctUntilChanged(),
@@ -83,35 +85,19 @@ export class DashboardPageComponent implements OnInit {
 
   ngOnInit() {
     this.loadTableData();
-
+    this.checkActiveProjectAndSourceClientQuery();
     this.activatedRoute.queryParams.subscribe({
       next: (params) => {
-        localStorage.setItem(StorageItem.SAVED_URL, JSON.stringify(params));
-        const {project, sourceClient} = params;
-        if (project && sourceClient) {
-          this.selectedProject = this.projects.filter(p => p.id === project)[0]?.id || undefined;
-          this.selectedSourceClient = this.sourceClients.filter(s => s.sourceType === sourceClient)[0]?.sourceType || undefined;
-          if(this.selectedProject) {
-            this.projectSubject.next(this.selectedProject);
-          }
-          if(this.selectedSourceClient){
-            this.sourceClientSubject.next(this.selectedSourceClient);
-          }
-          this.form.setValue({project: this.selectedProject || null, sourceClient: this.selectedSourceClient || null})
-        } else if (project && !sourceClient) {
-          this.selectedProject = this.projects.filter(p => p.id === project)[0]?.id || undefined;
-          if(this.selectedProject) {
-            this.projectSubject.next(this.selectedProject);
-          }
-          this.form.setValue({project: this.selectedProject || null, sourceClient: this.selectedSourceClient || null})
-        } else {
-          this.form.setValue({project: this.selectedProject || null, sourceClient: this.selectedSourceClient || null})
-        }
+        localStorage.setItem(StorageItem.LAST_LOCATION, JSON.stringify({url: '/', params: params}))
       }
     });
-    this.applyStateChangesToUrlQueryParams({project: this.selectedProject, sourceClient: this.selectedSourceClient});
   }
 
+  ngOnDestroy() {
+    this.updateTriggerSubject.complete();
+  }
+
+  //#region Project & Source Client Filter
   onProjectSelectionChange(e: MatSelectChange) {
     const project = e.value;
     this.selectedProject = project;
@@ -125,8 +111,34 @@ export class DashboardPageComponent implements OnInit {
     this.sourceClientSubject.next(sourceClient);
     this.applyStateChangesToUrlQueryParams({sourceClient: sourceClient});
   }
+  //#endregion
 
-  loadTableData(): void {
+  //#region Actions
+  openSubjectDialog(e: {mode: UserDialogMode; user: RestSourceUser}) {
+    const dialogRef = this.dialog.open(UserDialogComponent, {
+      data: {subject: e.user, mode: e.mode},
+      panelClass: 'full-width-dialog',
+      disableClose: true
+    });
+    this.applyStateChangesToUrlQueryParams({[e.mode]: e.user.userId});
+
+    dialogRef.afterClosed().subscribe({
+      next: (command) => {
+        if (command === UserDialogCommand.ERROR) {
+          return;
+        }
+        if(command === UserDialogCommand.UPDATED || command === UserDialogCommand.DELETED){
+          this.updateTriggerSubject.next(command);
+        }
+        this.applyStateChangesToUrlQueryParams({[e.mode]: null});
+      },
+      error: (error) => this.error = error.error.error_description || error.message || error
+    });
+  }
+  //#endregion
+
+  //#region Data
+  private loadTableData(): void {
     combineLatest([this.updateTriggerSubject, this.project$, this.sourceClient$]).pipe(
       switchMap(
         ([_, project, sourceClient]) => {
@@ -140,13 +152,13 @@ export class DashboardPageComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.error = error;
+        this.error = error.error.error_description || error.message || error;
         this.loading = false;
       }
     });
   }
 
-  loadAndModifyUsers(project: string, sourceClient: string): Observable<UserData[]> {
+  private loadAndModifyUsers(project: string, sourceClient: string): Observable<UserData[]> {
     this.subjects$ = this.subjectService.getSubjectsOfProject(project);
     this.users$ = this.userService.getUsersOfProject(project).pipe(
       map(resp => resp.users)
@@ -173,55 +185,57 @@ export class DashboardPageComponent implements OnInit {
       }),
     )
   }
+  //#endregion
 
+  //#region Query Params
   private checkActiveDialogQuery(): void {
     const queryParams = this.activatedRoute.snapshot.queryParams;
-    if (queryParams.hasOwnProperty('edit')) {
-      console.log(this.users);
-      const user = this.users?.filter(user => user.userId === queryParams.edit)[0];
-      console.log(user);
+    if (queryParams.hasOwnProperty(UserDialogMode.ADD)) {
+      const user = this.users?.filter(user => user.userId === queryParams[UserDialogMode.ADD])[0];
       if(user){
-        this.openSubjectDialog({mode: 'edit', user});
+        this.openSubjectDialog({mode: UserDialogMode.ADD, user});
       } else {
         return;
       }
     }
-    if (queryParams.hasOwnProperty('delete')){
-      const user = this.users?.filter(user => user.userId === queryParams.delete)[0];
+    if (queryParams.hasOwnProperty(UserDialogMode.EDIT)) {
+      const user = this.users?.filter(user => user.userId === queryParams[UserDialogMode.EDIT])[0];
       if(user){
-        this.openSubjectDialog({mode: 'delete', user});
+        this.openSubjectDialog({mode: UserDialogMode.EDIT, user});
+      } else {
+        return;
+      }
+    }
+    if (queryParams.hasOwnProperty(UserDialogMode.DELETE)){
+      const user = this.users?.filter(user => user.userId === queryParams[UserDialogMode.DELETE])[0];
+      if(user){
+        this.openSubjectDialog({mode: UserDialogMode.DELETE, user});
       } else {
         return;
       }
     }
   }
 
-  openSubjectDialog(e: {mode: string; user: RestSourceUser}) {
-    const dialogRef = this.dialog.open(UserDialogComponent, {
-      data: {subject: e.user, mode: e.mode},
-      panelClass: 'full-width-dialog',
-      disableClose: true
-    });
-    this.applyStateChangesToUrlQueryParams({[e.mode]: e.user.userId});
-
-    dialogRef.afterClosed().subscribe({
-      next: (command) => {
-        if(command === 'updated'){
-          console.log(command, 'UPD');
-          this.updateTriggerSubject.next('updated');
-        } else {
-        }
-        this.applyStateChangesToUrlQueryParams({[e.mode]: null});
-      },
-      error: (error) => this.error = error
-    });
+  private checkActiveProjectAndSourceClientQuery(): void {
+    const {project, sourceClient} = this.activatedRoute.snapshot.queryParams;
+    if(project){
+      this.selectedProject = this.projects.filter(p => p.id === project)[0]?.id || this.selectedProject;
+    }
+    if(sourceClient){
+      this.selectedSourceClient = this.sourceClients.filter(s => s.sourceType === sourceClient)[0]?.sourceType || this.selectedSourceClient;
+    }
+    this.form.setValue({project: this.selectedProject || null, sourceClient: this.selectedSourceClient || null})
+    if(this.selectedProject){
+      this.projectSubject.next(this.selectedProject);
+    }
+    if(this.selectedSourceClient){
+      this.sourceClientSubject.next(this.selectedSourceClient);
+    }
+    this.applyStateChangesToUrlQueryParams({project: this.selectedProject, sourceClient: this.selectedSourceClient});
   }
 
   private applyStateChangesToUrlQueryParams(queryParams: any): void {
     this.router.navigate([], { queryParams: queryParams, queryParamsHandling: 'merge' }).finally();
   }
-
-  ngOnDestroy() {
-    this.updateTriggerSubject.complete();
-  }
+  //#endregion
 }

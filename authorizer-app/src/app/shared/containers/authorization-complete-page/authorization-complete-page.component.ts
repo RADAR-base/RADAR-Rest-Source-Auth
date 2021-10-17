@@ -3,8 +3,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 
 import {UserService} from "@app/admin/services/user.service";
 import {AuthService} from "@app/auth/services/auth.service";
-import {StorageItem} from "@app/shared/enums/storage-item";
-import {AUTH_ROUTE} from "@app/auth/auth-routing.module";
+import {StorageItem as SharedStorageItem} from "@app/shared/enums/storage-item";
+import {StorageItem} from "@app/auth/enums/storage-item";
 
 @Component({
   selector: 'app-authorization-complete-page',
@@ -12,8 +12,11 @@ import {AUTH_ROUTE} from "@app/auth/auth-routing.module";
   styleUrls: ['./authorization-complete-page.component.scss'],
 })
 export class AuthorizationCompletePageComponent implements OnInit {
-  loading = false;
-  error?: any;
+  isLoading = true;
+  error?: string;
+
+  sourceType?: string;
+  project?: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -23,12 +26,17 @@ export class AuthorizationCompletePageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loading = true;
+    this.isLoading = true;
     const {state, oauth_token, oauth_verifier, oauth_token_secret, code} = this.activatedRoute.snapshot.queryParams;
 
     let stateOrToken = state;
     if (!state) {
-      stateOrToken = localStorage.getItem(StorageItem.AUTHORIZATION_TOKEN);
+      stateOrToken = localStorage.getItem(SharedStorageItem.AUTHORIZATION_TOKEN);
+    }
+    if(!stateOrToken){
+      this.error = 'SHARED.AUTHORIZATION_COMPLETE_PAGE.ERROR.badUrl';
+      this.isLoading = false;
+      return;
     }
     const authorizeRequest = {
       code,
@@ -38,21 +46,23 @@ export class AuthorizationCompletePageComponent implements OnInit {
     };
     this.service.authorizeUser(authorizeRequest, stateOrToken).subscribe({
       next: (resp) => {
+        this.sourceType = resp.sourceType;
+        this.project = resp.project.id;
         if (resp.persistent) {
-          this.loading = false;
+          this.isLoading = false;
         } else {
-          const savedUrl = localStorage.getItem(StorageItem.SAVED_URL) || '';
-          this.router.navigateByUrl(savedUrl).finally();
+          const lastLocation = JSON.parse(localStorage.getItem(StorageItem.LAST_LOCATION) || '{}');
+          this.router.navigate(
+            [lastLocation.url || '/'],
+            {queryParams: lastLocation.params}
+          ).finally();
         }
       },
       error: (error) => {
-        this.error = error;
-        this.loading = false;
+        this.isLoading = false;
+        // TODO translate errors
+        this.error = error.error?.error_description || error.message || error;
       }
     });
-  }
-
-  redirect() {
-    this.router.navigateByUrl(AUTH_ROUTE.LOGIN).finally()
   }
 }

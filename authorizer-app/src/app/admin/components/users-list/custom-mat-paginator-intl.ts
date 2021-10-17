@@ -4,29 +4,29 @@ import {Subject, takeUntil} from "rxjs";
 import {TranslateService} from "@ngx-translate/core";
 
 @Injectable()
-export class CustomMatPaginatorIntl extends MatPaginatorIntl
-  implements OnDestroy {
-  unsubscribe: Subject<void> = new Subject<void>();
+export class CustomMatPaginatorIntl extends MatPaginatorIntl implements OnDestroy {
+  translateSubject: Subject<void> = new Subject<void>();
   OF_LABEL = 'of';
 
   constructor(private translate: TranslateService) {
     super();
-
-    this.translate.onLangChange.pipe(
-      takeUntil(this.unsubscribe)
-    ).subscribe(() => {
-      this.getAndInitTranslations();
-    });
-
-    this.getAndInitTranslations();
+    this.initTranslations();
   }
 
   ngOnDestroy() {
-    this.unsubscribe.next();
-    this.unsubscribe.complete();
+    this.unsubscribeTranslate();
   }
 
-  getAndInitTranslations() {
+  private initTranslations(): void {
+    this.translate.onLangChange.pipe(
+      takeUntil(this.translateSubject)
+    ).subscribe(() => {
+      this.getAndInitTranslations();
+    });
+    this.getAndInitTranslations();
+  }
+
+  private getAndInitTranslations() {
     this.translate
       .get([
         'ADMIN.USERS_LIST.PAGINATOR.ITEMS_PER_PAGE',
@@ -34,7 +34,7 @@ export class CustomMatPaginatorIntl extends MatPaginatorIntl
         'ADMIN.USERS_LIST.PAGINATOR.PREVIOUS_PAGE',
         'ADMIN.USERS_LIST.PAGINATOR.OF_LABEL',
       ]).pipe(
-      takeUntil(this.unsubscribe)
+      takeUntil(this.translateSubject)
     ).subscribe(translation => {
       this.itemsPerPageLabel =
         translation['ADMIN.USERS_LIST.PAGINATOR.ITEMS_PER_PAGE'];
@@ -60,4 +60,9 @@ export class CustomMatPaginatorIntl extends MatPaginatorIntl
       this.OF_LABEL
     } ${length}`;
   };
+
+  private unsubscribeTranslate(): void {
+    this.translateSubject.next();
+    this.translateSubject.complete();
+  }
 }

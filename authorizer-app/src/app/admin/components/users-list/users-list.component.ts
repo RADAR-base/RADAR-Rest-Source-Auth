@@ -1,8 +1,7 @@
 import {
   AfterViewInit,
   Component, EventEmitter,
-  Input,
-  OnInit,
+  Input, OnDestroy,
   Output,
   TemplateRef,
   ViewChild
@@ -10,13 +9,16 @@ import {
 import {ActivatedRoute, Router} from "@angular/router";
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
-import {MatDialog} from '@angular/material/dialog';
 import {MatSort, MatSortable, Sort} from '@angular/material/sort';
 import {MatBottomSheet} from "@angular/material/bottom-sheet";
 
 import {SubjectService} from "@app/admin/services/subject.service";
 import {UserService} from "@app/admin/services/user.service";
 import {RestSourceUser} from '@app/admin/models/rest-source-user.model';
+import {TranslateService} from "@ngx-translate/core";
+import {Subject, takeUntil} from "rxjs";
+import {UserDialogMode} from "@app/admin/containers/user-dialog/user-dialog.component";
+import {LANGUAGES} from "@app/app.module";
 
 export interface UserData extends RestSourceUser{
   [key: string]: any;
@@ -48,26 +50,28 @@ export interface FilterItem {
   templateUrl: './users-list.component.html',
   styleUrls: ['./users-list.component.scss']
 })
-export class UsersListComponent implements OnInit, AfterViewInit {
-  loading = true;
-  error?: any;
+export class UsersListComponent implements OnDestroy, AfterViewInit {
+  UserDialogMode = UserDialogMode;
+
+  error?: string;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort: MatSort = new MatSort();
 
+  dataSource: MatTableDataSource<UserData> = new MatTableDataSource<UserData>();
+
   displayedColumns: string[] = [
     'userId',
     'externalId',
-    'sourceType',
     'startDate',
     'endDate',
     'isAuthorized',
+    'registrationCreatedAt',
     'actions'
   ];
 
-  dataSource: MatTableDataSource<UserData> = new MatTableDataSource<UserData>();
-
-  filterValues: any = {}; // todo type
+  filterEnabled = false;
+  filterValues: { [key: string]: string | undefined;} = {};
   filters: FilterItem[] = [
     {
       name: 'ADMIN.USERS_LIST.filters.userIdLabel',
@@ -79,45 +83,55 @@ export class UsersListComponent implements OnInit, AfterViewInit {
       name: 'ADMIN.USERS_LIST.filters.authorizedLabel',
       columnProp: 'isAuthorized',
       type: 'select',
-      options: [{value: 'yes', label: 'ADMIN.GENERAL.yes'}, {value: 'pending', label: 'ADMIN.GENERAL.pending'}, {value: 'no', label: 'ADMIN.GENERAL.no'}, {value: 'unset', label: 'ADMIN.GENERAL.unset'}],
+      options: [
+        {value: 'yes', label: 'ADMIN.USERS_LIST.authorizationStatus.yes'},
+        {value: 'pending', label: 'ADMIN.USERS_LIST.authorizationStatus.pending'},
+        {value: 'no', label: 'ADMIN.USERS_LIST.authorizationStatus.no'},
+        {value: 'unset', label: 'ADMIN.USERS_LIST.authorizationStatus.unset'}
+      ],
       width: 150,
     }
   ]
 
-  @ViewChild('templateBottomSheet') TemplateBottomSheet!: TemplateRef<any>;
-
   matSortActive!: string;
   matSortDirection!: 'asc' | 'desc';
 
+  @ViewChild('templateBottomSheet') TemplateBottomSheet!: TemplateRef<any>;
+
   @Input('users') set users(users: RestSourceUser[]) { this.dataSource.data = users as UserData[]; }
 
-  @Output()
-  action: EventEmitter<any> = new EventEmitter<any>();
+  @Output() actionClicked: EventEmitter<{mode: UserDialogMode, user: RestSourceUser}> =
+    new EventEmitter<{mode: UserDialogMode, user: RestSourceUser}>();
+
+  translateSubject: Subject<void> = new Subject<void>();
+  locale = LANGUAGES[0].locale;
 
   constructor(
     private userService: UserService,
     private subjectService: SubjectService,
-    public dialog: MatDialog,
     private bottomSheet: MatBottomSheet,
     private router: Router,
-    private activatedRoute: ActivatedRoute
-  ) {}
+    private activatedRoute: ActivatedRoute,
+    private translate: TranslateService,
+  ) {
+    this.initLocale();
+  }
 
-
-  ngOnInit() {}
+  ngOnDestroy(){
+    this.unsubscribeTranslate();
+  }
 
   ngAfterViewInit() {
     this.applyTableSort();
     this.dataSource.paginator = this.paginator;
     this.dataSource.filterPredicate = this.createTableFilterPredicate();
-    setTimeout(() => this._initialSetup());
+    setTimeout(() => this.checkActiveQuery());
     this.listenToStateChangeEvents();
   }
 
   //#region Sort and Filter
-  applyTableSort(): void {
+  private applyTableSort(): void {
     this.dataSource.sort = this.sort;
-    console.log(this.dataSource.sort);
     this.dataSource.sortingDataAccessor = (item: UserData, property: string) => {
       if(property === 'isAuthorized'){
         if (item[property]) {
@@ -135,13 +149,16 @@ export class UsersListComponent implements OnInit, AfterViewInit {
         }
       }
       if(property === 'startDate' || property === 'endDate'){
-        return item[property]? new Date(item[property]) : null;
+        return item[property] ? new Date(item[property]) : null;
+      }
+      if(property === 'registrationCreatedAt'){
+        return item.registrationCreatedAt ? new Date(item.registrationCreatedAt) : null;
       }
       return item[property].toLocaleLowerCase();
     };
   }
 
-  createTableFilterPredicate() {
+  private createTableFilterPredicate() {
     return function (data: UserData, filter: string): boolean {
       let searchTerms = JSON.parse(filter);
       let isFilterSet = false;
@@ -190,13 +207,19 @@ export class UsersListComponent implements OnInit, AfterViewInit {
     }
   }
 
-  filterChange(filter: any, event: any) {
-    this.filterValues[filter.columnProp] = event.value;
+  filterChange(filter: FilterItem, event: any) {
+    if(event.value !== ''){
+      this.filterValues[filter.columnProp] = event.value;
+    } else {
+      delete this.filterValues[filter.columnProp];
+    }
+    this.filterEnabled = this.isFilterEnabled();
     this.dataSource.filter = JSON.stringify(this.filterValues);
-    this.applyStateChangesToUrlQueryParams({[filter.columnProp]: event.value})
+    this.applyStateChangesToUrlQueryParams({[filter.columnProp]: event.value !== '' ? event.value : null})
   }
 
   resetFilters() {
+    this.filterEnabled = false;
     this.filterValues = {}
     this.filters.forEach((value: any, _: any) => {
       value.modelValue = undefined;
@@ -204,15 +227,22 @@ export class UsersListComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = "";
     this.applyStateChangesToUrlQueryParams({isAuthorized: null, userId: null});
   }
-  //#endregion
 
-  //#region User Actions
-  openSubjectDialog(mode: string, user: RestSourceUser) {
-    this.action.emit({mode, user});
+  isFilterEnabled(): boolean {
+    console.log(this.filterValues);
+    return Object.entries(this.filterValues).length > 0;
   }
   //#endregion
 
-  private _initialSetup(): void {
+  //#region User Actions
+  onActionClick(mode: UserDialogMode, user: RestSourceUser) {
+    console.log('openSubjectDialog', mode ,user);
+    this.actionClicked.emit({mode: mode, user: user});
+  }
+  //#endregion
+
+  //#region Query Params
+  private checkActiveQuery(): void {
     this.checkActivePageQuery();
     this.checkActiveSortQuery();
     this.checkActiveFilterQuery();
@@ -226,6 +256,7 @@ export class UsersListComponent implements OnInit, AfterViewInit {
           if (queryParams.userId) {
             value.modelValue = queryParams.userId;
             this.filterValues.userId = queryParams.userId;
+            this.filterEnabled = true;
           } else {
             value.modelValue = undefined;
             this.filterValues.userId = undefined;
@@ -235,6 +266,7 @@ export class UsersListComponent implements OnInit, AfterViewInit {
           if (queryParams.isAuthorized) {
             value.modelValue = queryParams.isAuthorized;
             this.filterValues.isAuthorized = queryParams.isAuthorized;
+            this.filterEnabled = true;
           } else {
             value.modelValue = undefined;
             this.filterValues.isAuthorized = undefined;
@@ -249,19 +281,25 @@ export class UsersListComponent implements OnInit, AfterViewInit {
     const queryParams = this.activatedRoute.snapshot.queryParams;
     if (queryParams.hasOwnProperty('sortField') && queryParams.hasOwnProperty('sortOrder')) {
       const sortActiveColumn = queryParams.sortField || this.matSortActive;
+      const activeSortHeader: any = this.dataSource.sort!.sortables.get(sortActiveColumn);
+      console.log(activeSortHeader);
+      if (!activeSortHeader) {
+        this.applyStateChangesToUrlQueryParams({
+          sortField: null,
+          sortOrder: null,
+        });
+        return;
+      }
+      activeSortHeader['_setAnimationTransitionState']({
+        fromState: this.dataSource.sort!.direction,
+        toState: 'active',
+      });
       const sortable: MatSortable = {
         id: sortActiveColumn,
         start: queryParams.sortOrder || this.matSortDirection,
         disableClear: true
       };
       this.dataSource.sort!.sort(sortable);
-
-      const activeSortHeader: any = this.dataSource.sort!.sortables.get(sortActiveColumn);
-      if (!activeSortHeader) { return; }
-      activeSortHeader['_setAnimationTransitionState']({
-        fromState: this.dataSource.sort!.direction,
-        toState: 'active',
-      });
     }
   }
 
@@ -300,16 +338,30 @@ export class UsersListComponent implements OnInit, AfterViewInit {
   private applyStateChangesToUrlQueryParams(queryParams: any): void {
     this.router.navigate([], { queryParams: queryParams, queryParamsHandling: 'merge' }).finally();
   }
+  //#endregion
+
+  //#region Locale
+  private initLocale(): void {
+    this.translate.onLangChange.pipe(
+      takeUntil(this.translateSubject)
+    ).subscribe(() => {
+      this.locale = this.getCurrentLocale();
+    });
+    this.locale = this.getCurrentLocale();
+  }
+
+  private getCurrentLocale(): string {
+    return LANGUAGES.filter(language => language.lang === this.translate.currentLang)[0].locale;
+  }
+
+  private unsubscribeTranslate(): void {
+    this.translateSubject.next();
+    this.translateSubject.complete();
+  }
+  //#endregion
 
   openTemplateSheetMenu() {
     this.bottomSheet.open(this.TemplateBottomSheet);
   }
 
-  // closeTemplateSheetMenu() {
-  //   this.bottomSheet.dismiss();
-  // }
-
-  // openBottomSheet(): void {
-  //   this._bottomSheet.open(SortAndFiltersComponent);
-  // }
 }
