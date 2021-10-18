@@ -5,26 +5,22 @@
 export const environment = {
   radarBaseUrl: 'https://radar-k3s-test.thehyve.net',
   production: false,
-  backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend', // 'http://localhost:8080',
-  // backendBaseUrl: 'https://radar-test.thehyve.net/rest-sources/backend', // 'http://localhost:8080',
-  doValidate: false,
-  authorizationGrantType: 'authorization_code',
-  // appClientId: 'radar_rest_sources_auth',
-  appClientId: 'radar_rest_sources_authorizer',
-  // appClientId: 'appconfig_frontend',
-  appClientSecret: '',
-  // appClientSecret: '',
-  authCallbackUrl: 'http://localhost:8080/login', //https://radar-k3s-test.thehyve.net/rest-sources/authorizer/login', //'http://localhost:8080/oauth/callback',
   BASE_HREF: '/rest-sources/authorizer/',
-  // authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
-  // authBaseUrl: 'https://radar-test.thehyve.net/managementportal/oauth',
+  // base url of the rest-sources authorizer app
+  backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend',
+  // If user validation is enabled
+  doValidate: false,
+  // Grant-type of authorization
+  authorizationGrantType: 'authorization_code',
+  // Client id of the authorizer app.
+  appClientId: 'radar_rest_sources_authorizer',
+  // Client secret of the authorizer app.
+  appClientSecret: '',
+  // Callback URL registered in MP.
+  authCallbackUrl: 'http://localhost:8080/login',
+  // Management Portal URL.
   authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
-  // authBaseUrl: 'http://localhost:8080/oauth'
 };
-
-  // appClientId: 'radar_rest_sources_authorizer',
-  // appClientSecret: '', // 'secret',
-  // authCallbackUrl: 'https://more-dev.thehyve.net/rest-sources/authorizer/login', // http://localhost:8080/oauth/callback',
 
 /*
  * For easier debugging in development mode, you can import the following file

@@ -1,0 +1,16 @@
+{
+  "LOGIN_PAGE": {
+    "title": "Log in",
+    "subtitle": "Log in op de REST Source Authorizer App",
+    "description": "Met deze app kun je deelnemers uit de RADAR-base Management Portal koppelen aan externe apparaat-API's (bijv. Fitbit, Withings en ...)",
+    "loginButton": "Inloggen met Management Portal"
+  },
+  "ERROR": {
+    "sessionExpired": "De sessie is verlopen. Log opnieuw in.",
+    "authGuard": "U moet ingelogd zijn om de opgevraagde pagina te zien."
+  }
+}
+
+
+
+
