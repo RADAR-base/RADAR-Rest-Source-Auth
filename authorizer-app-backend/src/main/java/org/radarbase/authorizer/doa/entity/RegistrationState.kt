@@ -24,6 +24,8 @@ class RegistrationState(
     val salt: ByteArray?,
     @Column(name = "secret_hash", nullable = true)
     val secretHash: ByteArray?,
+    @Column(name = "created_at", nullable = false)
+    val createdAt: Instant,
     @Column(name = "expires_at", nullable = false)
     val expiresAt: Instant,
     @Column(nullable = false)

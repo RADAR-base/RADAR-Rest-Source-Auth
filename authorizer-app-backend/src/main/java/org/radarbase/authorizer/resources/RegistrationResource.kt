@@ -7,10 +7,7 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.authorizer.api.RegistrationResponse
-import org.radarbase.authorizer.api.RequestTokenPayload
-import org.radarbase.authorizer.api.StateCreateDTO
-import org.radarbase.authorizer.api.TokenSecret
+import org.radarbase.authorizer.api.*
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RegistrationService
@@ -22,6 +19,7 @@ import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpConflictException
+import org.radarbase.jersey.service.managementportal.RadarProjectService
 import java.net.URI
 
 @Path("registrations")
@@ -35,6 +33,7 @@ class RegistrationResource(
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val registrationService: RegistrationService,
+    @Context private val projectService: RadarProjectService,
 ) {
     @POST
     @Authenticated
@@ -69,8 +68,10 @@ class RegistrationResource(
         return RegistrationResponse(
             token = registration.token,
             userId = registration.user.id!!.toString(),
+            createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
+            sourceType = registration.user.sourceType,
         )
     }
 
@@ -98,6 +99,10 @@ class RegistrationResource(
         if (salt == null || secretHash == null) throw HttpBadRequestException("registration_invalid", "Cannot retrieve authentication endpoint token without credentials.")
         val hmac256Secret = Hmac256Secret(tokenSecret.secret, salt, secretHash)
         if (!hmac256Secret.isValid) throw HttpBadRequestException("bad_secret", "Secret does not match token")
+        val project = registration.user.projectId?.let {
+            projectService.project(it).toProject()
+        }
+
         return RegistrationResponse(
             token = registration.token,
             authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(
@@ -106,8 +111,11 @@ class RegistrationResource(
                 state = registration.token
             ),
             userId = registration.user.id!!.toString(),
+            project = project,
+            createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
+            sourceType = registration.user.sourceType,
         )
     }
 
@@ -121,12 +129,18 @@ class RegistrationResource(
         val registration = registrationService.ensureRegistration(token)
         val accessToken = authorizationService.requestAccessToken(payload, registration.user.sourceType)
         val user = userRepository.updateToken(accessToken, registration.user)
+        val project = registration.user.projectId?.let {
+            projectService.project(it).toProject()
+        }
 
         val tokenEntity = RegistrationResponse(
             token = registration.token,
             userId = registration.user.id!!.toString(),
+            project = project,
+            createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
+            sourceType = registration.user.sourceType,
         )
 
         registrationRepository -= registration

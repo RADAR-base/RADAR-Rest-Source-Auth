@@ -31,7 +31,7 @@ class ManagementPortalEnhancerFactory(private val config: Config) : EnhancerFact
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
         val authConfig = AuthConfig(
             managementPortal = MPConfig(
-                url = config.auth.managementPortalUrl,
+                url = config.auth.managementPortalUrl.trimEnd('/'),
                 clientId = config.auth.clientId,
                 clientSecret = config.auth.clientSecret,
                 syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,

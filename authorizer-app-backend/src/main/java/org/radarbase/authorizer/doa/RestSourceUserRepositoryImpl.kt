@@ -103,8 +103,8 @@ class RestSourceUserRepositoryImpl(
         existingUser.apply {
             this.version = Instant.now().toString()
             this.timesReset += 1
-            this.startDate = startDate
-            this.endDate = endDate
+            this.startDate = user.startDate
+            this.endDate = user.endDate
             merge(this)
         }
     }

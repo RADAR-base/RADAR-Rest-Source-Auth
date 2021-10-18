@@ -27,7 +27,8 @@ class RegistrationRepository(
         secret: Hmac256Secret?,
         persistent: Boolean,
     ): RegistrationState? {
-        val expiresAt = Instant.now() + if (persistent) persistentTokenExpiryTime else tokenExpiryTime
+        val createdAt = Instant.now()
+        val expiresAt = createdAt + if (persistent) persistentTokenExpiryTime else tokenExpiryTime
         val numberOfBytes = if (persistent) 18 else 9
         return randomStrings(numberOfBytes)
             .take(10)
@@ -37,6 +38,7 @@ class RegistrationRepository(
                         RegistrationState(
                             token = token,
                             user = user,
+                            createdAt = createdAt,
                             expiresAt = expiresAt,
                             salt = secret?.salt,
                             secretHash = secret?.secretHash,

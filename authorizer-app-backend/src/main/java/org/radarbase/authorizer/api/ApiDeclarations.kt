@@ -58,9 +58,12 @@ data class RegistrationResponse(
     val token: String,
     val secret: String? = null,
     val userId: String,
+    val createdAt: Instant,
     val expiresAt: Instant,
     val persistent: Boolean,
+    val project: Project? = null,
     val authEndpointUrl: String? = null,
+    val sourceType: String,
 )
 
 data class DeregistrationsDTO(
@@ -107,6 +110,7 @@ data class RestSourceUserDTO(
     val endDate: Instant? = null,
     val sourceType: String,
     var isAuthorized: Boolean = false,
+    var registrationCreatedAt: Instant? = null,
     val hasValidToken: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0,
