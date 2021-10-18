@@ -101,8 +101,8 @@ class RestSourceUser(
         fetch = FetchType.EAGER,
         targetEntity = RegistrationState::class,
         cascade = [CascadeType.REMOVE],
+        mappedBy = "user"
     )
-    @JoinColumn(name = "user_id")
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 2)
     var registrations: List<RegistrationState> = listOf(),
