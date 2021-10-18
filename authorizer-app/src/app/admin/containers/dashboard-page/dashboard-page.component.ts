@@ -4,14 +4,10 @@ import {FormBuilder, Validators} from '@angular/forms';
 import {
   BehaviorSubject,
   combineLatest,
-  distinctUntilChanged,
-  filter,
   Observable,
   Subject,
-  switchMap,
-  takeUntil
 } from "rxjs";
-import {map} from "rxjs/operators";
+import {distinctUntilChanged, filter, map, switchMap, takeUntil} from "rxjs/operators";
 import {MatSelectChange} from '@angular/material/select';
 import {MatDialog} from "@angular/material/dialog";
 

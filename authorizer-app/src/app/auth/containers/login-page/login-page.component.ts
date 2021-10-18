@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {first, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 
 import {AuthService} from '@app/auth/services/auth.service';
 import {GrantType} from '@app/auth/enums/grant-type';
@@ -9,6 +9,7 @@ import {StorageItem} from "@app/auth/enums/storage-item";
 import {MessageBoxType} from "@app/shared/components/message-box/message-box.component";
 
 import {environment} from '@environments/environment';
+import {first} from "rxjs/operators";
 
 @Component({
   selector: 'app-login-page',

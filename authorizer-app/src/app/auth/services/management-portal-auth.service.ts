@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import {Router} from "@angular/router";
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import {BehaviorSubject, Observable, of, tap} from 'rxjs';
-import {catchError, map, shareReplay} from 'rxjs/operators';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {catchError, map, shareReplay, tap} from 'rxjs/operators';
 
 import { AuthService } from '@app/auth/services/auth.service';
 import {AuthResponse, User} from '@app/auth/models/auth.model';

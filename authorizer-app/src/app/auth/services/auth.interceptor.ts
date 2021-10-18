@@ -1,8 +1,8 @@
 import {Injectable } from '@angular/core';
 import {Router} from "@angular/router";
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
-import {BehaviorSubject, filter, Observable, switchMap, take, throwError} from 'rxjs';
-import {catchError} from "rxjs/operators";
+import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {catchError, filter, switchMap, take} from "rxjs/operators";
 
 import {AuthService} from '@app/auth/services/auth.service';
 import {AuthResponse} from "@app/auth/models/auth.model";
