@@ -71,6 +71,7 @@ class RegistrationResource(
             createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
+            sourceType = registration.user.sourceType,
         )
     }
 
@@ -114,6 +115,7 @@ class RegistrationResource(
             createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
+            sourceType = registration.user.sourceType,
         )
     }
 
@@ -138,6 +140,7 @@ class RegistrationResource(
             createdAt = registration.createdAt,
             expiresAt = registration.expiresAt,
             persistent = registration.persistent,
+            sourceType = registration.user.sourceType,
         )
 
         registrationRepository -= registration

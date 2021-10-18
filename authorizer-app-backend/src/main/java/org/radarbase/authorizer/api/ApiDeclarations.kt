@@ -63,6 +63,7 @@ data class RegistrationResponse(
     val persistent: Boolean,
     val project: Project? = null,
     val authEndpointUrl: String? = null,
+    val sourceType: String,
 )
 
 data class DeregistrationsDTO(

@@ -27,6 +27,7 @@ class RegistrationService(
             createdAt = tokenState.createdAt,
             expiresAt = tokenState.expiresAt,
             persistent = tokenState.persistent,
+            sourceType = tokenState.user.sourceType,
         )
     }
 
