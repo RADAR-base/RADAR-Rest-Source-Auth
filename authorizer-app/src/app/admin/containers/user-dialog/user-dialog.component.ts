@@ -1,15 +1,13 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormatWidth, getLocaleDateFormat } from "@angular/common";
+import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Subject, takeUntil } from "rxjs";
 import { DateAdapter } from "@angular/material/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from "@ngx-translate/core";
 
 import { UserService } from "@app/admin/services/user.service";
 import { RestSourceUser } from '@app/admin/models/rest-source-user.model';
-
+import {LocaleService} from "@app/admin/services/locale.service";
 import {LANGUAGES} from "@app/app.module";
 
 export enum UserDialogMode {
@@ -31,7 +29,7 @@ export enum UserDialogCommand {
   styleUrls: ['user-dialog.component.scss'],
 })
 
-export class UserDialogComponent implements OnDestroy {
+export class UserDialogComponent {
   SubjectDialogMode = UserDialogMode;
 
   isGenerateUrlLoading = false;
@@ -47,13 +45,10 @@ export class UserDialogComponent implements OnDestroy {
     startDate: [{value: this.subject.startDate, disabled: this.mode == UserDialogMode.VIEW}, Validators.required],
     endDate: [{value: this.subject.endDate, disabled: this.mode == UserDialogMode.VIEW}],
   });
-  dateFormatHint = '';
+  dateFormat = '';
 
   messageForUserLink?: string;
   messageForUserExpirationDate?: Date;
-
-  translateSubject: Subject<void> = new Subject<void>();
-  locale = LANGUAGES[0].locale;
 
   constructor(
     private router: Router,
@@ -63,12 +58,9 @@ export class UserDialogComponent implements OnDestroy {
     private translate: TranslateService,
     private _adapter: DateAdapter<any>,
     @Inject(MAT_DIALOG_DATA) public data: {subject: RestSourceUser; mode: string},
+    private session: LocaleService
   ) {
     this.initLocale();
-  }
-
-  ngOnDestroy() {
-    this.unsubscribeTranslate();
   }
 
   //#region Dialog Actions
@@ -218,28 +210,9 @@ export class UserDialogComponent implements OnDestroy {
 
   //#region Locale
   private initLocale() {
-    this.translate.onLangChange.pipe(
-      takeUntil(this.translateSubject)
-    ).subscribe(() => {
-      this.updateLocale();
-    });
-    this.updateLocale();
-  }
-
-  private updateLocale() {
-    const locale = this.getCurrentLocale();
-    this.locale = locale;
+    const locale = this.session.locale;
     this._adapter.setLocale(locale);
-    this.dateFormatHint = getLocaleDateFormat( locale, FormatWidth.Short );
-  }
-
-  private getCurrentLocale(): string {
-    return LANGUAGES.filter(language => language.lang === this.translate.currentLang)[0].locale;
-  }
-
-  private unsubscribeTranslate(): void {
-    this.translateSubject.next();
-    this.translateSubject.complete();
+    this.dateFormat = LANGUAGES.filter(lang => lang.locale === locale)[0].dateFormat; // getLocaleDateFormat( locale, FormatWidth.Short );
   }
   //#endregion
 

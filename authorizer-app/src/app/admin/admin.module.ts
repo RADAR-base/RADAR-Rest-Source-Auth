@@ -1,8 +1,5 @@
 import { NgModule } from '@angular/core';
 import {CommonModule} from "@angular/common";
-import { registerLocaleData } from '@angular/common';
-import localeNl from '@angular/common/locales/nl';
-import localeGb from '@angular/common/locales/en-GB';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from "@angular/material/core";
 import {MatPaginatorIntl} from "@angular/material/paginator";
@@ -27,14 +24,16 @@ import {DashboardPageComponent} from "@app/admin/containers/dashboard-page/dashb
 import {CustomMatPaginatorIntl} from "@app/admin/components/users-list/custom-mat-paginator-intl";
 import {LANGUAGES} from "@app/app.module";
 
-registerLocaleData(localeNl);
-registerLocaleData(localeGb);
+import {LocalDatePipe} from "@app/admin/pipes/local-date.pipe";
+import {LocalNumberPipe} from "@app/admin/pipes/local-number.pipe";
 
 @NgModule({
   declarations: [
     UsersListComponent,
     DashboardPageComponent,
     UserDialogComponent,
+    LocalDatePipe,
+    LocalNumberPipe,
   ],
   imports: [
     CommonModule,
@@ -59,6 +58,8 @@ registerLocaleData(localeGb);
     {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
     {provide: MatPaginatorIntl, useClass: CustomMatPaginatorIntl},
     MatBottomSheet,
+    LocalDatePipe,
+    LocalNumberPipe,
   ],
 })
 export class AdminModule {}

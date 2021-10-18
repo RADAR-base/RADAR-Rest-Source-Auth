@@ -13,9 +13,9 @@ import {AuthInterceptor} from "@app/auth/services/auth.interceptor";
 import {ErrorInterceptor} from "@app/shared/services/error.interceptor";
 
 export const LANGUAGES = [
-    {lang: 'en-GB', locale: 'en-GB', label: 'English (GB)'}, // default language
-    {lang: 'nl', locale: 'nl-NL', label: 'Nederlands'},
-    {lang: 'en-US', locale: 'en-US', label: 'English (US)'}
+    {lang: 'en', locale: 'en-GB', label: 'English', dateFormat: 'dd/mm/yyyy'}, // default language
+    {lang: 'nl', locale: 'nl-NL', label: 'Nederlands',dateFormat: 'dd-mm-yyyy'},
+    {lang: 'en-US', locale: 'en-US', label: 'English (US)', dateFormat: 'mm/dd/yyyy'}
   ];
 
 export function ModuleHttpLoaderFactory(http: HttpClient) {

@@ -30,8 +30,8 @@ export interface RestSourceUserRequest {
   projectId: string;
   userId: string;
   sourceId?: string;
-  startDate: string; // Instant;
-  endDate?: string; // Instant;
+  startDate: string;
+  endDate?: string;
   sourceType: string;
 }
 
@@ -40,10 +40,10 @@ export interface RestSourceUserResponse {
   projectId: string;
   userId: string;
   sourceId: string;
-  startDate: string; // Instant
-  endDate?: string; // Instant
+  startDate: string;
+  endDate?: string;
   sourceType: string;
-  createdAt: string; // Instant
+  createdAt: string;
   humanReadableUserId: string;
   externalId: string;
   serviceUserId?: string;
@@ -62,18 +62,11 @@ export interface RegistrationResponse {
   secret?: string; // only defined if the registration is persistent
   userId: string;
   authEndpointUrl?: string; // only defined if the registration is not persistent
-  expiresAt: string; // Instant
+  expiresAt: string;
   persistent: boolean;
   project?: any;
   sourceType?: string;
 }
-// interface RegistrationResponse {
-//   token: String
-//   userId: String
-//   authEndpointUrl: String
-//   expiresAt: Instant
-//   persistent: Boolean
-// }
 
 export interface RegistrationRequest {
   secret: string;

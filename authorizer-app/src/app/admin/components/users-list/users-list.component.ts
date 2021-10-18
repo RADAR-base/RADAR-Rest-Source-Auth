@@ -1,7 +1,7 @@
 import {
   AfterViewInit,
   Component, EventEmitter,
-  Input, OnDestroy,
+  Input,
   Output,
   TemplateRef,
   ViewChild
@@ -15,10 +15,7 @@ import {MatBottomSheet} from "@angular/material/bottom-sheet";
 import {SubjectService} from "@app/admin/services/subject.service";
 import {UserService} from "@app/admin/services/user.service";
 import {RestSourceUser} from '@app/admin/models/rest-source-user.model';
-import {TranslateService} from "@ngx-translate/core";
-import {Subject, takeUntil} from "rxjs";
 import {UserDialogMode} from "@app/admin/containers/user-dialog/user-dialog.component";
-import {LANGUAGES} from "@app/app.module";
 
 export interface UserData extends RestSourceUser{
   [key: string]: any;
@@ -50,7 +47,7 @@ export interface FilterItem {
   templateUrl: './users-list.component.html',
   styleUrls: ['./users-list.component.scss']
 })
-export class UsersListComponent implements OnDestroy, AfterViewInit {
+export class UsersListComponent implements AfterViewInit {
   UserDialogMode = UserDialogMode;
 
   error?: string;
@@ -103,23 +100,13 @@ export class UsersListComponent implements OnDestroy, AfterViewInit {
   @Output() actionClicked: EventEmitter<{mode: UserDialogMode, user: RestSourceUser}> =
     new EventEmitter<{mode: UserDialogMode, user: RestSourceUser}>();
 
-  translateSubject: Subject<void> = new Subject<void>();
-  locale = LANGUAGES[0].locale;
-
   constructor(
     private userService: UserService,
     private subjectService: SubjectService,
     private bottomSheet: MatBottomSheet,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private translate: TranslateService,
-  ) {
-    this.initLocale();
-  }
-
-  ngOnDestroy(){
-    this.unsubscribeTranslate();
-  }
+  ) {}
 
   ngAfterViewInit() {
     this.applyTableSort();
@@ -337,26 +324,6 @@ export class UsersListComponent implements OnDestroy, AfterViewInit {
 
   private applyStateChangesToUrlQueryParams(queryParams: any): void {
     this.router.navigate([], { queryParams: queryParams, queryParamsHandling: 'merge' }).finally();
-  }
-  //#endregion
-
-  //#region Locale
-  private initLocale(): void {
-    this.translate.onLangChange.pipe(
-      takeUntil(this.translateSubject)
-    ).subscribe(() => {
-      this.locale = this.getCurrentLocale();
-    });
-    this.locale = this.getCurrentLocale();
-  }
-
-  private getCurrentLocale(): string {
-    return LANGUAGES.filter(language => language.lang === this.translate.currentLang)[0].locale;
-  }
-
-  private unsubscribeTranslate(): void {
-    this.translateSubject.next();
-    this.translateSubject.complete();
   }
   //#endregion
 

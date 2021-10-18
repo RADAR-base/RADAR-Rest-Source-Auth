@@ -61,7 +61,7 @@
 
     <ng-container *ngIf="!subject.isAuthorized && subject.registrationCreatedAt != null">
       <dt>{{ 'ADMIN.GENERAL.registrationCreatedAt' | translate }}</dt>
-      <dd>{{subject.registrationCreatedAt | date:'short':undefined:locale}}</dd>
+      <dd>{{subject.registrationCreatedAt | localDate:'short'}}</dd>
     </ng-container>
 
     <ng-container *ngIf="subject.sourceId">
@@ -94,12 +94,12 @@
 <form *ngIf="mode!==SubjectDialogMode.DELETE" [formGroup]="form" novalidate>
   <mat-dialog-content>
     <mat-form-field appearance="outline" floatLabel="always">
-      <mat-label>{{ 'ADMIN.USER_DIALOG.startEndDate' | translate }} ({{dateFormatHint}})</mat-label>
+      <mat-label>{{ 'ADMIN.USER_DIALOG.startEndDate' | translate }} ({{dateFormat}})</mat-label>
       <mat-date-range-input [rangePicker]="picker" required>
         <input matStartDate formControlName="startDate"
-               [placeholder]="'ADMIN.USER_DIALOG.startDatePlaceholder' | translate" >
+               [placeholder]="dateFormat" >
         <input matEndDate formControlName="endDate"
-               [placeholder]="'ADMIN.USER_DIALOG.endDatePlaceholder' | translate" >
+               [placeholder]="dateFormat" >
       </mat-date-range-input>
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
@@ -131,9 +131,9 @@
         {{messageForUserLink}}
         <br/>
         {{ 'ADMIN.USER_DIALOG.ADD.generateUrlExpirationDate' | translate }}:
-        {{messageForUserExpirationDate | date: 'full': undefined: locale }}
+        {{messageForUserExpirationDate | localDate: 'full' }}
       </p>
-      <button *ngIf="messageForUserExpirationDate | date:'full':undefined:locale as expDate"
+      <button *ngIf="messageForUserExpirationDate | localDate:'full' as expDate"
               mat-icon-button
               [cdkCopyToClipboard]="
               ('ADMIN.USER_DIALOG.ADD.generateUrlMessage' | translate:{sourceType: this.subject.sourceType}) +

@@ -3,7 +3,7 @@ import {Component, Input} from '@angular/core';
 export enum MessageBoxType {
   ERROR = 'error',
   WARNING = 'warn',
-  // INFO = 'info'
+  INFO = 'info'
 }
 
 @Component({

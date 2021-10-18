@@ -66,8 +66,6 @@ export class AuthService {
 
   clearLastLocation(): void {
     localStorage.removeItem(StorageItem.LAST_LOCATION);
-    // localStorage.removeItem(StorageItem.SAVED_PARAMS);
-    // localStorage.removeItem(StorageItem.SAVED_URL);
   }
 
   authenticate(loginParams: any): Observable<any> {

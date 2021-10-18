@@ -1,7 +1,16 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, Validators} from '@angular/forms';
-import {BehaviorSubject, combineLatest, distinctUntilChanged, filter, Observable, switchMap} from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  Observable,
+  Subject,
+  switchMap,
+  takeUntil
+} from "rxjs";
 import {map} from "rxjs/operators";
 import {MatSelectChange} from '@angular/material/select';
 import {MatDialog} from "@angular/material/dialog";
@@ -17,6 +26,10 @@ import {UserData} from "@app/admin/components/users-list/users-list.component";
 import {RadarProject, RadarSourceClient, RadarSubject} from "@app/admin/models/radar-entities.model";
 import {RestSourceUser} from "@app/admin/models/rest-source-user.model";
 import {StorageItem} from "@app/auth/enums/storage-item";
+import {LANGUAGES} from "@app/app.module";
+import {registerLocaleData} from "@angular/common";
+import {TranslateService} from "@ngx-translate/core";
+import {LocaleService} from "@app/admin/services/locale.service";
 
 @Component({
   selector: 'app-dashboard',
@@ -28,25 +41,31 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   error?: string;
 
   projects: RadarProject[] = this.activatedRoute.snapshot.data.projects;
-  // projects: RadarProject[] = [...[], this.activatedRoute.snapshot.data.projects[0]];
+  /*
+  // Single Project
+  projects: RadarProject[] = [...[], this.activatedRoute.snapshot.data.projects[0]];
+  */
 
   sourceClients: RadarSourceClient[] = this.activatedRoute.snapshot.data.sourceClients;
-  // sourceClients: RadarSourceClient[] = [
-  //     {
-  //       authorizationEndpoint: "https://www.fitbit.com/oauth2/authorize",
-  //       clientId: "239Z46",
-  //       scope: "activity heartrate sleep profile",
-  //       sourceType: "FitBit",
-  //       tokenEndpoint: "https://api.fitbit.com/oauth2/token",
-  //     },
-  //     {
-  //       authorizationEndpoint: "https://www.fitbit1.com/oauth2/authorize",
-  //       clientId: "239Z461",
-  //       scope: "activity1 heartrate sleep profile",
-  //       sourceType: "Withings",
-  //       tokenEndpoint: "https://api.fitbit.com/oauth2/token1",
-  //     }
-  //   ];
+  /*
+  // Multiple Source Clients
+  sourceClients: RadarSourceClient[] = [
+      {
+        authorizationEndpoint: "https://www.fitbit.com/oauth2/authorize",
+        clientId: "239Z46",
+        scope: "activity heartrate sleep profile",
+        sourceType: "FitBit",
+        tokenEndpoint: "https://api.fitbit.com/oauth2/token",
+      },
+      {
+        authorizationEndpoint: "https://www.fitbit1.com/oauth2/authorize",
+        clientId: "239Z461",
+        scope: "activity1 heartrate sleep profile",
+        sourceType: "Withings",
+        tokenEndpoint: "https://api.fitbit.com/oauth2/token1",
+      }
+    ];
+   */
 
   selectedProject?: string = this.projects.length === 1 ? this.projects[0].id : undefined;
   selectedSourceClient?: string = this.sourceClients.length === 1 ? this.sourceClients[0].sourceType : undefined;
@@ -74,6 +93,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   users?: RestSourceUser[];
 
+  translateSubject: Subject<void> = new Subject<void>();
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -81,7 +102,11 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private subjectService: SubjectService,
     public dialog: MatDialog,
-  ) {}
+    private translate: TranslateService,
+    private session: LocaleService
+  ) {
+    this.initLocale();
+  }
 
   ngOnInit() {
     this.loadTableData();
@@ -95,6 +120,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.updateTriggerSubject.complete();
+    this.unsubscribeTranslate();
   }
 
   //#region Project & Source Client Filter
@@ -236,6 +262,47 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   private applyStateChangesToUrlQueryParams(queryParams: any): void {
     this.router.navigate([], { queryParams: queryParams, queryParamsHandling: 'merge' }).finally();
+  }
+  //#endregion
+
+  //#region Locale
+  private initLocale(): void {
+    this.translate.onLangChange.pipe(
+      takeUntil(this.translateSubject)
+    ).subscribe(() => {
+      this.registerCulture(this.getCurrentLocale());
+    });
+    this.registerCulture(this.getCurrentLocale());
+  }
+
+  private getCurrentLocale(): string {
+    return LANGUAGES.filter(language => language.lang === this.translate.currentLang)[0].locale;
+  }
+
+  private registerCulture(culture: string) {
+    if (!culture) {
+      return;
+    }
+    this.session.locale = culture;
+
+    let localeId = culture.substring(0, 2);
+    if(culture === 'en-GB'){
+      localeId = culture;
+    }
+
+    this.localeInitializer(localeId).then(() => {});
+  }
+
+  localeInitializer(localeId: string): Promise<any> {
+    return import(
+      /* webpackInclude: /(en-GB|en|nl)\.js$/ */
+      `@angular/common/locales/${localeId}.js`
+      ).then(module => registerLocaleData(module.default));
+  }
+
+  private unsubscribeTranslate(): void {
+    this.translateSubject.next();
+    this.translateSubject.complete();
   }
   //#endregion
 }

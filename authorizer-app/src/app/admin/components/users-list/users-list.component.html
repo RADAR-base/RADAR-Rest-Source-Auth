@@ -2,7 +2,7 @@
   {{error | translate}}
 </app-message>
 
-<div class="container" >
+<div class="container">
   <div class="filter-container">
     <ng-container *ngTemplateOutlet="filtersContainer"></ng-container>
   </div>
@@ -20,19 +20,19 @@
            aria-label="Users List">
 
       <ng-container matColumnDef="userId">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-w-150 ellipsis">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-w-140 ellipsis">
           {{'ADMIN.GENERAL.userId' | translate}}
         </th>
-        <td mat-cell *matCellDef="let user" class="m-w-150 ellipsis">
+        <td mat-cell *matCellDef="let user" class="m-w-140 ellipsis">
           {{user['userId']}}
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="externalId" class="m-w-100 ellipsis">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-hide m-w-100 ellipsis">
+      <ng-container matColumnDef="externalId">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-hide m-w-120 ellipsis">
           {{'ADMIN.GENERAL.externalId' | translate}}
         </th>
-        <td mat-cell *matCellDef="let user" class="m-hide m-w-100 ellipsis">
+        <td mat-cell *matCellDef="let user" class="m-hide w-120 ellipsis">
           {{user['externalId']}}
         </td>
       </ng-container>
@@ -42,7 +42,7 @@
           {{'ADMIN.GENERAL.startDate' | translate}}
         </th>
         <td mat-cell *matCellDef="let user" class="t-hide">
-          {{(user['startDate'] | date:'shortDate' : undefined : locale) || '-'}}
+          {{(user['startDate'] | localDate:'mediumDate') || '-'}}
         </td>
       </ng-container>
 
@@ -51,15 +51,15 @@
           {{'ADMIN.GENERAL.endDate' | translate}}
         </th>
         <td mat-cell *matCellDef="let user" class="t-hide">
-          {{(user['endDate'] | date:'shortDate' : undefined : locale) || '-' }}
+          {{(user['endDate'] | localDate:'mediumDate') || '-' }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="isAuthorized">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-hide m-w-220">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="m-hide w-150">
           {{'ADMIN.GENERAL.authorized' | translate}}
         </th>
-        <td mat-cell *matCellDef="let user" class="m-hide m-w-220">
+        <td mat-cell *matCellDef="let user" class="m-hide w-150">
           <span *ngIf="user['isAuthorized']" class="tag tag-success">
             {{ 'ADMIN.USERS_LIST.authorizationStatus.yes' | translate }}
           </span>
@@ -76,19 +76,22 @@
       </ng-container>
 
       <ng-container matColumnDef="registrationCreatedAt">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="t-hide">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="t-hide w-180">
           {{'ADMIN.GENERAL.registrationCreatedAt' | translate}}
         </th>
-        <td mat-cell *matCellDef="let user" class="t-hide">
-          {{(user['registrationCreatedAt'] | date:'short' : undefined : locale) || '-'}}
+        <td mat-cell *matCellDef="let user" class="t-hide w-180">
+          <ng-container *ngIf="!user['isAuthorized']">
+            {{(user['registrationCreatedAt'] | localDate:'medium') || '-'}}
+          </ng-container>
+          <ng-container *ngIf="user['isAuthorized']"> - </ng-container>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef class="action-column">
+        <th mat-header-cell *matHeaderCellDef class="w-80 action-column">
           {{'ADMIN.USERS_LIST.actions' | translate}}
         </th>
-        <td mat-cell *matCellDef="let user" class="action-column">
+        <td mat-cell *matCellDef="let user" class="w-80 action-column">
           <button *ngIf="user['isAuthorized']" mat-icon-button color="primary"
                   (click)="onActionClick(UserDialogMode.EDIT, user)">
             <mat-icon>update</mat-icon>

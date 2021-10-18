@@ -4,13 +4,20 @@
 
 export const environment = {
   production: false,
-  backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend',
-  doValidate: false,
-  authorizationGrantType: 'authorization_code',
-  appClientId: 'radar_rest_sources_authorizer',
-  appClientSecret: '',
-  authCallbackUrl: 'http://localhost:8080/login',
   BASE_HREF: '/rest-sources/authorizer/',
+  // base url of the rest-sources authorizer app
+  backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend',
+  // If user validation is enabled
+  doValidate: false,
+  // Grant-type of authorization
+  authorizationGrantType: 'authorization_code',
+  // Client id of the authorizer app.
+  appClientId: 'radar_rest_sources_authorizer',
+  // Client secret of the authorizer app.
+  appClientSecret: '',
+  // Callback URL registered in MP.
+  authCallbackUrl: 'http://localhost:8080/login',
+  // Management Portal URL.
   authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
 };
 

@@ -1,22 +1,24 @@
 {
-  "ERROR": {
-    "supportMessage": "Probeer het opnieuw door de pagina te vernieuwen. Neem contact op met uw systeembeheerder als de fout zich blijft voordoen"
-  },
   "AUTHORIZATION_COMPLETE_PAGE": {
     "title": "Bedankt!",
-    "errorTitle": "Er is iets misgegaan!",
     "subtitle": "Uw account is gekoppeld aan RADAR-base.",
     "description": "Uw account is gekoppeld aan RADAR-base.",
     "actionMessage": "U kunt deze pagina sluiten of inloggen op de app.",
-    "actionButton": "Inloggen"
+    "actionButton": "Inloggen",
+    "ERROR": {
+      "title": "NL Error",
+      "subtitle": "",
+      "badUrl": "NL The url is not valid.",
+      "contactSupport": "NL Copy and paste the complete url and try again. If the error persists contact support."
+    }
   },
   "AUTHORIZATION_PAGE": {
-    "title": "Koppel je account aan RADAR-base",
+    "title": "Koppel je {{sourceType}} account aan RADAR-base",
     "subtitle": "",
-    "description": "Project: {{registrationResponse?.project | json}}",
-    "authorizeButton": "Koppelen",
+    "description": "NL You are going to link your {{sourceType}} account to RADAR-base for Project {{project}}",
+    "authorizeButton": "NL Authorize {{sourceType}} Account",
     "ERROR": {
-      "title": "Error",
+      "title": "NL Error",
       "subtitle": "",
       "badUrl": "NL The url is not valid.",
       "badSecret": "NL Secret does not match token.",

@@ -15,8 +15,9 @@ export class ToolbarComponent {
   languageSwitched: EventEmitter<any> = new EventEmitter();
 
   languages = LANGUAGES;
+  currentLanguage = this.modifyCurrentLanguage();
 
-  constructor(public translate: TranslateService, public authService: AuthService) {}
+  constructor(private translate: TranslateService, public authService: AuthService) {}
 
   logout() {
     this.authService.logout();
@@ -25,5 +26,10 @@ export class ToolbarComponent {
 
   switchLanguage(language: string) {
     this.languageSwitched.emit(language)
+    this.currentLanguage = this.modifyCurrentLanguage();
+  }
+
+  modifyCurrentLanguage(): string {
+    return this.translate.currentLang.replace(/-/g, ' ')
   }
 }

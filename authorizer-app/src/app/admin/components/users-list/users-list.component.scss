@@ -15,25 +15,19 @@ tr:nth-of-type(even) {
   margin-right: 16px;
 }
 
-.w-200{
-  flex: 0 0 200px !important;
-  width: 200px !important;
+.w-180 {
+  width: 180px;
+  max-width: 180px;
 }
 
-.w-120{
-  width: 120px;
-}
-
-.w-100{
-  width: 100px;
+.w-150 {
+  width: 150px;
+  max-width: 150px;
 }
 
 .w-80{
   width: 80px;
-}
-
-.action-column {
-  width:80px;
+  max-width: 80px;
 }
 
 .tag {
@@ -102,36 +96,16 @@ th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:
   z-index: 999;
 }
 
-.m-w-220{
-  width: 220px;
-  max-width: 220px;
-}
-
-
 @media only screen and (max-width: 1200px){
   /* [320px -> 1200px]*/
   table {
     width: 100%;
     min-width: 100%;
   }
-  .m-w-300{
-    width: 300px;
-    max-width: 300px;
-  }
 
-  .m-w-150{
-    width: 140px;
-    max-width: 140px;
-  }
-
-  .m-w-100{
-    width: 100px;
-    max-width: 100px;
-  }
-
-  .m-w-80{
-    width: 70px;
-    max-width: 70px;
+  .m-w-120{
+    width: 120px;
+    max-width: 120px;
   }
 
   .ellipsis{
@@ -166,24 +140,14 @@ th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:
     mat-form-field{width: 100% !important;}
   }
 
-  .m-w-150{
+  .m-w-140{
     width: 100px;
     max-width: 100px;
   }
+
   .m-w-100{
     width: 80px;
     max-width: 80px;
-  }
-  .m-w-80{
-    width: 80px;
-    max-width: 80px;
-  }
-
-  .ellipsis{
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 16px;
   }
 
   .m-hide, .t-hide{

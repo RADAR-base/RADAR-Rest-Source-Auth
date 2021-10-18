@@ -3,6 +3,4 @@ export enum StorageItem {
   REFRESH_TOKEN = 'refreshToken',
   USER = 'user',
   LAST_LOCATION = 'lastLocation',
-  // SAVED_PARAMS = 'savedParams',
-  // SAVED_URL = 'savedUrl',
 }
