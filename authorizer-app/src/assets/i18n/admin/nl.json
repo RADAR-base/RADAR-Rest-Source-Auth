@@ -1,18 +1,18 @@
 {
   "GENERAL": {
     "userId": "Gebruikersnaam",
-    "externalId": "Externe gebruikers-ID",
-    "sourceType": "Bron Type",
+    "externalId": "Extern gebruikers-ID",
+    "sourceType": "Brontype",
     "startDate": "Startdatum",
     "endDate": "Einddatum",
     "authorized": "Geautoriseerd",
     "registrationCreatedAt": "Link gegenereerd op",
     "project": "Project",
     "sourceId": "Bron-ID",
-    "sourceClient": "Bron Type",
-    "serviceUserId": "Gebruikers-ID service",
+    "sourceClient": "Brontype",
+    "serviceUserId": "Bron-account-ID",
     "hasValidToken": "Heeft geldige token",
-    "timesReset": "Tijden resetten",
+    "timesReset": "Aantal keer gereset",
     "all": "Alle",
     "no": "Nee",
     "yes": "Ja",
@@ -24,8 +24,8 @@
       "error": "Project is vereist"
     },
     "sourceClientSelect": {
-      "placeholder": "Selecteer een Bron Type",
-      "error": "Bron Type is vereist"
+      "placeholder": "Selecteer een brontype",
+      "error": "Brontype is vereist"
     },
     "noProject": "",
     "noSourceClient": ""
@@ -35,11 +35,11 @@
     "noData": "Geen gegevens die overeenkomen met het filter",
     "filters": {
       "clearFilters": "Filters wissen",
-      "userIdLabel": "Filteren op gebruikers-ID of externe ID",
+      "userIdLabel": "Filteren op gebruikers-ID of extern ID",
       "authorizedLabel": "Geautoriseerd?"
     },
     "PAGINATOR": {
-      "ITEMS_PER_PAGE": "Artikelen per pagina",
+      "ITEMS_PER_PAGE": "Rijen per pagina",
       "NEXT_PAGE": "Volgende bladzijde",
       "PREVIOUS_PAGE":  "Vorige pagina",
       "OF_LABEL": "van"
@@ -53,7 +53,7 @@
   },
   "USER_DIALOG": {
     "ADD": {
-      "title": "Autoriseer het {{sourceType}}-account van de deelnemer",
+      "title": "Autoriseer het {{sourceType}} account van de deelnemer",
       "authorizeButton": "Autoriseer",
       "generateUrlButton": "Genereer een URL",
       "generateUrlDesc": "Stuur deze link naar de gebruiker",
@@ -61,16 +61,16 @@
       "generateUrlExpirationDate": "Vervaldatum"
     },
     "EDIT": {
-      "title": "Start-/einddatums resetten voor de deelnemer",
+      "title": "Start-/einddata resetten voor de deelnemer",
       "updateButton": "Resetten"
     },
     "DELETE": {
       "title": "Waarschuwing!",
-      "desc": "U gaat de gebruiker ontkoppelen van het externe apparaat",
+      "desc": "U gaat het {{sourceType}} account van de gebruiker ontkoppelen",
       "warningMessage": "Weet je zeker dat?",
       "deletingButton": "Verwijderen"
     },
-    "startEndDate": "Start-/einddatums",
+    "startEndDate": "Start-/einddata",
     "startDatePlaceholder": "Voer de startdatum in",
     "endDatePlaceholder": "Einddatum invoeren",
     "error": {

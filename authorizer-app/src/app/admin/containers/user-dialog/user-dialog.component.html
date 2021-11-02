@@ -29,7 +29,7 @@
 </div>
 
 <p *ngIf="mode===SubjectDialogMode.DELETE">
-  {{ 'ADMIN.USER_DIALOG.DELETE.desc' | translate }}:
+  {{ 'ADMIN.USER_DIALOG.DELETE.desc' | translate: {sourceType: subject.sourceType} }}:
 </p>
 
 <dl class="desc">

@@ -6,24 +6,24 @@
     "actionMessage": "U kunt deze pagina sluiten of inloggen op de app.",
     "actionButton": "Inloggen",
     "ERROR": {
-      "title": "NL Error",
+      "title": "Url-fout",
       "subtitle": "",
-      "badUrl": "NL The url is not valid.",
-      "contactSupport": "NL Copy and paste the complete url and try again. If the error persists contact support."
+      "badUrl": "De opegegeven url is ongeldig.",
+      "contactSupport": "Knip en plak de complete url and probeer het opnieuw. Als de foutmelding steeds weer getoond wordt, neem dan contact op met de ondersteuning."
     }
   },
   "AUTHORIZATION_PAGE": {
-    "title": "Koppel je {{sourceType}} account aan RADAR-base",
+    "title": "Koppel uw {{sourceType}} account aan RADAR-base",
     "subtitle": "",
-    "description": "NL You are going to link your {{sourceType}} account to RADAR-base for Project {{project}}",
-    "authorizeButton": "NL Authorize {{sourceType}} Account",
+    "description": "Om uw {{sourceType}} account te koppelen aan het project {{project}} in RADAR-base, is uw autorisatie nodig.",
+    "authorizeButton": "Autoriseer uw {{sourceType}} account",
     "ERROR": {
-      "title": "NL Error",
+      "title": "Url-fout",
       "subtitle": "",
-      "badUrl": "NL The url is not valid.",
-      "badSecret": "NL Secret does not match token.",
-      "registrationNotFound": "NL State has expired or not found.",
-      "contactSupport": "NL Copy and paste the complete url and try again. If the error persists contact support."
+      "badUrl": "De opgegeven url is ongeldig.",
+      "badSecret": "Het opgegeven geheim komt niet overeen met die op de server.",
+      "registrationNotFound": "De opgegeven url kan niet meer gevonden worden.",
+      "contactSupport": "Knip en plak de complete url and probeer het opnieuw. Als de foutmelding steeds weer getoond wordt, neem dan contact op met de ondersteuning."
     }
   }
 }
