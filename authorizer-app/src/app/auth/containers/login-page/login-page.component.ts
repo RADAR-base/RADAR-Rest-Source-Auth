@@ -62,7 +62,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                   {queryParams: lastLocation.params}
                 ).then(() => this.authService.clearLastLocation());
               },
-              error: (error) => this.error = error
+              error: (error) => this.error = error.error?.error_description || error.message || error
             });
         }
       }
