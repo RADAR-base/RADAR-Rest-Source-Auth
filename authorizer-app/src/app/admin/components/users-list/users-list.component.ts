@@ -216,14 +216,12 @@ export class UsersListComponent implements AfterViewInit {
   }
 
   isFilterEnabled(): boolean {
-    console.log(this.filterValues);
     return Object.entries(this.filterValues).length > 0;
   }
   //#endregion
 
   //#region User Actions
   onActionClick(mode: UserDialogMode, user: RestSourceUser) {
-    console.log('openSubjectDialog', mode ,user);
     this.actionClicked.emit({mode: mode, user: user});
   }
   //#endregion
@@ -269,7 +267,6 @@ export class UsersListComponent implements AfterViewInit {
     if (queryParams.hasOwnProperty('sortField') && queryParams.hasOwnProperty('sortOrder')) {
       const sortActiveColumn = queryParams.sortField || this.matSortActive;
       const activeSortHeader: any = this.dataSource.sort!.sortables.get(sortActiveColumn);
-      console.log(activeSortHeader);
       if (!activeSortHeader) {
         this.applyStateChangesToUrlQueryParams({
           sortField: null,
