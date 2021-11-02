@@ -33,6 +33,7 @@ import {LocaleService} from "@app/admin/services/locale.service";
   styleUrls: ['./dashboard-page.component.scss']
 })
 export class DashboardPageComponent implements OnInit, OnDestroy {
+  localeLoading = true;
   loading = true;
   error?: string;
 
@@ -286,7 +287,9 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       localeId = culture;
     }
 
-    this.localeInitializer(localeId).then(() => {});
+    this.localeInitializer(localeId).then(() => {
+      this.localeLoading = false;
+    });
   }
 
   localeInitializer(localeId: string): Promise<any> {

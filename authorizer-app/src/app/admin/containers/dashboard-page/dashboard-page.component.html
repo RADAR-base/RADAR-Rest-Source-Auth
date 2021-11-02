@@ -38,7 +38,7 @@
       <app-message *ngIf="error">
         {{error | translate}}
       </app-message>
-      <app-users-list *ngIf="users" [users]="users" (actionClicked)="openSubjectDialog($event)"></app-users-list>
+      <app-users-list *ngIf="users && !localeLoading" [users]="users" (actionClicked)="openSubjectDialog($event)"></app-users-list>
     </mat-card-content>
   </mat-card>
 </div>
