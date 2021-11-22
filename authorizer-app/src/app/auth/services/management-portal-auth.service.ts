@@ -19,7 +19,11 @@ export class ManagementPortalAuthService extends AuthService {
   private subject = new BehaviorSubject<User | null>(null);
   user$ : Observable<User | null> = this.subject.asObservable();
 
-  constructor(private http: HttpClient, private jwtHelper: JwtHelperService, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private jwtHelper: JwtHelperService,
+    private router: Router,
+  ) {
     super();
 
     this.isLoggedIn$ = this.user$.pipe(map(user => !!user));
