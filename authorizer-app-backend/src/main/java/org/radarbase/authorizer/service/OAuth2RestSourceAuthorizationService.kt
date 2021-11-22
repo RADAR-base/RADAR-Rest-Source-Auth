@@ -58,9 +58,10 @@ class OAuth2RestSourceAuthorizationService(
     }
 
     override fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? {
+        val refreshToken = user.refreshToken ?: return null
         val form = FormBody.Builder().apply {
             add("grant_type", "refresh_token")
-            user.refreshToken?.let { add("refresh_token", it) }
+            add("refresh_token", refreshToken)
         }.build()
         logger.info("Requesting to refreshToken")
         val request = post(form, user.sourceType)
@@ -80,7 +81,11 @@ class OAuth2RestSourceAuthorizationService(
     }
 
     override fun revokeToken(user: RestSourceUser): Boolean {
-        val form = FormBody.Builder().add("token", user.accessToken!!).build()
+        val accessToken = user.accessToken ?: run {
+            logger.error("Cannot revoke token of user {} without an access token", user.userId)
+            return false
+        }
+        val form = FormBody.Builder().add("token", accessToken).build()
         logger.info("Requesting to revoke access token")
         return httpClient.request(post(form, user.sourceType))
     }
