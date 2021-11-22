@@ -1,17 +1,16 @@
 FROM node:14-alpine as builder
 
 ARG BASE_HREF="BASE_HREF"
-ARG PROFILE="--prod"
 
 RUN mkdir /app
 WORKDIR /app
 
-COPY package*.json /app/
-RUN npm install
+COPY package.json yarn.lock /app/
+RUN yarn install
 
 COPY ./ /app/
 
-RUN $(npm bin)/ng build ${PROFILE} --base-href=${BASE_HREF}
+RUN yarn build --base-href=${BASE_HREF}
 
 FROM nginx:1.20-alpine
 
