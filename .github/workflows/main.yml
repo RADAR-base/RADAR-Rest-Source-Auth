@@ -50,8 +50,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: browser-actions/setup-chrome@latest
-
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
@@ -82,7 +80,7 @@ jobs:
 
       - name: NPM test
         working-directory: ./authorizer-app
-        run: CHROMIUM_BIN=$(which chrome) npm run test
+        run: npm run test
 
   # Build and push tagged release backend docker image
   dockerBackend:
