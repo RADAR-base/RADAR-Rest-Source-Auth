@@ -17,7 +17,7 @@
 package org.radarbase.authorizer.util
 
 import jakarta.ws.rs.core.Context
-import org.radarbase.authorizer.Config
+import org.radarbase.authorizer.config.AuthorizerConfig
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -27,7 +27,7 @@ import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 
 class StateStore(
-    @Context config: Config,
+    @Context config: AuthorizerConfig,
     @Context private val executor: ScheduledExecutorService,
 ) {
     private val expiryTime = Duration.ofMinutes(config.service.stateStoreExpiryInMin)

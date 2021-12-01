@@ -16,7 +16,7 @@
 
 package org.radarbase.authorizer.api
 
-import org.radarbase.authorizer.RestSourceClient
+import org.radarbase.authorizer.config.RestSourceClient
 
 class RestSourceClientMapper {
     fun toSourceClientConfig(client: RestSourceClient, state: String? = null) = client.run {

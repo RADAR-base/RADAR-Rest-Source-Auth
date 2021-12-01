@@ -23,10 +23,10 @@ import okhttp3.Credentials
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.SignRequestParams
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.exception.HttpBadGatewayException
@@ -41,7 +41,7 @@ class OAuth2RestSourceAuthorizationService(
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
     @Context private val stateStore: StateStore,
-    @Context private val config: Config,
+    @Context private val config: AuthorizerConfig,
 ) : RestSourceAuthorizationService {
     private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
 

@@ -22,8 +22,8 @@ import jakarta.ws.rs.core.Response
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.radarbase.authorizer.RestSourceClient
 import org.radarbase.authorizer.api.*
+import org.radarbase.authorizer.config.RestSourceClient
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.OauthSignature

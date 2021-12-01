@@ -36,6 +36,9 @@ dependencies {
     val okhttpVersion: String by project
     implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
 
+    val jedisVersion: String by project
+    implementation("redis.clients:jedis:$jedisVersion")
+
     val log4j2Version: String by project
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
     runtimeOnly("org.apache.logging.log4j:log4j-api:$log4j2Version")
