@@ -2,7 +2,7 @@ package org.radarbase.authorizer.doa
 
 import jakarta.inject.Provider
 import jakarta.ws.rs.core.Context
-import org.radarbase.authorizer.Config
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RegistrationState
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.Hmac256Secret
@@ -15,7 +15,7 @@ import javax.persistence.EntityManager
 import javax.persistence.PersistenceException
 
 class RegistrationRepository(
-    @Context private val config: Config,
+    @Context private val config: AuthorizerConfig,
     @Context em: Provider<EntityManager>,
 ) : HibernateRepository(em) {
 

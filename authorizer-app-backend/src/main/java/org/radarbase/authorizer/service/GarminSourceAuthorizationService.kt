@@ -21,9 +21,9 @@ import jakarta.ws.rs.core.Context
 import okhttp3.OkHttpClient
 import org.glassfish.jersey.process.internal.RequestScope
 import org.glassfish.jersey.server.BackgroundScheduler
-import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.api.RestOauth1AccessToken
 import org.radarbase.authorizer.api.RestOauth1UserId
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
@@ -38,7 +38,7 @@ class GarminSourceAuthorizationService(
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val requestScope: RequestScope,
     @Context @BackgroundScheduler private val scheduler: ScheduledExecutorService,
-    @Context private val config: Config,
+    @Context private val config: AuthorizerConfig,
 ) : OAuth1RestSourceAuthorizationService(
     clientService,
     httpClient,

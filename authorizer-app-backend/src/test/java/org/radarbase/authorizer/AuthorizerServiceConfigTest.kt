@@ -4,6 +4,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
+import org.radarbase.authorizer.config.AuthorizerServiceConfig
 import java.net.URI
 
 internal class AuthorizerServiceConfigTest {

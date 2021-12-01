@@ -18,10 +18,10 @@ package org.radarbase.authorizer.inject
 
 import jakarta.inject.Singleton
 import org.glassfish.jersey.internal.inject.AbstractBinder
-import org.radarbase.authorizer.Config
-import org.radarbase.authorizer.RestSourceClients
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
+import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.config.RestSourceClients
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
@@ -32,7 +32,7 @@ import org.radarbase.jersey.config.ConfigLoader
 import org.radarbase.jersey.config.JerseyResourceEnhancer
 
 class AuthorizerResourceEnhancer(
-    private val config: Config,
+    private val config: AuthorizerConfig,
 ) : JerseyResourceEnhancer {
     private val restSourceClients = RestSourceClients(
         config.restSourceClients
@@ -58,7 +58,7 @@ class AuthorizerResourceEnhancer(
     override fun AbstractBinder.enhance() {
         // Bind instances. These cannot use any injects themselves
         bind(config)
-            .to(Config::class.java)
+            .to(AuthorizerConfig::class.java)
 
         bind(restSourceClients)
             .to(RestSourceClients::class.java)

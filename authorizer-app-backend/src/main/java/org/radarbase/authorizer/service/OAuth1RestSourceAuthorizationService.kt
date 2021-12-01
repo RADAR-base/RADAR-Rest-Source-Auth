@@ -22,12 +22,9 @@ import jakarta.ws.rs.core.Response
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.radarbase.authorizer.Config
-import org.radarbase.authorizer.RestSourceClient
-import org.radarbase.authorizer.api.RequestTokenPayload
-import org.radarbase.authorizer.api.RestOauth1AccessToken
-import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.SignRequestParams
+import org.radarbase.authorizer.api.*
+import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.config.RestSourceClient
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.OauthSignature
@@ -45,7 +42,7 @@ abstract class OAuth1RestSourceAuthorizationService(
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
     @Context private val userRepository: RestSourceUserRepository,
-    @Context private val config: Config,
+    @Context private val config: AuthorizerConfig,
 ) : RestSourceAuthorizationService {
     private val tokenReader = objectMapper.readerFor(RestOauth1AccessToken::class.java)
 

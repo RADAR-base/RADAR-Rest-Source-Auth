@@ -7,7 +7,7 @@ import org.glassfish.jersey.server.monitoring.ApplicationEvent
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener
 import org.glassfish.jersey.server.monitoring.RequestEvent
 import org.glassfish.jersey.server.monitoring.RequestEventListener
-import org.radarbase.authorizer.Config
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -20,7 +20,7 @@ import javax.persistence.EntityManagerFactory
 class RegistrationLifecycleManager(
     @BackgroundScheduler @Context private val executor: ScheduledExecutorService,
     @Context private val entityManagerFactory: EntityManagerFactory,
-    @Context private val config: Config,
+    @Context private val config: AuthorizerConfig,
 ) : ApplicationEventListener {
     private val checkTime = Duration.ofMinutes(config.service.tokenExpiryTimeInMinutes).multipliedBy(4L)
     private val lock: Any = Any()
