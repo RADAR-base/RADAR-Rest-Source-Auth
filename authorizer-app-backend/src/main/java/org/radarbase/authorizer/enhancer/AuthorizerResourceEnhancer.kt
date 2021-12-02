@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.radarbase.authorizer.inject
+package org.radarbase.authorizer.enhancer
 
 import jakarta.inject.Singleton
 import org.glassfish.jersey.internal.inject.AbstractBinder
@@ -28,8 +28,8 @@ import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
 import org.radarbase.authorizer.service.*
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
-import org.radarbase.jersey.config.ConfigLoader
-import org.radarbase.jersey.config.JerseyResourceEnhancer
+import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
+import org.radarbase.jersey.filter.Filters
 
 class AuthorizerResourceEnhancer(
     private val config: AuthorizerConfig,
@@ -45,9 +45,9 @@ class AuthorizerResourceEnhancer(
 
     override val classes: Array<Class<*>>
         get() = listOfNotNull(
-            ConfigLoader.Filters.cache,
-            ConfigLoader.Filters.logResponse,
-            if (config.service.enableCors == true) ConfigLoader.Filters.cors else null,
+            Filters.cache,
+            Filters.logResponse,
+            if (config.service.enableCors == true) Filters.cors else null,
         ).toTypedArray()
 
     override val packages: Array<String> = arrayOf(

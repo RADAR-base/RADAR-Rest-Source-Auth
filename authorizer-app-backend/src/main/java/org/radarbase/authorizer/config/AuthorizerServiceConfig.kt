@@ -2,8 +2,8 @@ package org.radarbase.authorizer.config
 
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import org.radarbase.authorizer.inject.ManagementPortalEnhancerFactory
-import org.radarbase.jersey.config.EnhancerFactory
+import org.radarbase.authorizer.enhancer.ManagementPortalEnhancerFactory
+import org.radarbase.jersey.enhancer.EnhancerFactory
 import java.net.URI
 import java.time.Duration
 

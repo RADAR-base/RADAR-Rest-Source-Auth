@@ -14,16 +14,16 @@
  *  limitations under the License.
  */
 
-package org.radarbase.authorizer.inject
+package org.radarbase.authorizer.enhancer
 
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RegistrationState
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
-import org.radarbase.jersey.config.ConfigLoader
-import org.radarbase.jersey.config.EnhancerFactory
-import org.radarbase.jersey.config.JerseyResourceEnhancer
+import org.radarbase.jersey.enhancer.EnhancerFactory
+import org.radarbase.jersey.enhancer.Enhancers
+import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
@@ -46,13 +46,12 @@ class ManagementPortalEnhancerFactory(private val config: AuthorizerConfig) : En
             ),
         )
         return listOf(
-            ConfigLoader.Enhancers.radar(authConfig),
-            ConfigLoader.Enhancers.health,
+            Enhancers.radar(authConfig),
+            Enhancers.health,
             HibernateResourceEnhancer(dbConfig),
-            ConfigLoader.Enhancers.managementPortal(authConfig),
+            Enhancers.managementPortal(authConfig),
             JedisResourceEnhancer(),
-            ConfigLoader.Enhancers.generalException,
-            ConfigLoader.Enhancers.httpException,
+            Enhancers.exception,
             AuthorizerResourceEnhancer(config),
         )
     }
