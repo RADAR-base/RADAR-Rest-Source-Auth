@@ -46,4 +46,3 @@ USER 101
 EXPOSE 8085
 
 CMD ["authorizer-app-backend"]
-
