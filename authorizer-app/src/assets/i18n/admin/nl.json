@@ -1,0 +1,82 @@
+{
+  "GENERAL": {
+    "userId": "Gebruikersnaam",
+    "externalId": "Extern gebruikers-ID",
+    "sourceType": "Brontype",
+    "startDate": "Startdatum",
+    "endDate": "Einddatum",
+    "authorized": "Geautoriseerd",
+    "registrationCreatedAt": "Link gegenereerd op",
+    "project": "Project",
+    "sourceId": "Bron-ID",
+    "sourceClient": "Brontype",
+    "serviceUserId": "Bron-account-ID",
+    "hasValidToken": "Heeft geldige token",
+    "timesReset": "Aantal keer gereset",
+    "all": "Alle",
+    "no": "Nee",
+    "yes": "Ja",
+    "cancel": "Annuleren"
+  },
+  "DASHBOARD_PAGE": {
+    "projectSelect": {
+      "placeholder": "Selecteer een project",
+      "error": "Project is vereist"
+    },
+    "sourceClientSelect": {
+      "placeholder": "Selecteer een brontype",
+      "error": "Brontype is vereist"
+    },
+    "noProject": "",
+    "noSourceClient": ""
+  },
+  "USERS_LIST": {
+    "actions": "Acties",
+    "noData": "Geen gegevens die overeenkomen met het filter",
+    "filters": {
+      "clearFilters": "Filters wissen",
+      "userIdLabel": "Filteren op gebruikers-ID of extern ID",
+      "authorizedLabel": "Geautoriseerd?"
+    },
+    "PAGINATOR": {
+      "ITEMS_PER_PAGE": "Rijen per pagina",
+      "NEXT_PAGE": "Volgende bladzijde",
+      "PREVIOUS_PAGE":  "Vorige pagina",
+      "OF_LABEL": "van"
+    },
+    "authorizationStatus": {
+      "yes": "Ja",
+      "no": "Nee",
+      "pending": "In afwachting",
+      "unset": "Uitgeschakeld"
+    }
+  },
+  "USER_DIALOG": {
+    "ADD": {
+      "title": "Autoriseer het {{sourceType}} account van de deelnemer",
+      "authorizeButton": "Autoriseer",
+      "generateUrlButton": "Genereer een URL",
+      "generateUrlDesc": "Stuur deze link naar de gebruiker",
+      "generateUrlMessage": "Klik op de onderstaande link om je {{sourceType}}-account te verbinden met RADAR-base",
+      "generateUrlExpirationDate": "Vervaldatum"
+    },
+    "EDIT": {
+      "title": "Start-/einddata resetten voor de deelnemer",
+      "updateButton": "Resetten"
+    },
+    "DELETE": {
+      "title": "Waarschuwing!",
+      "desc": "U gaat het {{sourceType}} account van de gebruiker ontkoppelen",
+      "warningMessage": "Weet je zeker dat?",
+      "deletingButton": "Verwijderen"
+    },
+    "startEndDate": "Start-/einddata",
+    "startDatePlaceholder": "Voer de startdatum in",
+    "endDatePlaceholder": "Einddatum invoeren",
+    "error": {
+      "startDateRequired": "Startdatum is vereist",
+      "startDateInvalid": "Startdatum is niet geldig",
+      "endDateInvalid": "Einddatum is niet geldig"
+    }
+  }
+}

@@ -1,0 +1,161 @@
+.table-container {
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  min-width: 980px;
+}
+
+tr:nth-of-type(even) {
+  background: #f7f7f7;
+}
+
+.form-field {
+  margin-right: 16px;
+}
+
+.w-180 {
+  width: 180px;
+  max-width: 180px;
+}
+
+.w-150 {
+  width: 150px;
+  max-width: 150px;
+}
+
+.w-80{
+  width: 80px;
+  max-width: 80px;
+}
+
+.tag {
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.tag-warn{
+  background-color: rgba(darkorange, 0.3);
+}
+
+.tag-success{
+  background-color: rgba(darkgreen, 0.3);
+}
+
+.tag-info{
+  background-color: rgba(darkblue, 0.3);
+}
+
+.tag-error{
+  background-color: rgba(darkred, 0.3);
+}
+
+.reset-filters {
+  margin-left: 16px;
+}
+
+.filter-container{
+  border-radius: 5px;
+  background-color: #f7f7f7;
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-wrapper {
+    margin: 0;
+  }
+  ::ng-deep .mat-form-field-wrapper {
+    padding-bottom: 0;
+  }
+}
+
+.mobile-filter-container{
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-wrapper {
+    margin: .25em 0;
+  }
+  ::ng-deep .mat-form-field-wrapper {
+    padding-bottom: 0 ;
+  }
+}
+
+th.mat-header-cell:last-of-type, td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type {
+  padding-right: 0;
+}
+
+th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type {
+  padding-left: 0;
+}
+
+.mini-fab-filters{
+  display: none;
+  position: fixed;
+  bottom: 32px;
+  left: 32px;
+  z-index: 999;
+}
+
+@media only screen and (max-width: 1200px){
+  /* [320px -> 1200px]*/
+  table {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .m-w-120{
+    width: 120px;
+    max-width: 120px;
+  }
+
+  .ellipsis{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 16px;
+  }
+
+  .t-hide{
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 700px){
+  /* [320px -> 700px] */
+  .filter-container{
+    display: none;
+  }
+
+  .mini-fab-filters{
+    display: block;
+  }
+
+  .reset-filters {
+    margin-left: 0;
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .mobile-filter-container{
+    mat-form-field{width: 100% !important;}
+  }
+
+  .m-w-140{
+    width: 100px;
+    max-width: 100px;
+  }
+
+  .m-w-100{
+    width: 80px;
+    max-width: 80px;
+  }
+
+  .m-hide, .t-hide{
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 425px){
+  /* [320px -> 425px] */
+}
+

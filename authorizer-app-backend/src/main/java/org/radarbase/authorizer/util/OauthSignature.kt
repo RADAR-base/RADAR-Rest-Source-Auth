@@ -31,7 +31,9 @@ data class OauthSignature(
         return Base64.getEncoder().encodeToString(rawHmac)
     }
 
-    private fun Map<String, String?>.toQueryFormat(): String = this
-        .map { (k, v) -> "$k=$v" }
-        .joinToString("&")
+    companion object {
+        private fun Map<String, String?>.toQueryFormat(): String = this
+            .map { (k, v) -> "$k=${v ?: ""}" }
+            .joinToString("&")
+    }
 }

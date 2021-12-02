@@ -1,0 +1,44 @@
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <ng-container *ngIf="!projects.length">{{ 'ADMIN.DASHBOARD_PAGE.noProject' | translate }}</ng-container>
+      <ng-container *ngIf="!sourceClients.length">{{ 'ADMIN.DASHBOARD_PAGE.noSourceClient' | translate }}</ng-container>
+      <form *ngIf="projects.length && sourceClients.length" [formGroup]="form" novalidate>
+        <div class="form-wrapper">
+          <mat-form-field class="form-field" appearance="outline" floatLabel="always">
+            <mat-label>{{ 'ADMIN.GENERAL.project' | translate }}</mat-label>
+            <mat-select *ngIf="projects.length > 1" formControlName="project"
+                        [placeholder]="'ADMIN.DASHBOARD_PAGE.projectSelect.placeholder' | translate"
+                        (selectionChange)="onProjectSelectionChange($event)">
+              <mat-option *ngFor="let project of projects" [value]="project.id">{{project.id}}</mat-option>
+            </mat-select>
+            <input *ngIf="projects.length === 1" matInput [value]="projects[0].id" disabled>
+            <mat-error *ngIf="form.controls['project'].hasError('required')">
+              {{ 'ADMIN.DASHBOARD_PAGE.projectSelect.error' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div *ngIf="selectedProject" class="form-wrapper">
+          <mat-form-field class="form-field" appearance="outline" floatLabel="always">
+            <mat-label>{{ 'ADMIN.GENERAL.sourceClient' | translate }}</mat-label>
+            <mat-select *ngIf="sourceClients.length > 1" formControlName="sourceClient"
+                        [placeholder]="'ADMIN.DASHBOARD_PAGE.sourceClientSelect.placeholder' | translate"
+                        (selectionChange)="onSourceClientSelectionChange($event)">
+              <mat-option *ngFor="let sourceClient of sourceClients" [value]="sourceClient.sourceType">
+                {{sourceClient.sourceType}}
+              </mat-option>
+            </mat-select>
+            <input *ngIf="sourceClients.length === 1" matInput [value]="sourceClients[0].sourceType" disabled>
+            <mat-error *ngIf="form.controls['sourceClient'].hasError('required')">
+              {{ 'ADMIN.DASHBOARD_PAGE.sourceClientSelect.error' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </form>
+      <app-message *ngIf="error">
+        {{error | translate}}
+      </app-message>
+      <app-users-list *ngIf="users && !localeLoading" [users]="users" (actionClicked)="openSubjectDialog($event)"></app-users-list>
+    </mat-card-content>
+  </mat-card>
+</div>

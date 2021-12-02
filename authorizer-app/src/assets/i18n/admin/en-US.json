@@ -1,0 +1,82 @@
+{
+  "GENERAL": {
+    "userId": "Subject ID",
+    "externalId": "External ID",
+    "sourceType": "Source Type",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "authorized": "Authorized",
+    "registrationCreatedAt": "Link Generated At",
+    "project": "Project",
+    "sourceClient": "Source Type",
+    "sourceId": "Source ID",
+    "serviceUserId": "Service Subject ID",
+    "hasValidToken": "Has Valid Token",
+    "timesReset": "Times Reset",
+    "all": "All",
+    "no": "No",
+    "yes": "Yes",
+    "cancel": "Cancel"
+  },
+  "DASHBOARD_PAGE": {
+    "projectSelect": {
+      "placeholder": "Select a Project",
+      "error": "Project is required"
+    },
+    "sourceClientSelect": {
+      "placeholder": "Select a Source Type",
+      "error": "Source Type is required"
+    },
+    "noProject": "No project assign to you!",
+    "noSourceClient": "No Source Type Defined!"
+  },
+  "USERS_LIST": {
+    "actions": "Actions",
+    "noData": "No data matching the filter",
+    "filters": {
+      "clearFilters": "Clear Filters",
+      "userIdLabel": "Filter by Subject ID or External ID",
+      "authorizedLabel": "Authorized?"
+    },
+    "PAGINATOR": {
+      "ITEMS_PER_PAGE": "Items per page",
+      "NEXT_PAGE": "Next page",
+      "PREVIOUS_PAGE":  "Previous page",
+      "OF_LABEL": "of"
+    },
+    "authorizationStatus": {
+      "yes": "Yes",
+      "no": "No",
+      "pending": "Pending",
+      "unset": "Unset"
+    }
+  },
+  "USER_DIALOG": {
+    "ADD": {
+      "title": "Authorize Subject's {{sourceType}} Account",
+      "authorizeButton": "Authorize",
+      "generateUrlButton": "Generate URL",
+      "generateUrlDesc": "Send this message to the Subject",
+      "generateUrlMessage": "Please click the link below to connect your {{sourceType}} account to RADAR-base",
+      "generateUrlExpirationDate": "Expiration date"
+    },
+    "EDIT": {
+      "title": "Reset Start/End Dates for the Subject",
+      "updateButton": "Reset"
+    },
+    "DELETE": {
+      "title": "Warning!",
+      "desc": "You are going to unlink the Subject from its {{sourceType}} account",
+      "warningMessage": "Are you sure?",
+      "deletingButton": "Deleting"
+    },
+    "startEndDate": "Start/End Dates",
+    "startDatePlaceholder": "Start Date",
+    "endDatePlaceholder": "End Date",
+    "error": {
+      "startDateRequired": "Start Date is required",
+      "startDateInvalid": "Start Date is not valid",
+      "endDateInvalid": "End Date is not valid"
+    }
+  }
+}

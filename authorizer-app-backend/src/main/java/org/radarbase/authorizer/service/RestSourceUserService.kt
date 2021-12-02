@@ -3,13 +3,11 @@ package org.radarbase.authorizer.service
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.Response
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
@@ -24,8 +22,6 @@ class RestSourceUserService(
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val projectService: RadarProjectService,
     @Context private val auth: Auth,
-    @Context private val stateStore: StateStore,
-    @Context private val sourceClientService: RestSourceClientService,
 ) {
     fun ensureUser(userId: Long, permission: Permission? = null): RestSourceUser {
         val user = userRepository.read(userId)
@@ -36,18 +32,9 @@ class RestSourceUserService(
         return user
     }
 
-    fun create(payload: RequestTokenPayload): RestSourceUserDTO {
-        val stateId = payload.state
-        if (stateId != null) {
-            val state = stateStore[stateId]
-                ?: throw HttpBadRequestException("state_not_found", "State has expired or not found")
-            if (!state.isValid) throw HttpBadRequestException("state_expired", "State has expired")
-        }
-        val sourceType = payload.sourceType
-        sourceClientService.ensureSourceType(sourceType)
-
-        val accessToken = authorizationService.requestAccessToken(payload, sourceType)
-        val user = userRepository.create(accessToken, sourceType)
+    fun create(userDto: RestSourceUserDTO): RestSourceUserDTO {
+        validate(userDto)
+        val user = userRepository.create(userDto)
         return userMapper.fromEntity(user)
     }
 
@@ -66,16 +53,17 @@ class RestSourceUserService(
     }
 
     fun update(userId: Long, user: RestSourceUserDTO): RestSourceUserDTO {
-        validate(userId, user)
+        validate(user)
         return userMapper.fromEntity(
-            runLocked(userId) { lockedUser ->
-                userRepository.update(lockedUser, user)
+            runLocked(userId) {
+                userRepository.update(userId, user)
             }
         )
     }
 
     fun reset(userId: Long, user: RestSourceUserDTO): RestSourceUserDTO {
-        val existingUser = validate(userId, user)
+        validate(user)
+        val existingUser = ensureUser(userId)
         return userMapper.fromEntity(
             userRepository.reset(
                 existingUser,
@@ -86,11 +74,8 @@ class RestSourceUserService(
     }
 
     private fun validate(
-        id: Long,
         user: RestSourceUserDTO,
-    ): RestSourceUser {
-        val existingUser = ensureUser(id, Permission.SUBJECT_UPDATE)
-
+    ) {
         val projectId = user.projectId
             ?: throw HttpBadRequestException("missing_project_id", "project cannot be empty")
         val userId = user.userId
@@ -103,8 +88,6 @@ class RestSourceUserService(
             ?: throw HttpBadRequestException(
                 "user_not_found", "user $userId not found in project $projectId"
             )
-
-        return existingUser
     }
 
     fun ensureToken(userId: Long): TokenDTO {
@@ -114,7 +97,7 @@ class RestSourceUserService(
                 TokenDTO(user.accessToken, user.expiresAt)
             } else {
                 // refresh token if current token is already expired.
-                doRefreshToken(userId, user)
+                doRefreshToken(user)
             }
         }
     }
@@ -122,7 +105,7 @@ class RestSourceUserService(
     fun refreshToken(userId: Long): TokenDTO {
         ensureUser(userId, Permission.MEASUREMENT_CREATE)
         return runLocked(userId) { user ->
-            doRefreshToken(userId, user)
+            doRefreshToken(user)
         }
     }
 
@@ -132,7 +115,7 @@ class RestSourceUserService(
         }
     }
 
-    private fun doRefreshToken(userId: Long, user: RestSourceUser): TokenDTO {
+    private fun doRefreshToken(user: RestSourceUser): TokenDTO {
         if (!user.authorized) {
             throw HttpApplicationException(
                 Response.Status.PROXY_AUTHENTICATION_REQUIRED,
@@ -149,7 +132,7 @@ class RestSourceUserService(
         }
 
         val token = authorizationService.refreshToken(user)
-        val updatedUser = userRepository.updateToken(token, userId)
+        val updatedUser = userRepository.updateToken(token, user)
 
         if (!updatedUser.authorized) {
             throw HttpApplicationException(

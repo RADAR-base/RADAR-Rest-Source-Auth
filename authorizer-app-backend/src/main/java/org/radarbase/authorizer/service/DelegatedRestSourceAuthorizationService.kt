@@ -27,12 +27,10 @@ import org.radarbase.jersey.exception.HttpBadRequestException
 class DelegatedRestSourceAuthorizationService(
     @Context private val namedServices: IterableProvider<RestSourceAuthorizationService>,
 ) : RestSourceAuthorizationService {
-    private fun delegate(sourceType: String): RestSourceAuthorizationService {
-        val authorizationProvider = namedServices.named(sourceType)
-            ?: throw HttpBadRequestException("source-type-not-found", "Source type $sourceType does not exist")
-
-        return authorizationProvider.get()
-    }
+    private fun delegate(sourceType: String): RestSourceAuthorizationService = namedServices
+        .named(sourceType)
+        ?.get()
+        ?: throw HttpBadRequestException("source-type-not-found", "Source type $sourceType does not exist")
 
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken =
         delegate(sourceType).requestAccessToken(payload, sourceType)
@@ -46,8 +44,13 @@ class DelegatedRestSourceAuthorizationService(
     override fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
         delegate(sourceType).revokeToken(externalId, sourceType, token)
 
-    override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String =
-        delegate(sourceType).getAuthorizationEndpointWithParams(sourceType, callBackUrl)
+    override fun getAuthorizationEndpointWithParams(
+        sourceType: String,
+        userId: Long,
+        state: String
+    ): String =
+        delegate(sourceType)
+            .getAuthorizationEndpointWithParams(sourceType, userId, state)
 
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         delegate(user.sourceType).signRequest(user, payload)

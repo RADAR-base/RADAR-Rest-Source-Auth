@@ -1,0 +1,50 @@
+<div *ngIf="isLoading" class="loader-container">
+  <mat-spinner diameter="30"></mat-spinner>
+  <p>{{ 'loading' | translate }} ...</p>
+</div>
+
+<div *ngIf="!isLoading" class="card-container">
+  <mat-card >
+
+    <mat-card-header *ngIf="!error">
+      <mat-card-title>
+        {{ 'SHARED.AUTHORIZATION_PAGE.title' | translate:
+        {sourceType: sourceType, project: project} }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ 'SHARED.AUTHORIZATION_PAGE.subtitle' | translate:
+        {sourceType: sourceType, project: project} }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-header *ngIf="error">
+      <mat-card-title>
+        {{ 'SHARED.AUTHORIZATION_PAGE.ERROR.title' | translate }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ 'SHARED.AUTHORIZATION_PAGE.ERROR.subtitle' | translate }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <app-message *ngIf="error">
+        {{'SHARED.AUTHORIZATION_PAGE.ERROR.contactSupport' | translate}}
+        <br/><br/>
+        {{error | translate}}
+      </app-message>
+
+      <div *ngIf="!error">
+        <p>
+          {{ 'SHARED.AUTHORIZATION_PAGE.description' | translate:
+          {sourceType: sourceType, project: project} }}
+        </p>
+        <div>
+          <button mat-raised-button color="primary" (click)="authorize()" [disabled]="!authEndpointUrl">
+            {{ 'SHARED.AUTHORIZATION_PAGE.authorizeButton' | translate:{sourceType: sourceType} }}
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+
+  </mat-card>
+</div>

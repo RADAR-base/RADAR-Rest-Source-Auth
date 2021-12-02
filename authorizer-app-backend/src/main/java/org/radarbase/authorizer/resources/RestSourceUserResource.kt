@@ -34,8 +34,6 @@ import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.service.managementportal.RadarProjectService
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.net.URI
 
 @Path("users")
@@ -110,12 +108,11 @@ class RestSourceUserResource(
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.CREATE)
     fun create(
-        payload: RequestTokenPayload,
+        userDto: RestSourceUserDTO,
     ): Response {
-        logger.info("Authorizing with payload $payload")
-        val user = userService.create(payload)
+        val user = userService.create(userDto)
 
         return Response.created(URI("users/${user.id}"))
             .entity(user)
@@ -174,8 +171,6 @@ class RestSourceUserResource(
     }
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(RestSourceUserResource::class.java)
-
         private fun emptyUsers(pageNumber: Int, pageSize: Int) = RestSourceUsers(
             users = listOf(),
             metadata = Page(

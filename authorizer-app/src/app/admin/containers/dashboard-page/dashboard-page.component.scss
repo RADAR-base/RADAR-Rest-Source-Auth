@@ -1,0 +1,27 @@
+form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-wrapper{
+  display: flex;
+  justify-content: center;
+  margin: 0 8px;
+
+  .form-field{
+    width: 300px;
+  }
+}
+
+@media only screen and (max-width: 700px){
+  /* [320px -> 700px] */
+
+  form {
+    display: block;
+  }
+
+  .form-wrapper {
+    margin: 0;
+  }
+}
