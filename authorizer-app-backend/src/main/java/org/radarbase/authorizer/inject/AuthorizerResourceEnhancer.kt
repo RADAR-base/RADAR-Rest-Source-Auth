@@ -29,7 +29,8 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.authorizer.util.StateStore
 import org.radarbase.jersey.config.ConfigLoader
-import org.radarbase.jersey.config.JerseyResourceEnhancer
+import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
+import org.radarbase.jersey.filter.Filters
 
 class AuthorizerResourceEnhancer(
     private val config: Config,
@@ -46,14 +47,14 @@ class AuthorizerResourceEnhancer(
     override val classes: Array<Class<*>>
         get() = if (config.service.enableCors == true) {
             arrayOf(
-                ConfigLoader.Filters.cache,
-                ConfigLoader.Filters.logResponse,
-                ConfigLoader.Filters.cors,
+                Filters.cache,
+                Filters.logResponse,
+                Filters.cors,
             )
         } else {
             arrayOf(
-                ConfigLoader.Filters.cache,
-                ConfigLoader.Filters.logResponse,
+                Filters.cache,
+                Filters.logResponse,
             )
         }
 
