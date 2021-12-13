@@ -36,6 +36,9 @@ dependencies {
     val okhttpVersion: String by project
     implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
 
+    val jedisVersion: String by project
+    implementation("redis.clients:jedis:$jedisVersion")
+
     val log4j2Version: String by project
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
     runtimeOnly("org.apache.logging.log4j:log4j-api:$log4j2Version")
@@ -54,14 +57,14 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
         apiVersion = "1.5"
         languageVersion = "1.5"
     }
 }
 
 tasks.withType<JavaCompile> {
-    options.release.set(11)
+    options.release.set(17)
 }
 
 tasks.withType<Test> {

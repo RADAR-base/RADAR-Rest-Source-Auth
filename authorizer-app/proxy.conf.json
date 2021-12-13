@@ -1,0 +1,9 @@
+{
+  "/managementportal/oauth/token": {
+    "target": "https://radar-k3s-test.thehyve.net/managementportal/oauth/token",
+    "secure": false,
+    "pathRewrite": {"^/managementportal/oauth/token" : ""},
+    "changeOrigin":true,
+    "logLevel": "debug"
+  }
+}

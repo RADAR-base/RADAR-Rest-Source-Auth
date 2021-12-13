@@ -1,1 +1,19 @@
-<router-outlet></router-outlet>
+<ng-container *ngIf="!mainLoading">
+  <app-toolbar (languageSwitched)="switchLanguage($event)"></app-toolbar>
+  <div *ngIf="loading" class="loader-container" >
+    <mat-spinner diameter="30"></mat-spinner>
+    <div><p>{{ 'loading' | translate }} ...</p></div>
+  </div>
+  <div class="main-container">
+    <router-outlet></router-outlet>
+  </div>
+  <footer class="footer">
+    {{ 'title' | translate }} | Powered by <a href="https://radar-base.org/" target="_blank">RADAR-base</a>
+  </footer>
+</ng-container>
+
+<ng-container *ngIf="mainLoading">
+  <div class="loader-container" >
+    <mat-spinner diameter="30"></mat-spinner>
+  </div>
+</ng-container>

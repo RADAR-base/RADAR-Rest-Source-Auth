@@ -22,8 +22,9 @@ import jakarta.ws.rs.core.Response
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.radarbase.authorizer.RestSourceClient
 import org.radarbase.authorizer.api.*
+import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.config.RestSourceClient
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.OauthSignature
@@ -41,6 +42,7 @@ abstract class OAuth1RestSourceAuthorizationService(
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
     @Context private val userRepository: RestSourceUserRepository,
+    @Context private val config: AuthorizerConfig,
 ) : RestSourceAuthorizationService {
     private val tokenReader = objectMapper.readerFor(RestOauth1AccessToken::class.java)
 
@@ -65,10 +67,6 @@ abstract class OAuth1RestSourceAuthorizationService(
     }
 
     override fun revokeToken(user: RestSourceUser): Boolean {
-        val userId = user.id ?: throw HttpBadRequestException(
-            "user-id-is-null",
-            "Cannot revoke token of user whose id is null",
-        )
         val accessToken = user.accessToken
         if (accessToken == null || !user.authorized) {
             throw HttpBadRequestException(
@@ -90,7 +88,7 @@ abstract class OAuth1RestSourceAuthorizationService(
             .use { response ->
                 when (response.code) {
                     200, 204 -> {
-                        this.userRepository.updateToken(null, userId)
+                        this.userRepository.updateToken(null, user)
                         true
                     }
                     400, 401, 403 -> false
@@ -119,7 +117,11 @@ abstract class OAuth1RestSourceAuthorizationService(
         }
     }
 
-    override fun getAuthorizationEndpointWithParams(sourceType: String, callBackUrl: String): String {
+    override fun getAuthorizationEndpointWithParams(
+        sourceType: String,
+        userId: Long,
+        state: String,
+    ): String {
         logger.info("Getting auth endpoint..")
         val authConfig = clientService.forSourceType(sourceType)
 
@@ -127,7 +129,11 @@ abstract class OAuth1RestSourceAuthorizationService(
         val params = mapOf(
             OAUTH_ACCESS_TOKEN to tokens?.token,
             OAUTH_ACCESS_TOKEN_SECRET to tokens?.tokenSecret,
-            OAUTH_CALLBACK to callBackUrl
+            OAUTH_CALLBACK to config.service.callbackUrl
+                .newBuilder()
+                .addQueryParameter("state", state)
+                .build()
+                .toString()
         )
 
         return Url(authConfig.authorizationEndpoint, params).getUrl()

@@ -1,0 +1,29 @@
+{
+  "AUTHORIZATION_COMPLETE_PAGE": {
+    "title": "Thank you!",
+    "subtitle": "",
+    "description": "Your {{sourceType}} account has been linked to RADAR-base for Project {{project}}",
+    "actionMessage": "You can close this page.",
+    "actionButton": "Login",
+    "ERROR": {
+      "title": "Error",
+      "subtitle": "",
+      "badUrl": "The url is not valid.",
+      "contactSupport": "Retry to link your account. If the error persists contact the support team."
+    }
+  },
+  "AUTHORIZATION_PAGE": {
+    "title": "Link your {{sourceType}} account to RADAR-base",
+    "subtitle": "",
+    "description": "You are going to link your {{sourceType}} account to RADAR-base for Project {{project}}",
+    "authorizeButton": "Authorize {{sourceType}} Account",
+    "ERROR": {
+      "title": "Error",
+      "subtitle": "",
+      "badUrl": "The url is not valid.",
+      "badSecret": "Secret does not match token.",
+      "registrationNotFound": "State has expired or not found.",
+      "contactSupport": "Copy and paste the complete url and try again. If the error persists contact the support team."
+    }
+  }
+}

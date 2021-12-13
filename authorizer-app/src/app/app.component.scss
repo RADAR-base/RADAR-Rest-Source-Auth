@@ -1,0 +1,14 @@
+.main-container {
+  min-height: calc(100vh - 64px);
+}
+
+.footer {
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #eee;
+  text-align: center;
+  font-size: 12px;
+  a, a:visited, a:hover{
+    color: #1E90FF;
+  }
+}
