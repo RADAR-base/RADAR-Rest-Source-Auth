@@ -15,6 +15,7 @@ FROM gradle:7.3-jdk17 as builder
 RUN mkdir /code
 WORKDIR /code
 ENV GRADLE_USER_HOME=/code/.gradlecache
+ENV GRADLE_OPTS=-Djdk.lang.Process.launchMechanism=vfork
 
 COPY ./build.gradle.kts ./settings.gradle.kts ./gradle.properties /code/
 COPY authorizer-app-backend/build.gradle.kts  /code/authorizer-app-backend/
