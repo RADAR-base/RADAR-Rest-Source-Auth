@@ -20,9 +20,8 @@ import org.radarbase.authorizer.Config
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
-import org.radarbase.jersey.config.ConfigLoader
-import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.EnhancerFactory
+import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 
