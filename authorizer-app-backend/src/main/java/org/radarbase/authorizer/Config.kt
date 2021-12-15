@@ -20,7 +20,7 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.radarbase.authorizer.inject.ManagementPortalEnhancerFactory
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
-import org.radarbase.jersey.config.EnhancerFactory
+import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.hibernate.config.DatabaseConfig
 import java.net.URI
 import java.util.*
