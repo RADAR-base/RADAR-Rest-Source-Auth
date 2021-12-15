@@ -140,6 +140,7 @@ jobs:
         with:
           context: ./
           file: ./authorizer-app-backend/Dockerfile
+          platforms: linux/amd64,linux/arm64
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
           load: true
