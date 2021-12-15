@@ -4,9 +4,9 @@ name: CI
 # Run in master and dev branches and in all pull requests to those branches
 on:
   push:
-    branches: [ master, dev ]
+    branches: [master, dev]
   pull_request:
-    branches: [ master, dev ]
+    branches: [master, dev]
 
 jobs:
   # Build and test the code
@@ -23,17 +23,17 @@ jobs:
         with:
           java-version: 17
 
-      - name: Cache
-        uses: actions/cache@v2.0.0
-        with:
-          # Cache gradle directories
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          # Key for restoring and saving the cache
-          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-java-
+      # - name: Cache
+      #   uses: actions/cache@v2.0.0
+      #   with:
+      #     # Cache gradle directories
+      #     path: |
+      #       ~/.gradle/caches
+      #       ~/.gradle/wrapper
+      #     # Key for restoring and saving the cache
+      #     key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-java-
 
       # Compile the code
       - name: Compile code
