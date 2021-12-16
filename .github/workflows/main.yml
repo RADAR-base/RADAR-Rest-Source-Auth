@@ -144,7 +144,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
           push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.docker_meta.outputs.tags }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
         # Use runtime labels from docker_meta_backend as well as fixed labels
         labels: |
           ${{ steps.docker_meta.outputs.labels }}
@@ -161,7 +161,7 @@ jobs:
           context: ./
           file: ./authorizer-app-backend/Dockerfile
           load: true
-        tags: ${{ steps.docker_meta.outputs.tags }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
 
       - name: Inspect docker image
         run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
