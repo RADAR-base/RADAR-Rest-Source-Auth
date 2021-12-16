@@ -13,6 +13,22 @@ allprojects {
     repositories {
         mavenCentral()
     }
+
+    tasks.register("downloadDependencies") {
+        doLast {
+            configurations["runtimeClasspath"].files
+            configurations["compileClasspath"].files
+            println("Downloaded all dependencies")
+        }
+    }
+
+    tasks.register<Copy>("copyDependencies") {
+        from(configurations.runtimeClasspath.map { it.files })
+        into("$buildDir/third-party/")
+        doLast {
+            println("Copied third-party runtime dependencies")
+        }
+    }
 }
 
 fun isNonStable(version: String): Boolean {

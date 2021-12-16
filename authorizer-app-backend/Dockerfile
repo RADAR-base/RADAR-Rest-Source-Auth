@@ -19,14 +19,11 @@ ENV GRADLE_USER_HOME=/code/.gradlecache \
 
 COPY ./build.gradle.kts ./settings.gradle.kts ./gradle.properties /code/
 COPY authorizer-app-backend/build.gradle.kts  /code/authorizer-app-backend/
-RUN gradle :authorizer-app-backend:downloadDependencies --no-watch-fs
+RUN gradle downloadDependencies copyDependencies startScripts --no-watch-fs
 
 COPY authorizer-app-backend/src /code/authorizer-app-backend/src
 
-RUN gradle --no-watch-fs :authorizer-app-backend:distTar \
-    && cd authorizer-app-backend/build/distributions \
-    && tar xf *.tar \
-    && rm *.tar authorizer-app-backend-*/lib/authorizer-app-backend-*.jar
+RUN gradle jar --no-watch-fs
 
 FROM azul/zulu-openjdk-alpine:17-jre-headless
 
@@ -38,8 +35,8 @@ ENV JAVA_OPTS="" \
 
 RUN apk add --no-cache curl
 
-COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/bin/* /usr/bin/
-COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/lib/* /usr/lib/
+COPY --from=builder /code/authorizer-app-backend/build/scripts/authorizer-app-backend /usr/bin/
+COPY --from=builder /code/authorizer-app-backend/build/third-party/* /usr/lib/
 COPY --from=builder /code/authorizer-app-backend/build/libs/authorizer-app-backend-*.jar /usr/lib/
 
 USER 101
