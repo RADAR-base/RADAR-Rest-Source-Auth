@@ -145,14 +145,14 @@ jobs:
           cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_meta.outputs.tags }}
-        # Use runtime labels from docker_meta_backend as well as fixed labels
-        labels: |
-          ${{ steps.docker_meta.outputs.labels }}
-          maintainer=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
-          org.opencontainers.image.description=RADAR-base rest sources authorizer backend application
-          org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
-          org.opencontainers.image.vendor=RADAR-base
-          org.opencontainers.image.licenses=Apache-2.0
+          # Use runtime labels from docker_meta_backend as well as fixed labels
+          labels: |
+            ${{ steps.docker_meta.outputs.labels }}
+            maintainer=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.description=RADAR-base rest sources authorizer backend application
+            org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>, Nivethika Mahasivam <nivethika@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
 
       # will use the internal cache from the previous build step, and load it into the current memory
       - name: Build backend docker locally
