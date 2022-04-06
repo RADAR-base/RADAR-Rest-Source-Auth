@@ -28,7 +28,7 @@ RUN gradle --no-watch-fs :authorizer-app-backend:distTar \
     && tar xf *.tar \
     && rm *.tar authorizer-app-backend-*/lib/authorizer-app-backend-*.jar
 
-FROM azul/zulu-openjdk-alpine:17-jre-headless
+FROM azul/zulu-openjdk-alpine:17.0.2-jre-headless
 
 LABEL description="RADAR-base rest sources authorizer backend application"
 
