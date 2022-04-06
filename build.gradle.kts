@@ -2,8 +2,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     kotlin("jvm")
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.0" apply false
-    id("com.github.ben-manes.versions") version "0.39.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.1" apply false
+    id("com.github.ben-manes.versions") version "0.42.0"
 }
 
 allprojects {
@@ -29,5 +29,5 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
 }
 
 tasks.wrapper {
-    gradleVersion = "7.3.1"
+    gradleVersion = "7.4.2"
 }

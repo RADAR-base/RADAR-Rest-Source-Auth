@@ -58,8 +58,8 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
-        apiVersion = "1.5"
-        languageVersion = "1.5"
+        apiVersion = "1.6"
+        languageVersion = "1.6"
     }
 }
 
@@ -77,6 +77,10 @@ tasks.withType<Test> {
     systemProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
 }
 
+ktlint {
+    version.set("0.45.1")
+}
+
 allOpen {
     annotation("javax.persistence.Entity")
     annotation("javax.persistence.MappedSuperclass")
@@ -88,5 +92,13 @@ tasks.register("downloadDependencies") {
         configurations["runtimeClasspath"].files
         configurations["compileClasspath"].files
         println("Downloaded all dependencies")
+    }
+}
+
+tasks.register<Copy>("copyDependencies") {
+    from(configurations.runtimeClasspath.map { it.files })
+    into("$buildDir/third-party/")
+    doLast {
+        println("Copied third-party runtime dependencies")
     }
 }

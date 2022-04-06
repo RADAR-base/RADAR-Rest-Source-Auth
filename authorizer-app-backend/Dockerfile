@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM gradle:7.3-jdk17 as builder
+FROM --platform=$BUILDPLATFORM gradle:7.4-jdk17 as builder
 
 RUN mkdir /code
 WORKDIR /code
@@ -18,16 +18,13 @@ ENV GRADLE_USER_HOME=/code/.gradlecache
 
 COPY ./build.gradle.kts ./settings.gradle.kts ./gradle.properties /code/
 COPY authorizer-app-backend/build.gradle.kts  /code/authorizer-app-backend/
-RUN gradle :authorizer-app-backend:downloadDependencies --no-watch-fs
+RUN gradle downloadDependencies copyDependencies startScripts --no-watch-fs
 
 COPY authorizer-app-backend/src /code/authorizer-app-backend/src
 
-RUN gradle --no-watch-fs :authorizer-app-backend:distTar \
-    && cd authorizer-app-backend/build/distributions \
-    && tar xf *.tar \
-    && rm *.tar authorizer-app-backend-*/lib/authorizer-app-backend-*.jar
+RUN gradle --no-watch-fs :authorizer-app-backend:jar
 
-FROM azul/zulu-openjdk-alpine:17-jre-headless
+FROM eclipse-temurin:17-jre
 
 LABEL description="RADAR-base rest sources authorizer backend application"
 
@@ -35,10 +32,8 @@ LABEL description="RADAR-base rest sources authorizer backend application"
 ENV JAVA_OPTS="" \
     AUTHORIZER_APP_BACKEND_OPTS=""
 
-RUN apk add --no-cache curl
-
-COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/bin/* /usr/bin/
-COPY --from=builder /code/authorizer-app-backend/build/distributions/authorizer-app-backend-*/lib/* /usr/lib/
+COPY --from=builder /code/authorizer-app-backend/build/scripts/* /usr/bin/
+COPY --from=builder /code/authorizer-app-backend/build/third-party/* /usr/lib/
 COPY --from=builder /code/authorizer-app-backend/build/libs/authorizer-app-backend-*.jar /usr/lib/
 
 USER 101
