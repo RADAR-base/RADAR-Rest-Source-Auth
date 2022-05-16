@@ -37,6 +37,7 @@ class RestSourceUserMapper(
             externalId = mpUser?.externalId,
             sourceId = user.sourceId,
             isAuthorized = user.authorized,
+            registrationCreatedAt = user.registrations.maxOfOrNull { it.createdAt },
             hasValidToken = user.hasValidToken(),
             sourceType = user.sourceType,
             endDate = user.endDate,

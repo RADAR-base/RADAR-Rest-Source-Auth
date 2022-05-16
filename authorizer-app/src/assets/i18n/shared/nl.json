@@ -1,0 +1,29 @@
+{
+  "AUTHORIZATION_COMPLETE_PAGE": {
+    "title": "Bedankt!",
+    "subtitle": "Uw account is gekoppeld aan RADAR-base.",
+    "description": "Uw account is gekoppeld aan RADAR-base.",
+    "actionMessage": "U kunt deze pagina sluiten of inloggen op de app.",
+    "actionButton": "Inloggen",
+    "ERROR": {
+      "title": "Url-fout",
+      "subtitle": "",
+      "badUrl": "De opegegeven url is ongeldig.",
+      "contactSupport": "Knip en plak de complete url and probeer het opnieuw. Als de foutmelding steeds weer getoond wordt, neem dan contact op met de ondersteuning."
+    }
+  },
+  "AUTHORIZATION_PAGE": {
+    "title": "Koppel uw {{sourceType}} account aan RADAR-base",
+    "subtitle": "",
+    "description": "Om uw {{sourceType}} account te koppelen aan het project {{project}} in RADAR-base, is uw autorisatie nodig.",
+    "authorizeButton": "Autoriseer uw {{sourceType}} account",
+    "ERROR": {
+      "title": "Url-fout",
+      "subtitle": "",
+      "badUrl": "De opgegeven url is ongeldig.",
+      "badSecret": "Het opgegeven geheim komt niet overeen met die op de server.",
+      "registrationNotFound": "De opgegeven url kan niet meer gevonden worden.",
+      "contactSupport": "Knip en plak de complete url and probeer het opnieuw. Als de foutmelding steeds weer getoond wordt, neem dan contact op met de ondersteuning."
+    }
+  }
+}

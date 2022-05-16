@@ -7,7 +7,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.noarg")
     id("org.jetbrains.kotlin.plugin.jpa")
     id("org.jetbrains.kotlin.plugin.allopen")
-    id("org.jlleitschuh.gradle.ktlint")
 }
 
 application {
@@ -36,6 +35,9 @@ dependencies {
     val okhttpVersion: String by project
     implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
 
+    val jedisVersion: String by project
+    implementation("redis.clients:jedis:$jedisVersion")
+
     val log4j2Version: String by project
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
     runtimeOnly("org.apache.logging.log4j:log4j-api:$log4j2Version")
@@ -55,8 +57,8 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
-        apiVersion = "1.5"
-        languageVersion = "1.5"
+        apiVersion = "1.6"
+        languageVersion = "1.6"
     }
 }
 
@@ -78,12 +80,4 @@ allOpen {
     annotation("javax.persistence.Entity")
     annotation("javax.persistence.MappedSuperclass")
     annotation("javax.persistence.Embeddable")
-}
-
-tasks.register("downloadDependencies") {
-    doLast {
-        configurations["runtimeClasspath"].files
-        configurations["compileClasspath"].files
-        println("Downloaded all dependencies")
-    }
 }

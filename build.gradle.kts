@@ -2,16 +2,41 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     kotlin("jvm")
-    id("org.jlleitschuh.gradle.ktlint") version "10.1.0" apply false
-    id("com.github.ben-manes.versions") version "0.39.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.3.0" apply false
+    id("com.github.ben-manes.versions") version "0.42.0"
 }
 
 allprojects {
     group = "org.radarbase"
-    version = "3.2.2"
+    version = "4.0.0"
 
     repositories {
         mavenCentral()
+    }
+}
+
+subprojects {
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        val ktlintVersion: String by project
+        version.set(ktlintVersion)
+    }
+
+    tasks.register("downloadDependencies") {
+        doLast {
+            configurations["runtimeClasspath"].files
+            configurations["compileClasspath"].files
+            println("Downloaded all dependencies")
+        }
+    }
+
+    tasks.register<Copy>("copyDependencies") {
+        from(configurations.runtimeClasspath.map { it.files })
+        into("$buildDir/third-party/")
+        doLast {
+            println("Copied third-party runtime dependencies")
+        }
     }
 }
 
@@ -29,5 +54,5 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
 }
 
 tasks.wrapper {
-    gradleVersion = "7.3.1"
+    gradleVersion = "7.4.2"
 }

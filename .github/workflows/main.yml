@@ -50,8 +50,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: browser-actions/setup-chrome@latest
-
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
@@ -60,29 +58,33 @@ jobs:
         with:
           node-version: 15
 
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
       - name: Cache
         uses: actions/cache@v2.0.0
         with:
           # Cache gradle directories
           path: |
-            ~/.npm
+             ${{ steps.yarn-cache-dir-path.outputs.dir }}
           # Key for restoring and saving the cache
-          key: ${{ runner.os }}-node-${{ hashFiles('authorizer-app/package*.json') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('authorizer-app/yarn.lock', 'authorizer-app/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-yarn-
 
       # Install npm dependencies
-      - name: Install NPM dependencies
+      - name: Install Yarn dependencies
         working-directory: ./authorizer-app
-        run: npm install
+        run: yarn install
 
-      - name: NPM build
+      - name: Yarn build
         working-directory: ./authorizer-app
-        run: npm run build
+        run: yarn build
 
-      - name: NPM test
+      - name: Yarn test
         working-directory: ./authorizer-app
-        run: CHROMIUM_BIN=$(which chrome) npm run test
+        run: yarn test
 
   # Build and push tagged release backend docker image
   dockerBackend:

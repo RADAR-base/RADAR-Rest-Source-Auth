@@ -1,0 +1,27 @@
+.message-box{
+  width: 100%;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: initial;
+  font-weight: normal;
+  box-sizing: border-box;
+  border-radius: 5px;
+  overflow-wrap: break-word;
+}
+
+.error {
+  background-color: rgba(#FF0000, 0.1);
+  border: 1px solid #FF0000;
+}
+
+.warn {
+  background-color: rgba(#FFA200, 0.1);
+  border: 1px solid #FFA200;
+}
+
+.info {
+  background-color: rgba(#1E90FF, 0.1);
+  border: 1px solid #1E90FF;
+}

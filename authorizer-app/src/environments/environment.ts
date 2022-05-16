@@ -3,15 +3,23 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
+  radarBaseUrl: 'https://radar-k3s-test.thehyve.net',
   production: false,
-  backendBaseUrl: 'http://localhost:8080',
-  doValidate: false,
-  authorizationGrantType: 'authorization_code',
-  appClientId: 'radar_rest_sources_auth',
-  appClientSecret: 'secret',
-  authCallbackUrl: 'http://localhost:8080/oauth/callback',
   BASE_HREF: '/rest-sources/authorizer/',
-  authBaseUrl: 'http://localhost:8080/oauth'
+  // base url of the rest-sources authorizer app
+  backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend',
+  // If user validation is enabled
+  doValidate: false,
+  // Grant-type of authorization
+  authorizationGrantType: 'authorization_code',
+  // Client id of the authorizer app.
+  appClientId: 'radar_rest_sources_authorizer',
+  // Client secret of the authorizer app.
+  appClientSecret: '',
+  // Callback URL registered in MP.
+  authCallbackUrl: 'http://localhost:8080/login',
+  // Management Portal URL.
+  authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
 };
 
 /*
