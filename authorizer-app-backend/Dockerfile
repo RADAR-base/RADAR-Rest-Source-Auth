@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM gradle:7.3-jdk17 as builder
+FROM --platform=$BUILDPLATFORM gradle:7.4-jdk17 as builder
 
 RUN mkdir /code
 WORKDIR /code
@@ -26,7 +26,7 @@ COPY authorizer-app-backend/src /code/authorizer-app-backend/src
 
 RUN gradle jar --no-watch-fs
 
-FROM azul/zulu-openjdk-alpine:17-jre-headless
+FROM eclipse-temurin:17-jre
 
 LABEL description="RADAR-base rest sources authorizer backend application"
 
@@ -34,9 +34,7 @@ LABEL description="RADAR-base rest sources authorizer backend application"
 ENV JAVA_OPTS="" \
     AUTHORIZER_APP_BACKEND_OPTS=""
 
-RUN apk add --no-cache curl
-
-COPY --from=builder /code/authorizer-app-backend/build/scripts/authorizer-app-backend /usr/bin/
+COPY --from=builder /code/authorizer-app-backend/build/scripts/* /usr/bin/
 COPY --from=builder /code/authorizer-app-backend/build/third-party/* /usr/lib/
 COPY --from=builder /code/authorizer-app-backend/build/libs/authorizer-app-backend-*.jar /usr/lib/
 
