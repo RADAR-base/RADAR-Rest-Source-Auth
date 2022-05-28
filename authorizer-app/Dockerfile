@@ -12,7 +12,7 @@ COPY ./ /app/
 
 RUN yarn build --base-href=${BASE_HREF}
 
-FROM nginx:1.20-alpine
+FROM nginx:1.22.0-alpine
 
 # add init script
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
