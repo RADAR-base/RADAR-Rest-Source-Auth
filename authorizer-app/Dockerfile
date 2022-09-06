@@ -1,4 +1,4 @@
-FROM node:14-alpine as builder
+FROM --platform=$BUILDPLATFORM node:16-alpine as builder
 
 ARG BASE_HREF="BASE_HREF"
 
