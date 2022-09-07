@@ -15,6 +15,7 @@ import {environment} from '@environments/environment';
   providedIn: 'root'
 })
 export class UserService {
+  AUTH_ENDPOINT_PARAMS_STORAGE_KEY = 'auth_endpoint_params';
 
   constructor(private http: HttpClient) {}
 
@@ -67,5 +68,29 @@ export class UserService {
       environment.backendBaseUrl + '/users/' + userId
     );
     return this.http.delete(url);
+  }
+
+  storeUserAuthParams(url: string) {
+    const params = this.getJsonFromUrl(url);
+    localStorage.setItem(
+      this.AUTH_ENDPOINT_PARAMS_STORAGE_KEY,
+      JSON.stringify(params)
+    );
+  }
+
+  getUserAuthParams() {
+    const params = localStorage.getItem(this.AUTH_ENDPOINT_PARAMS_STORAGE_KEY);
+    return params ? JSON.parse(params) : {};
+  }
+
+
+  getJsonFromUrl(url: string) {
+    const query = url.split('?')[1];
+    let result: any = {};
+    query.split('&').forEach(function(part) {
+      let item = part.split('=');
+      result[item[0]] = decodeURIComponent(item[1]);
+    });
+    return result;
   }
 }
