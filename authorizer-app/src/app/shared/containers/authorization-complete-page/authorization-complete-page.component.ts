@@ -70,7 +70,7 @@ export class AuthorizationCompletePageComponent implements OnInit {
           this.router.navigate(
             [lastLocation.url || '/'],
             {queryParams: lastLocation.params}
-          ).finally();
+          ).finally(() => this.service.clearUserAuthParams());
         }
       },
       error: (error) => {

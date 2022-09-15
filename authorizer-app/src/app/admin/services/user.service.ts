@@ -10,13 +10,12 @@ import {
 } from '@app/admin/models/rest-source-user.model';
 
 import {environment} from '@environments/environment';
+import { StorageItem } from '@app/shared/enums/storage-item';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  AUTH_ENDPOINT_PARAMS_STORAGE_KEY = 'auth_endpoint_params';
-
   constructor(private http: HttpClient) {}
 
   getUsersOfProject(projectId: string): Observable<RestSourceUsers> {
@@ -73,13 +72,17 @@ export class UserService {
   storeUserAuthParams(url: string) {
     const params = this.getJsonFromUrl(url);
     localStorage.setItem(
-      this.AUTH_ENDPOINT_PARAMS_STORAGE_KEY,
+      StorageItem.AUTH_ENDPOINT_PARAMS_STORAGE_KEY,
       JSON.stringify(params)
     );
   }
 
+  clearUserAuthParams() {
+    localStorage.removeItem(StorageItem.AUTH_ENDPOINT_PARAMS_STORAGE_KEY);
+  }
+
   getUserAuthParams() {
-    const params = localStorage.getItem(this.AUTH_ENDPOINT_PARAMS_STORAGE_KEY);
+    const params = localStorage.getItem(StorageItem.AUTH_ENDPOINT_PARAMS_STORAGE_KEY);
     return params ? JSON.parse(params) : {};
   }
 
