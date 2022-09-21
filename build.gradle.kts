@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = "org.radarbase"
-    version = "4.0.1-SNAPSHOT"
+    version = "4.0.1"
 
     repositories {
         mavenCentral()
