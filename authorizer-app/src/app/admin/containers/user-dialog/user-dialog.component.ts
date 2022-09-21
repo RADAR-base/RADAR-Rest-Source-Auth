@@ -183,6 +183,7 @@ export class UserDialogComponent {
       .subscribe({
         next: (resp) => {
           if (resp.authEndpointUrl) {
+            this.userService.storeUserAuthParams(resp.authEndpointUrl);
             window.location.href = resp.authEndpointUrl;
           } else if (resp.secret) {
             const baseUrl = this.getBaseUrl();

@@ -27,7 +27,22 @@ export class AuthorizationCompletePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    const {state, oauth_token, oauth_verifier, oauth_token_secret, code} = this.activatedRoute.snapshot.queryParams;
+    const queryParams = this.activatedRoute.snapshot.queryParams;
+    const storedParams = this.service.getUserAuthParams();
+    const state = this.getOrDefault(queryParams.state, storedParams.state);
+    const oauth_token = this.getOrDefault(
+      queryParams.oauth_token,
+      storedParams.oauth_token
+    );
+    const oauth_verifier = this.getOrDefault(
+      queryParams.oauth_verifier,
+      storedParams.oauth_verifier
+    );
+    const oauth_token_secret = this.getOrDefault(
+      queryParams.oauth_token_secret,
+      storedParams.oauth_token_secret
+    );
+    const code = this.getOrDefault(queryParams.code, storedParams.code);
 
     let stateOrToken = state;
     if (!state) {
@@ -55,7 +70,7 @@ export class AuthorizationCompletePageComponent implements OnInit {
           this.router.navigate(
             [lastLocation.url || '/'],
             {queryParams: lastLocation.params}
-          ).finally();
+          ).finally(() => this.service.clearUserAuthParams());
         }
       },
       error: (error) => {
@@ -64,5 +79,9 @@ export class AuthorizationCompletePageComponent implements OnInit {
         this.error = error.error?.error_description || error.message || error;
       }
     });
+  }
+
+  getOrDefault(value: any, defaultValue: any) {
+    return value ? value : defaultValue;
   }
 }
