@@ -10,12 +10,12 @@ import {
 } from '@app/admin/models/rest-source-user.model';
 
 import {environment} from '@environments/environment';
+import { StorageItem } from '@app/shared/enums/storage-item';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-
   constructor(private http: HttpClient) {}
 
   getUsersOfProject(projectId: string): Observable<RestSourceUsers> {
@@ -67,5 +67,33 @@ export class UserService {
       environment.backendBaseUrl + '/users/' + userId
     );
     return this.http.delete(url);
+  }
+
+  storeUserAuthParams(url: string) {
+    const params = this.getJsonFromUrl(url);
+    localStorage.setItem(
+      StorageItem.AUTH_ENDPOINT_PARAMS_STORAGE_KEY,
+      JSON.stringify(params)
+    );
+  }
+
+  clearUserAuthParams() {
+    localStorage.removeItem(StorageItem.AUTH_ENDPOINT_PARAMS_STORAGE_KEY);
+  }
+
+  getUserAuthParams() {
+    const params = localStorage.getItem(StorageItem.AUTH_ENDPOINT_PARAMS_STORAGE_KEY);
+    return params ? JSON.parse(params) : {};
+  }
+
+
+  getJsonFromUrl(url: string) {
+    const query = url.split('?')[1];
+    let result: any = {};
+    query.split('&').forEach(function(part) {
+      let item = part.split('=');
+      result[item[0]] = decodeURIComponent(item[1]);
+    });
+    return result;
   }
 }
