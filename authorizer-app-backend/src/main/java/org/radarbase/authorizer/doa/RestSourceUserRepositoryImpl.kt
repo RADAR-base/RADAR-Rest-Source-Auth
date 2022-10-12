@@ -17,6 +17,7 @@
 package org.radarbase.authorizer.doa
 
 import jakarta.inject.Provider
+import jakarta.persistence.EntityManager
 import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.api.Page
 import org.radarbase.authorizer.api.RestOauth2AccessToken
@@ -25,7 +26,6 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.hibernate.HibernateRepository
-import jakarta.persistence.EntityManager
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit

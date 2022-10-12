@@ -16,14 +16,13 @@
 
 package org.radarbase.authorizer.doa.entity
 
+import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Table
 import org.hibernate.annotations.*
 import org.hibernate.annotations.Cache
 import java.time.Instant
 import java.util.*
-import jakarta.persistence.*
-import jakarta.persistence.CascadeType
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
 
 @Entity
 @Table(name = "rest_source_user")
