@@ -27,10 +27,11 @@ import org.radarbase.jersey.exception.HttpBadRequestException
 class DelegatedRestSourceAuthorizationService(
     @Context private val namedServices: IterableProvider<RestSourceAuthorizationService>,
 ) : RestSourceAuthorizationService {
-    private fun delegate(sourceType: String): RestSourceAuthorizationService = namedServices
-        .named(sourceType)
-        ?.get()
-        ?: throw HttpBadRequestException("source-type-not-found", "Source type $sourceType does not exist")
+    private fun delegate(sourceType: String): RestSourceAuthorizationService {
+        val provider = namedServices.named(sourceType)
+            ?: throw HttpBadRequestException("source-type-not-found", "Source type $sourceType does not exist")
+        return provider.get()
+    }
 
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken =
         delegate(sourceType).requestAccessToken(payload, sourceType)

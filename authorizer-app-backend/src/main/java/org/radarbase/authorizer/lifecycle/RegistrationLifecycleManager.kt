@@ -1,5 +1,6 @@
 package org.radarbase.authorizer.lifecycle
 
+import jakarta.persistence.EntityManagerFactory
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.ext.Provider
 import org.glassfish.jersey.server.BackgroundScheduler
@@ -14,7 +15,6 @@ import java.time.Duration
 import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import javax.persistence.EntityManagerFactory
 
 @Provider
 class RegistrationLifecycleManager(

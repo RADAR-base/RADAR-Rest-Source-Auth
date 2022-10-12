@@ -31,7 +31,6 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-
         if (args.firstOrNull() in arrayOf("--help", "-h")) {
             logger.info("Usage: <command> [<config file path>]")
             exitProcess(0)
@@ -40,7 +39,8 @@ object Main {
         val config: AuthorizerConfig = ConfigLoader.loadConfig("authorizer.yml", args)
         val resources = ConfigLoader.loadResources(config.service.resourceConfig, config)
 
-        val server = GrizzlyServer(config.service.baseUri, resources)
-        server.listen()
+        GrizzlyServer(config.service.baseUri, resources).run {
+            listen()
+        }
     }
 }

@@ -22,26 +22,26 @@ import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class RestOauth2AccessToken(
-    @JsonProperty("access_token") var accessToken: String,
-    @JsonProperty("refresh_token") var refreshToken: String? = null,
-    @JsonProperty("expires_in") var expiresIn: Int = 0,
-    @JsonProperty("token_type") var tokenType: String? = null,
-    @JsonProperty("user_id") var externalUserId: String? = null,
+    @JsonProperty("access_token") val accessToken: String,
+    @JsonProperty("refresh_token") val refreshToken: String? = null,
+    @JsonProperty("expires_in") val expiresIn: Int = 0,
+    @JsonProperty("token_type") val tokenType: String? = null,
+    @JsonProperty("user_id") val externalUserId: String? = null,
 )
 
 data class RestOauth1AccessToken(
-    @JsonProperty("oauth_token") var token: String,
-    @JsonProperty("oauth_token_secret") var tokenSecret: String? = null,
-    @JsonProperty("oauth_verifier") var tokenVerifier: String? = null,
+    @JsonProperty("oauth_token") val token: String,
+    @JsonProperty("oauth_token_secret") val tokenSecret: String? = null,
+    @JsonProperty("oauth_verifier") val tokenVerifier: String? = null,
 )
 
 data class RestOauth1UserId(
-    @JsonProperty("userId") var userId: String,
+    @JsonProperty("userId") val userId: String,
 )
 
 data class SignRequestParams(
-    var url: String,
-    var method: String,
+    val url: String,
+    val method: String,
     val parameters: Map<String, String?>,
 )
 
@@ -76,10 +76,10 @@ data class DeregistrationParams(
 )
 
 data class RequestTokenPayload(
-    var code: String? = null,
-    var oauth_token: String? = null,
-    var oauth_verifier: String? = null,
-    var oauth_token_secret: String? = null,
+    val code: String? = null,
+    val oauth_token: String? = null,
+    val oauth_verifier: String? = null,
+    val oauth_token_secret: String? = null,
 )
 
 data class ShareableClientDetail(
@@ -109,8 +109,8 @@ data class RestSourceUserDTO(
     val startDate: Instant,
     val endDate: Instant? = null,
     val sourceType: String,
-    var isAuthorized: Boolean = false,
-    var registrationCreatedAt: Instant? = null,
+    val isAuthorized: Boolean = false,
+    val registrationCreatedAt: Instant? = null,
     val hasValidToken: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0,

@@ -1,5 +1,6 @@
 package org.radarbase.authorizer.service
 
+import jakarta.persistence.LockTimeoutException
 import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.slf4j.LoggerFactory
@@ -10,7 +11,6 @@ import redis.clients.jedis.params.SetParams
 import java.io.IOException
 import java.time.Duration
 import java.util.*
-import javax.persistence.LockTimeoutException
 
 class RedisLockService(
     @Context config: AuthorizerConfig,

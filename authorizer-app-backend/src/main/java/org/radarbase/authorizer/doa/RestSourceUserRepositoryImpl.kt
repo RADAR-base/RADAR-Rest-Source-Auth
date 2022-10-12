@@ -18,7 +18,6 @@ package org.radarbase.authorizer.doa
 
 import jakarta.inject.Provider
 import jakarta.ws.rs.core.Context
-import org.hibernate.criterion.MatchMode
 import org.radarbase.authorizer.api.Page
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
@@ -26,11 +25,11 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.hibernate.HibernateRepository
+import jakarta.persistence.EntityManager
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
-import javax.persistence.EntityManager
 
 class RestSourceUserRepositoryImpl(
     @Context em: Provider<EntityManager>,
@@ -148,7 +147,7 @@ class RestSourceUserRepositoryImpl(
             }
             if (search != null) {
                 // user IDs are always lower case in MP.
-                val searchMatch = MatchMode.ANYWHERE.toMatchString(search.lowercase())
+                val searchMatch = "%${search.lowercase()}%"
                 query.setParameter("search", searchMatch)
                 query.setParameter("userIds", userIds)
                 countQuery.setParameter("search", searchMatch)

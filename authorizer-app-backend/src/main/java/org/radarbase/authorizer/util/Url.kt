@@ -7,11 +7,10 @@ data class Url(
     var queryParams: Map<String, String?>,
 ) {
     fun getUrl(): String {
-        val uriBuilder = UriBuilder.fromUri(this.endPoint)
-        for ((key, value) in queryParams) {
-            if (value.isNullOrEmpty()) continue
-            uriBuilder.queryParam(key, value)
-        }
-        return uriBuilder.build().toString()
+        return UriBuilder.fromUri(this.endPoint).apply {
+            queryParams.asSequence()
+                .filter { (_, v) -> v != null }
+                .forEach { (k, v) -> queryParam(k, v) }
+        }.build().toString()
     }
 }
