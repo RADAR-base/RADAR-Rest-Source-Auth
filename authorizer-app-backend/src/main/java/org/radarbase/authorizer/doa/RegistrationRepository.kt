@@ -1,6 +1,8 @@
 package org.radarbase.authorizer.doa
 
 import jakarta.inject.Provider
+import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceException
 import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RegistrationState
@@ -11,8 +13,6 @@ import org.radarbase.authorizer.util.Hmac256Secret.Companion.randomize
 import org.radarbase.jersey.hibernate.HibernateRepository
 import java.time.Duration
 import java.time.Instant
-import javax.persistence.EntityManager
-import javax.persistence.PersistenceException
 
 class RegistrationRepository(
     @Context private val config: AuthorizerConfig,

@@ -8,13 +8,13 @@ import java.net.URI
 import java.time.Duration
 
 data class AuthorizerServiceConfig(
-    var baseUri: URI = URI.create("http://0.0.0.0:8080/rest-sources/backend/"),
+    val baseUri: URI = URI.create("http://0.0.0.0:8080/rest-sources/backend/"),
     val advertisedBaseUri: URI? = null,
     val frontendBaseUri: URI? = null,
-    var resourceConfig: Class<out EnhancerFactory> = ManagementPortalEnhancerFactory::class.java,
-    var enableCors: Boolean? = false,
-    var syncProjectsIntervalMin: Long = 30,
-    var syncParticipantsIntervalMin: Long = 30,
+    val resourceConfig: Class<out EnhancerFactory> = ManagementPortalEnhancerFactory::class.java,
+    val enableCors: Boolean? = false,
+    val syncProjectsIntervalMin: Long = 30,
+    val syncParticipantsIntervalMin: Long = 30,
     val tokenExpiryTimeInMinutes: Long = 15,
     val persistentTokenExpiryInMin: Long = Duration.ofDays(3).toMinutes(),
 ) {

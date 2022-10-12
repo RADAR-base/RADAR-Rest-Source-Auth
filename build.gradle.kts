@@ -2,13 +2,13 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     kotlin("jvm")
-    id("org.jlleitschuh.gradle.ktlint") version "10.3.0" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "11.0.0" apply false
     id("com.github.ben-manes.versions") version "0.42.0"
 }
 
 allprojects {
     group = "org.radarbase"
-    version = "4.0.1"
+    version = "4.1.0"
 
     repositories {
         mavenCentral()
@@ -54,5 +54,5 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
 }
 
 tasks.wrapper {
-    gradleVersion = "7.4.2"
+    gradleVersion = "7.5.1"
 }

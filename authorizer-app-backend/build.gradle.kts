@@ -39,8 +39,8 @@ dependencies {
     implementation("redis.clients:jedis:$jedisVersion")
 
     val log4j2Version: String by project
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
-    runtimeOnly("org.apache.logging.log4j:log4j-api:$log4j2Version")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:$log4j2Version")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl:$log4j2Version")
     runtimeOnly("org.apache.logging.log4j:log4j-jul:$log4j2Version")
 
     val junitVersion: String by project
@@ -57,8 +57,8 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
-        apiVersion = "1.6"
-        languageVersion = "1.6"
+        apiVersion = "1.7"
+        languageVersion = "1.7"
     }
 }
 

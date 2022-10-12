@@ -1,13 +1,12 @@
 package org.radarbase.authorizer.doa.entity
 
+import jakarta.persistence.*
+import org.hibernate.Hibernate
 import org.hibernate.annotations.Cache
 import org.hibernate.annotations.CacheConcurrencyStrategy
 import org.hibernate.annotations.Immutable
-import org.hibernate.proxy.HibernateProxy
-import org.hibernate.proxy.HibernateProxyHelper
 import java.time.Instant
 import java.util.*
-import javax.persistence.*
 
 @Entity
 @Table(name = "registration")
@@ -38,13 +37,7 @@ class RegistrationState(
         if (this === other) return true
         if (other == null) return false
 
-        val otherClass = if (other is HibernateProxyHelper) {
-            (other as HibernateProxy)
-                .hibernateLazyInitializer
-                .persistentClass
-        } else other.javaClass
-
-        if (javaClass != otherClass) return false
+        if (Hibernate.getClass(this) != Hibernate.getClass(other)) return false
 
         other as RegistrationState
 

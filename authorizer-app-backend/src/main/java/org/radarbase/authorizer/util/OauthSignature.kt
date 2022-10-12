@@ -32,8 +32,7 @@ data class OauthSignature(
     }
 
     companion object {
-        private fun Map<String, String?>.toQueryFormat(): String = this
-            .map { (k, v) -> "$k=${v ?: null}" }
-            .joinToString("&")
+        private fun Map<String, String?>.toQueryFormat(): String =
+            entries.joinToString("&") { (k, v) -> "$k=$v" }
     }
 }

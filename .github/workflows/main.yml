@@ -60,10 +60,6 @@ jobs:
         working-directory: ./authorizer-app
         run: yarn build
 
-      - name: Yarn test
-        working-directory: ./authorizer-app
-        run: yarn test
-
   # Build and push tagged release backend docker image
   dockerBackend:
     # The type of runner that the job will run on
@@ -99,7 +95,7 @@ jobs:
 
       - name: Cache layers
         id: cache-buildx
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-backend-${{ hashFiles('authorizer-app-backend/Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'authorizer-app-backend/src/main/**') }}
@@ -111,8 +107,10 @@ jobs:
         run: |
           if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
             echo "::set-output name=cache-to::"
+            echo "::set-output name=load-cache-from::type=local,src=/tmp/.buildx-cache"
           else
             echo "::set-output name=cache-to::type=local,dest=/tmp/.buildx-cache-new,mode=max"
+            echo "::set-output name=load-cache-from::type=local,src=/tmp/.buildx-cache-new"
           fi
 
       - name: Build backend docker
@@ -140,6 +138,7 @@ jobs:
         with:
           context: ./
           file: ./authorizer-app-backend/Dockerfile
+          cache-from: ${{ steps.cache-parameters.outputs.load-cache-from }}
           load: true
           tags: ${{ steps.docker_meta.outputs.tags }}
 
@@ -150,11 +149,6 @@ jobs:
         run: |
           docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --version
           docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} authorizer-app-backend --help
-
-      # Push the image on the dev and master branches
-      - name: Push images
-        if: ${{ github.event_name != 'pull_request' }}
-        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
 
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252
@@ -199,7 +193,7 @@ jobs:
 
       - name: Cache frontend layers
         id: cache-buildx
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-frontend-${{ hashFiles('authorizer-app/**') }}
@@ -211,17 +205,20 @@ jobs:
         run: |
           if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
             echo "::set-output name=cache-to::"
+            echo "::set-output name=load-cache-from::type=local,src=/tmp/.buildx-cache"
           else
             echo "::set-output name=cache-to::type=local,dest=/tmp/.buildx-cache-new,mode=max"
+            echo "::set-output name=load-cache-from::type=local,src=/tmp/.buildx-cache-new"
           fi
 
       - name: Build frontend docker
         uses: docker/build-push-action@v3
         with:
           context: ./authorizer-app
+          platforms: linux/amd64,linux/arm64
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
-          load: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_meta.outputs.tags }}
           # Use runtime labels from docker_meta as well as fixed labels
           labels: |
@@ -232,13 +229,16 @@ jobs:
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
 
+      - name: Build frontend docker locally
+        uses: docker/build-push-action@v3
+        with:
+          context: ./authorizer-app
+          cache-from: ${{ steps.cache-parameters.outputs.load-cache-from }}
+          load: true
+          tags: ${{ steps.docker_meta.outputs.tags }}
+
       - name: Inspect docker image
         run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
-
-      # Push the image on the dev and master branches
-      - name: Push images
-        if: ${{ github.event_name != 'pull_request' }}
-        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
 
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252
