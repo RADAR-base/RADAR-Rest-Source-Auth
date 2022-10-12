@@ -1,7 +1,5 @@
 FROM --platform=$BUILDPLATFORM node:16-alpine as builder
 
-ARG BASE_HREF="BASE_HREF"
-
 RUN mkdir /app
 WORKDIR /app
 
@@ -10,20 +8,25 @@ RUN yarn install
 
 COPY ./ /app/
 
-RUN yarn build --base-href=${BASE_HREF}
+RUN yarn build
 
-FROM nginx:1.20-alpine
+FROM nginxinc/nginx-unprivileged:1.22-alpine
+
+ENV BASE_HREF="/rest-sources/authorizer/" \
+    BACKEND_BASE_URL="http://localhost/rest-sources/backend" \
+    AUTH_GRANT_TYPE="authorization_code" \
+    AUTH_CLIENT_ID="radar_rest_sources_authorizer" \
+    AUTH_CLIENT_SECRET="" \
+    AUTH_CALLBACK_URL="http://localhost/rest-sources/authorizer/login" \
+    AUTH_URI="http://localhost/managementportal/oauth" \
+    RADAR_BASE_URL="http://localhost"
 
 # add init script
-COPY ./docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/optimization.conf /etc/nginx/conf.d/
+COPY --chown=101 docker/default.conf /etc/nginx/conf.d/
+COPY docker/30-env-subst.sh /docker-entrypoint.d/
 
 WORKDIR /usr/share/nginx/html
 
-COPY --from=builder /app/dist/authorizer-app/ .
-
-COPY ./docker/entrypoint.sh /entrypoint.sh
-# expose internal port:80 and run init.sh
-EXPOSE 80
-
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=builder /app/dist/ .
+COPY --from=builder --chown=101 /app/dist/main.* /app/dist/index.html* ./

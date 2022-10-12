@@ -5,7 +5,7 @@
 export const environment = {
   radarBaseUrl: 'https://radar-k3s-test.thehyve.net',
   production: false,
-  BASE_HREF: '/rest-sources/authorizer/',
+  baseHref: '/rest-sources/authorizer/',
   // base url of the rest-sources authorizer app
   backendBaseUrl: 'https://radar-k3s-test.thehyve.net/rest-sources/backend',
   // If user validation is enabled
