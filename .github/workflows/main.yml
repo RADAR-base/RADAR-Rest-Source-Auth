@@ -95,7 +95,7 @@ jobs:
 
       - name: Cache layers
         id: cache-buildx
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-backend-${{ hashFiles('authorizer-app-backend/Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'authorizer-app-backend/src/main/**') }}
@@ -195,7 +195,7 @@ jobs:
 
       - name: Cache frontend layers
         id: cache-buildx
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-frontend-${{ hashFiles('authorizer-app/**') }}
