@@ -293,10 +293,23 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   localeInitializer(localeId: string): Promise<any> {
-    return import(
-      /* webpackInclude: /(en-GB|en|nl)\.js$/ */
-      `@angular/common/locales/${localeId}.js`
-      ).then(module => registerLocaleData(module.default));
+    let localeImport: Promise<any>
+
+    // Hardcoded switch to work around Webpack bug for dynamic imports.
+    // https://github.com/webpack/webpack/issues/13865
+    switch (localeId) {
+      case 'en-GB':
+        localeImport = import(`@angular/common/locales/en-GB`)
+        break
+      case 'nl':
+        localeImport = import(`@angular/common/locales/nl`)
+        break
+      case 'en': default:
+        localeImport = import(`@angular/common/locales/en`)
+        break
+    }
+
+    return localeImport.then(module => registerLocaleData(module.default));
   }
 
   private unsubscribeTranslate(): void {

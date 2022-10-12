@@ -60,10 +60,6 @@ jobs:
         working-directory: ./authorizer-app
         run: yarn build
 
-      - name: Yarn test
-        working-directory: ./authorizer-app
-        run: yarn test
-
   # Build and push tagged release backend docker image
   dockerBackend:
     # The type of runner that the job will run on

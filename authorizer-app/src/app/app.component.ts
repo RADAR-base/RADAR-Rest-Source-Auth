@@ -51,7 +51,7 @@ export class AppComponent implements OnInit {
     const languages = LANGUAGES.map(language => language.lang);
     this.translate.addLangs(languages);
     const browserLang = this.translate.getBrowserLang();
-    let language = languages.includes(browserLang) ? browserLang : languages[0];
+    let language = browserLang && languages.includes(browserLang) ? browserLang : languages[0];
     const storedLocale = localStorage.getItem(StorageItem.LOCALE);
     if (storedLocale) {
       language = storedLocale;
