@@ -111,7 +111,6 @@ class SourceClientResource(
         body.deregistrations.forEach { deregistration ->
             val user = userRepository.findByExternalId(deregistration.userId, sourceType)
             if (user != null && user.accessToken == deregistration.userAccessToken) {
-                auth.checkPermissionOnSubject(Permission.SUBJECT_DELETE, user.projectId, user.userId)
                 authorizationService.deregisterUser(user)
             }
         }
