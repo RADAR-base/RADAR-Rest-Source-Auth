@@ -57,7 +57,7 @@ class RestSourceUserResource(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
         @QueryParam("search") search: String?,
-        @QueryParam("authorized") isAuthorized: Boolean?,
+        @DefaultValue("true") @QueryParam("authorized") isAuthorized: Boolean?,
         @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int,
     ): RestSourceUsers {
