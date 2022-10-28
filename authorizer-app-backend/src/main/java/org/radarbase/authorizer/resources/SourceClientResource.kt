@@ -100,6 +100,17 @@ class SourceClientResource(
         return userMapper.fromEntity(user)
     }
 
+    /**
+     * Deletes a user from the user repository for a particular source-type.
+     * This should be called when a trigger from the external service is received to deregister a user
+     * (for example if a user revokes permissions to collect data in the external app).
+     * This endpoint is not authenticated but supports validation of the external userId and user access token
+     * received in the request.
+     *
+     * @param sourceType the type of source. Currently, only supports "Garmin" source type.
+     * @property body contains user information to be removed. The body should contain an external userId
+     * and the user access token so the user can be validated.
+     */
     @POST
     @Path("{type}/deregister")
     fun reportDeregistration(
@@ -111,7 +122,6 @@ class SourceClientResource(
         body.deregistrations.forEach { deregistration ->
             val user = userRepository.findByExternalId(deregistration.userId, sourceType)
             if (user != null && user.accessToken == deregistration.userAccessToken) {
-                auth.checkPermissionOnSubject(Permission.SUBJECT_DELETE, user.projectId, user.userId)
                 authorizationService.deregisterUser(user)
             }
         }
