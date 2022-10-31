@@ -55,7 +55,7 @@ class RegistrationLifecycleManager(
 
         checkTask = executor.scheduleAtFixedRate(
             ::runStaleCheck,
-            expiryTime.toSeconds(),
+            expiryTime.toSeconds(), // initial delay to ensure liquibase is done.
             expiryTime.multipliedBy(4L).toSeconds(),
             TimeUnit.SECONDS,
         )
@@ -65,7 +65,10 @@ class RegistrationLifecycleManager(
         try {
             val entityManager = entityManagerFactory.createEntityManager()
             try {
-                val registrationRepository = RegistrationRepository(config) { entityManager }
+                val registrationRepository = RegistrationRepository(
+                    config,
+                    em = { entityManager },
+                )
                 synchronized(lock) {
                     logger.debug("Cleaning up expired registrations.")
                     val numUpdated = registrationRepository.cleanUp()
@@ -81,6 +84,7 @@ class RegistrationLifecycleManager(
                 entityManager.close()
             }
         } catch (ex: Throwable) {
+            // catch all exceptions to ensure that this job keeps repeating
             logger.error("Failed to run reset of stale processing.", ex)
         }
     }
