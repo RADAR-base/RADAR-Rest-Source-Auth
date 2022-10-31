@@ -1,5 +1,6 @@
 package org.radarbase.authorizer.lifecycle
 
+import jakarta.inject.Singleton
 import jakarta.persistence.EntityManagerFactory
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.ext.Provider
@@ -17,12 +18,14 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 @Provider
+@Singleton
 class RegistrationLifecycleManager(
     @BackgroundScheduler @Context private val executor: ScheduledExecutorService,
     @Context private val entityManagerFactory: EntityManagerFactory,
     @Context private val config: AuthorizerConfig,
 ) : ApplicationEventListener {
-    private val checkTime = Duration.ofMinutes(config.service.tokenExpiryTimeInMinutes).multipliedBy(4L)
+    private val expiryTime = Duration.ofMinutes(config.service.tokenExpiryTimeInMinutes)
+        .coerceAtLeast(Duration.ofMinutes(1))
     private val lock: Any = Any()
 
     private var checkTask: Future<*>? = null
@@ -50,21 +53,19 @@ class RegistrationLifecycleManager(
             return
         }
 
-        checkTask = executor.scheduleAtFixedRate(::runStaleCheck, 0, checkTime.toMinutes(), TimeUnit.MINUTES)
-    }
-
-    private inline fun useRegistrationRepository(method: (RegistrationRepository) -> Unit) {
-        val entityManager = entityManagerFactory.createEntityManager()
-        return try {
-            method(RegistrationRepository(config) { entityManager })
-        } finally {
-            entityManager.close()
-        }
+        checkTask = executor.scheduleAtFixedRate(
+            ::runStaleCheck,
+            expiryTime.toSeconds(),
+            expiryTime.multipliedBy(4L).toSeconds(),
+            TimeUnit.SECONDS,
+        )
     }
 
     private fun runStaleCheck() {
-        useRegistrationRepository { registrationRepository ->
+        try {
+            val entityManager = entityManagerFactory.createEntityManager()
             try {
+                val registrationRepository = RegistrationRepository(config) { entityManager }
                 synchronized(lock) {
                     logger.debug("Cleaning up expired registrations.")
                     val numUpdated = registrationRepository.cleanUp()
@@ -76,7 +77,11 @@ class RegistrationLifecycleManager(
                 }
             } catch (ex: Exception) {
                 logger.error("Failed to run reset of stale processing", ex)
+            } finally {
+                entityManager.close()
             }
+        } catch (ex: Throwable) {
+            logger.error("Failed to run reset of stale processing.", ex)
         }
     }
 
