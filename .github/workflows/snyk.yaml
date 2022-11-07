@@ -35,3 +35,4 @@ jobs:
           --fail-on=upgradable
           --org=radar-base
           --severity-threshold=high
+          --policy-path=$GITHUB_WORKSPACE/.snyk
