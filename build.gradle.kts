@@ -3,12 +3,12 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 plugins {
     kotlin("jvm")
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0" apply false
-    id("com.github.ben-manes.versions") version "0.42.0"
+    id("com.github.ben-manes.versions") version "0.43.0"
 }
 
 allprojects {
     group = "org.radarbase"
-    version = "4.1.1"
+    version = "4.1.2"
 
     repositories {
         mavenCentral()

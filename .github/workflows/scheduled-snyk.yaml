@@ -33,13 +33,13 @@ jobs:
           snyk test
           --all-projects
           --configuration-matching='^runtimeClasspath$'
-          --json-file-output=${{ env.REPORT_FILE }}
+          --json-file-output=$GITHUB_WORKSPACE/${{ env.REPORT_FILE }}
           --org=radar-base
+          --policy-path=$GITHUB_WORKSPACE/.snyk
 
       - name: Report new vulnerabilities
         uses: thehyve/report-vulnerability@master
         with:
-          report-file: ${{ env.REPORT_FILE }}
+          report-file: ${{ github.workspace }}/${{ env.REPORT_FILE }}
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ failure() }}
