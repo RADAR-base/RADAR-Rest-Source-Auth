@@ -10,7 +10,7 @@
 
     <changeSet author="joris" id="Add registration creation date">
         <addColumn tableName="registration">
-            <column name="created_at" type="datetime" beforeColumn="expires_at" defaultValueComputed="${now}">
+            <column name="created_at" type="datetime" defaultValueComputed="${now}">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
