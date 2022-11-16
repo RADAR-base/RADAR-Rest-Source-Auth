@@ -52,7 +52,7 @@ class RestSourceUserResource(
     @Context private val userService: RestSourceUserService,
 ) {
     @GET
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
+    @NeedsPermission(Permission.SUBJECT_READ)
     fun query(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
@@ -81,13 +81,11 @@ class RestSourceUserResource(
         val sanitizedSearch = search?.takeIf { it.length >= 2 }
 
         val userIds = if (sanitizedSearch != null) {
-            if (projectId == null) {
-                throw HttpBadRequestException(
-                    "missing_project_id",
-                    "Cannot search without a fixed project ID.",
-                )
-            }
-            projectService.projectUsers(projectId)
+            projectId ?: throw HttpBadRequestException(
+                "missing_project_id",
+                "Cannot search without a fixed project ID.",
+            )
+            projectService.projectSubjects(projectId)
                 .mapNotNull { sub ->
                     val externalId = sub.externalId ?: return@mapNotNull null
                     sub.id.takeIf { sanitizedSearch in externalId }
@@ -114,7 +112,7 @@ class RestSourceUserResource(
     }
 
     @POST
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.CREATE)
+    @NeedsPermission(Permission.SUBJECT_CREATE)
     fun create(
         userDto: RestSourceUserDTO,
     ): Response {
@@ -127,7 +125,7 @@ class RestSourceUserResource(
 
     @POST
     @Path("{id}")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun update(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO,
@@ -135,13 +133,13 @@ class RestSourceUserResource(
 
     @GET
     @Path("{id}")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ)
+    @NeedsPermission(Permission.SUBJECT_READ)
     @Cache(maxAge = 300, isPrivate = true)
     fun readUser(@PathParam("id") userId: Long): RestSourceUserDTO = userService.get(userId)
 
     @DELETE
     @Path("{id}")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun deleteUser(@PathParam("id") userId: Long): Response {
         userService.delete(userId)
         return Response.noContent().header("user-removed", userId).build()
@@ -149,7 +147,7 @@ class RestSourceUserResource(
 
     @POST
     @Path("{id}/reset")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun reset(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO,
@@ -157,17 +155,17 @@ class RestSourceUserResource(
 
     @GET
     @Path("{id}/token")
-    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.CREATE)
+    @NeedsPermission(Permission.MEASUREMENT_CREATE)
     fun requestToken(@PathParam("id") userId: Long): TokenDTO = userService.ensureToken(userId)
 
     @POST
     @Path("{id}/token")
-    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.CREATE)
+    @NeedsPermission(Permission.MEASUREMENT_CREATE)
     fun refreshToken(@PathParam("id") userId: Long): TokenDTO = userService.refreshToken(userId)
 
     @POST
     @Path("{id}/token/sign")
-    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    @NeedsPermission(Permission.MEASUREMENT_READ)
     fun signRequest(
         @PathParam("id") userId: Long,
         payload: SignRequestParams,

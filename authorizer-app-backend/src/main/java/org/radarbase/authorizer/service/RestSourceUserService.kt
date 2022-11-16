@@ -84,7 +84,7 @@ class RestSourceUserService(
             )
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, projectId, userId)
 
-        projectService.projectUsers(projectId).find { it.id == userId }
+        projectService.projectSubjects(projectId).find { it.id == userId }
             ?: throw HttpBadRequestException(
                 "user_not_found", "user $userId not found in project $projectId"
             )

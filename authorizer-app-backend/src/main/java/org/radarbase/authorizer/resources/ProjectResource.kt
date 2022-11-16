@@ -41,7 +41,7 @@ class ProjectResource(
 ) {
 
     @GET
-    @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ)
+    @NeedsPermission(Permission.PROJECT_READ)
     @Cache(maxAge = 300, isPrivate = true)
     fun projects() = ProjectList(
         projectService.userProjects(auth)
@@ -50,18 +50,18 @@ class ProjectResource(
 
     @GET
     @Path("{projectId}/users")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.READ, "projectId")
+    @NeedsPermission(Permission.SUBJECT_READ, "projectId")
     @Cache(maxAge = 60, isPrivate = true)
     fun users(
         @PathParam("projectId") projectId: String,
     ) = UserList(
-        projectService.projectUsers(projectId)
+        projectService.projectSubjects(projectId)
             .map { it.toUser() }
     )
 
     @GET
     @Path("{projectId}")
-    @NeedsPermission(Permission.Entity.PROJECT, Permission.Operation.READ, "projectId")
+    @NeedsPermission(Permission.PROJECT_READ, "projectId")
     @Cache(maxAge = 300, isPrivate = true)
     fun project(@PathParam("projectId") projectId: String): Project {
         return projectService.project(projectId).toProject()

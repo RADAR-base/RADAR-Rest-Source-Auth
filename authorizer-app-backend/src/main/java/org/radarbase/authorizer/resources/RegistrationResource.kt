@@ -37,7 +37,7 @@ class RegistrationResource(
 ) {
     @POST
     @Authenticated
-    @NeedsPermission(entity = Permission.Entity.SUBJECT, operation = Permission.Operation.UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun createState(
         @Context auth: Auth,
         createState: StateCreateDTO,
@@ -77,7 +77,7 @@ class RegistrationResource(
 
     @DELETE
     @Authenticated
-    @NeedsPermission(entity = Permission.Entity.SUBJECT, operation = Permission.Operation.UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     @Path("{token}")
     fun deleteState(
         @PathParam("token") token: String,

@@ -25,7 +25,7 @@ class RestSourceUserMapper(
 ) {
     fun fromEntity(user: RestSourceUser): RestSourceUserDTO {
         val mpUser = user.projectId?.let { p ->
-            user.userId?.let { u -> projectService.getUser(p, u) }
+            user.userId?.let { u -> projectService.subject(p, u) }
         }
         return RestSourceUserDTO(
             id = user.id.toString(),
