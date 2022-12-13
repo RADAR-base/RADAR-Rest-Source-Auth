@@ -27,7 +27,10 @@ dependencies {
 
     val radarJerseyVersion: String by project
     implementation("org.radarbase:radar-jersey:$radarJerseyVersion")
-    implementation("org.radarbase:radar-jersey-hibernate:$radarJerseyVersion")
+    implementation("org.radarbase:radar-jersey-hibernate:$radarJerseyVersion") {
+        val postgresVersion: String by project
+        runtimeOnly("org.postgresql:postgresql:$postgresVersion")
+    }
 
     val slf4jVersion: String by project
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
@@ -48,7 +51,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest-all:1.3")
 
     val mockitoKotlinVersion: String by project
-    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 
     val jerseyVersion: String by project
     testImplementation("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:$jerseyVersion")
