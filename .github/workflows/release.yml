@@ -27,7 +27,7 @@ jobs:
 
       # Upload it to GitHub
       - name: Upload to GitHub
-        uses: AButler/upload-release-assets@v2.0
+        uses: AButler/upload-release-assets@v2.0.2
         with:
           files: 'authorizer-app-backend/build/distributions/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
