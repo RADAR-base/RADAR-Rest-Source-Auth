@@ -1,24 +1,26 @@
 import {
   AfterViewInit,
-  Component, EventEmitter,
+  Component,
+  EventEmitter,
   Input,
   Output,
   TemplateRef,
   ViewChild
 } from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
-import {MatPaginator, PageEvent} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
-import {MatSort, MatSortable, Sort} from '@angular/material/sort';
-import {MatBottomSheet} from "@angular/material/bottom-sheet";
+import { ActivatedRoute, Router } from "@angular/router";
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortable, Sort } from '@angular/material/sort';
+import { MatBottomSheet } from "@angular/material/bottom-sheet";
 
-import {SubjectService} from "@app/admin/services/subject.service";
-import {UserService} from "@app/admin/services/user.service";
-import {RestSourceUser} from '@app/admin/models/rest-source-user.model';
-import {UserDialogMode} from "@app/admin/containers/user-dialog/user-dialog.component";
+import { SubjectService } from "@app/admin/services/subject.service";
+import { UserService } from "@app/admin/services/user.service";
+import { RestSourceUser } from '@app/admin/models/rest-source-user.model';
+import { UserDialogMode } from "@app/admin/containers/user-dialog/user-dialog.component";
 
-export interface UserData extends RestSourceUser{
+export interface UserData extends RestSourceUser {
   [key: string]: any;
+
   id: string;
   projectId: string;
   userId: string;
@@ -38,7 +40,7 @@ export interface FilterItem {
   columnProp: string,
   type: string,
   width: number,
-  options?: {value: string | boolean | number, label: string}[],
+  options?: { value: string | boolean | number, label: string }[],
   modelValue?: any,
 }
 
@@ -68,7 +70,7 @@ export class UsersListComponent implements AfterViewInit {
   ];
 
   filterEnabled = false;
-  filterValues: { [key: string]: string | undefined;} = {};
+  filterValues: { [key: string]: string | undefined; } = {};
   filters: FilterItem[] = [
     {
       name: 'ADMIN.USERS_LIST.filters.userIdLabel',
@@ -95,10 +97,12 @@ export class UsersListComponent implements AfterViewInit {
 
   @ViewChild('templateBottomSheet') TemplateBottomSheet!: TemplateRef<any>;
 
-  @Input('users') set users(users: RestSourceUser[]) { this.dataSource.data = users as UserData[]; }
+  @Input('users') set users(users: RestSourceUser[]) {
+    this.dataSource.data = users as UserData[];
+  }
 
-  @Output() actionClicked: EventEmitter<{mode: UserDialogMode, user: RestSourceUser}> =
-    new EventEmitter<{mode: UserDialogMode, user: RestSourceUser}>();
+  @Output() actionClicked: EventEmitter<{ mode: UserDialogMode, user: RestSourceUser }> =
+    new EventEmitter<{ mode: UserDialogMode, user: RestSourceUser }>();
 
   constructor(
     private userService: UserService,
@@ -106,7 +110,8 @@ export class UsersListComponent implements AfterViewInit {
     private bottomSheet: MatBottomSheet,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-  ) {}
+  ) {
+  }
 
   ngAfterViewInit() {
     this.applyTableSort();
@@ -120,25 +125,21 @@ export class UsersListComponent implements AfterViewInit {
   private applyTableSort(): void {
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (item: UserData, property: string) => {
-      if(property === 'isAuthorized'){
+      if (property === 'isAuthorized') {
         if (item[property]) {
           return 1; //'Yes';
+        } else if (!item.id) {
+          return 4; //'Unset';
+        } else if (item.registrationCreatedAt) {
+          return 2; //'Pending';
         } else {
-          if (item.id) {
-            if (item.registrationCreatedAt) {
-              return 2; //'Pending';
-            }else {
-              return 3; //'No';
-            }
-          } else {
-            return 4; //'Unset';
-          }
+          return 3; //'No';
         }
       }
-      if(property === 'startDate' || property === 'endDate'){
+      if (property === 'startDate' || property === 'endDate') {
         return item[property] ? new Date(item[property]) : null;
       }
-      if(property === 'registrationCreatedAt'){
+      if (property === 'registrationCreatedAt') {
         return item.registrationCreatedAt ? new Date(item.registrationCreatedAt) : null;
       }
       return item[property].toLocaleLowerCase();
@@ -147,55 +148,35 @@ export class UsersListComponent implements AfterViewInit {
 
   private createTableFilterPredicate() {
     return function (data: UserData, filter: string): boolean {
-      let searchTerms = JSON.parse(filter);
-      let isFilterSet = false;
-      for (const key in searchTerms) {
-        if (searchTerms.hasOwnProperty(key) && searchTerms[key].toString() !== '') {
-          isFilterSet = true;
-        } else {
-          delete searchTerms[key];
-        }
-      }
-      if (!isFilterSet) {
-        return true;
-      }
-      for (const key in searchTerms) {
-        if(searchTerms.hasOwnProperty(key)) {
-          switch(key){
+      const searchTerms = JSON.parse(filter);
+      return Object.entries(searchTerms)
+        .filter(([, value]) => value)
+        .map(([key, value]) => [key, (value as any).toString().toLowercase()])
+        .every(([key, value]) => {
+          switch (key) {
             case 'userId':
-              if (data.userId.toString().toLowerCase().indexOf(searchTerms[key]) === -1 &&
-                data.externalId.toString().toLowerCase().indexOf(searchTerms[key]) === -1){
-                return false;
-              }
-              break;
+              const matchesUserId = data.userId && data.userId.toLowerCase().indexOf(value) !== -1
+              const matchesExternalId = !data.externalId || data.externalId.toLowerCase().indexOf(value) !== -1;
+              return matchesUserId || matchesExternalId;
             case 'isAuthorized':
-              let isAuthorized = 'yes';
               if (data.isAuthorized) {
-                isAuthorized = 'yes';
+                return value === 'yes';
+              } else if (!data.id) {
+                return value === 'unset';
+              } else if (data.registrationCreatedAt) {
+                return value === 'pending';
               } else {
-                if (data.id) {
-                  if (data.registrationCreatedAt) {
-                    isAuthorized = 'pending';
-                  }else {
-                    isAuthorized = 'no';
-                  }
-                } else {
-                  isAuthorized = 'unset';
-                }
+                return value === 'no';
               }
-              if (isAuthorized !== searchTerms[key]){
-                return false;
-              }
-              break;
+            default:
+              return true;
           }
-        }
-      }
-      return true;
+        });
     }
   }
 
   filterChange(filter: FilterItem, event: any) {
-    if(event.value !== ''){
+    if (event.value) {
       this.filterValues[filter.columnProp] = event.value;
     } else {
       delete this.filterValues[filter.columnProp];
@@ -218,12 +199,14 @@ export class UsersListComponent implements AfterViewInit {
   isFilterEnabled(): boolean {
     return Object.entries(this.filterValues).length > 0;
   }
+
   //#endregion
 
   //#region User Actions
   onActionClick(mode: UserDialogMode, user: RestSourceUser) {
     this.actionClicked.emit({mode: mode, user: user});
   }
+
   //#endregion
 
   //#region Query Params
@@ -237,7 +220,7 @@ export class UsersListComponent implements AfterViewInit {
     const queryParams = this.activatedRoute.snapshot.queryParams;
     if (queryParams.hasOwnProperty('userId') || queryParams.hasOwnProperty('isAuthorized')) {
       this.filters.forEach((value: any, _: any) => {
-        if(value.columnProp === 'userId'){
+        if (value.columnProp === 'userId') {
           if (queryParams.userId) {
             value.modelValue = queryParams.userId;
             this.filterValues.userId = queryParams.userId;
@@ -247,7 +230,7 @@ export class UsersListComponent implements AfterViewInit {
             this.filterValues.userId = undefined;
           }
         }
-        if(value.columnProp === 'isAuthorized') {
+        if (value.columnProp === 'isAuthorized') {
           if (queryParams.isAuthorized) {
             value.modelValue = queryParams.isAuthorized;
             this.filterValues.isAuthorized = queryParams.isAuthorized;
@@ -303,25 +286,26 @@ export class UsersListComponent implements AfterViewInit {
 
   private listenToStateChangeEvents(): void {
     this.dataSource.sort!.sortChange
-      .subscribe((sortChange: Sort) => {
-        this.applyStateChangesToUrlQueryParams({
-          sortField: sortChange.direction? sortChange.active || null : null,
-          sortOrder: sortChange.direction || null,
-        });
+    .subscribe((sortChange: Sort) => {
+      this.applyStateChangesToUrlQueryParams({
+        sortField: sortChange.direction ? sortChange.active || null : null,
+        sortOrder: sortChange.direction || null,
       });
+    });
 
     this.dataSource.paginator!.page
-      .subscribe((pageChange: PageEvent) => {
-        this.applyStateChangesToUrlQueryParams({
-          pageSize: pageChange.pageSize,
-          pageIndex: pageChange.pageIndex,
-        })
-      });
+    .subscribe((pageChange: PageEvent) => {
+      this.applyStateChangesToUrlQueryParams({
+        pageSize: pageChange.pageSize,
+        pageIndex: pageChange.pageIndex,
+      })
+    });
   }
 
   private applyStateChangesToUrlQueryParams(queryParams: any): void {
-    this.router.navigate([], { queryParams: queryParams, queryParamsHandling: 'merge' }).finally();
+    this.router.navigate([], {queryParams: queryParams, queryParamsHandling: 'merge'}).finally();
   }
+
   //#endregion
 
   openTemplateSheetMenu() {
