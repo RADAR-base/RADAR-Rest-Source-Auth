@@ -125,24 +125,24 @@ export class UsersListComponent implements AfterViewInit {
   private applyTableSort(): void {
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (item: UserData, property: string) => {
-      if (property === 'isAuthorized') {
-        if (item[property]) {
-          return 1; //'Yes';
-        } else if (!item.id) {
-          return 4; //'Unset';
-        } else if (item.registrationCreatedAt) {
-          return 2; //'Pending';
-        } else {
-          return 3; //'No';
-        }
+      switch (property) {
+        case 'isAuthorized':
+          if (item.isAuthorized) {
+            return 1; //'Yes';
+          } else if (!item.id) {
+            return 4; //'Unset';
+          } else if (item.registrationCreatedAt) {
+            return 2; //'Pending';
+          } else {
+            return 3; //'No';
+          }
+        case 'startDate': case 'endDate':
+          return item[property] ? new Date(item[property]) : null;
+        case  'registrationCreatedAt':
+          return item.registrationCreatedAt ? new Date(item.registrationCreatedAt) : null;
+        default:
+          return item[property].toLocaleLowerCase();
       }
-      if (property === 'startDate' || property === 'endDate') {
-        return item[property] ? new Date(item[property]) : null;
-      }
-      if (property === 'registrationCreatedAt') {
-        return item.registrationCreatedAt ? new Date(item.registrationCreatedAt) : null;
-      }
-      return item[property].toLocaleLowerCase();
     };
   }
 
@@ -151,12 +151,12 @@ export class UsersListComponent implements AfterViewInit {
       const searchTerms = JSON.parse(filter);
       return Object.entries(searchTerms)
         .filter(([, value]) => value)
-        .map(([key, value]) => [key, (value as any).toString().toLowercase()])
+        .map(([key, value]) => [key, (value as any).toString().toLocaleLowerCase()])
         .every(([key, value]) => {
           switch (key) {
             case 'userId':
-              const matchesUserId = data.userId && data.userId.toLowerCase().indexOf(value) !== -1
-              const matchesExternalId = !data.externalId || data.externalId.toLowerCase().indexOf(value) !== -1;
+              const matchesUserId = data.userId && data.userId.toLocaleLowerCase().indexOf(value) !== -1
+              const matchesExternalId = !data.externalId || data.externalId.toLocaleLowerCase().indexOf(value) !== -1;
               return matchesUserId || matchesExternalId;
             case 'isAuthorized':
               if (data.isAuthorized) {
