@@ -7,4 +7,9 @@ ignore:
         reason: Not using Files API
         expires: 2023-12-07T11:05:38.047Z
         created: 2022-11-07T11:05:38.050Z
+  SNYK-JAVA-ORGYAML-3152153:
+    - '*':
+        reason: Only reading trusted configuration files with YAML
+        expires: 2024-01-12T15:07:16.614Z
+        created: 2022-12-13T15:07:16.622Z
 patch: {}
