@@ -149,9 +149,16 @@ export class UsersListComponent implements AfterViewInit {
   private createTableFilterPredicate() {
     return function (data: UserData, filter: string): boolean {
       const searchTerms = JSON.parse(filter);
-      return Object.entries(searchTerms)
+      return Object.keys(searchTerms)
+        .map(key => {
+          const value = searchTerms[key]
+          if (value) {
+            return [key, value.toString().toLocaleLowerCase()]
+          } else {
+            return [key, '']
+          }
+        })
         .filter(([, value]) => value)
-        .map(([key, value]) => [key, (value as any).toString().toLowercase()])
         .every(([key, value]) => {
           switch (key) {
             case 'userId':
