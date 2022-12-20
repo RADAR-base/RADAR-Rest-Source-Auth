@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {FormBuilder, Validators} from '@angular/forms';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
 import {
   BehaviorSubject,
   combineLatest,
@@ -93,7 +93,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   translateSubject: Subject<void> = new Subject<void>();
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private userService: UserService,

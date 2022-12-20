@@ -88,6 +88,5 @@
         }
       }
     }
-  },
-  "defaultProject": "authorizer-app"
+  }
 }

@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { DateAdapter } from "@angular/material/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from "@ngx-translate/core";
@@ -52,7 +52,7 @@ export class UserDialogComponent {
 
   constructor(
     private router: Router,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private userService: UserService,
     public dialogRef: MatDialogRef<UserDialogComponent>,
     private translate: TranslateService,
