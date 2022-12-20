@@ -57,7 +57,7 @@ class RestSourceUserResource(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
         @QueryParam("search") search: String?,
-        @DefaultValue("true") @QueryParam("authorized") isAuthorized: Boolean?,
+        @DefaultValue("true") @QueryParam("authorized") isAuthorized: String,
         @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
         @DefaultValue("1") @QueryParam("page") pageNumber: Int,
     ): RestSourceUsers {
@@ -94,6 +94,12 @@ class RestSourceUserResource(
                 }
         } else emptyList()
 
+        val authorizedBoolean = when (isAuthorized) {
+            "true", "yes" -> true
+            "false", "no" -> false
+            else -> null
+        }
+
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
         val (records, page) = userRepository.query(
             queryPage,
@@ -101,7 +107,7 @@ class RestSourceUserResource(
             sanitizedSourceType,
             sanitizedSearch,
             userIds,
-            isAuthorized,
+            authorizedBoolean,
         )
 
         return userMapper.fromRestSourceUsers(records, page)

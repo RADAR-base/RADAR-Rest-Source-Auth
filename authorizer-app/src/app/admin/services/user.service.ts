@@ -20,7 +20,8 @@ export class UserService {
 
   getUsersOfProject(projectId: string): Observable<RestSourceUsers> {
     let params = new HttpParams()
-      .set('project-id', projectId);
+      .set('project-id', projectId)
+      .set('authorized', 'all');
     return this.http.get<RestSourceUsers>(
       environment.backendBaseUrl + '/users',
       { params }
