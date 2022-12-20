@@ -8,8 +8,8 @@ import {
   Subject,
 } from "rxjs";
 import {distinctUntilChanged, filter, map, switchMap, takeUntil} from "rxjs/operators";
-import {MatLegacySelectChange as MatSelectChange} from '@angular/material/legacy-select';
-import {MatLegacyDialog as MatDialog} from "@angular/material/legacy-dialog";
+import {MatSelectChange} from '@angular/material/select';
+import {MatDialog} from "@angular/material/dialog";
 
 import {UserService} from "@app/admin/services/user.service";
 import {SubjectService} from "@app/admin/services/subject.service";

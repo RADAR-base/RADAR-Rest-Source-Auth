@@ -7,7 +7,12 @@
   }
 }
 
-.message-for-user-label{
+mat-dialog-actions {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.message-for-user-label {
   margin: 0;
 }
 
@@ -25,14 +30,8 @@
   }
 }
 
-.action-buttons-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  div {
-    display: flex;
-    gap: 8px;
-  }
+.action-buttons-container__right {
+  margin-left: auto;
 }
 
 .ie7 dl.desc {
@@ -76,20 +75,6 @@ dl.desc {
   }
   dd:nth-of-type(even) {
     background-color: #fafafa;
-  }
-}
-
-@media only screen and (max-width: 600px) {
-  /* [320px -> 600px] */
-  .action-buttons-container {
-    display: block;
-    justify-content: space-between;
-    width: 100%;
-
-    div {
-      display: flex;
-      gap: 0;
-    }
   }
 }
 

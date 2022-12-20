@@ -28,71 +28,71 @@
   </app-message>
 </div>
 
-<p *ngIf="mode===SubjectDialogMode.DELETE">
-  {{ 'ADMIN.USER_DIALOG.DELETE.desc' | translate: {sourceType: subject.sourceType} }}:
-</p>
+<mat-dialog-content>
+  <p *ngIf="mode===SubjectDialogMode.DELETE">
+    {{ 'ADMIN.USER_DIALOG.DELETE.desc' | translate: {sourceType: subject.sourceType} }}:
+  </p>
 
-<dl class="desc">
-  <dt>{{ 'ADMIN.GENERAL.userId' | translate }}</dt>
-  <dd>{{ subject.userId }}</dd>
-  <dt>{{ 'ADMIN.GENERAL.externalId' | translate }}</dt>
-  <dd>{{ subject.externalId }}</dd>
-  <dt>{{ 'ADMIN.GENERAL.sourceType' | translate }}</dt>
-  <dd>{{ subject.sourceType }}</dd>
-  <dt>{{ 'ADMIN.GENERAL.project' | translate }}</dt>
-  <dd>{{ subject.projectId }}</dd>
+  <dl class="desc">
+    <dt>{{ 'ADMIN.GENERAL.userId' | translate }}</dt>
+    <dd>{{ subject.userId }}</dd>
+    <dt>{{ 'ADMIN.GENERAL.externalId' | translate }}</dt>
+    <dd>{{ subject.externalId }}</dd>
+    <dt>{{ 'ADMIN.GENERAL.sourceType' | translate }}</dt>
+    <dd>{{ subject.sourceType }}</dd>
+    <dt>{{ 'ADMIN.GENERAL.project' | translate }}</dt>
+    <dd>{{ subject.projectId }}</dd>
 
-  <ng-container *ngIf="mode!==SubjectDialogMode.DELETE">
-    <ng-container *ngIf="subject.isAuthorized != null">
-      <dt>{{ 'ADMIN.GENERAL.authorized' | translate }}</dt>
-      <dd *ngIf="subject.isAuthorized">
-        {{ 'ADMIN.USERS_LIST.authorizationStatus.yes' | translate }}
-      </dd>
-      <dd *ngIf="!subject.isAuthorized && subject.registrationCreatedAt">
-        {{ 'ADMIN.USERS_LIST.authorizationStatus.pending' | translate }}
-      </dd>
-      <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && subject.id">
-        {{ 'ADMIN.USERS_LIST.authorizationStatus.no' | translate }}
-      </dd>
-      <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && !subject.id">
-        {{ 'ADMIN.USERS_LIST.authorizationStatus.unset' | translate }}
-      </dd>
+    <ng-container *ngIf="mode!==SubjectDialogMode.DELETE">
+      <ng-container *ngIf="subject.isAuthorized != null">
+        <dt>{{ 'ADMIN.GENERAL.authorized' | translate }}</dt>
+        <dd *ngIf="subject.isAuthorized">
+          {{ 'ADMIN.USERS_LIST.authorizationStatus.yes' | translate }}
+        </dd>
+        <dd *ngIf="!subject.isAuthorized && subject.registrationCreatedAt">
+          {{ 'ADMIN.USERS_LIST.authorizationStatus.pending' | translate }}
+        </dd>
+        <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && subject.id">
+          {{ 'ADMIN.USERS_LIST.authorizationStatus.no' | translate }}
+        </dd>
+        <dd *ngIf="!subject.isAuthorized && !subject.registrationCreatedAt && !subject.id">
+          {{ 'ADMIN.USERS_LIST.authorizationStatus.unset' | translate }}
+        </dd>
+      </ng-container>
+
+      <ng-container *ngIf="!subject.isAuthorized && subject.registrationCreatedAt != null">
+        <dt>{{ 'ADMIN.GENERAL.registrationCreatedAt' | translate }}</dt>
+        <dd>{{subject.registrationCreatedAt | localDate:'short'}}</dd>
+      </ng-container>
+
+      <ng-container *ngIf="subject.sourceId">
+        <dt>{{ 'ADMIN.GENERAL.sourceId' | translate }}</dt>
+        <dd>{{ subject.sourceId }}</dd>
+      </ng-container>
+
+      <ng-container *ngIf="subject.hasValidToken != null">
+        <dt>{{ 'ADMIN.GENERAL.hasValidToken' | translate }}</dt>
+        <dd>{{ subject.hasValidToken? ('ADMIN.GENERAL.yes' | translate) : ('ADMIN.GENERAL.no' | translate) }}</dd>
+      </ng-container>
+
+      <ng-container *ngIf="subject.serviceUserId">
+        <dt>{{ 'ADMIN.GENERAL.serviceUserId' | translate }}</dt>
+        <dd>{{ subject.serviceUserId }}</dd>
+      </ng-container>
+
+      <ng-container *ngIf="subject.timesReset != null">
+        <dt>{{ 'ADMIN.GENERAL.timesReset' | translate }}</dt>
+        <dd>{{ subject.timesReset }}</dd>
+      </ng-container>
     </ng-container>
 
-    <ng-container *ngIf="!subject.isAuthorized && subject.registrationCreatedAt != null">
-      <dt>{{ 'ADMIN.GENERAL.registrationCreatedAt' | translate }}</dt>
-      <dd>{{subject.registrationCreatedAt | localDate:'short'}}</dd>
-    </ng-container>
+  </dl>
 
-    <ng-container *ngIf="subject.sourceId">
-      <dt>{{ 'ADMIN.GENERAL.sourceId' | translate }}</dt>
-      <dd>{{ subject.sourceId }}</dd>
-    </ng-container>
+  <p *ngIf="mode===SubjectDialogMode.DELETE">
+    {{ 'ADMIN.USER_DIALOG.DELETE.warningMessage' | translate }}
+  </p>
 
-    <ng-container *ngIf="subject.hasValidToken != null">
-      <dt>{{ 'ADMIN.GENERAL.hasValidToken' | translate }}</dt>
-      <dd>{{ subject.hasValidToken? ('ADMIN.GENERAL.yes' | translate) : ('ADMIN.GENERAL.no' | translate) }}</dd>
-    </ng-container>
-
-    <ng-container *ngIf="subject.serviceUserId">
-      <dt>{{ 'ADMIN.GENERAL.serviceUserId' | translate }}</dt>
-      <dd>{{ subject.serviceUserId }}</dd>
-    </ng-container>
-
-    <ng-container *ngIf="subject.timesReset != null">
-      <dt>{{ 'ADMIN.GENERAL.timesReset' | translate }}</dt>
-      <dd>{{ subject.timesReset }}</dd>
-    </ng-container>
-  </ng-container>
-
-</dl>
-
-<p *ngIf="mode===SubjectDialogMode.DELETE">
-  {{ 'ADMIN.USER_DIALOG.DELETE.warningMessage' | translate }}
-</p>
-
-<form *ngIf="mode!==SubjectDialogMode.DELETE" [formGroup]="form" novalidate>
-  <mat-dialog-content>
+  <form *ngIf="mode!==SubjectDialogMode.DELETE" [formGroup]="form" novalidate>
     <mat-form-field appearance="outline" floatLabel="always">
       <mat-label>{{ 'ADMIN.USER_DIALOG.startEndDate' | translate }} ({{dateFormat}})</mat-label>
       <mat-date-range-input [rangePicker]="picker" required>
@@ -147,11 +147,10 @@
         <mat-icon>content_copy</mat-icon>
       </button>
     </div>
+  </form>
+</mat-dialog-content>
 
-  </mat-dialog-content>
-</form>
-
-<div class="action-buttons-container">
+<mat-dialog-actions>
   <div class="action-buttons-container__left">
     <button mat-stroked-button
             color="primary"
@@ -220,4 +219,4 @@
     </ng-container>
 
   </div>
-</div>
+</mat-dialog-actions>

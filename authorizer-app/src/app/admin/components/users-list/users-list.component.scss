@@ -56,35 +56,24 @@ tr:nth-of-type(even) {
   margin-left: 16px;
 }
 
-.filter-container{
+.filter-container {
   border-radius: 5px;
   background-color: #f7f7f7;
   padding: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-wrapper {
-    margin: 0;
-  }
-  ::ng-deep .mat-form-field-wrapper {
-    padding-bottom: 0;
-  }
 }
 
-.mobile-filter-container{
-  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-wrapper {
-    margin: .25em 0;
-  }
-  ::ng-deep .mat-form-field-wrapper {
-    padding-bottom: 0 ;
-  }
-}
-
-th.mat-header-cell:last-of-type, td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type {
+th.mat-mdc-header-cell:last-of-type, td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type {
   padding-right: 0;
 }
 
-th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type {
+tr.mat-mdc-no-data-row {
+  height: 52px;
+}
+
+th.mat-mdc-header-cell:first-of-type, td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type {
   padding-left: 0;
 }
 
