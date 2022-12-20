@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { DateAdapter } from "@angular/material/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { TranslateService } from "@ngx-translate/core";
 
 import { UserService } from "@app/admin/services/user.service";

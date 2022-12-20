@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import {CommonModule} from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from "@angular/material/core";
-import {MatPaginatorIntl} from "@angular/material/paginator";
+import {MatLegacyPaginatorIntl as MatPaginatorIntl} from "@angular/material/legacy-paginator";
 import {MatBottomSheet} from "@angular/material/bottom-sheet";
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
