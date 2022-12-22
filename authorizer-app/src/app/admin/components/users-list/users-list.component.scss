@@ -17,6 +17,10 @@ tr:nth-of-type(even) {
   gap: 12px;
 }
 
+mat-form-field, mat-label, mat-select, mat-option {
+  font-size: 14px;
+}
+
 .w-180 {
   width: 180px;
   max-width: 180px;

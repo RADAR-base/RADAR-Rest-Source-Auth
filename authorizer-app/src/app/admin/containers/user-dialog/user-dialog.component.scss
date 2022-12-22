@@ -1,14 +1,14 @@
 @use '@material/dialog/dialog-theme' as mdc-dialog-theme;
 @use '@material/theme/theme-color' as mdc-theme-color;
 
-::ng-deep .mdc-dialog__title {
-  display: flex !important;
+.mat-mdc-dialog-title {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 8px !important;
+  padding-top: 16px;
 }
 
-::ng-deep .mat-mdc-dialog-container {
+.mat-mdc-dialog-content {
   $on-surface: mdc-theme-color.$on-surface;
   $text-emphasis-high: mdc-theme-color.text-emphasis(high);
 
@@ -19,8 +19,10 @@
 }
 
 mat-dialog-actions {
-  padding-left: 24px;
-  padding-right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
 }
 
 .message-for-user-label {
@@ -39,24 +41,6 @@ mat-dialog-actions {
     margin: 0;
     white-space: pre-wrap
   }
-}
-
-.action-buttons-container__right {
-  margin-left: auto;
-}
-
-.ie7 dl.desc {
-  overflow: hidden;
-}
-
-.ie7 dt {
-  padding-bottom: 10px;
-  clear: both;
-}
-
-.ie7 dd {
-  margin-left: 40%;
-  overflow: hidden;
 }
 
 dl.desc {
@@ -95,5 +79,19 @@ dl.desc {
       content: '|';
       margin: 0 4px;
     }
+  }
+}
+
+
+@media only screen and (max-width: 700px) {
+  .mat-mdc-dialog-title {
+    padding-top: 4px !important;
+    font-size: 18px !important;
+  }
+
+  .mat-mdc-dialog-title button {
+    height: 36px;
+    width: 36px;
+    padding: 6px;
   }
 }
