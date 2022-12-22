@@ -5,17 +5,17 @@ mat-toolbar {
   overflow: hidden;
 }
 
-.left-box, .right-box {
-  flex: 1;
-  display: flex;
-}
-
-.right-box {
-  justify-content: flex-end;
+.logo-wrapper {
+  height: 75%;
+  flex: 1 1;
 }
 
 .logo {
-  height: 48px;
+  height: 100%;
+}
+
+.spacer {
+  flex: 1 1 auto;
 }
 
 mat-icon + span {
@@ -26,26 +26,16 @@ mat-icon + span {
   text-transform: uppercase;
 }
 
-@media only screen and (max-width: 1200px){
-  /* [320px -> 1200px] */
-
-  .title {
-    font-size: 14px;
-  }
-
-  .logo {
-    height: 32px;
-  }
-}
-
-@media only screen and (max-width: 600px){
+@media only screen and (max-width: 600px) {
   /* [320px -> 600px] */
 
+  .title {
+    font-size: 75%;
+  }
   .logo-wrapper {
     display: none;
   }
-
-  .mat-mdc-button {
-    padding: 0 4px;
+  .icon-label {
+    display: none;
   }
 }

@@ -1,34 +1,31 @@
 <div mat-dialog-title>
-  <div class="dialog-title-wrapper">
-    <div>
-      <p *ngIf="mode===SubjectDialogMode.EDIT">
-        {{ 'ADMIN.USER_DIALOG.EDIT.title' | translate }}
-      </p>
-      <p *ngIf="mode===SubjectDialogMode.VIEW">
-        {{ 'ADMIN.USER_DIALOG.VIEW.title' | translate }}
-      </p>
-      <p *ngIf="mode===SubjectDialogMode.ADD">
-        {{ 'ADMIN.USER_DIALOG.ADD.title' | translate:{sourceType: subject.sourceType} }}
-      </p>
-      <p *ngIf="mode===SubjectDialogMode.DELETE">
-        {{ 'ADMIN.USER_DIALOG.DELETE.title' | translate }}
-      </p>
-    </div>
+  <span *ngIf="mode===SubjectDialogMode.EDIT">
+    {{ 'ADMIN.USER_DIALOG.EDIT.title' | translate }}
+  </span>
+  <span *ngIf="mode===SubjectDialogMode.VIEW">
+    {{ 'ADMIN.USER_DIALOG.VIEW.title' | translate }}
+  </span>
+  <span *ngIf="mode===SubjectDialogMode.ADD">
+    {{ 'ADMIN.USER_DIALOG.ADD.title' | translate:{sourceType: subject.sourceType} }}
+  </span>
+  <span *ngIf="mode===SubjectDialogMode.DELETE">
+    {{ 'ADMIN.USER_DIALOG.DELETE.title' | translate }}
+  </span>
 
-    <button mat-icon-button
-            class="close-button"
-            [mat-dialog-close]="true"
-            (click)="close(mode)"
-    >
-      <mat-icon class="close-icon">close</mat-icon>
-    </button>
-  </div>
-  <app-message *ngIf="error">
-    {{error | translate}}
-  </app-message>
+  <button mat-icon-button
+          class="close-button"
+          [mat-dialog-close]="true"
+          (click)="close(mode)"
+  >
+    <mat-icon class="close-icon">close</mat-icon>
+  </button>
 </div>
 
 <mat-dialog-content>
+  <app-message *ngIf="error">
+    {{error | translate}}
+  </app-message>
+
   <p *ngIf="mode===SubjectDialogMode.DELETE">
     {{ 'ADMIN.USER_DIALOG.DELETE.desc' | translate: {sourceType: subject.sourceType} }}:
   </p>

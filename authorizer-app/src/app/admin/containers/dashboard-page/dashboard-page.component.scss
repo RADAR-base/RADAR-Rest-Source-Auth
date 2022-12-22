@@ -2,26 +2,10 @@ form {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.form-wrapper{
-  display: flex;
-  justify-content: center;
-  margin: 0 8px;
-
-  .form-field{
-    width: 300px;
-  }
-}
-
-@media only screen and (max-width: 700px){
-  /* [320px -> 700px] */
-
-  form {
-    display: block;
-  }
-
-  .form-wrapper {
-    margin: 0;
-  }
+.form-field{
+  width: 300px;
 }

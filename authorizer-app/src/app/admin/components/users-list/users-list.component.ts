@@ -88,7 +88,7 @@ export class UsersListComponent implements AfterViewInit {
         {value: 'no', label: 'ADMIN.USERS_LIST.authorizationStatus.no'},
         {value: 'unset', label: 'ADMIN.USERS_LIST.authorizationStatus.unset'}
       ],
-      width: 150,
+      width: 180,
     }
   ]
 
@@ -318,5 +318,4 @@ export class UsersListComponent implements AfterViewInit {
   openTemplateSheetMenu() {
     this.bottomSheet.open(this.TemplateBottomSheet);
   }
-
 }
