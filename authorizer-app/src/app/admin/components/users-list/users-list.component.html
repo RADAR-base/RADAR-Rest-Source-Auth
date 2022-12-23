@@ -7,7 +7,7 @@
     <ng-container *ngTemplateOutlet="filtersContainer"></ng-container>
   </div>
   <button mat-mini-fab class="mini-fab-filters" color="primary" (click)="openTemplateSheetMenu()"><mat-icon>filter_list</mat-icon></button>
-  <ng-template let-bottomSheetRef="bottomSheetRef" #templateBottomSheet>
+  <ng-template #templateBottomSheet>
     <div class="mobile-filter-container">
       <ng-container *ngTemplateOutlet="filtersContainer"></ng-container>
     </div>
@@ -122,11 +122,11 @@
 </div>
 
 <ng-template #filtersContainer>
-  <div>
+  <div class="filter-fields">
     <mat-form-field *ngFor="let filter of filters"
                     class="form-field"
                     [style]="'width: '+ filter.width +'px; max-width: 100%;'"
-                    appearance="outline">
+                    appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{filter.name | translate}}</mat-label>
       <mat-select *ngIf="filter.type == 'select'"
                   name="{{filter.columnProp}}"

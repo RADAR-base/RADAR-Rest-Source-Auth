@@ -1,13 +1,31 @@
-.dialog-title-wrapper {
+@use '@material/dialog/dialog-theme' as mdc-dialog-theme;
+@use '@material/theme/theme-color' as mdc-theme-color;
+
+.mat-mdc-dialog-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  p {
-    margin: 0;
-  }
+  padding-top: 16px;
 }
 
-.message-for-user-label{
+.mat-mdc-dialog-content {
+  $on-surface: mdc-theme-color.$on-surface;
+  $text-emphasis-high: mdc-theme-color.text-emphasis(high);
+
+  @include mdc-dialog-theme.theme((
+          supporting-text-color: rgba($on-surface, $text-emphasis-high),
+          supporting-text-size: 14px,
+  ));
+}
+
+mat-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.message-for-user-label {
   margin: 0;
 }
 
@@ -23,30 +41,6 @@
     margin: 0;
     white-space: pre-wrap
   }
-}
-
-.action-buttons-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  div {
-    display: flex;
-    gap: 8px;
-  }
-}
-
-.ie7 dl.desc {
-  overflow: hidden;
-}
-
-.ie7 dt {
-  padding-bottom: 10px;
-  clear: both;
-}
-
-.ie7 dd {
-  margin-left: 40%;
-  overflow: hidden;
 }
 
 dl.desc {
@@ -79,25 +73,25 @@ dl.desc {
   }
 }
 
-@media only screen and (max-width: 600px) {
-  /* [320px -> 600px] */
-  .action-buttons-container {
-    display: block;
-    justify-content: space-between;
-    width: 100%;
-
-    div {
-      display: flex;
-      gap: 0;
-    }
-  }
-}
-
 .date-errors{
   span:not(:last-of-type) {
     &:after{
       content: '|';
       margin: 0 4px;
     }
+  }
+}
+
+
+@media only screen and (max-width: 700px) {
+  .mat-mdc-dialog-title {
+    padding-top: 4px !important;
+    font-size: 18px !important;
+  }
+
+  .mat-mdc-dialog-title button {
+    height: 36px;
+    width: 36px;
+    padding: 6px;
   }
 }

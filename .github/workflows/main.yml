@@ -44,10 +44,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Use Node.js 16
+      - name: Use Node.js 18
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
 

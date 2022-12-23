@@ -88,7 +88,7 @@ export class UsersListComponent implements AfterViewInit {
         {value: 'no', label: 'ADMIN.USERS_LIST.authorizationStatus.no'},
         {value: 'unset', label: 'ADMIN.USERS_LIST.authorizationStatus.unset'}
       ],
-      width: 150,
+      width: 180,
     }
   ]
 
@@ -125,24 +125,24 @@ export class UsersListComponent implements AfterViewInit {
   private applyTableSort(): void {
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (item: UserData, property: string) => {
-      if (property === 'isAuthorized') {
-        if (item[property]) {
-          return 1; //'Yes';
-        } else if (!item.id) {
-          return 4; //'Unset';
-        } else if (item.registrationCreatedAt) {
-          return 2; //'Pending';
-        } else {
-          return 3; //'No';
-        }
+      switch (property) {
+        case 'isAuthorized':
+          if (item.isAuthorized) {
+            return 1; //'Yes';
+          } else if (!item.id) {
+            return 4; //'Unset';
+          } else if (item.registrationCreatedAt) {
+            return 2; //'Pending';
+          } else {
+            return 3; //'No';
+          }
+        case 'startDate': case 'endDate':
+          return item[property] ? new Date(item[property]) : null;
+        case  'registrationCreatedAt':
+          return item.registrationCreatedAt ? new Date(item.registrationCreatedAt) : null;
+        default:
+          return item[property].toLocaleLowerCase();
       }
-      if (property === 'startDate' || property === 'endDate') {
-        return item[property] ? new Date(item[property]) : null;
-      }
-      if (property === 'registrationCreatedAt') {
-        return item.registrationCreatedAt ? new Date(item.registrationCreatedAt) : null;
-      }
-      return item[property].toLocaleLowerCase();
     };
   }
 
@@ -162,8 +162,8 @@ export class UsersListComponent implements AfterViewInit {
         .every(([key, value]) => {
           switch (key) {
             case 'userId':
-              const matchesUserId = data.userId && data.userId.toLowerCase().indexOf(value) !== -1
-              const matchesExternalId = !data.externalId || data.externalId.toLowerCase().indexOf(value) !== -1;
+              const matchesUserId = data.userId && data.userId.toLocaleLowerCase().indexOf(value) !== -1
+              const matchesExternalId = !data.externalId || data.externalId.toLocaleLowerCase().indexOf(value) !== -1;
               return matchesUserId || matchesExternalId;
             case 'isAuthorized':
               if (data.isAuthorized) {
@@ -318,5 +318,4 @@ export class UsersListComponent implements AfterViewInit {
   openTemplateSheetMenu() {
     this.bottomSheet.open(this.TemplateBottomSheet);
   }
-
 }
