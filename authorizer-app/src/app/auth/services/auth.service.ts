@@ -9,6 +9,8 @@ export class AuthService {
   isLoggedIn$: Observable<boolean> | undefined;
   isLoggedOut$: Observable<boolean> | undefined;
 
+  user$?: Observable<User | null>
+
   constructor() {}
 
   setAuth(authResponse: AuthResponse): void {
