@@ -11,16 +11,16 @@ import org.radarbase.authorizer.util.Hmac256Secret
 import org.radarbase.authorizer.util.Hmac256Secret.Companion.encodeToBase64
 import org.radarbase.authorizer.util.Hmac256Secret.Companion.randomize
 import org.radarbase.jersey.hibernate.HibernateRepository
-import java.time.Duration
 import java.time.Instant
+import kotlin.time.Duration.Companion.minutes
 
 class RegistrationRepository(
     @Context private val config: AuthorizerConfig,
     @Context em: Provider<EntityManager>,
 ) : HibernateRepository(em) {
 
-    private val tokenExpiryTime = Duration.ofMinutes(config.service.tokenExpiryTimeInMinutes)
-    private val persistentTokenExpiryTime = Duration.ofMinutes(config.service.persistentTokenExpiryInMin)
+    private val tokenExpiryTime = config.service.tokenExpiryTimeInMinutes.minutes
+    private val persistentTokenExpiryTime = config.service.persistentTokenExpiryInMin.minutes
 
     fun generate(
         user: RestSourceUser,
@@ -28,7 +28,8 @@ class RegistrationRepository(
         persistent: Boolean,
     ): RegistrationState? {
         val createdAt = Instant.now()
-        val expiresAt = createdAt + if (persistent) persistentTokenExpiryTime else tokenExpiryTime
+        val expiryTime = if (persistent) persistentTokenExpiryTime else tokenExpiryTime
+        val expiresAt = createdAt.plusMillis(expiryTime.inWholeMilliseconds)
         val numberOfBytes = if (persistent) 18 else 9
         return randomStrings(numberOfBytes)
             .take(10)

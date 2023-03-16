@@ -108,7 +108,7 @@ class RegistrationResource(
             authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(
                 sourceType = registration.user.sourceType,
                 userId = registration.user.id!!,
-                state = registration.token
+                state = registration.token,
             ),
             userId = registration.user.id!!.toString(),
             project = project,

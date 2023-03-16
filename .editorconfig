@@ -8,7 +8,6 @@ root = true
 # Change these settings to your own preference
 indent_style = space
 indent_size = 4
-continuation_indent_size = 8
 
 # We recommend you to keep these unchanged
 end_of_line = lf
@@ -17,8 +16,7 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.kt]
-continuation_indent_size = 4
-disabled_rules=no-wildcard-imports
+ktlint_standard_no-wildcard-imports=disabled
 
 [*.md]
 trim_trailing_whitespace = false
@@ -26,4 +24,3 @@ trim_trailing_whitespace = false
 [*.{json,yaml,yml}]
 indent_style = space
 indent_size = 2
-continuation_indent_size = 4

@@ -20,6 +20,7 @@ import jakarta.annotation.Resource
 import jakarta.inject.Singleton
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.radarbase.auth.authorization.Permission
@@ -57,9 +58,15 @@ class RestSourceUserResource(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
         @QueryParam("search") search: String?,
-        @DefaultValue("true") @QueryParam("authorized") isAuthorized: String,
-        @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
-        @DefaultValue("1") @QueryParam("page") pageNumber: Int,
+        @DefaultValue("true")
+        @QueryParam("authorized")
+        isAuthorized: String,
+        @DefaultValue(Integer.MAX_VALUE.toString())
+        @QueryParam("size")
+        pageSize: Int,
+        @DefaultValue("1")
+        @QueryParam("page")
+        pageNumber: Int,
     ): RestSourceUsers {
         val projectIds = if (projectId == null) {
             projectService.userProjects(auth, Permission.SUBJECT_READ)
@@ -90,7 +97,9 @@ class RestSourceUserResource(
                     val externalId = sub.externalId ?: return@mapNotNull null
                     sub.id.takeIf { sanitizedSearch in externalId }
                 }
-        } else emptyList()
+        } else {
+            emptyList()
+        }
 
         val authorizedBoolean = when (isAuthorized) {
             "true", "yes" -> true
@@ -134,7 +143,7 @@ class RestSourceUserResource(
     @GET
     @Path("{id}")
     @NeedsPermission(Permission.SUBJECT_READ)
-    @Cache(maxAge = 300, isPrivate = true)
+    @Cache(maxAge = 300, isPrivate = true, vary = [HttpHeaders.AUTHORIZATION])
     fun readUser(@PathParam("id") userId: Long): RestSourceUserDTO = userService.get(userId)
 
     @DELETE

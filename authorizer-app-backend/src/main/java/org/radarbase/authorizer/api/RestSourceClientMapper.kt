@@ -33,6 +33,6 @@ class RestSourceClientMapper {
     }
 
     fun fromSourceClientConfigs(clientConfigs: List<RestSourceClient>) = ShareableClientDetails(
-        sourceClients = clientConfigs.map { toSourceClientConfig(it) }
+        sourceClients = clientConfigs.map { toSourceClientConfig(it) },
     )
 }

@@ -20,6 +20,7 @@ import jakarta.annotation.Resource
 import jakarta.inject.Singleton
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.*
@@ -51,7 +52,7 @@ class SourceClientResource(
     @GET
     @Authenticated
     @NeedsPermission(Permission.SOURCETYPE_READ)
-    @Cache(maxAge = 3600, isPrivate = true)
+    @Cache(maxAge = 3600, isPrivate = true, vary = [HttpHeaders.AUTHORIZATION])
     fun clients(): ShareableClientDetails = sharableClientDetails
 
     @GET

@@ -37,7 +37,9 @@ class GarminSourceAuthorizationService(
     @Context private val objectMapper: ObjectMapper,
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val requestScope: RequestScope,
-    @Context @BackgroundScheduler private val scheduler: ScheduledExecutorService,
+    @Context
+    @BackgroundScheduler
+    private val scheduler: ScheduledExecutorService,
     @Context private val config: AuthorizerConfig,
 ) : OAuth1RestSourceAuthorizationService(
     clientService,

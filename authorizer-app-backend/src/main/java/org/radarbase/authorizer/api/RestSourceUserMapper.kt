@@ -44,12 +44,12 @@ class RestSourceUserMapper(
             startDate = user.startDate,
             serviceUserId = user.externalUserId,
             version = user.version,
-            timesReset = user.timesReset
+            timesReset = user.timesReset,
         )
     }
 
     fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
         users = records.map(::fromEntity),
-        metadata = page
+        metadata = page,
     )
 }
