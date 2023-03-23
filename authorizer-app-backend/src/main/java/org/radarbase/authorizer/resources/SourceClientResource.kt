@@ -20,6 +20,7 @@ import jakarta.annotation.Resource
 import jakarta.inject.Singleton
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.*
@@ -50,14 +51,14 @@ class SourceClientResource(
 
     @GET
     @Authenticated
-    @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
-    @Cache(maxAge = 3600, isPrivate = true)
+    @NeedsPermission(Permission.SOURCETYPE_READ)
+    @Cache(maxAge = 3600, isPrivate = true, vary = [HttpHeaders.AUTHORIZATION])
     fun clients(): ShareableClientDetails = sharableClientDetails
 
     @GET
     @Authenticated
     @Path("{type}")
-    @NeedsPermission(Permission.Entity.SOURCETYPE, Permission.Operation.READ)
+    @NeedsPermission(Permission.SOURCETYPE_READ)
     fun client(@PathParam("type") type: String): ShareableClientDetail {
         val sourceType = restSourceClients.forSourceType(type)
         return clientMapper.toSourceClientConfig(sourceType)
@@ -66,7 +67,7 @@ class SourceClientResource(
     @DELETE
     @Authenticated
     @Path("{type}/authorization/{serviceUserId}")
-    @NeedsPermission(Permission.Entity.SUBJECT, Permission.Operation.UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun deleteAuthorizationWithToken(
         @PathParam("serviceUserId") serviceUserId: String,
         @PathParam("type") sourceType: String,
@@ -87,7 +88,7 @@ class SourceClientResource(
     @GET
     @Authenticated
     @Path("{type}/authorization/{serviceUserId}")
-    @NeedsPermission(Permission.Entity.MEASUREMENT, Permission.Operation.READ)
+    @NeedsPermission(Permission.MEASUREMENT_READ)
     fun getUserByServiceUserId(
         @PathParam("serviceUserId") serviceUserId: String,
         @PathParam("type") sourceType: String,

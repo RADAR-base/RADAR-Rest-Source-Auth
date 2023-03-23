@@ -28,10 +28,12 @@
       </button>
     </mat-menu>
 
-    <button *ngIf="authService.isLoggedIn$ | async"
-            mat-icon-button
-            (click)="logout()">
-      <mat-icon>logout</mat-icon>
-    </button>
+    <ng-container *ngIf="authService.isLoggedIn$ | async">
+      <span class="small-text">{{(authService.user$ | async)?.username}}</span>
+      <button mat-icon-button
+              (click)="logout()">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </ng-container>
   </mat-toolbar-row>
 </mat-toolbar>

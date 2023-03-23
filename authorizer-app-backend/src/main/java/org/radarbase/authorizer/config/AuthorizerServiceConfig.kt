@@ -5,7 +5,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.radarbase.authorizer.enhancer.ManagementPortalEnhancerFactory
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import java.net.URI
-import java.time.Duration
+import kotlin.time.Duration.Companion.days
 
 data class AuthorizerServiceConfig(
     val baseUri: URI = URI.create("http://0.0.0.0:8080/rest-sources/backend/"),
@@ -16,7 +16,7 @@ data class AuthorizerServiceConfig(
     val syncProjectsIntervalMin: Long = 30,
     val syncParticipantsIntervalMin: Long = 30,
     val tokenExpiryTimeInMinutes: Long = 15,
-    val persistentTokenExpiryInMin: Long = Duration.ofDays(3).toMinutes(),
+    val persistentTokenExpiryInMin: Long = 3.days.inWholeMinutes,
 ) {
     val callbackUrl: HttpUrl by lazy {
         val frontendBaseUrlBuilder = when {

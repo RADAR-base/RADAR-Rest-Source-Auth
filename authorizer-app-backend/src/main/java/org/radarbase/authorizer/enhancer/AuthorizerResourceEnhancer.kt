@@ -40,7 +40,7 @@ class AuthorizerResourceEnhancer(
             .onEach {
                 requireNotNull(it.clientId) { "Client ID of ${it.sourceType} is missing" }
                 requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
-            }
+            },
     )
 
     override val classes: Array<Class<*>>

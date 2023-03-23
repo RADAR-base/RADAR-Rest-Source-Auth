@@ -56,7 +56,7 @@ abstract class OAuth1RestSourceAuthorizationService(
             this.requestToken(authConfig.tokenEndpoint, payloadToken, sourceType) ?: throw HttpApplicationException(
                 Response.Status.PROXY_AUTHENTICATION_REQUIRED,
                 "user_unauthorized",
-                "Access token can not be retrieved"
+                "Access token can not be retrieved",
             )
 
         return token.toOAuth2(sourceType)
@@ -133,7 +133,7 @@ abstract class OAuth1RestSourceAuthorizationService(
                 .newBuilder()
                 .addQueryParameter("state", state)
                 .build()
-                .toString()
+                .toString(),
         )
 
         return Url(authConfig.authorizationEndpoint, params).getUrl()

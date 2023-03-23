@@ -9,8 +9,8 @@ import redis.clients.jedis.JedisPool
 import redis.clients.jedis.exceptions.JedisException
 import redis.clients.jedis.params.SetParams
 import java.io.IOException
-import java.time.Duration
 import java.util.*
+import kotlin.time.Duration
 
 class RedisLockService(
     @Context config: AuthorizerConfig,
@@ -30,14 +30,10 @@ class RedisLockService(
         val lockKey = "$lockPrefix/$lockName.lock"
         val setParams = SetParams()
             .nx() // only set if not already set
-            .px(
-                timeout
-                    .multipliedBy(3L)
-                    .toMillis()
-            ) // limit the duration based on expected lock time
+            .px((timeout * 3).inWholeMilliseconds) // limit the duration based on expected lock time
 
         val startTime = System.nanoTime()
-        val totalTime = timeout.toNanos()
+        val totalTime = timeout.inWholeNanoseconds
         var didAcquire = false
         return withJedis {
             while (System.nanoTime() - startTime < totalTime) {
