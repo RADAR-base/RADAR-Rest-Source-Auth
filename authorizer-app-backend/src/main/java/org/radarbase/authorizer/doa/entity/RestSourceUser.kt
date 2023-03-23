@@ -100,7 +100,7 @@ class RestSourceUser(
         fetch = FetchType.EAGER,
         targetEntity = RegistrationState::class,
         cascade = [CascadeType.REMOVE],
-        mappedBy = "user"
+        mappedBy = "user",
     )
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 2)

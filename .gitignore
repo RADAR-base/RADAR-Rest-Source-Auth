@@ -28,3 +28,4 @@ local.properties
 /.nb-gradle/
 
 /src/main/docker/etc/rest_source_clients_configs.yml
+.DS_Store

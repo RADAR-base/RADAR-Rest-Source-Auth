@@ -13,7 +13,7 @@ import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.service.managementportal.RadarProjectService
-import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class RestSourceUserService(
     @Context private val userRepository: RestSourceUserRepository,
@@ -38,11 +38,8 @@ class RestSourceUserService(
         return userMapper.fromEntity(user)
     }
 
-    fun get(userId: Long): RestSourceUserDTO {
-        return userMapper.fromEntity(
-            ensureUser(userId, Permission.SUBJECT_READ)
-        )
-    }
+    fun get(userId: Long): RestSourceUserDTO =
+        userMapper.fromEntity(ensureUser(userId, Permission.SUBJECT_READ))
 
     fun delete(userId: Long) {
         ensureUser(userId, Permission.SUBJECT_UPDATE)
@@ -57,7 +54,7 @@ class RestSourceUserService(
         return userMapper.fromEntity(
             runLocked(userId) {
                 userRepository.update(userId, user)
-            }
+            },
         )
     }
 
@@ -69,7 +66,7 @@ class RestSourceUserService(
                 existingUser,
                 user.startDate,
                 user.endDate ?: existingUser.endDate,
-            )
+            ),
         )
     }
 
@@ -80,13 +77,15 @@ class RestSourceUserService(
             ?: throw HttpBadRequestException("missing_project_id", "project cannot be empty")
         val userId = user.userId
             ?: throw HttpBadRequestException(
-                "missing_user_id", "subject-id/user-id cannot be empty",
+                "missing_user_id",
+                "subject-id/user-id cannot be empty",
             )
         auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, projectId, userId)
 
-        projectService.projectUsers(projectId).find { it.id == userId }
+        projectService.projectSubjects(projectId).find { it.id == userId }
             ?: throw HttpBadRequestException(
-                "user_not_found", "user $userId not found in project $projectId"
+                "user_not_found",
+                "user $userId not found in project $projectId",
             )
     }
 
@@ -110,7 +109,7 @@ class RestSourceUserService(
     }
 
     private inline fun <T> runLocked(userId: Long, crossinline doRun: (RestSourceUser) -> T): T {
-        return lockService.runLocked("token-$userId", Duration.ofSeconds(10)) {
+        return lockService.runLocked("token-$userId", 10.seconds) {
             doRun(ensureUser(userId))
         }
     }

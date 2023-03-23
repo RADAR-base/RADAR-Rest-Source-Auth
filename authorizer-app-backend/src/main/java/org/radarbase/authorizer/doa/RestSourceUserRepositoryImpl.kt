@@ -43,7 +43,7 @@ class RestSourceUserRepositoryImpl(
             WHERE u.sourceType = :sourceType
                 AND u.userId = :userId
             """.trimIndent(),
-            RestSourceUser::class.java
+            RestSourceUser::class.java,
         )
             .setParameter("sourceType", user.sourceType)
             .setParameter("userId", user.userId)

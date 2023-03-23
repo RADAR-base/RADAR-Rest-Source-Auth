@@ -20,7 +20,9 @@ import java.util.concurrent.TimeUnit
 @Provider
 @Singleton
 class RegistrationLifecycleManager(
-    @BackgroundScheduler @Context private val executor: ScheduledExecutorService,
+    @BackgroundScheduler
+    @Context
+    private val executor: ScheduledExecutorService,
     @Context private val entityManagerFactory: EntityManagerFactory,
     @Context private val config: AuthorizerConfig,
 ) : ApplicationEventListener {

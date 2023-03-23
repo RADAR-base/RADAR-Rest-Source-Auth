@@ -67,12 +67,12 @@ data class RegistrationResponse(
 )
 
 data class DeregistrationsDTO(
-    val deregistrations: List<DeregistrationParams>
+    val deregistrations: List<DeregistrationParams>,
 )
 
 data class DeregistrationParams(
     val userId: String,
-    val userAccessToken: String
+    val userAccessToken: String,
 )
 
 data class RequestTokenPayload(
@@ -118,7 +118,7 @@ data class RestSourceUserDTO(
 
 data class RestSourceUsers(
     val users: List<RestSourceUserDTO>,
-    val metadata: Page?
+    val metadata: Page?,
 )
 
 data class TokenDTO(
@@ -129,7 +129,7 @@ data class TokenDTO(
 data class Page(
     val pageNumber: Int = 1,
     val pageSize: Int = Integer.MAX_VALUE,
-    val totalElements: Long? = null
+    val totalElements: Long? = null,
 ) {
     val offset: Int
         get() = (this.pageNumber - 1) * this.pageSize

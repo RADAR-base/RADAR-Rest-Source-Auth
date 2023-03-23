@@ -33,7 +33,7 @@ fun MPProject.toProject() = Project(
     id = id,
     name = name,
     location = location,
-    organization = organization,
+    organization = organization?.id,
     description = description,
 )
 

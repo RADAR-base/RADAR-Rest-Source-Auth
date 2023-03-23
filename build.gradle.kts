@@ -2,8 +2,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     kotlin("jvm")
-    id("org.jlleitschuh.gradle.ktlint") version "11.0.0" apply false
-    id("com.github.ben-manes.versions") version "0.44.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.3.1" apply false
+    id("com.github.ben-manes.versions") version "0.46.0"
 }
 
 allprojects {
@@ -12,6 +12,8 @@ allprojects {
 
     repositories {
         mavenCentral()
+        mavenLocal()
+//        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
@@ -54,5 +56,5 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
 }
 
 tasks.wrapper {
-    gradleVersion = "7.6"
+    gradleVersion = "8.0.2"
 }
