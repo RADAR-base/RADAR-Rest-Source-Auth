@@ -126,17 +126,22 @@ abstract class OAuth1RestSourceAuthorizationService(
         val authConfig = clientService.forSourceType(sourceType)
 
         val tokens = this.requestToken(authConfig.preAuthorizationEndpoint, RestOauth1AccessToken(""), sourceType)
-        val params = mapOf(
-            OAUTH_ACCESS_TOKEN to tokens?.token,
-            OAUTH_ACCESS_TOKEN_SECRET to tokens?.tokenSecret,
-            OAUTH_CALLBACK to config.service.callbackUrl
-                .newBuilder()
-                .addQueryParameter("state", state)
-                .build()
-                .toString(),
-        )
 
-        return Url(authConfig.authorizationEndpoint, params).getUrl()
+        return Url(
+            authConfig.authorizationEndpoint,
+            buildMap {
+                put(OAUTH_ACCESS_TOKEN, tokens?.token)
+                put(OAUTH_ACCESS_TOKEN_SECRET, tokens?.tokenSecret)
+                put(
+                    OAUTH_CALLBACK,
+                    config.service.callbackUrl
+                        .newBuilder()
+                        .addQueryParameter("state", state)
+                        .build()
+                        .toString(),
+                )
+            },
+        ).getUrl()
     }
 
     private fun requestToken(
@@ -183,16 +188,21 @@ abstract class OAuth1RestSourceAuthorizationService(
 
         val accessToken = user.accessToken
             ?: throw HttpBadRequestException("access-token-not-found", "No access token available for user")
-        val signedParams = payload.parameters.toMutableMap()
-        signedParams[OAUTH_ACCESS_TOKEN] = accessToken
-        signedParams[OAUTH_SIGNATURE_METHOD] = OAUTH_SIGNATURE_METHOD_VALUE
-        signedParams[OAUTH_SIGNATURE] = OauthSignature(
-            payload.url,
-            signedParams.toSortedMap(),
-            payload.method,
-            authConfig.clientSecret,
-            user.refreshToken,
-        ).getEncodedSignature()
+        val signedParams = buildMap(payload.parameters.size + 3) {
+            putAll(payload.parameters)
+            put(OAUTH_ACCESS_TOKEN, accessToken)
+            put(OAUTH_SIGNATURE_METHOD, OAUTH_SIGNATURE_METHOD_VALUE)
+            put(
+                OAUTH_SIGNATURE,
+                OauthSignature(
+                    payload.url,
+                    toSortedMap(),
+                    payload.method,
+                    authConfig.clientSecret,
+                    user.refreshToken,
+                ).getEncodedSignature(),
+            )
+        }
 
         return SignRequestParams(payload.url, payload.method, signedParams)
     }
@@ -219,27 +229,23 @@ abstract class OAuth1RestSourceAuthorizationService(
 
     private fun parseParams(input: String): String {
         val params = input
-            .replace("=".toRegex(), "\":\"")
-            .replace("&".toRegex(), "\",\"")
+            .replace("=", "\":\"")
+            .replace("&", "\",\"")
         return "{\"$params\"}"
     }
 
-    private fun RestOauth1AccessToken.toOAuth2(sourceType: String): RestOauth2AccessToken {
-        // This maps the OAuth1 properties to OAuth2 for backwards compatibility in the repository
-        // Also, an additional request for getting the external ID is made here to pull the external id
-        val tokens = this
-        return RestOauth2AccessToken(
-            tokens.token,
-            tokens.tokenSecret,
-            Integer.MAX_VALUE,
-            "",
-            tokens.getExternalId(sourceType),
-        )
-    }
+    // This maps the OAuth1 properties to OAuth2 for backwards compatibility in the repository
+    // Also, an additional request for getting the external ID is made here to pull the external id
+    private fun RestOauth1AccessToken.toOAuth2(sourceType: String) = RestOauth2AccessToken(
+        token,
+        tokenSecret,
+        Integer.MAX_VALUE,
+        "",
+        getExternalId(sourceType),
+    )
 
-    private fun Map<String, String?>.toFormattedHeader(): String = this
-        .map { (k, v) -> "$k=\"$v\"" }
-        .joinToString()
+    private fun Map<String, String?>.toFormattedHeader(): String =
+        entries.joinToString { (k, v) -> "$k=\"$v\"" }
 
     abstract fun RestOauth1AccessToken.getExternalId(sourceType: String): String?
 

@@ -39,6 +39,7 @@ class ManagementPortalEnhancerFactory(private val config: AuthorizerConfig) : En
             ),
             jwtResourceName = config.auth.jwtResourceName,
         )
+
         val dbConfig = config.database.copy(
             managedClasses = listOf(
                 RestSourceUser::class.qualifiedName!!,
