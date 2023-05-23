@@ -1,9 +1,7 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     application
     kotlin("jvm")
+    kotlin("plugin.serialization") version Versions.kotlin
     id("org.jetbrains.kotlin.plugin.noarg")
     id("org.jetbrains.kotlin.plugin.jpa")
     id("org.jetbrains.kotlin.plugin.allopen")
@@ -13,74 +11,35 @@ application {
     mainClass.set("org.radarbase.authorizer.Main")
     applicationDefaultJvmArgs = listOf(
         "-Djava.security.egd=file:/dev/./urandom",
-        "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager",
     )
-}
-
-repositories {
-    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
 }
 
 dependencies {
     api(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
-    val radarJerseyVersion: String by project
-    implementation("org.radarbase:radar-jersey:$radarJerseyVersion")
-    implementation("org.radarbase:radar-jersey-hibernate:$radarJerseyVersion") {
-        val postgresVersion: String by project
-        runtimeOnly("org.postgresql:postgresql:$postgresVersion")
+    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
+    implementation("org.radarbase:radar-jersey:${Versions.radarJersey}")
+    implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJersey}") {
+        runtimeOnly("org.postgresql:postgresql:${Versions.postgres}")
     }
 
-    val slf4jVersion: String by project
-    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+    implementation("redis.clients:jedis:${Versions.jedis}")
 
-    val okhttpVersion: String by project
-    implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
+    implementation(platform("io.ktor:ktor-bom:${Versions.ktor}"))
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-auth")
+    implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
 
-    val jedisVersion: String by project
-    implementation("redis.clients:jedis:$jedisVersion")
-
-    val log4j2Version: String by project
-    runtimeOnly("org.apache.logging.log4j:log4j-core:$log4j2Version")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl:$log4j2Version")
-    runtimeOnly("org.apache.logging.log4j:log4j-jul:$log4j2Version")
-
-    val junitVersion: String by project
-    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
-    testImplementation("org.hamcrest:hamcrest-all:1.3")
-
-    val mockitoKotlinVersion: String by project
-    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
-
-    val jerseyVersion: String by project
-    testImplementation("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:$jerseyVersion")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "17"
-        apiVersion = "1.7"
-        languageVersion = "1.7"
-    }
-}
-
-tasks.withType<JavaCompile> {
-    options.release.set(17)
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
-        showStandardStreams = true
-        exceptionFormat = FULL
-    }
-    systemProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
+    testImplementation("org.hamcrest:hamcrest:${Versions.hamcrest}")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}")
+    testImplementation("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:${Versions.jersey}")
 }
 
 allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.MappedSuperclass")
-    annotation("javax.persistence.Embeddable")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
 }

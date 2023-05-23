@@ -16,27 +16,38 @@
 
 package org.radarbase.authorizer.api
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.time.Instant
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@Serializable
 data class RestOauth2AccessToken(
-    @JsonProperty("access_token") val accessToken: String,
-    @JsonProperty("refresh_token") val refreshToken: String? = null,
-    @JsonProperty("expires_in") val expiresIn: Int = 0,
-    @JsonProperty("token_type") val tokenType: String? = null,
-    @JsonProperty("user_id") val externalUserId: String? = null,
+    @SerialName("access_token")
+    val accessToken: String,
+    @SerialName("refresh_token")
+    val refreshToken: String? = null,
+    @SerialName("expires_in")
+    val expiresIn: Int = 0,
+    @SerialName("token_type")
+    val tokenType: String? = null,
+    @SerialName("user_id")
+    val externalUserId: String? = null,
 )
 
+@Serializable
 data class RestOauth1AccessToken(
-    @JsonProperty("oauth_token") val token: String,
-    @JsonProperty("oauth_token_secret") val tokenSecret: String? = null,
-    @JsonProperty("oauth_verifier") val tokenVerifier: String? = null,
+    @SerialName("oauth_token")
+    val token: String,
+    @SerialName("oauth_token_secret")
+    val tokenSecret: String? = null,
+    @SerialName("oauth_verifier")
+    val tokenVerifier: String? = null,
 )
 
+@Serializable
 data class RestOauth1UserId(
-    @JsonProperty("userId") val userId: String,
+    @SerialName("userId")
+    val userId: String,
 )
 
 data class SignRequestParams(

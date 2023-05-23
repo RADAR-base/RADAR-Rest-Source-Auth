@@ -16,21 +16,28 @@
 
 package org.radarbase.authorizer.service
 
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.doa.entity.RestSourceUser
+import kotlin.time.Duration.Companion.seconds
 
 interface RestSourceAuthorizationService {
-    fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken
+    suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken
 
-    fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
+    suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
 
-    fun revokeToken(user: RestSourceUser): Boolean
+    suspend fun revokeToken(user: RestSourceUser): Boolean
 
-    fun revokeToken(externalId: String, sourceType: String, token: String): Boolean
+    suspend fun revokeToken(externalId: String, sourceType: String, token: String): Boolean
 
-    fun getAuthorizationEndpointWithParams(
+    suspend fun getAuthorizationEndpointWithParams(
         sourceType: String,
         userId: Long,
         state: String,
@@ -38,5 +45,23 @@ interface RestSourceAuthorizationService {
 
     fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams
 
-    fun deregisterUser(user: RestSourceUser)
+    suspend fun deregisterUser(user: RestSourceUser)
+
+    companion object {
+        fun httpClient(builder: HttpClientConfig<CIOEngineConfig>.() -> Unit = {}) =
+            HttpClient(CIO) {
+                install(HttpTimeout) {
+                    val millis = 10.seconds.inWholeMilliseconds
+                    connectTimeoutMillis = millis
+                    socketTimeoutMillis = millis
+                    requestTimeoutMillis = millis
+                }
+                install(ContentNegotiation) {
+                    json(Json {
+                        ignoreUnknownKeys = true
+                    })
+                }
+                builder()
+            }
+    }
 }

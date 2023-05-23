@@ -3,5 +3,5 @@ package org.radarbase.authorizer.service
 import kotlin.time.Duration
 
 interface LockService {
-    fun <T> runLocked(lockName: String, timeout: Duration, doRun: () -> T): T
+    suspend fun <T> runLocked(lockName: String, timeout: Duration, doRun: suspend () -> T): T
 }

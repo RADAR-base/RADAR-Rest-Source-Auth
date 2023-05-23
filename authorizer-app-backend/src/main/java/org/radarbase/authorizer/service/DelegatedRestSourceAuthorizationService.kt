@@ -33,19 +33,19 @@ class DelegatedRestSourceAuthorizationService(
         return provider.get()
     }
 
-    override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken =
+    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken =
         delegate(sourceType).requestAccessToken(payload, sourceType)
 
-    override fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? =
+    override suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? =
         delegate(user.sourceType).refreshToken(user)
 
-    override fun revokeToken(user: RestSourceUser): Boolean =
+    override suspend fun revokeToken(user: RestSourceUser): Boolean =
         delegate(user.sourceType).revokeToken(user)
 
-    override fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
+    override suspend fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
         delegate(sourceType).revokeToken(externalId, sourceType, token)
 
-    override fun getAuthorizationEndpointWithParams(
+    override suspend fun getAuthorizationEndpointWithParams(
         sourceType: String,
         userId: Long,
         state: String,
@@ -56,7 +56,7 @@ class DelegatedRestSourceAuthorizationService(
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         delegate(user.sourceType).signRequest(user, payload)
 
-    override fun deregisterUser(user: RestSourceUser) =
+    override suspend fun deregisterUser(user: RestSourceUser) =
         delegate(user.sourceType).deregisterUser(user)
 
     companion object {

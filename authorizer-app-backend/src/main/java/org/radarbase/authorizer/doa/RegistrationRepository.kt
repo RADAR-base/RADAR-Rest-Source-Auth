@@ -11,18 +11,20 @@ import org.radarbase.authorizer.util.Hmac256Secret
 import org.radarbase.authorizer.util.Hmac256Secret.Companion.encodeToBase64
 import org.radarbase.authorizer.util.Hmac256Secret.Companion.randomize
 import org.radarbase.jersey.hibernate.HibernateRepository
+import org.radarbase.jersey.service.AsyncCoroutineService
 import java.time.Instant
 import kotlin.time.Duration.Companion.minutes
 
 class RegistrationRepository(
     @Context private val config: AuthorizerConfig,
     @Context em: Provider<EntityManager>,
-) : HibernateRepository(em) {
+    @Context asyncService: AsyncCoroutineService,
+) : HibernateRepository(em, asyncService) {
 
     private val tokenExpiryTime = config.service.tokenExpiryTimeInMinutes.minutes
     private val persistentTokenExpiryTime = config.service.persistentTokenExpiryInMin.minutes
 
-    fun generate(
+    suspend fun generate(
         user: RestSourceUser,
         secret: Hmac256Secret?,
         persistent: Boolean,
@@ -53,11 +55,11 @@ class RegistrationRepository(
             }
     }
 
-    operator fun get(token: String): RegistrationState? = transact {
+    suspend fun get(token: String): RegistrationState? = transact {
         find(RegistrationState::class.java, token)
     }
 
-    fun cleanUp(): Int = transact {
+    suspend fun cleanUp(): Int = transact {
         val cb = criteriaBuilder
 
         // create delete
@@ -70,15 +72,11 @@ class RegistrationRepository(
         createQuery(deleteQuery).executeUpdate()
     }
 
-    operator fun minusAssign(token: String) = remove(token)
-
-    operator fun minusAssign(registrationState: RegistrationState) = remove(registrationState)
-
-    fun remove(registrationState: RegistrationState): Unit = transact {
+    suspend fun remove(registrationState: RegistrationState): Unit = transact {
         remove(registrationState)
     }
 
-    fun remove(token: String): Unit = transact {
+    suspend fun remove(token: String): Unit = transact {
         val state = find(RegistrationState::class.java, token)
         remove(state)
     }

@@ -19,11 +19,12 @@ package org.radarbase.authorizer.api
 import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.service.managementportal.RadarProjectService
+import org.radarbase.kotlin.coroutines.forkJoin
 
 class RestSourceUserMapper(
     @Context private val projectService: RadarProjectService,
 ) {
-    fun fromEntity(user: RestSourceUser): RestSourceUserDTO {
+    suspend fun fromEntity(user: RestSourceUser): RestSourceUserDTO {
         val mpUser = user.projectId?.let { p ->
             user.userId?.let { u -> projectService.subject(p, u) }
         }
@@ -48,8 +49,8 @@ class RestSourceUserMapper(
         )
     }
 
-    fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
-        users = records.map(::fromEntity),
+    suspend fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
+        users = records.forkJoin { fromEntity(it) },
         metadata = page,
     )
 }

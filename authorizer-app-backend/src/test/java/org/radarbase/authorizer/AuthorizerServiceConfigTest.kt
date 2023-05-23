@@ -1,6 +1,6 @@
 package org.radarbase.authorizer
 
-import okhttp3.HttpUrl.Companion.toHttpUrl
+import io.ktor.http.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
@@ -15,7 +15,7 @@ internal class AuthorizerServiceConfigTest {
             advertisedBaseUri = URI("http://something/"),
         )
 
-        assertThat(config.callbackUrl, equalTo("http://something/authorizer/users:new".toHttpUrl()))
+        assertThat(config.callbackUrl, equalTo(Url("http://something/authorizer/users:new")))
     }
 
     @Test
@@ -23,7 +23,7 @@ internal class AuthorizerServiceConfigTest {
         val config = AuthorizerServiceConfig(
             advertisedBaseUri = URI("http://something//backend//"),
         )
-        assertThat(config.callbackUrl, equalTo("http://something/authorizer/users:new".toHttpUrl()))
+        assertThat(config.callbackUrl, equalTo(Url("http://something/authorizer/users:new")))
     }
 
     @Test
@@ -31,6 +31,6 @@ internal class AuthorizerServiceConfigTest {
         val config = AuthorizerServiceConfig(
             frontendBaseUri = URI("http://something/authorizer"),
         )
-        assertThat(config.callbackUrl, equalTo("http://something/authorizer/users:new".toHttpUrl()))
+        assertThat(config.callbackUrl, equalTo(Url("http://something/authorizer/users:new")))
     }
 }

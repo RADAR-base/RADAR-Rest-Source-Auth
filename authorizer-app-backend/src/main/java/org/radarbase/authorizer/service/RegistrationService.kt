@@ -12,7 +12,7 @@ import org.radarbase.jersey.exception.HttpInternalServerException
 class RegistrationService(
     @Context private val registrationRepository: RegistrationRepository,
 ) {
-    fun generate(user: RestSourceUser, persistent: Boolean): RegistrationResponse {
+    suspend fun generate(user: RestSourceUser, persistent: Boolean): RegistrationResponse {
         val secret = if (persistent) {
             Hmac256Secret.generate(secretLength = 12, saltLength = 6)
         } else {
@@ -31,8 +31,8 @@ class RegistrationService(
         )
     }
 
-    fun ensureRegistration(token: String): RegistrationState {
-        val registration = registrationRepository[token]
+    suspend fun ensureRegistration(token: String): RegistrationState {
+        val registration = registrationRepository.get(token)
             ?: throw HttpBadRequestException("registration_not_found", "State has expired or not found")
         if (!registration.isValid) throw HttpBadRequestException("registration_expired", "Token has expired")
         return registration
