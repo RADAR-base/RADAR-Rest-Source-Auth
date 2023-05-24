@@ -34,7 +34,6 @@ import org.radarbase.authorizer.config.RestSourceClient
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.OauthSignature
-import org.radarbase.authorizer.util.Url
 import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpBadRequestException
@@ -129,20 +128,20 @@ abstract class OAuth1RestSourceAuthorizationService(
 
         val tokens = requestToken(authConfig.preAuthorizationEndpoint, RestOauth1AccessToken(""), sourceType)
 
-        return Url(
-            authConfig.authorizationEndpoint,
-            buildMap {
-                put(OAUTH_ACCESS_TOKEN, tokens?.token)
-                put(OAUTH_ACCESS_TOKEN_SECRET, tokens?.tokenSecret)
-                put(
-                    OAUTH_CALLBACK,
-                    URLBuilder(config.service.callbackUrl).run {
-                        parameters.append("state", state)
-                        build()
-                    }.toString(),
-                )
-            },
-        ).getUrl()
+        return URLBuilder(authConfig.authorizationEndpoint).run {
+            if (tokens != null) {
+                parameters.append(OAUTH_ACCESS_TOKEN, tokens.token)
+                tokens.tokenSecret?.let { parameters.append(OAUTH_ACCESS_TOKEN_SECRET, it) }
+            }
+            parameters.append(
+                OAUTH_CALLBACK,
+                URLBuilder(config.service.callbackUrl).run {
+                    parameters.append("state", state)
+                    buildString()
+                },
+            )
+            buildString()
+        }
     }
 
     private suspend fun requestToken(

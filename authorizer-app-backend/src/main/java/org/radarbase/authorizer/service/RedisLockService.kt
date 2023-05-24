@@ -67,7 +67,7 @@ class RedisLockService(
 
     @Throws(IOException::class)
     suspend fun <T> withJedis(
-        routine: suspend Jedis.() -> T
+        routine: suspend Jedis.() -> T,
     ): T = withContext(Dispatchers.IO) {
         try {
             jedisPool.resource.use {

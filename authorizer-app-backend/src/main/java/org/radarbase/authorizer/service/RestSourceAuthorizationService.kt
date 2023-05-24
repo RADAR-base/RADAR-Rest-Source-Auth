@@ -57,9 +57,11 @@ interface RestSourceAuthorizationService {
                     requestTimeoutMillis = millis
                 }
                 install(ContentNegotiation) {
-                    json(Json {
-                        ignoreUnknownKeys = true
-                    })
+                    json(
+                        Json {
+                            ignoreUnknownKeys = true
+                        },
+                    )
                 }
                 builder()
             }

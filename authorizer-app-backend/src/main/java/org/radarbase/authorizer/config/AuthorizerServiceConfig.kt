@@ -20,13 +20,11 @@ data class AuthorizerServiceConfig(
     val callbackUrl: Url by lazy {
         val frontendBaseUrlBuilder = when {
             frontendBaseUri != null -> URLBuilder().takeFrom(frontendBaseUri)
-            advertisedBaseUri != null -> {
-                URLBuilder().apply {
-                    takeFrom(advertisedBaseUri)
-                    pathSegments = buildList(pathSegments.size) {
-                        addAll(pathSegments.dropLastWhile { it.isEmpty() || it == "backend" })
-                        add("authorizer")
-                    }
+            advertisedBaseUri != null -> URLBuilder().apply {
+                takeFrom(advertisedBaseUri)
+                pathSegments = buildList(pathSegments.size) {
+                    addAll(pathSegments.dropLastWhile { it.isEmpty() || it == "backend" })
+                    add("authorizer")
                 }
             }
             else -> throw IllegalStateException("Frontend URL parameter is not a valid HTTP URL.")

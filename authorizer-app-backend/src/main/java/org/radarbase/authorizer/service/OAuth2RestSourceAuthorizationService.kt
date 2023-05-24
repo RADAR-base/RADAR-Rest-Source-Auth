@@ -22,7 +22,6 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import jakarta.ws.rs.core.Context
-import jakarta.ws.rs.core.UriBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.radarbase.authorizer.api.RequestTokenPayload
@@ -70,7 +69,7 @@ class OAuth2RestSourceAuthorizationService(
                 null
             }
             else -> throw HttpBadGatewayException(
-                "Cannot connect to ${response.request.url} (HTTP status ${response.status}): ${response.bodyAsText()}"
+                "Cannot connect to ${response.request.url} (HTTP status ${response.status}): ${response.bodyAsText()}",
             )
         }
     }
@@ -96,14 +95,17 @@ class OAuth2RestSourceAuthorizationService(
         state: String,
     ): String {
         val authConfig = clients.forSourceType(sourceType)
-        return UriBuilder.fromUri(authConfig.authorizationEndpoint)
-            .queryParam("response_type", "code")
-            .queryParam("client_id", authConfig.clientId)
-            .queryParam("state", state)
-            .queryParam("scope", authConfig.scope)
-            .queryParam("prompt", "login")
-            .queryParam("redirect_uri", config.service.callbackUrl)
-            .build().toString()
+        return URLBuilder().run {
+            takeFrom(authConfig.authorizationEndpoint)
+            parameters.append("response_type", "code")
+            parameters.append("client_id", authConfig.clientId ?: "")
+            parameters.append("state", state)
+            parameters.append("scope", authConfig.scope ?: "")
+            parameters.append("prompt", "login")
+            parameters.append("response_type", "code")
+            parameters.append("redirect_uri", config.service.callbackUrl.toString())
+            buildString()
+        }
     }
 
     override suspend fun deregisterUser(user: RestSourceUser) =
@@ -119,7 +121,7 @@ class OAuth2RestSourceAuthorizationService(
             url = authorizationConfig.tokenEndpoint,
             formParameters = Parameters.build {
                 builder(authorizationConfig)
-            }
+            },
         ) {
             basicAuth(
                 checkNotNull(authorizationConfig.clientId),
