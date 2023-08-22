@@ -27,6 +27,7 @@ import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.OURA_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.authorizer.service.GarminSourceAuthorizationService
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
@@ -108,6 +109,11 @@ class AuthorizerResourceEnhancer(
         bind(OAuth2RestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(FITBIT_AUTH)
+            .`in`(Singleton::class.java)
+
+        bind(OuraAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(OURA_AUTH)
             .`in`(Singleton::class.java)
     }
 }
