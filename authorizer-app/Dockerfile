@@ -10,7 +10,7 @@ COPY ./ /app/
 
 RUN yarn build
 
-FROM nginxinc/nginx-unprivileged:1.22-alpine
+FROM nginxinc/nginx-unprivileged:1.24-alpine
 
 ENV BASE_HREF="/rest-sources/authorizer/" \
     BACKEND_BASE_URL="http://localhost/rest-sources/backend" \
