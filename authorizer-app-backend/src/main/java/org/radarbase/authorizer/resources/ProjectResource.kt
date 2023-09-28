@@ -18,12 +18,20 @@ package org.radarbase.authorizer.resources
 
 import jakarta.annotation.Resource
 import jakarta.inject.Singleton
-import jakarta.ws.rs.*
+import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
 import jakarta.ws.rs.core.MediaType
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.authorizer.api.*
+import org.radarbase.authorizer.api.Project
+import org.radarbase.authorizer.api.ProjectList
+import org.radarbase.authorizer.api.UserList
+import org.radarbase.authorizer.api.toProject
+import org.radarbase.authorizer.api.toUser
 import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission

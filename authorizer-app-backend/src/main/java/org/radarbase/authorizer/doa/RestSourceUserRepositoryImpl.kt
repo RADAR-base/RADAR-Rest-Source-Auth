@@ -29,7 +29,7 @@ import org.radarbase.jersey.hibernate.HibernateRepository
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
 
 class RestSourceUserRepositoryImpl(
     @Context em: Provider<EntityManager>,
