@@ -9,8 +9,9 @@ pluginManagement {
     }
     val kotlinVersion = "1.9.10"
     plugins {
-        id("org.jetbrains.kotlin.plugin.noarg") version kotlinVersion
-        id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
-        id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
+        kotlin("plugin.serialization") version kotlinVersion
+        kotlin("plugin.noarg") version kotlinVersion
+        kotlin("plugin.jpa") version kotlinVersion
+        kotlin("plugin.allopen") version kotlinVersion
     }
 }

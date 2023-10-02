@@ -1,17 +1,13 @@
 plugins {
     application
-    kotlin("jvm")
-    kotlin("plugin.serialization") version Versions.kotlin
-    id("org.jetbrains.kotlin.plugin.noarg")
-    id("org.jetbrains.kotlin.plugin.jpa")
-    id("org.jetbrains.kotlin.plugin.allopen")
+    kotlin("plugin.serialization")
+    kotlin("plugin.noarg")
+    kotlin("plugin.jpa")
+    kotlin("plugin.allopen")
 }
 
 application {
     mainClass.set("org.radarbase.authorizer.Main")
-    applicationDefaultJvmArgs = listOf(
-        "-Djava.security.egd=file:/dev/./urandom",
-    )
 }
 
 dependencies {
