@@ -37,6 +37,7 @@ export class AuthorizationPageComponent implements OnInit {
           this.project = resp.project.id;
           this.authEndpointUrl = resp.authEndpointUrl;
           this.isLoading = false;
+          this.userService.storeUserAuthParams(resp.authEndpointUrl);
         }
       },
       error: (error) => {

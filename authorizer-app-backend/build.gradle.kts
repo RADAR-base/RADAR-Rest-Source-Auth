@@ -14,15 +14,15 @@ dependencies {
     api(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
-    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
     implementation("org.radarbase:radar-jersey:${Versions.radarJersey}")
     implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJersey}") {
-        runtimeOnly("org.postgresql:postgresql:${Versions.postgres}")
+        runtimeOnly("org.postgresql:postgresql:${Versions.postgresql}")
     }
+    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
 
     implementation("redis.clients:jedis:${Versions.jedis}")
 
-    implementation(platform("io.ktor:ktor-bom:${Versions.ktor}"))
+    implementation(enforcedPlatform("io.ktor:ktor-bom:${Versions.ktor}"))
     implementation("io.ktor:ktor-client-core")
     implementation("io.ktor:ktor-client-auth")
     implementation("io.ktor:ktor-client-cio")

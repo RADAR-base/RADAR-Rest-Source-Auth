@@ -14,11 +14,12 @@ class RegistrationService(
 ) {
     suspend fun generate(user: RestSourceUser, persistent: Boolean): RegistrationResponse {
         val secret = if (persistent) {
-            Hmac256Secret.generate(secretLength = 12, saltLength = 6)
+            Hmac256Secret(secretLength = 12, saltLength = 6)
         } else {
-            Hmac256Secret.generate(secretLength = 6, saltLength = 3)
+            Hmac256Secret(secretLength = 6, saltLength = 3)
         }
-        val tokenState = registrationRepository.generate(user, secret, persistent) ?: throw HttpInternalServerException("token_not_generated", "Failed to generate token.")
+        val tokenState = registrationRepository.generate(user, secret, persistent)
+            ?: throw HttpInternalServerException("token_not_generated", "Failed to generate token.")
 
         return RegistrationResponse(
             token = tokenState.token,

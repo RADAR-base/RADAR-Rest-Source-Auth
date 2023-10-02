@@ -8,8 +8,8 @@ import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RegistrationState
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.util.Hmac256Secret
-import org.radarbase.authorizer.util.Hmac256Secret.Companion.encodeToBase64
-import org.radarbase.authorizer.util.Hmac256Secret.Companion.randomize
+import org.radarbase.authorizer.util.encodeToBase64
+import org.radarbase.authorizer.util.randomize
 import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.service.AsyncCoroutineService
 import java.time.Instant

@@ -173,7 +173,10 @@ abstract class OAuth1RestSourceAuthorizationService(
 
         when (response.status) {
             HttpStatusCode.OK -> try {
-                Json.decodeFromString<RestOauth1AccessToken>(response.bodyAsText().toJsonString())
+                Json.decodeFromString(
+                    RestOauth1AccessToken.serializer(),
+                    response.bodyAsText().toJsonString(),
+                )
             } catch (ex: IllegalArgumentException) {
                 throw HttpBadGatewayException("Service did not provide a result: $ex")
             }

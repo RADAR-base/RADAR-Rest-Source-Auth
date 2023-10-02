@@ -7,11 +7,4 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
-    val kotlinVersion = "1.9.10"
-    plugins {
-        kotlin("plugin.serialization") version kotlinVersion
-        kotlin("plugin.noarg") version kotlinVersion
-        kotlin("plugin.jpa") version kotlinVersion
-        kotlin("plugin.allopen") version kotlinVersion
-    }
 }
