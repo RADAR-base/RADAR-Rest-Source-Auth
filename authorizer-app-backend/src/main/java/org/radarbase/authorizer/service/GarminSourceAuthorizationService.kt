@@ -16,9 +16,10 @@
 
 package org.radarbase.authorizer.service
 
-import io.ktor.client.call.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.statement.request
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import jakarta.ws.rs.core.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

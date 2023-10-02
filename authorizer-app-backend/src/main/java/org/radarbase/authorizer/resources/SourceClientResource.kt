@@ -18,7 +18,13 @@ package org.radarbase.authorizer.resources
 
 import jakarta.annotation.Resource
 import jakarta.inject.Singleton
-import jakarta.ws.rs.*
+import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.Context
@@ -26,7 +32,11 @@ import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.authorizer.api.*
+import org.radarbase.authorizer.api.DeregistrationsDTO
+import org.radarbase.authorizer.api.RestSourceClientMapper
+import org.radarbase.authorizer.api.RestSourceUserMapper
+import org.radarbase.authorizer.api.ShareableClientDetail
+import org.radarbase.authorizer.api.ShareableClientDetails
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService

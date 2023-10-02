@@ -16,14 +16,20 @@
 
 package org.radarbase.authorizer.service
 
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.request.headers
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.request
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLBuilder
+import io.ktor.http.Url
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth1AccessToken
@@ -41,6 +47,15 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.concurrent.ThreadLocalRandom
+import kotlin.collections.Map
+import kotlin.collections.MutableMap
+import kotlin.collections.buildMap
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.joinToString
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
+import kotlin.collections.toSortedMap
 
 abstract class OAuth1RestSourceAuthorizationService(
     @Context private val clientService: RestSourceClientService,

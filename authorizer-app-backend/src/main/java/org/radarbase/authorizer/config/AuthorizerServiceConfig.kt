@@ -1,6 +1,9 @@
 package org.radarbase.authorizer.config
 
-import io.ktor.http.*
+import io.ktor.http.URLBuilder
+import io.ktor.http.Url
+import io.ktor.http.appendPathSegments
+import io.ktor.http.takeFrom
 import org.radarbase.authorizer.enhancer.ManagementPortalEnhancerFactory
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import java.net.URI

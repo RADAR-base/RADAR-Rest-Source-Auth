@@ -1,7 +1,7 @@
 package org.radarbase.authorizer.config
 
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
-import java.util.*
+import java.util.Locale
 
 data class RestSourceClient(
     val sourceType: String,

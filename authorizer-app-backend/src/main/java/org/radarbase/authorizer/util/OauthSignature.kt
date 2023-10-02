@@ -1,8 +1,8 @@
 package org.radarbase.authorizer.util
 
-import io.ktor.http.*
+import io.ktor.http.HttpMethod
 import java.net.URLEncoder
-import java.util.*
+import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.text.Charsets.UTF_8

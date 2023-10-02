@@ -1,7 +1,7 @@
 package org.radarbase.authorizer.util
 
 import java.security.SecureRandom
-import java.util.*
+import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 

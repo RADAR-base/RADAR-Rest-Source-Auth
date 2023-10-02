@@ -1,6 +1,6 @@
 package org.radarbase.authorizer
 
-import io.ktor.http.*
+import io.ktor.http.Url
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
