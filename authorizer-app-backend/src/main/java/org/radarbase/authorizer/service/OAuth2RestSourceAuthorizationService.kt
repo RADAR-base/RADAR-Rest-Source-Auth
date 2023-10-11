@@ -115,7 +115,7 @@ open class OAuth2RestSourceAuthorizationService(
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         throw HttpBadRequestException("", "Not available for auth type")
 
-    private fun post(form: FormBody, sourceType: String): Request {
+    fun post(form: FormBody, sourceType: String): Request {
         val authorizationConfig = clients.forSourceType(sourceType)
 
         val credentials = Credentials.basic(

@@ -19,10 +19,14 @@ database:
   password: radarcns
   dialect: org.hibernate.dialect.PostgreSQLDialect
 
+redis:
+  uri: redis://redis:6379
+
 restSourceClients:
-  - sourceType: FitBit
-    authorizationEndpoint: https://www.fitbit.com/oauth2/authorize
-    tokenEndpoint: https://api.fitbit.com/oauth2/token
-    clientId: Fitbit-clientid
-    clientSecret: Fitbit-clientsecret
-    scope: activity heartrate sleep profile
+  - sourceType: Oura
+    authorizationEndpoint: https://cloud.ouraring.com/oauth/authorize
+    tokenEndpoint: https://api.ouraring.com/oauth/token
+    deregistrationEndpoint: https://api.ouraring.com/oauth/revoke
+    clientId: client-id
+    clientSecret: client-secret
+    scope: daily session heartrate workout tag personal email spo2
