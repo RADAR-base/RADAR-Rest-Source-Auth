@@ -75,7 +75,6 @@ services:
     depends_on:
       - radar-rest-sources-backend
       - managementportal
-      - radarbase-postgresql
       - redis
 #    ports:
 #      - "8080:80"
