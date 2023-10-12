@@ -59,7 +59,7 @@ class ProjectResource(
 
     @GET
     @Path("{projectId}/users")
-    // @NeedsPermission(Permission.SUBJECT_READ, "projectId")
+    @NeedsPermission(Permission.SUBJECT_READ, "projectId")
     @Cache(maxAge = 60, isPrivate = true, vary = [AUTHORIZATION])
     fun users(
         @PathParam("projectId") projectId: String,
@@ -70,7 +70,7 @@ class ProjectResource(
 
     @GET
     @Path("{projectId}")
-    // @NeedsPermission(Permission.PROJECT_READ, "projectId")
+    @NeedsPermission(Permission.PROJECT_READ, "projectId")
     @Cache(maxAge = 300, isPrivate = true, vary = [AUTHORIZATION])
     fun project(@PathParam("projectId") projectId: String): Project {
         return projectService.project(projectId).toProject()

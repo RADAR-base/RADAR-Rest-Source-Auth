@@ -36,10 +36,7 @@ class OuraAuthorizationService(
         val authConfig = clients.forSourceType(user.sourceType)
         val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint)
 
-        val revokeURI = UriBuilder.fromUri(deregistrationEndpoint)
-                    .queryParam("access_token", accessToken)
-                    .build()
-                    .toString()
+        val revokeURI = UriBuilder.fromUri(deregistrationEndpoint).queryParam("access_token", accessToken).build().toString()
 
         val credentials = Credentials.basic(
             checkNotNull(authConfig.clientId),

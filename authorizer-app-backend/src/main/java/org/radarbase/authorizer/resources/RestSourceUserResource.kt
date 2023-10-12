@@ -155,13 +155,13 @@ class RestSourceUserResource(
 
     @GET
     @Path("{id}")
-    //@NeedsPermission(Permission.SUBJECT_READ)
+    @NeedsPermission(Permission.SUBJECT_READ)
     @Cache(maxAge = 300, isPrivate = true, vary = [HttpHeaders.AUTHORIZATION])
     fun readUser(@PathParam("id") userId: Long): RestSourceUserDTO = userService.get(userId)
 
     @DELETE
     @Path("{id}")
-    //@NeedsPermission(Permission.SUBJECT_UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun deleteUser(@PathParam("id") userId: Long): Response {
         userService.delete(userId)
         return Response.noContent().header("user-removed", userId).build()
@@ -169,7 +169,7 @@ class RestSourceUserResource(
 
     @POST
     @Path("{id}/reset")
-    //@NeedsPermission(Permission.SUBJECT_UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun reset(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO,
@@ -177,17 +177,17 @@ class RestSourceUserResource(
 
     @GET
     @Path("{id}/token")
-    //@NeedsPermission(Permission.MEASUREMENT_CREATE)
+    @NeedsPermission(Permission.MEASUREMENT_CREATE)
     fun requestToken(@PathParam("id") userId: Long): TokenDTO = userService.ensureToken(userId)
 
     @POST
     @Path("{id}/token")
-    //@NeedsPermission(Permission.MEASUREMENT_CREATE)
+    @NeedsPermission(Permission.MEASUREMENT_CREATE)
     fun refreshToken(@PathParam("id") userId: Long): TokenDTO = userService.refreshToken(userId)
 
     @POST
     @Path("{id}/token/sign")
-    //@NeedsPermission(Permission.MEASUREMENT_READ)
+    @NeedsPermission(Permission.MEASUREMENT_READ)
     fun signRequest(
         @PathParam("id") userId: Long,
         payload: SignRequestParams,
