@@ -7,18 +7,9 @@ import okhttp3.Credentials
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
-import org.radarbase.authorizer.api.RequestTokenPayload
-import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.jersey.exception.HttpBadGatewayException
-import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.util.request
-import org.radarbase.jersey.util.requestJson
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class OuraAuthorizationService(
     @Context private val clients: RestSourceClientService,

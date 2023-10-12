@@ -134,7 +134,7 @@ class RestSourceUserResource(
     }
 
     @POST
-    //@NeedsPermission(Permission.SUBJECT_CREATE)
+    @NeedsPermission(Permission.SUBJECT_CREATE)
     fun create(
         userDto: RestSourceUserDTO,
     ): Response {
