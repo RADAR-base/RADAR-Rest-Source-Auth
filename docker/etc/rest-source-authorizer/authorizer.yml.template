@@ -47,4 +47,4 @@ restSourceClients:
     deregistrationEndpoint: https://api.ouraring.com/oauth/revoke
     clientId: Oura-clientid
     clientSecret: Oura-clinetsecret
-    scope: daily session heartrate workout tag personal email spo2
+    scope: daily session heartrate workout tag personal email spo2 ring_configuration
