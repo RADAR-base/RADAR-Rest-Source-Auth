@@ -33,18 +33,22 @@ class OuraAuthorizationService(
             checkNotNull(authConfig.clientId),
             checkNotNull(authConfig.clientSecret),
         )
-        val form = FormBody.Builder().add("token", accessToken).build()
 
         var requestObj = Request.Builder().apply {
             url(revokeURI)
-        }.post(form).build()
+            post(FormBody.Builder().build())
+            header("Authorization", credentials)
+            header("Content-Type", "application/x-www-form-urlencoded")
+            header("Accept", "application/json")
+        }.build()
+
         val response = httpClient.request(requestObj)
         if (response) {
             logger.info("Successfully revoked token for user {}", user.userId)
+            return true
         } else {
             logger.error("Failed to revoke token for user {}", user.userId)
             return false
         }
-        return httpClient.request(post(form, user.sourceType))
     }
 }
