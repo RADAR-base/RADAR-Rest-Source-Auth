@@ -35,7 +35,7 @@ import org.radarbase.jersey.util.requestJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class OAuth2RestSourceAuthorizationService(
+open class OAuth2RestSourceAuthorizationService(
     @Context private val clients: RestSourceClientService,
     @Context private val httpClient: OkHttpClient,
     @Context private val objectMapper: ObjectMapper,
@@ -115,7 +115,7 @@ class OAuth2RestSourceAuthorizationService(
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         throw HttpBadRequestException("", "Not available for auth type")
 
-    private fun post(form: FormBody, sourceType: String): Request {
+    fun post(form: FormBody, sourceType: String): Request {
         val authorizationConfig = clients.forSourceType(sourceType)
 
         val credentials = Credentials.basic(
