@@ -30,7 +30,6 @@ import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.DeregistrationsDTO
-import org.radarbase.authorizer.api.OuraAuthUserId
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.api.RestSourceUserMapper

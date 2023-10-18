@@ -3,7 +3,6 @@ package org.radarbase.authorizer.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.UriBuilder
-import okhttp3.Credentials
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,6 +11,7 @@ import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
+import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.util.request
 import org.radarbase.jersey.util.requestJson
 
@@ -35,11 +35,19 @@ class OuraAuthorizationService(
             add("redirect_uri", config.service.callbackUrl.toString())
         }.build()
         val accessToken: RestOauth2AccessToken = httpClient.requestJson(post(form, sourceType), tokenReader)
+        if (accessToken.accessToken == null) {
+            logger.error("Failed to get access token for user {}", clientId)
+            throw HttpBadGatewayException("Service ${sourceType} did not provide a result")
+        }
         val ouraUserUri = UriBuilder.fromUri(Oura_USER_ID_ENDPOINT).queryParam("access_token", accessToken.accessToken).build().toString()
         val userReq = Request.Builder().apply {
             url(ouraUserUri)
         }.build()
-        val userIdObj: OuraAuthUserId  = httpClient.requestJson(userReq, oauthUserReader)
+        val userIdObj: OuraAuthUserId = httpClient.requestJson(userReq, oauthUserReader)
+        if (userIdObj.userId == null) {
+            logger.error("Failed to get user id for user {}", clientId)
+            throw HttpBadGatewayException("Service ${sourceType} did not provide a result")
+        }
         val userId = userIdObj.userId
         return accessToken.copy(externalUserId = userId)
     }
