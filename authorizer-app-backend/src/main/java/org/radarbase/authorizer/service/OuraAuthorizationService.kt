@@ -37,7 +37,7 @@ class OuraAuthorizationService(
         val accessToken: RestOauth2AccessToken = httpClient.requestJson(post(form, sourceType), tokenReader)
         if (accessToken.accessToken == null) {
             logger.error("Failed to get access token for user {}", clientId)
-            throw HttpBadGatewayException("Service {} did not provide a result", sourceType)
+            throw HttpBadGatewayException("Service $sourceType did not provide a result")
         }
         val ouraUserUri = UriBuilder.fromUri(Oura_USER_ID_ENDPOINT).queryParam("access_token", accessToken.accessToken).build().toString()
         val userReq = Request.Builder().apply {
@@ -46,7 +46,7 @@ class OuraAuthorizationService(
         val userIdObj: OuraAuthUserId = httpClient.requestJson(userReq, oauthUserReader)
         if (userIdObj.userId == null) {
             logger.error("Failed to get user id for user {}", clientId)
-            throw HttpBadGatewayException("Service {} did not provide a result", sourceType)
+            throw HttpBadGatewayException("Service $sourceType did not provide a result")
         }
         val userId = userIdObj.userId
         return accessToken.copy(externalUserId = userId)
