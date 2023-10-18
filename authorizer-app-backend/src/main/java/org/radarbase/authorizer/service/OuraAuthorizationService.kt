@@ -21,34 +21,21 @@ class OuraAuthorizationService(
     @Context private val objectMapper: ObjectMapper,
     @Context private val config: AuthorizerConfig,
 ) : OAuth2RestSourceAuthorizationService(clients, httpClient, objectMapper, config) {
-    private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
     private val oauthUserReader = objectMapper.readerFor(OuraAuthUserId::class.java)
 
     override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
         val authorizationConfig = clients.forSourceType(sourceType)
         val clientId = checkNotNull(authorizationConfig.clientId)
-
-        val form = FormBody.Builder().apply {
-            payload.code?.let { add("code", it) }
-            add("grant_type", "authorization_code")
-            add("client_id", clientId)
-            add("redirect_uri", config.service.callbackUrl.toString())
-        }.build()
-        val accessToken: RestOauth2AccessToken = httpClient.requestJson(post(form, sourceType), tokenReader)
+        val accessToken: RestOauth2AccessToken = super.requestAccessToken(payload, sourceType)
         if (accessToken.accessToken == null) {
             logger.error("Failed to get access token for user {}", clientId)
             throw HttpBadGatewayException("Service $sourceType did not provide a result")
         }
-        val ouraUserUri = UriBuilder.fromUri(Oura_USER_ID_ENDPOINT).queryParam("access_token", accessToken.accessToken).build().toString()
-        val userReq = Request.Builder().apply {
-            url(ouraUserUri)
-        }.build()
-        val userIdObj: OuraAuthUserId = httpClient.requestJson(userReq, oauthUserReader)
-        if (userIdObj.userId == null) {
+        val userId = getExternalId(accessToken.accessToken)
+        if (userId == null) {
             logger.error("Failed to get user id for user {}", clientId)
             throw HttpBadGatewayException("Service $sourceType did not provide a result")
         }
-        val userId = userIdObj.userId
         return accessToken.copy(externalUserId = userId)
     }
 
@@ -77,7 +64,17 @@ class OuraAuthorizationService(
             return false
         }
     }
+
+    private fun getExternalId(accessToken: String): String {
+        val ouraUserUri = UriBuilder.fromUri(OURA_USER_ID_ENDPOINT).queryParam("access_token", accessToken).build().toString()
+        val userReq = Request.Builder().apply {
+            url(ouraUserUri)
+        }.build()
+        val userIdObj: OuraAuthUserId = httpClient.requestJson(userReq, oauthUserReader)
+        return userIdObj.userId
+    }
+
     companion object {
-        private const val Oura_USER_ID_ENDPOINT = "https://api.ouraring.com/v1/userinfo?"
+        private const val OURA_USER_ID_ENDPOINT = "https://api.ouraring.com/v1/userinfo?"
     }
 }
