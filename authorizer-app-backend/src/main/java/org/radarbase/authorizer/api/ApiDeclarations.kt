@@ -39,6 +39,15 @@ data class RestOauth1UserId(
     @JsonProperty("userId") val userId: String,
 )
 
+data class OuraAuthUserId(
+    @JsonProperty("age") val age: String,
+    @JsonProperty("weight") val weight: String,
+    @JsonProperty("height") val height: String,
+    @JsonProperty("gender") val gender: String,
+    @JsonProperty("email") val email: String,
+    @JsonProperty("user_id") val userId: String,
+)
+
 data class SignRequestParams(
     val url: String,
     val method: String,
