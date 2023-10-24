@@ -80,6 +80,6 @@ class OuraAuthorizationService(
     }
 
     companion object {
-        private const val OURA_USER_ID_ENDPOINT = "https://api.ouraring.com/v1/userinfo?"
+        private const val OURA_USER_ID_ENDPOINT = "https://api.ouraring.com/v1/userinfo"
     }
 }
