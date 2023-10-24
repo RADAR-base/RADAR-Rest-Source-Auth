@@ -31,12 +31,7 @@ class OuraAuthorizationService(
             logger.error("Failed to get access token for user {}", clientId)
             throw HttpBadGatewayException("Service $sourceType did not provide a result")
         }
-        val userId = getExternalId(accessToken.accessToken)
-        if (userId == null) {
-            logger.error("Failed to get user id for user {}", clientId)
-            throw HttpBadGatewayException("Service $sourceType did not provide a result")
-        }
-        return accessToken.copy(externalUserId = userId)
+        return accessToken.copy(externalUserId = getExternalId(accessToken.accessToken))
     }
 
     override fun revokeToken(user: RestSourceUser): Boolean {
@@ -70,8 +65,20 @@ class OuraAuthorizationService(
         val userReq = Request.Builder().apply {
             url(ouraUserUri)
         }.build()
-        val userIdObj: OuraAuthUserId = httpClient.requestJson(userReq, oauthUserReader)
-        return userIdObj.userId
+        return httpClient.newCall(userReq)
+            .execute()
+            .use { response ->
+                when (response.code) {
+                    200 ->
+                        response.body?.byteStream()
+                        ?.let {
+                            oauthUserReader.readValue<OuraAuthUserId>(it).userId
+                        }
+                        ?: throw HttpBadGatewayException("Service did not provide a result")
+                    400, 401, 403 -> throw HttpBadGatewayException("Service was unable to fetch the external ID")
+                    else -> throw HttpBadGatewayException("Cannot connect to $OURA_USER_ID_ENDPOINT: HTTP status ${response.code}")
+                }
+            }
     }
 
     companion object {
