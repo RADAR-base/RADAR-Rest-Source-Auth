@@ -42,11 +42,11 @@ import org.radarbase.jersey.exception.HttpBadRequestException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class OAuth2RestSourceAuthorizationService(
+open class OAuth2RestSourceAuthorizationService(
     @Context private val clients: RestSourceClientService,
     @Context private val config: AuthorizerConfig,
 ) : RestSourceAuthorizationService {
-    private val httpClient = RestSourceAuthorizationService.httpClient()
+    protected val httpClient = RestSourceAuthorizationService.httpClient()
 
     override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken = withContext(Dispatchers.IO) {
         logger.info("Requesting access token with authorization code")

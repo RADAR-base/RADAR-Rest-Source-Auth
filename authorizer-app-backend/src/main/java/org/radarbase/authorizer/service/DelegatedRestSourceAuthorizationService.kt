@@ -62,5 +62,6 @@ class DelegatedRestSourceAuthorizationService(
     companion object {
         const val GARMIN_AUTH = "Garmin"
         const val FITBIT_AUTH = "FitBit"
+        const val OURA_AUTH = "Oura"
     }
 }
