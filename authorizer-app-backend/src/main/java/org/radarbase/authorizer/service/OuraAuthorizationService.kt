@@ -13,7 +13,6 @@ import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.util.request
-import org.radarbase.jersey.util.requestJson
 
 class OuraAuthorizationService(
     @Context private val clients: RestSourceClientService,
@@ -69,8 +68,7 @@ class OuraAuthorizationService(
             .execute()
             .use { response ->
                 when (response.code) {
-                    200 ->
-                        response.body?.byteStream()
+                    200 -> response.body?.byteStream()
                         ?.let {
                             oauthUserReader.readValue<OuraAuthUserId>(it).userId
                         }
