@@ -54,7 +54,7 @@ data class RestOauth1UserId(
 data class OuraAuthUserId(
     val age: Int,
     val weight: Float,
-    val height: Int,
+    val height: Float,
     val gender: String,
     val email: String,
     @SerialName("user_id") val userId: String,
