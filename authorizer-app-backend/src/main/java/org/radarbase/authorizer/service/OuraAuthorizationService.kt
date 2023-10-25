@@ -43,7 +43,7 @@ class OuraAuthorizationService(
                     logger.error(
                         "Failed to revoke token for user {}: {}",
                         user.userId,
-                        response.bodyAsText().take(512)
+                        response.bodyAsText().take(512),
                     )
                     false
                 }

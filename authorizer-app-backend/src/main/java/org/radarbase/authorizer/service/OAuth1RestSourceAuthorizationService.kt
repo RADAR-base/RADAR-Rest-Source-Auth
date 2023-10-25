@@ -187,7 +187,7 @@ abstract class OAuth1RestSourceAuthorizationService(
         params[OAUTH_SIGNATURE] =
             OauthSignature(url, params, method, authConfig.clientSecret, tokens.tokenSecret).getEncodedSignature()
 
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             httpClient.request(url = Url(url)) {
                 headers {
                     append("Authorization", "OAuth ${params.toFormattedHeader()}")
