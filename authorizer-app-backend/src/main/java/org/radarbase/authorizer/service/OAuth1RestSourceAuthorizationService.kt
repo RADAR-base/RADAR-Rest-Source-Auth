@@ -47,15 +47,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.concurrent.ThreadLocalRandom
-import kotlin.collections.Map
-import kotlin.collections.MutableMap
-import kotlin.collections.buildMap
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.joinToString
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
-import kotlin.collections.toSortedMap
 
 abstract class OAuth1RestSourceAuthorizationService(
     @Context private val clientService: RestSourceClientService,
@@ -94,22 +88,21 @@ abstract class OAuth1RestSourceAuthorizationService(
         }
 
         val authConfig = clientService.forSourceType(user.sourceType)
-        return withContext(Dispatchers.IO) {
-            val response = request(
-                HttpMethod.Delete,
-                authConfig.deregistrationEndpoint!!,
-                RestOauth1AccessToken(accessToken, user.refreshToken),
-                user.sourceType,
-            )
-            when (response.status) {
-                HttpStatusCode.OK, HttpStatusCode.NoContent -> {
-                    userRepository.updateToken(null, user)
-                    true
-                }
 
-                HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> false
-                else -> throw HttpBadGatewayException("Cannot connect to ${response.request.url}: HTTP status ${response.status}")
+        val response = request(
+            HttpMethod.Delete,
+            authConfig.deregistrationEndpoint!!,
+            RestOauth1AccessToken(accessToken, user.refreshToken),
+            user.sourceType,
+        )
+        return when (response.status) {
+            HttpStatusCode.OK, HttpStatusCode.NoContent -> {
+                userRepository.updateToken(null, user)
+                true
             }
+
+            HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> false
+            else -> throw HttpBadGatewayException("Cannot connect to ${response.request.url}: HTTP status ${response.status}")
         }
     }
 
@@ -117,14 +110,12 @@ abstract class OAuth1RestSourceAuthorizationService(
         val authConfig = clientService.forSourceType(sourceType)
 
         if (token.isEmpty()) throw HttpBadRequestException("token-empty", "Token cannot be null or empty")
-        val response = withContext(Dispatchers.IO) {
-            request(
-                HttpMethod.Delete,
-                authConfig.deregistrationEndpoint!!,
-                RestOauth1AccessToken(token, ""),
-                sourceType,
-            )
-        }
+        val response = request(
+            HttpMethod.Delete,
+            authConfig.deregistrationEndpoint!!,
+            RestOauth1AccessToken(token, ""),
+            sourceType,
+        )
 
         return when (response.status) {
             HttpStatusCode.OK, HttpStatusCode.NoContent -> true
@@ -185,19 +176,26 @@ abstract class OAuth1RestSourceAuthorizationService(
         }
     }
 
-    suspend fun request(method: HttpMethod, url: String, tokens: RestOauth1AccessToken, sourceType: String): HttpResponse {
+    suspend fun request(
+        method: HttpMethod,
+        url: String,
+        tokens: RestOauth1AccessToken,
+        sourceType: String,
+    ): HttpResponse {
         val authConfig = clientService.forSourceType(sourceType)
         val params = this.getAuthParams(authConfig, tokens.token, tokens.tokenVerifier)
         params[OAUTH_SIGNATURE] =
             OauthSignature(url, params, method, authConfig.clientSecret, tokens.tokenSecret).getEncodedSignature()
 
-        return httpClient.request(url = Url(url)) {
-            headers {
-                append("Authorization", "OAuth ${params.toFormattedHeader()}")
-            }
-            this.method = method
-            if (method == HttpMethod.Post) {
-                setBody("")
+        return withContext(Dispatchers.IO){
+            httpClient.request(url = Url(url)) {
+                headers {
+                    append("Authorization", "OAuth ${params.toFormattedHeader()}")
+                }
+                this.method = method
+                if (method == HttpMethod.Post) {
+                    setBody("")
+                }
             }
         }
     }

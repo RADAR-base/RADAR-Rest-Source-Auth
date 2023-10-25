@@ -121,7 +121,10 @@ open class OAuth2RestSourceAuthorizationService(
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         throw HttpBadRequestException("", "Not available for auth type")
 
-    private suspend fun submitForm(sourceType: String, builder: ParametersBuilder.(RestSourceClient) -> Unit): HttpResponse {
+    private suspend fun submitForm(
+        sourceType: String,
+        builder: ParametersBuilder.(RestSourceClient) -> Unit,
+    ): HttpResponse {
         val authorizationConfig = clients.forSourceType(sourceType)
 
         return httpClient.submitForm(

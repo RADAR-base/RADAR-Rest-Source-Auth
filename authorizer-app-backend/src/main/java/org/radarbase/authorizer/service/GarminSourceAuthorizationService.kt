@@ -68,7 +68,9 @@ class GarminSourceAuthorizationService(
         // request to pull the external id is needed.
         val response = request(HttpMethod.Get, GARMIN_USER_ID_ENDPOINT, this@getExternalId, sourceType)
         when (response.status) {
-            HttpStatusCode.OK -> response.body<RestOauth1UserId>().userId
+            HttpStatusCode.OK -> withContext(Dispatchers.IO) {
+                response.body<RestOauth1UserId>().userId
+            }
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> throw HttpBadGatewayException("Service was unable to fetch the external ID")
             else -> throw HttpBadGatewayException("Cannot connect to ${response.request.url}: HTTP status ${response.status}")
         }

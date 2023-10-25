@@ -6,6 +6,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
 import jakarta.ws.rs.core.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 
@@ -24,21 +26,27 @@ class OuraAuthorizationService(
         val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint)
 
         val isSuccess = try {
-            val response = httpClient.submitForm {
-                url {
-                    takeFrom(deregistrationEndpoint)
-                    parameters.append("access_token", accessToken)
+            withContext(Dispatchers.IO) {
+                val response = httpClient.submitForm {
+                    url {
+                        takeFrom(deregistrationEndpoint)
+                        parameters.append("access_token", accessToken)
+                    }
+                    basicAuth(
+                        username = checkNotNull(authConfig.clientId),
+                        password = checkNotNull(authConfig.clientSecret),
+                    )
                 }
-                basicAuth(
-                    username = checkNotNull(authConfig.clientId),
-                    password = checkNotNull(authConfig.clientSecret),
-                )
-            }
-            if (response.status.isSuccess()) {
-                true
-            } else {
-                logger.error("Failed to revoke token for user {}: {}", user.userId, response.bodyAsText().take(512))
-                false
+                if (response.status.isSuccess()) {
+                    true
+                } else {
+                    logger.error(
+                        "Failed to revoke token for user {}: {}",
+                        user.userId,
+                        response.bodyAsText().take(512)
+                    )
+                    false
+                }
             }
         } catch (ex: Exception) {
             logger.warn("Revoke endpoint error: {}", ex.toString())
