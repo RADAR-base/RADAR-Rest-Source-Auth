@@ -35,7 +35,7 @@ class OuraAuthorizationService(
         }
         // revoke token using the deregistrationEndpoint token endpoint
         val authConfig = clients.forSourceType(user.sourceType)
-        val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint)
+        val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint) { "Missing Oura deregistration endpoint configuration" }
 
         val isSuccess = try {
             withContext(Dispatchers.IO) {
