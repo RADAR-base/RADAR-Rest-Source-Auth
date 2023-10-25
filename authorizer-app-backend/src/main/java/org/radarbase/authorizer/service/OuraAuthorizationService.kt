@@ -1,24 +1,22 @@
 package org.radarbase.authorizer.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import io.ktor.client.request.basicAuth
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
+import io.ktor.http.takeFrom
 import jakarta.ws.rs.core.Context
-import jakarta.ws.rs.core.UriBuilder
-import okhttp3.Credentials
-import okhttp3.FormBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.jersey.util.request
 
 class OuraAuthorizationService(
     @Context private val clients: RestSourceClientService,
-    @Context private val httpClient: OkHttpClient,
-    @Context private val objectMapper: ObjectMapper,
     @Context private val config: AuthorizerConfig,
-) : OAuth2RestSourceAuthorizationService(clients, httpClient, objectMapper, config) {
+) : OAuth2RestSourceAuthorizationService(clients, config) {
 
-    override fun revokeToken(user: RestSourceUser): Boolean {
+    override suspend fun revokeToken(user: RestSourceUser): Boolean {
         val accessToken = user.accessToken ?: run {
             logger.error("Cannot revoke token of user {} without an access token", user.userId)
             return false
@@ -27,28 +25,40 @@ class OuraAuthorizationService(
         val authConfig = clients.forSourceType(user.sourceType)
         val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint)
 
-        val revokeURI = UriBuilder.fromUri(deregistrationEndpoint).queryParam("access_token", accessToken).build().toString()
+        val isSuccess = try {
+            withContext(Dispatchers.IO) {
+                val response = httpClient.submitForm {
+                    url {
+                        takeFrom(deregistrationEndpoint)
+                        parameters.append("access_token", accessToken)
+                    }
+                    basicAuth(
+                        username = checkNotNull(authConfig.clientId),
+                        password = checkNotNull(authConfig.clientSecret),
+                    )
+                }
+                if (response.status.isSuccess()) {
+                    true
+                } else {
+                    logger.error(
+                        "Failed to revoke token for user {}: {}",
+                        user.userId,
+                        response.bodyAsText().take(512),
+                    )
+                    false
+                }
+            }
+        } catch (ex: Exception) {
+            logger.warn("Revoke endpoint error: {}", ex.toString())
+            false
+        }
 
-        val credentials = Credentials.basic(
-            checkNotNull(authConfig.clientId),
-            checkNotNull(authConfig.clientSecret),
-        )
-
-        var requestObj = Request.Builder().apply {
-            url(revokeURI)
-            post(FormBody.Builder().build())
-            header("Authorization", credentials)
-            header("Content-Type", "application/x-www-form-urlencoded")
-            header("Accept", "application/json")
-        }.build()
-
-        val response = httpClient.request(requestObj)
-        if (response) {
+        return if (isSuccess) {
             logger.info("Successfully revoked token for user {}", user.userId)
-            return true
+            true
         } else {
             logger.error("Failed to revoke token for user {}", user.userId)
-            return false
+            false
         }
     }
 }

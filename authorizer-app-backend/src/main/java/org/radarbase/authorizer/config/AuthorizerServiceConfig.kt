@@ -1,7 +1,9 @@
 package org.radarbase.authorizer.config
 
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import io.ktor.http.URLBuilder
+import io.ktor.http.Url
+import io.ktor.http.appendPathSegments
+import io.ktor.http.takeFrom
 import org.radarbase.authorizer.enhancer.ManagementPortalEnhancerFactory
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import java.net.URI
@@ -18,26 +20,20 @@ data class AuthorizerServiceConfig(
     val tokenExpiryTimeInMinutes: Long = 15,
     val persistentTokenExpiryInMin: Long = 3.days.inWholeMinutes,
 ) {
-    val callbackUrl: HttpUrl by lazy {
+    val callbackUrl: Url by lazy {
         val frontendBaseUrlBuilder = when {
-            frontendBaseUri != null -> frontendBaseUri.toHttpUrlOrNull()?.newBuilder()
-            advertisedBaseUri != null -> {
-                advertisedBaseUri.toHttpUrlOrNull()?.let { advertisedUrl ->
-                    advertisedUrl.newBuilder().apply {
-                        advertisedUrl.pathSegments.asReversed()
-                            .forEachIndexed { idx, segment ->
-                                if (segment.isEmpty() || segment == "backend") {
-                                    removePathSegment(advertisedUrl.pathSize - 1 - idx)
-                                }
-                            }
-                        addPathSegment("authorizer")
-                    }
+            frontendBaseUri != null -> URLBuilder().takeFrom(frontendBaseUri)
+            advertisedBaseUri != null -> URLBuilder().apply {
+                takeFrom(advertisedBaseUri)
+                pathSegments = buildList(pathSegments.size) {
+                    addAll(pathSegments.dropLastWhile { it.isEmpty() || it == "backend" })
+                    add("authorizer")
                 }
             }
-            else -> null
+            else -> throw IllegalStateException("Frontend URL parameter is not a valid HTTP URL.")
         }
-        checkNotNull(frontendBaseUrlBuilder) { "Frontend URL parameter $frontendBaseUri is not a valid HTTP URL." }
-            .addPathSegment("users:new")
+        frontendBaseUrlBuilder
+            .appendPathSegments("users:new")
             .build()
     }
 }

@@ -20,6 +20,7 @@ ENV GRADLE_USER_HOME=/code/.gradlecache \
 
 COPY ./buildSrc /code/buildSrc
 COPY ./build.gradle.kts ./settings.gradle.kts ./gradle.properties /code/
+COPY ./buildSrc /code/buildSrc
 COPY authorizer-app-backend/build.gradle.kts  /code/authorizer-app-backend/
 RUN gradle downloadDependencies copyDependencies startScripts
 

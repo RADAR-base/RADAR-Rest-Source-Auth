@@ -16,120 +16,128 @@
 
 package org.radarbase.authorizer.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import io.ktor.client.call.body
+import io.ktor.client.request.basicAuth
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.request
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.Parameters
+import io.ktor.http.ParametersBuilder
+import io.ktor.http.URLBuilder
+import io.ktor.http.isSuccess
+import io.ktor.http.takeFrom
 import jakarta.ws.rs.core.Context
-import jakarta.ws.rs.core.UriBuilder
-import okhttp3.Credentials
-import okhttp3.FormBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.config.RestSourceClient
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpBadRequestException
-import org.radarbase.jersey.util.request
-import org.radarbase.jersey.util.requestJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 open class OAuth2RestSourceAuthorizationService(
     @Context private val clients: RestSourceClientService,
-    @Context private val httpClient: OkHttpClient,
-    @Context private val objectMapper: ObjectMapper,
     @Context private val config: AuthorizerConfig,
 ) : RestSourceAuthorizationService {
-    private val tokenReader = objectMapper.readerFor(RestOauth2AccessToken::class.java)
+    protected val httpClient = RestSourceAuthorizationService.httpClient()
 
-    override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
-        val authorizationConfig = clients.forSourceType(sourceType)
-        val clientId = checkNotNull(authorizationConfig.clientId)
-
-        val form = FormBody.Builder().apply {
-            payload.code?.let { add("code", it) }
-            add("grant_type", "authorization_code")
-            add("client_id", clientId)
-            add("redirect_uri", config.service.callbackUrl.toString())
-        }.build()
+    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken = withContext(Dispatchers.IO) {
         logger.info("Requesting access token with authorization code")
-        return httpClient.requestJson(post(form, sourceType), tokenReader)
+        val response = submitForm(sourceType) { authorizationConfig ->
+            payload.code?.let { append("code", it) }
+            append("grant_type", "authorization_code")
+            append("client_id", checkNotNull(authorizationConfig.clientId))
+            append("redirect_uri", config.service.callbackUrl.toString())
+        }
+        if (!response.status.isSuccess()) {
+            throw HttpBadGatewayException("Failed to request access token (HTTP status code ${response.status}): ${response.bodyAsText()}")
+        }
+        response.body()
     }
 
-    override fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? {
-        val refreshToken = user.refreshToken ?: return null
-        val form = FormBody.Builder().apply {
-            add("grant_type", "refresh_token")
-            add("refresh_token", refreshToken)
-        }.build()
-        logger.info("Requesting to refreshToken")
-        val request = post(form, user.sourceType)
-        return httpClient.newCall(request).execute().use { response ->
-            when (response.code) {
-                200 -> response.body?.byteStream()
-                    ?.let { tokenReader.readValue<RestOauth2AccessToken>(it) }
-                    ?: throw HttpBadGatewayException("Service ${user.sourceType} did not provide a result")
-                400, 401, 403 -> {
-                    val body = response.body?.string()
-                    logger.error("Failed to refresh token (HTTP status code {}): {}", response.code, body)
-                    null
-                }
-                else -> throw HttpBadGatewayException("Cannot connect to ${request.url}: HTTP status ${response.code}")
+    override suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? = withContext(Dispatchers.IO) {
+        val refreshToken = user.refreshToken ?: return@withContext null
+        logger.info("Requesting to refresh token")
+        val response = submitForm(user.sourceType) {
+            append("grant_type", "refresh_token")
+            append("refresh_token", refreshToken)
+        }
+        when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> {
+                logger.error("Failed to refresh token (HTTP status code {}): {}", response.status, response.bodyAsText())
+                null
             }
+            else -> throw HttpBadGatewayException(
+                "Cannot connect to ${response.request.url} (HTTP status ${response.status}): ${response.bodyAsText()}",
+            )
         }
     }
 
-    override fun revokeToken(user: RestSourceUser): Boolean {
+    override suspend fun revokeToken(user: RestSourceUser): Boolean = withContext(Dispatchers.IO) {
         val accessToken = user.accessToken ?: run {
             logger.error("Cannot revoke token of user {} without an access token", user.userId)
-            return false
+            return@withContext false
         }
-        val form = FormBody.Builder().add("token", accessToken).build()
         logger.info("Requesting to revoke access token")
-        return httpClient.request(post(form, user.sourceType))
+        val response = submitForm(user.sourceType) {
+            append("token", accessToken)
+        }
+        response.status.isSuccess()
     }
 
-    override fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
+    override suspend fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
         throw HttpBadRequestException("", "Not available for auth type")
 
-    override fun getAuthorizationEndpointWithParams(
+    override suspend fun getAuthorizationEndpointWithParams(
         sourceType: String,
         userId: Long,
         state: String,
     ): String {
         val authConfig = clients.forSourceType(sourceType)
-        return UriBuilder.fromUri(authConfig.authorizationEndpoint)
-            .queryParam("response_type", "code")
-            .queryParam("client_id", authConfig.clientId)
-            .queryParam("state", state)
-            .queryParam("scope", authConfig.scope)
-            .queryParam("prompt", "login")
-            .queryParam("redirect_uri", config.service.callbackUrl)
-            .build().toString()
+        return URLBuilder().run {
+            takeFrom(authConfig.authorizationEndpoint)
+            parameters.append("response_type", "code")
+            parameters.append("client_id", authConfig.clientId ?: "")
+            parameters.append("state", state)
+            parameters.append("scope", authConfig.scope ?: "")
+            parameters.append("prompt", "login")
+            parameters.append("response_type", "code")
+            parameters.append("redirect_uri", config.service.callbackUrl.toString())
+            buildString()
+        }
     }
 
-    override fun deregisterUser(user: RestSourceUser) =
+    override suspend fun deregisterUser(user: RestSourceUser) =
         throw HttpBadRequestException("", "Not available for auth type")
 
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
         throw HttpBadRequestException("", "Not available for auth type")
 
-    fun post(form: FormBody, sourceType: String): Request {
+    private suspend fun submitForm(
+        sourceType: String,
+        builder: ParametersBuilder.(RestSourceClient) -> Unit,
+    ): HttpResponse {
         val authorizationConfig = clients.forSourceType(sourceType)
 
-        val credentials = Credentials.basic(
-            checkNotNull(authorizationConfig.clientId),
-            checkNotNull(authorizationConfig.clientSecret),
-        )
-
-        return Request.Builder().apply {
-            url(authorizationConfig.tokenEndpoint)
-            post(form)
-            header("Authorization", credentials)
-            header("Content-Type", "application/x-www-form-urlencoded")
-            header("Accept", "application/json")
-        }.build()
+        return httpClient.submitForm(
+            url = authorizationConfig.tokenEndpoint,
+            formParameters = Parameters.build {
+                builder(authorizationConfig)
+            },
+        ) {
+            basicAuth(
+                checkNotNull(authorizationConfig.clientId),
+                checkNotNull(authorizationConfig.clientSecret),
+            )
+        }
     }
 
     companion object {

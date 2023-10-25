@@ -23,19 +23,20 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.container.AsyncResponse
+import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
 import jakarta.ws.rs.core.MediaType
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.authorizer.api.Project
 import org.radarbase.authorizer.api.ProjectList
 import org.radarbase.authorizer.api.UserList
 import org.radarbase.authorizer.api.toProject
 import org.radarbase.authorizer.api.toUser
-import org.radarbase.jersey.auth.Auth
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.cache.Cache
+import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.managementportal.RadarProjectService
 
 @Path("projects")
@@ -46,16 +47,18 @@ import org.radarbase.jersey.service.managementportal.RadarProjectService
 @Singleton
 class ProjectResource(
     @Context private val projectService: RadarProjectService,
-    @Context private val auth: Auth,
+    @Context private val asyncService: AsyncCoroutineService,
 ) {
 
     @GET
     @NeedsPermission(Permission.PROJECT_READ)
     @Cache(maxAge = 300, isPrivate = true, vary = [AUTHORIZATION])
-    fun projects() = ProjectList(
-        projectService.userProjects(auth)
-            .map { it.toProject() },
-    )
+    fun projects(@Suspended asyncResponse: AsyncResponse) = asyncService.runAsCoroutine(asyncResponse) {
+        ProjectList(
+            projectService.userProjects()
+                .map { it.toProject() },
+        )
+    }
 
     @GET
     @Path("{projectId}/users")
@@ -63,16 +66,22 @@ class ProjectResource(
     @Cache(maxAge = 60, isPrivate = true, vary = [AUTHORIZATION])
     fun users(
         @PathParam("projectId") projectId: String,
-    ) = UserList(
-        projectService.projectSubjects(projectId)
-            .map { it.toUser() },
-    )
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        UserList(
+            projectService.projectSubjects(projectId)
+                .map { it.toUser() },
+        )
+    }
 
     @GET
     @Path("{projectId}")
     @NeedsPermission(Permission.PROJECT_READ, "projectId")
     @Cache(maxAge = 300, isPrivate = true, vary = [AUTHORIZATION])
-    fun project(@PathParam("projectId") projectId: String): Project {
-        return projectService.project(projectId).toProject()
+    fun project(
+        @PathParam("projectId") projectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        projectService.project(projectId).toProject()
     }
 }
