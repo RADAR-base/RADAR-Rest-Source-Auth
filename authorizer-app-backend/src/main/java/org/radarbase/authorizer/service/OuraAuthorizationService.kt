@@ -77,9 +77,10 @@ class OuraAuthorizationService(
     private suspend fun getExternalId(accessToken: String): String = withContext(Dispatchers.IO) {
         try {
             val response = httpClient.get {
-                url(OURA_USER_ID_ENDPOINT) {
-                    parameters.append("access_token", accessToken)
-                }
+                url {
+                        takeFrom(OURA_USER_ID_ENDPOINT)
+                        parameters.append("access_token", accessToken)
+                    }
             }
             if (response.status.isSuccess()) {
                 response.body<OuraAuthUserId>().userId
