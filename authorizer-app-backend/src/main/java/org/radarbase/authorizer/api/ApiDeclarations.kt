@@ -50,6 +50,16 @@ data class RestOauth1UserId(
     val userId: String,
 )
 
+@Serializable
+data class OuraAuthUserId(
+    val age: String,
+    val weight: String,
+    val height: String,
+    val gender: String,
+    val email: String,
+    @SerialName("user_id") val userId: String,
+)
+
 data class SignRequestParams(
     val url: String,
     val method: String,
