@@ -2,17 +2,17 @@ package org.radarbase.authorizer.service
 
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.Response
+import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.jersey.auth.Auth
+import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpNotFoundException
-import org.radarbase.jersey.service.managementportal.RadarProjectService
 import kotlin.time.Duration.Companion.seconds
 
 class RestSourceUserService(
@@ -20,28 +20,33 @@ class RestSourceUserService(
     @Context private val userMapper: RestSourceUserMapper,
     @Context private val lockService: LockService,
     @Context private val authorizationService: RestSourceAuthorizationService,
-    @Context private val projectService: RadarProjectService,
-    @Context private val auth: Auth,
+    @Context private val authService: AuthService,
 ) {
-    fun ensureUser(userId: Long, permission: Permission? = null): RestSourceUser {
+    suspend fun ensureUser(userId: Long, permission: Permission? = null): RestSourceUser {
         val user = userRepository.read(userId)
             ?: throw HttpNotFoundException("user_not_found", "Rest-Source-User with ID $userId does not exist")
         if (permission != null) {
-            auth.checkPermissionOnSubject(permission, user.projectId, user.userId)
+            authService.checkPermission(
+                permission,
+                EntityDetails(
+                    project = user.projectId,
+                    subject = user.userId,
+                ),
+            )
         }
         return user
     }
 
-    fun create(userDto: RestSourceUserDTO): RestSourceUserDTO {
-        validate(userDto)
+    suspend fun create(userDto: RestSourceUserDTO): RestSourceUserDTO {
+        userDto.ensure()
         val user = userRepository.create(userDto)
         return userMapper.fromEntity(user)
     }
 
-    fun get(userId: Long): RestSourceUserDTO =
+    suspend fun get(userId: Long): RestSourceUserDTO =
         userMapper.fromEntity(ensureUser(userId, Permission.SUBJECT_READ))
 
-    fun delete(userId: Long) {
+    suspend fun delete(userId: Long) {
         ensureUser(userId, Permission.SUBJECT_UPDATE)
         runLocked(userId) { user ->
             if (user.accessToken != null) authorizationService.revokeToken(user)
@@ -49,8 +54,8 @@ class RestSourceUserService(
         }
     }
 
-    fun update(userId: Long, user: RestSourceUserDTO): RestSourceUserDTO {
-        validate(user)
+    suspend fun update(userId: Long, user: RestSourceUserDTO): RestSourceUserDTO {
+        user.ensure()
         return userMapper.fromEntity(
             runLocked(userId) {
                 userRepository.update(userId, user)
@@ -58,8 +63,8 @@ class RestSourceUserService(
         )
     }
 
-    fun reset(userId: Long, user: RestSourceUserDTO): RestSourceUserDTO {
-        validate(user)
+    suspend fun reset(userId: Long, user: RestSourceUserDTO): RestSourceUserDTO {
+        user.ensure()
         val existingUser = ensureUser(userId)
         return userMapper.fromEntity(
             userRepository.reset(
@@ -70,26 +75,25 @@ class RestSourceUserService(
         )
     }
 
-    private fun validate(
-        user: RestSourceUserDTO,
-    ) {
-        val projectId = user.projectId
+    private suspend fun RestSourceUserDTO.ensure() {
+        val projectId = projectId
             ?: throw HttpBadRequestException("missing_project_id", "project cannot be empty")
-        val userId = user.userId
+        val subjectId = userId
             ?: throw HttpBadRequestException(
                 "missing_user_id",
                 "subject-id/user-id cannot be empty",
             )
-        auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, projectId, userId)
 
-        projectService.projectSubjects(projectId).find { it.id == userId }
-            ?: throw HttpBadRequestException(
-                "user_not_found",
-                "user $userId not found in project $projectId",
-            )
+        authService.checkPermission(
+            Permission.SUBJECT_UPDATE,
+            EntityDetails(
+                project = projectId,
+                subject = subjectId,
+            ),
+        )
     }
 
-    fun ensureToken(userId: Long): TokenDTO {
+    suspend fun ensureToken(userId: Long): TokenDTO {
         ensureUser(userId, Permission.MEASUREMENT_CREATE)
         return runLocked(userId) { user ->
             if (user.hasValidToken()) {
@@ -101,20 +105,23 @@ class RestSourceUserService(
         }
     }
 
-    fun refreshToken(userId: Long): TokenDTO {
+    suspend fun refreshToken(userId: Long): TokenDTO {
         ensureUser(userId, Permission.MEASUREMENT_CREATE)
         return runLocked(userId) { user ->
             doRefreshToken(user)
         }
     }
 
-    private inline fun <T> runLocked(userId: Long, crossinline doRun: (RestSourceUser) -> T): T {
-        return lockService.runLocked("token-$userId", 10.seconds) {
-            doRun(ensureUser(userId))
+    private suspend inline fun <T> runLocked(
+        userId: Long,
+        crossinline doRun: suspend (RestSourceUser) -> T,
+    ): T =
+        lockService.runLocked("token-$userId", 10.seconds) {
+            val user = ensureUser(userId)
+            doRun(user)
         }
-    }
 
-    private fun doRefreshToken(user: RestSourceUser): TokenDTO {
+    private suspend fun doRefreshToken(user: RestSourceUser): TokenDTO {
         if (!user.authorized) {
             throw HttpApplicationException(
                 Response.Status.PROXY_AUTHENTICATION_REQUIRED,

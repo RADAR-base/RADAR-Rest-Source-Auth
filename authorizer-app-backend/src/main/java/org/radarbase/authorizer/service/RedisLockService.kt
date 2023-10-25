@@ -2,6 +2,10 @@ package org.radarbase.authorizer.service
 
 import jakarta.persistence.LockTimeoutException
 import jakarta.ws.rs.core.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
@@ -11,6 +15,7 @@ import redis.clients.jedis.params.SetParams
 import java.io.IOException
 import java.util.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class RedisLockService(
     @Context config: AuthorizerConfig,
@@ -26,7 +31,7 @@ class RedisLockService(
     /**
      * @throws LockTimeoutException if the lock cannot be acquired.
      */
-    override fun <T> runLocked(lockName: String, timeout: Duration, doRun: () -> T): T {
+    override suspend fun <T> runLocked(lockName: String, timeout: Duration, doRun: suspend () -> T): T {
         val lockKey = "$lockPrefix/$lockName.lock"
         val setParams = SetParams()
             .nx() // only set if not already set
@@ -35,20 +40,23 @@ class RedisLockService(
         val startTime = System.nanoTime()
         val totalTime = timeout.inWholeNanoseconds
         var didAcquire = false
+        val callerCoroutineContext = currentCoroutineContext()
         return withJedis {
             while (System.nanoTime() - startTime < totalTime) {
                 didAcquire = set(lockKey, uuid, setParams) != null
                 if (didAcquire) {
                     break
                 } else {
-                    Thread.sleep(POLL_PERIOD)
+                    delay(POLL_PERIOD)
                 }
             }
             if (!didAcquire) {
                 throw LockTimeoutException()
             }
             try {
-                doRun()
+                withContext(callerCoroutineContext) {
+                    doRun()
+                }
             } finally {
                 if (get(lockKey) == uuid) {
                     del(lockKey)
@@ -58,8 +66,10 @@ class RedisLockService(
     }
 
     @Throws(IOException::class)
-    fun <T> withJedis(routine: Jedis.() -> T): T {
-        return try {
+    suspend fun <T> withJedis(
+        routine: suspend Jedis.() -> T,
+    ): T = withContext(Dispatchers.IO) {
+        try {
             jedisPool.resource.use {
                 it.routine()
             }
@@ -70,6 +80,6 @@ class RedisLockService(
 
     companion object {
         private val logger = LoggerFactory.getLogger(RedisLockService::class.java)
-        private const val POLL_PERIOD = 250L
+        private val POLL_PERIOD = 250.milliseconds
     }
 }

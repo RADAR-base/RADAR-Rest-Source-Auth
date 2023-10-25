@@ -1,8 +1,9 @@
 plugins {
     application
-    id("org.jetbrains.kotlin.plugin.noarg")
-    id("org.jetbrains.kotlin.plugin.jpa")
-    id("org.jetbrains.kotlin.plugin.allopen")
+    kotlin("plugin.serialization")
+    kotlin("plugin.noarg")
+    kotlin("plugin.jpa")
+    kotlin("plugin.allopen")
 }
 
 application {
@@ -17,20 +18,24 @@ dependencies {
     implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJersey}") {
         runtimeOnly("org.postgresql:postgresql:${Versions.postgresql}")
     }
-
-    implementation("com.squareup.okhttp3:okhttp:${Versions.okhttp}")
+    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
 
     implementation("redis.clients:jedis:${Versions.jedis}")
 
+    implementation(enforcedPlatform("io.ktor:ktor-bom:${Versions.ktor}"))
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-auth")
+    implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+
     testImplementation("org.hamcrest:hamcrest:${Versions.hamcrest}")
-
     testImplementation("org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}")
-
     testImplementation("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:${Versions.jersey}")
 }
 
 allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.MappedSuperclass")
-    annotation("javax.persistence.Embeddable")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
 }

@@ -27,26 +27,29 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
+import jakarta.ws.rs.container.AsyncResponse
+import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.Page
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.api.RestSourceUsers
 import org.radarbase.authorizer.api.SignRequestParams
-import org.radarbase.authorizer.api.TokenDTO
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.service.RestSourceUserService
-import org.radarbase.jersey.auth.Auth
+import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.exception.HttpBadRequestException
+import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.managementportal.RadarProjectService
 import java.net.URI
 
@@ -60,10 +63,11 @@ class RestSourceUserResource(
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val userMapper: RestSourceUserMapper,
     @Context private val projectService: RadarProjectService,
-    @Context private val auth: Auth,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val sourceClientService: RestSourceClientService,
     @Context private val userService: RestSourceUserService,
+    @Context private val asyncService: AsyncCoroutineService,
+    @Context private val authService: AuthService,
 ) {
     @GET
     @NeedsPermission(Permission.SUBJECT_READ)
@@ -80,22 +84,21 @@ class RestSourceUserResource(
         @DefaultValue("1")
         @QueryParam("page")
         pageNumber: Int,
-    ): RestSourceUsers {
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         val projectIds = if (projectId == null) {
-            projectService.userProjects(auth, Permission.SUBJECT_READ)
-                .also { projects ->
-                    if (projects.isEmpty()) return emptyUsers(pageNumber, pageSize)
-                }
+            projectService.userProjects(Permission.SUBJECT_READ)
+                .also { projects -> if (projects.isEmpty()) return@runAsCoroutine emptyUsers(pageNumber, pageSize) }
                 .map { it.id }
         } else {
-            auth.checkPermissionOnProject(Permission.SUBJECT_READ, projectId)
+            authService.checkPermission(Permission.SUBJECT_READ, EntityDetails(project = projectId))
             listOf(projectId)
         }
 
         val sanitizedSourceType = when (sourceType) {
             null -> null
             in sourceClientService -> sourceType
-            else -> return emptyUsers(pageNumber, pageSize)
+            else -> return@runAsCoroutine emptyUsers(pageNumber, pageSize)
         }
 
         val sanitizedSearch = search?.takeIf { it.length >= 2 }
@@ -130,17 +133,18 @@ class RestSourceUserResource(
             authorizedBoolean,
         )
 
-        return userMapper.fromRestSourceUsers(records, page)
+        userMapper.fromRestSourceUsers(records, page)
     }
 
     @POST
     @NeedsPermission(Permission.SUBJECT_CREATE)
     fun create(
         userDto: RestSourceUserDTO,
-    ): Response {
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         val user = userService.create(userDto)
 
-        return Response.created(URI("users/${user.id}"))
+        Response.created(URI("users/${user.id}"))
             .entity(user)
             .build()
     }
@@ -151,20 +155,33 @@ class RestSourceUserResource(
     fun update(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO,
-    ): RestSourceUserDTO = userService.update(userId, user)
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        userService.update(userId, user)
+    }
 
     @GET
     @Path("{id}")
     @NeedsPermission(Permission.SUBJECT_READ)
     @Cache(maxAge = 300, isPrivate = true, vary = [HttpHeaders.AUTHORIZATION])
-    fun readUser(@PathParam("id") userId: Long): RestSourceUserDTO = userService.get(userId)
+    fun readUser(
+        @PathParam("id") userId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        userService.get(userId)
+    }
 
     @DELETE
     @Path("{id}")
     @NeedsPermission(Permission.SUBJECT_UPDATE)
-    fun deleteUser(@PathParam("id") userId: Long): Response {
+    fun deleteUser(
+        @PathParam("id") userId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         userService.delete(userId)
-        return Response.noContent().header("user-removed", userId).build()
+        Response.noContent()
+            .header("user-removed", userId)
+            .build()
     }
 
     @POST
@@ -173,17 +190,30 @@ class RestSourceUserResource(
     fun reset(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO,
-    ): RestSourceUserDTO = userService.reset(userId, user)
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        userService.reset(userId, user)
+    }
 
     @GET
     @Path("{id}/token")
     @NeedsPermission(Permission.MEASUREMENT_CREATE)
-    fun requestToken(@PathParam("id") userId: Long): TokenDTO = userService.ensureToken(userId)
+    fun requestToken(
+        @PathParam("id") userId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        userService.ensureToken(userId)
+    }
 
     @POST
     @Path("{id}/token")
     @NeedsPermission(Permission.MEASUREMENT_CREATE)
-    fun refreshToken(@PathParam("id") userId: Long): TokenDTO = userService.refreshToken(userId)
+    fun refreshToken(
+        @PathParam("id") userId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        userService.refreshToken(userId)
+    }
 
     @POST
     @Path("{id}/token/sign")
@@ -191,9 +221,10 @@ class RestSourceUserResource(
     fun signRequest(
         @PathParam("id") userId: Long,
         payload: SignRequestParams,
-    ): SignRequestParams {
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         val user = userService.ensureUser(userId, Permission.MEASUREMENT_READ)
-        return authorizationService.signRequest(user, payload)
+        authorizationService.signRequest(user, payload)
     }
 
     companion object {

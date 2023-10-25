@@ -5,10 +5,14 @@ plugins {
     id("org.radarbase.radar-dependency-management") version Versions.radarCommons
     id("org.radarbase.radar-kotlin") version Versions.radarCommons apply false
     kotlin("plugin.serialization") version Versions.kotlin apply false
+    kotlin("plugin.noarg") version Versions.kotlin apply false
+    kotlin("plugin.jpa") version Versions.kotlin apply false
+    kotlin("plugin.allopen") version Versions.kotlin apply false
 }
 
 radarRootProject {
     projectVersion.set(Versions.project)
+    gradleVersion.set(Versions.gradle)
 }
 
 subprojects {

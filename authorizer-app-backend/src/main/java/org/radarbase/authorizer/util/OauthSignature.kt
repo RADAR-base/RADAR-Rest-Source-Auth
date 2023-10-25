@@ -1,5 +1,6 @@
 package org.radarbase.authorizer.util
 
+import io.ktor.http.HttpMethod
 import java.net.URLEncoder
 import java.util.Base64
 import javax.crypto.Mac
@@ -9,14 +10,14 @@ import kotlin.text.Charsets.UTF_8
 data class OauthSignature(
     var endPoint: String,
     var params: Map<String, String?>,
-    var method: String,
+    var method: HttpMethod,
     var clientSecret: String?,
     var tokenSecret: String?,
 ) {
     fun getEncodedSignature(): String {
         val encodedUrl = URLEncoder.encode(this.endPoint, UTF_8)
         val encodedParams = URLEncoder.encode(this.params.toQueryFormat(), UTF_8)
-        val signatureBase = "$method&$encodedUrl&$encodedParams"
+        val signatureBase = "${method.value}&$encodedUrl&$encodedParams"
         val key = "${this.clientSecret.orEmpty()}&${this.tokenSecret.orEmpty()}"
         return URLEncoder.encode(encodeSHA(key, signatureBase), UTF_8)
     }

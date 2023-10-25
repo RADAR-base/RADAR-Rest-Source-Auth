@@ -1,39 +1,34 @@
 package org.radarbase.authorizer.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import io.ktor.client.call.body
+import io.ktor.client.request.basicAuth
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.get
+import io.ktor.client.request.url
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
+import io.ktor.http.takeFrom
 import jakarta.ws.rs.core.Context
-import jakarta.ws.rs.core.UriBuilder
-import okhttp3.FormBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.radarbase.authorizer.api.OuraAuthUserId
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
-import org.radarbase.jersey.util.request
+import java.io.IOException
 
 class OuraAuthorizationService(
     @Context private val clients: RestSourceClientService,
-    @Context private val httpClient: OkHttpClient,
-    @Context private val objectMapper: ObjectMapper,
     @Context private val config: AuthorizerConfig,
-) : OAuth2RestSourceAuthorizationService(clients, httpClient, objectMapper, config) {
-    private val oauthUserReader = objectMapper.readerFor(OuraAuthUserId::class.java)
-
-    override fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
-        val authorizationConfig = clients.forSourceType(sourceType)
-        val clientId = checkNotNull(authorizationConfig.clientId)
+) : OAuth2RestSourceAuthorizationService(clients, config) {
+    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
         val accessToken: RestOauth2AccessToken = super.requestAccessToken(payload, sourceType)
-        if (accessToken.accessToken == null) {
-            logger.error("Failed to get access token for user {}", clientId)
-            throw HttpBadGatewayException("Service $sourceType did not provide a result")
-        }
         return accessToken.copy(externalUserId = getExternalId(accessToken.accessToken))
     }
 
-    override fun revokeToken(user: RestSourceUser): Boolean {
+    override suspend fun revokeToken(user: RestSourceUser): Boolean {
         val accessToken = user.accessToken ?: run {
             logger.error("Cannot revoke token of user {} without an access token", user.userId)
             return false
@@ -42,41 +37,64 @@ class OuraAuthorizationService(
         val authConfig = clients.forSourceType(user.sourceType)
         val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint)
 
-        val revokeURI = UriBuilder.fromUri(deregistrationEndpoint).queryParam("access_token", accessToken).build().toString()
+        val isSuccess = try {
+            withContext(Dispatchers.IO) {
+                val response = httpClient.submitForm {
+                    url {
+                        takeFrom(deregistrationEndpoint)
+                        parameters.append("access_token", accessToken)
+                    }
+                    basicAuth(
+                        username = checkNotNull(authConfig.clientId),
+                        password = checkNotNull(authConfig.clientSecret),
+                    )
+                }
+                if (response.status.isSuccess()) {
+                    true
+                } else {
+                    logger.error(
+                        "Failed to revoke token for user {}: {}",
+                        user.userId,
+                        response.bodyAsText().take(512),
+                    )
+                    false
+                }
+            }
+        } catch (ex: Exception) {
+            logger.warn("Revoke endpoint error: {}", ex.toString())
+            false
+        }
 
-        var requestObj = Request.Builder().apply {
-            url(revokeURI)
-            post(FormBody.Builder().build())
-        }.build()
-
-        val response = httpClient.request(requestObj)
-        if (response) {
+        return if (isSuccess) {
             logger.info("Successfully revoked token for user {}", user.userId)
-            return true
+            true
         } else {
             logger.error("Failed to revoke token for user {}", user.userId)
-            return false
+            false
         }
     }
 
-    private fun getExternalId(accessToken: String): String {
-        val ouraUserUri = UriBuilder.fromUri(OURA_USER_ID_ENDPOINT).queryParam("access_token", accessToken).build().toString()
-        val userReq = Request.Builder().apply {
-            url(ouraUserUri)
-        }.build()
-        return httpClient.newCall(userReq)
-            .execute()
-            .use { response ->
-                when (response.code) {
-                    200 -> response.body?.byteStream()
-                        ?.let {
-                            oauthUserReader.readValue<OuraAuthUserId>(it).userId
-                        }
-                        ?: throw HttpBadGatewayException("Service did not provide a result")
-                    400, 401, 403 -> throw HttpBadGatewayException("Service was unable to fetch the external ID")
-                    else -> throw HttpBadGatewayException("Cannot connect to $OURA_USER_ID_ENDPOINT: HTTP status ${response.code}")
+    private suspend fun getExternalId(accessToken: String): String = withContext(Dispatchers.IO) {
+        try {
+            val response = httpClient.get {
+                url(OURA_USER_ID_ENDPOINT) {
+                    parameters.append("access_token", accessToken)
                 }
             }
+            if (response.status.isSuccess()) {
+                response.body<OuraAuthUserId>().userId
+            } else {
+                logger.error(
+                    "Unable to fetch data from Oura $OURA_USER_ID_ENDPOINT (Http Status {}): {}",
+                    response.status,
+                    response.bodyAsText().take(512),
+                )
+                throw HttpBadGatewayException("Cannot connect to $OURA_USER_ID_ENDPOINT: HTTP status ${response.status}")
+            }
+        } catch (ex: IOException) {
+            logger.error("Unable to fetch data from Oura $OURA_USER_ID_ENDPOINT: {}", ex.toString())
+            throw HttpBadGatewayException("Cannot connect to $OURA_USER_ID_ENDPOINT: I/O error")
+        }
     }
 
     companion object {
