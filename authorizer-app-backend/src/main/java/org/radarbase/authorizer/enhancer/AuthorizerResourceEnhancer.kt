@@ -25,9 +25,17 @@ import org.radarbase.authorizer.config.RestSourceClients
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
-import org.radarbase.authorizer.service.*
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.OURA_AUTH
+import org.radarbase.authorizer.service.GarminSourceAuthorizationService
+import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
+import org.radarbase.authorizer.service.OuraAuthorizationService
+import org.radarbase.authorizer.service.RegistrationService
+import org.radarbase.authorizer.service.RestSourceAuthorizationService
+import org.radarbase.authorizer.service.RestSourceClientService
+import org.radarbase.authorizer.service.RestSourceUserService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.filter.Filters
 
@@ -102,6 +110,11 @@ class AuthorizerResourceEnhancer(
         bind(OAuth2RestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(FITBIT_AUTH)
+            .`in`(Singleton::class.java)
+
+        bind(OuraAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(OURA_AUTH)
             .`in`(Singleton::class.java)
     }
 }

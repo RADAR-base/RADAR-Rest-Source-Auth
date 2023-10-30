@@ -75,6 +75,9 @@ services:
     depends_on:
       - radar-rest-sources-backend
       - managementportal
+      - redis
+#    ports:
+#      - "8080:80"
     environment:
       BASE_HREF: "/rest-sources/authorizer/"
       BACKEND_BASE_URL: "http://localhost:8080/rest-sources/backend"
@@ -100,3 +103,12 @@ services:
     command: --api.insecure=true --providers.docker
     ports:
       - "8080:80"
+
+  redis:
+    image: redis:latest
+    restart: on-failure
+    command: ["redis-server","--bind","redis","127.0.0.1", "--port","6379"]
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes

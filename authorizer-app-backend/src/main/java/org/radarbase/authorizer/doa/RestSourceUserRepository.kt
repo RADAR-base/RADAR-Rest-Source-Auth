@@ -23,11 +23,11 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import java.time.Instant
 
 interface RestSourceUserRepository {
-    fun create(user: RestSourceUserDTO): RestSourceUser
-    fun updateToken(token: RestOauth2AccessToken?, user: RestSourceUser): RestSourceUser
-    fun read(id: Long): RestSourceUser?
-    fun update(userId: Long, user: RestSourceUserDTO): RestSourceUser
-    fun query(
+    suspend fun create(user: RestSourceUserDTO): RestSourceUser
+    suspend fun updateToken(token: RestOauth2AccessToken?, user: RestSourceUser): RestSourceUser
+    suspend fun read(id: Long): RestSourceUser?
+    suspend fun update(userId: Long, user: RestSourceUserDTO): RestSourceUser
+    suspend fun query(
         page: Page,
         projectIds: List<String>,
         sourceType: String? = null,
@@ -35,8 +35,8 @@ interface RestSourceUserRepository {
         userIds: List<String>,
         isAuthorized: Boolean?,
     ): Pair<List<RestSourceUser>, Page>
-    fun queryAllWithElapsedEndDate(sourceType: String? = null): List<RestSourceUser>
-    fun delete(user: RestSourceUser)
-    fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?): RestSourceUser
-    fun findByExternalId(externalId: String, sourceType: String): RestSourceUser?
+    suspend fun queryAllWithElapsedEndDate(sourceType: String? = null): List<RestSourceUser>
+    suspend fun delete(user: RestSourceUser)
+    suspend fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?): RestSourceUser
+    suspend fun findByExternalId(externalId: String, sourceType: String): RestSourceUser?
 }

@@ -1,60 +1,28 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import org.radarbase.gradle.plugin.radarKotlin
 
 plugins {
-    kotlin("jvm")
-    id("org.jlleitschuh.gradle.ktlint") version "11.3.1" apply false
-    id("com.github.ben-manes.versions") version "0.46.0"
+    id("org.radarbase.radar-root-project") version Versions.radarCommons
+    id("org.radarbase.radar-dependency-management") version Versions.radarCommons
+    id("org.radarbase.radar-kotlin") version Versions.radarCommons apply false
+    kotlin("plugin.serialization") version Versions.kotlin apply false
+    kotlin("plugin.noarg") version Versions.kotlin apply false
+    kotlin("plugin.jpa") version Versions.kotlin apply false
+    kotlin("plugin.allopen") version Versions.kotlin apply false
 }
 
-allprojects {
-    group = "org.radarbase"
-    version = "4.3.0"
-
-    repositories {
-        mavenCentral()
-        mavenLocal()
-//        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
-    }
+radarRootProject {
+    projectVersion.set(Versions.project)
+    gradleVersion.set(Versions.gradle)
 }
 
 subprojects {
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = "org.radarbase.radar-kotlin")
 
-    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-        val ktlintVersion: String by project
-        version.set(ktlintVersion)
+    radarKotlin {
+        javaVersion.set(Versions.java)
+        kotlinVersion.set(Versions.kotlin)
+        slf4jVersion.set(Versions.slf4j)
+        log4j2Version.set(Versions.log4j2)
+        junitVersion.set(Versions.junit)
     }
-
-    tasks.register("downloadDependencies") {
-        doLast {
-            configurations["runtimeClasspath"].files
-            configurations["compileClasspath"].files
-            println("Downloaded all dependencies")
-        }
-    }
-
-    tasks.register<Copy>("copyDependencies") {
-        from(configurations.runtimeClasspath.map { it.files })
-        into("$buildDir/third-party/")
-        doLast {
-            println("Copied third-party runtime dependencies")
-        }
-    }
-}
-
-fun isNonStable(version: String): Boolean {
-    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
-    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-    val isStable = stableKeyword || regex.matches(version)
-    return isStable.not()
-}
-
-tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
-    rejectVersionIf {
-        isNonStable(candidate.version)
-    }
-}
-
-tasks.wrapper {
-    gradleVersion = "8.0.2"
 }

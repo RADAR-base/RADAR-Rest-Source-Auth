@@ -2,23 +2,37 @@ package org.radarbase.authorizer.resources
 
 import jakarta.annotation.Resource
 import jakarta.inject.Singleton
-import jakarta.ws.rs.*
+import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.container.AsyncResponse
+import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.authorizer.api.*
+import org.radarbase.authorizer.api.RegistrationResponse
+import org.radarbase.authorizer.api.RequestTokenPayload
+import org.radarbase.authorizer.api.StateCreateDTO
+import org.radarbase.authorizer.api.TokenSecret
+import org.radarbase.authorizer.api.toProject
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceUserService
 import org.radarbase.authorizer.util.Hmac256Secret
-import org.radarbase.jersey.auth.Auth
+import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpConflictException
+import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.managementportal.RadarProjectService
 import java.net.URI
 
@@ -34,16 +48,24 @@ class RegistrationResource(
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val registrationService: RegistrationService,
     @Context private val projectService: RadarProjectService,
+    @Context private val authService: AuthService,
+    @Context private val asyncService: AsyncCoroutineService,
 ) {
     @POST
     @Authenticated
     @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun createState(
-        @Context auth: Auth,
         createState: StateCreateDTO,
-    ): Response {
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         val user = restSourceUserService.ensureUser(createState.userId.toLong())
-        auth.checkPermissionOnSubject(Permission.SUBJECT_UPDATE, user.projectId, user.userId)
+        authService.checkPermission(
+            Permission.SUBJECT_UPDATE,
+            EntityDetails(
+                project = user.projectId,
+                subject = user.userId,
+            ),
+        )
         var tokenState = registrationService.generate(user, createState.persistent)
         if (!createState.persistent) {
             tokenState = tokenState.copy(
@@ -54,7 +76,7 @@ class RegistrationResource(
                 ),
             )
         }
-        return Response.created(URI("tokens/${tokenState.token}"))
+        Response.created(URI("tokens/${tokenState.token}"))
             .entity(tokenState)
             .build()
     }
@@ -63,9 +85,10 @@ class RegistrationResource(
     @Path("{token}")
     fun state(
         @PathParam("token") token: String,
-    ): RegistrationResponse {
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         val registration = registrationService.ensureRegistration(token)
-        return RegistrationResponse(
+        RegistrationResponse(
             token = registration.token,
             userId = registration.user.id!!.toString(),
             createdAt = registration.createdAt,
@@ -81,9 +104,10 @@ class RegistrationResource(
     @Path("{token}")
     fun deleteState(
         @PathParam("token") token: String,
-    ): Response {
-        registrationRepository -= token
-        return Response.noContent().build()
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        registrationRepository.remove(token)
+        Response.noContent().build()
     }
 
     @POST
@@ -91,7 +115,8 @@ class RegistrationResource(
     fun authEndpoint(
         @PathParam("token") token: String,
         tokenSecret: TokenSecret,
-    ): RegistrationResponse {
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         val registration = registrationService.ensureRegistration(token)
         if (registration.user.authorized) throw HttpConflictException("user_already_authorized", "User was already authorized for this service.")
         val salt = registration.salt
@@ -103,7 +128,7 @@ class RegistrationResource(
             projectService.project(it).toProject()
         }
 
-        return RegistrationResponse(
+        RegistrationResponse(
             token = registration.token,
             authEndpointUrl = authorizationService.getAuthorizationEndpointWithParams(
                 sourceType = registration.user.sourceType,
@@ -125,7 +150,8 @@ class RegistrationResource(
     fun addAccount(
         @PathParam("token") token: String,
         payload: RequestTokenPayload,
-    ): Response {
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         val registration = registrationService.ensureRegistration(token)
         val accessToken = authorizationService.requestAccessToken(payload, registration.user.sourceType)
         val user = userRepository.updateToken(accessToken, registration.user)
@@ -143,9 +169,9 @@ class RegistrationResource(
             sourceType = registration.user.sourceType,
         )
 
-        registrationRepository -= registration
+        registrationRepository.remove(registration)
 
-        return Response.created(URI("source-clients/${user.sourceType}/authorization/${user.externalUserId}"))
+        Response.created(URI("source-clients/${user.sourceType}/authorization/${user.externalUserId}"))
             .entity(tokenEntity)
             .build()
     }

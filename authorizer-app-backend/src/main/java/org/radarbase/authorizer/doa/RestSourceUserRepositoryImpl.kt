@@ -26,16 +26,18 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.hibernate.HibernateRepository
+import org.radarbase.jersey.service.AsyncCoroutineService
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
 
 class RestSourceUserRepositoryImpl(
     @Context em: Provider<EntityManager>,
-) : RestSourceUserRepository, HibernateRepository(em) {
+    @Context asyncService: AsyncCoroutineService,
+) : RestSourceUserRepository, HibernateRepository(em, asyncService) {
 
-    override fun create(user: RestSourceUserDTO): RestSourceUser = transact {
+    override suspend fun create(user: RestSourceUserDTO): RestSourceUser = transact {
         val existingUser = createQuery(
             """
             SELECT u
@@ -86,16 +88,16 @@ class RestSourceUserRepositoryImpl(
         }
     }
 
-    override fun updateToken(token: RestOauth2AccessToken?, user: RestSourceUser): RestSourceUser = transact {
+    override suspend fun updateToken(token: RestOauth2AccessToken?, user: RestSourceUser): RestSourceUser = transact {
         user.apply {
             setToken(token)
             merge(this)
         }
     }
 
-    override fun read(id: Long): RestSourceUser? = transact { find(RestSourceUser::class.java, id) }
+    override suspend fun read(id: Long): RestSourceUser? = transact { find(RestSourceUser::class.java, id) }
 
-    override fun update(userId: Long, user: RestSourceUserDTO): RestSourceUser = transact {
+    override suspend fun update(userId: Long, user: RestSourceUserDTO): RestSourceUser = transact {
         val existingUser = find(RestSourceUser::class.java, userId)
             ?: throw HttpNotFoundException("user_not_found", "User with ID $userId not found")
 
@@ -108,7 +110,7 @@ class RestSourceUserRepositoryImpl(
         }
     }
 
-    override fun query(
+    override suspend fun query(
         page: Page,
         projectIds: List<String>,
         sourceType: String?,
@@ -165,7 +167,7 @@ class RestSourceUserRepositoryImpl(
         }
     }
 
-    override fun queryAllWithElapsedEndDate(
+    override suspend fun queryAllWithElapsedEndDate(
         sourceType: String?,
     ): List<RestSourceUser> {
         var queryString = """
@@ -188,7 +190,7 @@ class RestSourceUserRepositoryImpl(
         }
     }
 
-    override fun findByExternalId(
+    override suspend fun findByExternalId(
         externalId: String,
         sourceType: String,
     ): RestSourceUser? {
@@ -209,11 +211,11 @@ class RestSourceUserRepositoryImpl(
         return if (result.isEmpty()) null else result[0]
     }
 
-    override fun delete(user: RestSourceUser) = transact {
+    override suspend fun delete(user: RestSourceUser) = transact {
         remove(merge(user))
     }
 
-    override fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?) = transact {
+    override suspend fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?) = transact {
         user.apply {
             this.version = Instant.now().toString()
             this.timesReset += 1

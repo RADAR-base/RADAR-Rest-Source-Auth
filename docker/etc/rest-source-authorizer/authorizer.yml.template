@@ -41,4 +41,10 @@ restSourceClients:
     clientId: Garmin-clientid
     clientSecret: Garmin-clientsecret
     scope: activity heartrate sleep profile
-
+  - sourceType: Oura
+    authorizationEndpoint: https://cloud.ouraring.com/oauth/authorize
+    tokenEndpoint: https://api.ouraring.com/oauth/token
+    deregistrationEndpoint: https://api.ouraring.com/oauth/revoke
+    clientId: Oura-clientid
+    clientSecret: Oura-clinetsecret
+    scope: daily session heartrate workout tag personal email spo2 ring_configuration
