@@ -81,7 +81,7 @@ class OuraAuthorizationService(
             val response = httpClient.get {
                 url(OURA_USER_ID_ENDPOINT)
                 headers {
-                    append(HttpHeaders.Authorization, "Bearer ${accessToken}")
+                    append(HttpHeaders.Authorization, "Bearer $accessToken")
                 }
             }
             if (response.status.isSuccess()) {
