@@ -4,8 +4,10 @@ import io.ktor.client.call.body
 import io.ktor.client.request.basicAuth
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
 import jakarta.ws.rs.core.Context
@@ -77,9 +79,9 @@ class OuraAuthorizationService(
     private suspend fun getExternalId(accessToken: String): String = withContext(Dispatchers.IO) {
         try {
             val response = httpClient.get {
-                url {
-                    takeFrom(OURA_USER_ID_ENDPOINT)
-                    parameters.append("access_token", accessToken)
+                url(OURA_USER_ID_ENDPOINT)
+                headers {
+                    append(HttpHeaders.Authorization, "Bearer ${accessToken}")
                 }
             }
             if (response.status.isSuccess()) {
@@ -99,6 +101,6 @@ class OuraAuthorizationService(
     }
 
     companion object {
-        private const val OURA_USER_ID_ENDPOINT = "https://api.ouraring.com/v1/userinfo"
+        private const val OURA_USER_ID_ENDPOINT = "https://api.ouraring.com/v2/usercollection/personal_info"
     }
 }
