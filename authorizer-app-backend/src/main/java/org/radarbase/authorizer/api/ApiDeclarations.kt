@@ -55,9 +55,9 @@ data class OuraAuthUserId(
     val age: Int,
     val weight: Float,
     val height: Float,
-    val biological_sex: String,
+    val gender: String,
     val email: String,
-    @SerialName("id") val userId: String,
+    @SerialName("user_id") val userId: String,
 )
 
 data class SignRequestParams(
