@@ -91,6 +91,7 @@ export class ManagementPortalAuthService extends AuthService {
       .set('grant_type', environment.authorizationGrantType)
       .set('redirect_uri', window.location.href.split('?')[0])
       .set('code', authCode)
+      .set('client_id', environment.appClientId)
   }
 
   getTokenRequestHeaders() {
