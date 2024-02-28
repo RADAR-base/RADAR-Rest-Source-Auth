@@ -1,13 +1,13 @@
 @Suppress("ConstPropertyName")
 object Versions {
-    const val project = "4.4.0"
+    const val project = "4.4.1"
 
     const val java = 17
 
     const val kotlin = "1.9.10"
 
     const val radarCommons = "1.1.1"
-    const val radarJersey = "0.11.0"
+    const val radarJersey = "0.11.1-SNAPSHOT"
     const val postgresql = "42.6.0"
     const val ktor = "2.3.5"
     const val jedis = "5.0.2"
