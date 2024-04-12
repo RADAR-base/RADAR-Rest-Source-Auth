@@ -52,10 +52,10 @@ data class RestOauth1UserId(
 
 @Serializable
 data class OuraAuthUserId(
-    val age: Int,
-    val weight: Float,
-    val height: Float,
-    val biological_sex: String,
+    val age: Int? = null,
+    val weight: Float? = null,
+    val height: Float? = null,
+    val biological_sex: String? = null,
     val email: String,
     @SerialName("id") val userId: String,
 )
