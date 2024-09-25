@@ -17,12 +17,9 @@
 package org.radarbase.authorizer.resources
 
 import jakarta.annotation.Resource
+import jakarta.inject.Provider
 import jakarta.inject.Singleton
-import jakarta.ws.rs.Consumes
-import jakarta.ws.rs.GET
-import jakarta.ws.rs.Path
-import jakarta.ws.rs.PathParam
-import jakarta.ws.rs.Produces
+import jakarta.ws.rs.*
 import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.Context
@@ -33,11 +30,13 @@ import org.radarbase.authorizer.api.ProjectList
 import org.radarbase.authorizer.api.UserList
 import org.radarbase.authorizer.api.toProject
 import org.radarbase.authorizer.api.toUser
+import org.radarbase.authorizer.service.MPClient
+import org.radarbase.authorizer.service.ProjectService
+import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.service.AsyncCoroutineService
-import org.radarbase.jersey.service.managementportal.RadarProjectService
 
 @Path("projects")
 @Authenticated
@@ -46,17 +45,19 @@ import org.radarbase.jersey.service.managementportal.RadarProjectService
 @Resource
 @Singleton
 class ProjectResource(
-    @Context private val projectService: RadarProjectService,
     @Context private val asyncService: AsyncCoroutineService,
+    @Context private val authService: AuthService,
 ) {
+    private val projectService: ProjectService = ProjectService(MPClient(), authService)
 
     @GET
     @NeedsPermission(Permission.PROJECT_READ)
     @Cache(maxAge = 300, isPrivate = true, vary = [AUTHORIZATION])
-    fun projects(@Suspended asyncResponse: AsyncResponse) = asyncService.runAsCoroutine(asyncResponse) {
+    fun projects(
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         ProjectList(
-            projectService.userProjects()
-                .map { it.toProject() },
+            projectService.getProjects().map { it.toProject() },
         )
     }
 
@@ -69,7 +70,8 @@ class ProjectResource(
         @Suspended asyncResponse: AsyncResponse,
     ) = asyncService.runAsCoroutine(asyncResponse) {
         UserList(
-            projectService.projectSubjects(projectId)
+            projectService
+                .projectSubjects(projectId)
                 .map { it.toUser() },
         )
     }

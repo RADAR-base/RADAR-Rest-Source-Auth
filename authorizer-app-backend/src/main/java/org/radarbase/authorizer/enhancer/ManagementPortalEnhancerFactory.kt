@@ -38,6 +38,7 @@ class ManagementPortalEnhancerFactory(private val config: AuthorizerConfig) : En
                 syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
             ),
             jwtResourceName = config.auth.jwtResourceName,
+            jwksUrls = config.auth.jwksUrls,
         )
 
         val dbConfig = config.database.copy(

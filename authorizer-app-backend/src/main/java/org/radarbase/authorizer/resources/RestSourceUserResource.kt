@@ -50,8 +50,9 @@ import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.service.AsyncCoroutineService
-import org.radarbase.jersey.service.managementportal.RadarProjectService
 import java.net.URI
+import org.radarbase.authorizer.service.MPClient
+import org.radarbase.authorizer.service.ProjectService
 
 @Path("users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -62,13 +63,14 @@ import java.net.URI
 class RestSourceUserResource(
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val userMapper: RestSourceUserMapper,
-    @Context private val projectService: RadarProjectService,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val sourceClientService: RestSourceClientService,
     @Context private val userService: RestSourceUserService,
     @Context private val asyncService: AsyncCoroutineService,
     @Context private val authService: AuthService,
 ) {
+    private val projectService: ProjectService = ProjectService(MPClient(), authService)
+
     @GET
     @NeedsPermission(Permission.SUBJECT_READ)
     fun query(

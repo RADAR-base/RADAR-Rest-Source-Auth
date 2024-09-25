@@ -33,8 +33,9 @@ import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.service.AsyncCoroutineService
-import org.radarbase.jersey.service.managementportal.RadarProjectService
 import java.net.URI
+import org.radarbase.authorizer.service.MPClient
+import org.radarbase.authorizer.service.ProjectService
 
 @Path("registrations")
 @Produces(MediaType.APPLICATION_JSON)
@@ -47,10 +48,11 @@ class RegistrationResource(
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val registrationService: RegistrationService,
-    @Context private val projectService: RadarProjectService,
     @Context private val authService: AuthService,
     @Context private val asyncService: AsyncCoroutineService,
 ) {
+    private val projectService: ProjectService = ProjectService(MPClient(), authService)
+    
     @POST
     @Authenticated
     @NeedsPermission(Permission.SUBJECT_UPDATE)
