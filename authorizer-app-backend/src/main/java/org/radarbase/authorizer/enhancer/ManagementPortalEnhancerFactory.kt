@@ -32,8 +32,6 @@ class ManagementPortalEnhancerFactory(private val config: AuthorizerConfig) : En
         val authConfig = AuthConfig(
             managementPortal = MPConfig(
                 url = config.auth.managementPortalUrl.trimEnd('/'),
-                clientId = config.auth.clientId,
-                clientSecret = config.auth.clientSecret,
                 syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
                 syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
             ),
@@ -52,6 +50,7 @@ class ManagementPortalEnhancerFactory(private val config: AuthorizerConfig) : En
             Enhancers.health,
             HibernateResourceEnhancer(dbConfig),
             Enhancers.managementPortal(authConfig),
+            Enhancers.ecdsa,
             JedisResourceEnhancer(),
             Enhancers.exception,
             AuthorizerResourceEnhancer(config),

@@ -41,9 +41,9 @@ data class UserList(val users: List<User>)
 
 data class User(val id: String, val projectId: String, val externalId: String? = null, val status: String)
 
-fun MPSubject.toUser() = User(
+fun MPSubject.toUser(projectId: String) = User(
     id = checkNotNull(id) { "User must have a login" },
-    projectId = checkNotNull(projectId) { "User must have a project ID" },
+    projectId = projectId,
     externalId = externalId,
     status = status,
 )

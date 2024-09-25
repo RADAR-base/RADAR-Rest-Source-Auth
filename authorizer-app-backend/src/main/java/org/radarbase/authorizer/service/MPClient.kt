@@ -19,6 +19,7 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.call.*
 import org.radarbase.authorizer.config.AuthorizerConfig
 
+@Singleton
 class MPClient {
     private val config: AuthorizerConfig = AuthorizerConfig()
     private val logger = LoggerFactory.getLogger(MPClient::class.java)
@@ -51,6 +52,22 @@ class MPClient {
 
         val tokenResponse = response.body<TokenResponse>()
         return tokenResponse.access_token
+    }
+
+    suspend fun requestOrganizations(page: Int = 0, size: Int = Int.MAX_VALUE): List<MPOrganization> {
+        val accessToken = getAccessToken()
+        val response: HttpResponse = httpClient.get("${config.auth.managementPortalUrl}/api/organizations") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessToken")
+            }
+        }
+
+        if (!response.status.isSuccess()) {
+            logger.error("Failed to fetch projects: ${response.status}")
+            throw RuntimeException("Failed to fetch projects")
+        }
+
+        return response.body()
     }
 
     suspend fun requestProjects(page: Int = 0, size: Int = Int.MAX_VALUE): List<MPProject> {

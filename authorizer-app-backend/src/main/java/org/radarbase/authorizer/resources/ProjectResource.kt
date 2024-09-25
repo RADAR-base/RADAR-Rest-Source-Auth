@@ -31,7 +31,7 @@ import org.radarbase.authorizer.api.UserList
 import org.radarbase.authorizer.api.toProject
 import org.radarbase.authorizer.api.toUser
 import org.radarbase.authorizer.service.MPClient
-import org.radarbase.authorizer.service.ProjectService
+import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
@@ -46,9 +46,8 @@ import org.radarbase.jersey.service.AsyncCoroutineService
 @Singleton
 class ProjectResource(
     @Context private val asyncService: AsyncCoroutineService,
-    @Context private val authService: AuthService,
 ) {
-    private val projectService: ProjectService = ProjectService(MPClient(), authService)
+    private val projectService: RadarProjectService = RadarProjectService()
 
     @GET
     @NeedsPermission(Permission.PROJECT_READ)
@@ -72,7 +71,7 @@ class ProjectResource(
         UserList(
             projectService
                 .projectSubjects(projectId)
-                .map { it.toUser() },
+                .map { it.toUser(projectId) },
         )
     }
 

@@ -36,8 +36,10 @@ import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.service.RestSourceUserService
+import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.filter.Filters
+import org.radarbase.jersey.service.ProjectService
 
 class AuthorizerResourceEnhancer(
     private val config: AuthorizerConfig,
@@ -115,6 +117,10 @@ class AuthorizerResourceEnhancer(
         bind(OuraAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(OURA_AUTH)
+            .`in`(Singleton::class.java)
+
+        bind(RadarProjectService::class.java)
+            .to(ProjectService::class.java)
             .`in`(Singleton::class.java)
     }
 }

@@ -35,7 +35,7 @@ import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.service.AsyncCoroutineService
 import java.net.URI
 import org.radarbase.authorizer.service.MPClient
-import org.radarbase.authorizer.service.ProjectService
+import org.radarbase.authorizer.service.RadarProjectService
 
 @Path("registrations")
 @Produces(MediaType.APPLICATION_JSON)
@@ -48,10 +48,10 @@ class RegistrationResource(
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val registrationService: RegistrationService,
-    @Context private val authService: AuthService,
     @Context private val asyncService: AsyncCoroutineService,
+    @Context private val authService: AuthService,
 ) {
-    private val projectService: ProjectService = ProjectService(MPClient(), authService)
+    private val projectService: RadarProjectService = RadarProjectService()
     
     @POST
     @Authenticated
