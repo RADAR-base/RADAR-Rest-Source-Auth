@@ -87,9 +87,7 @@ class MPClient {
     }
 
     suspend fun requestSubjects(projectId: String, page: Int = 0, size: Int = Int.MAX_VALUE,): List<MPSubject> {
-        logger.info("Fetching subjects for project $projectId")
         val accessToken = getAccessToken()
-        logger.info("Access token: $accessToken")
         val response: HttpResponse = httpClient.get("${config.auth.managementPortalUrl}/api/projects/${projectId}/subjects") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $accessToken")
