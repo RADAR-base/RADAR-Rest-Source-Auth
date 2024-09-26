@@ -72,11 +72,11 @@ class RegistrationResource(
             tokenState =
                 tokenState.copy(
                     authEndpointUrl =
-                        authorizationService.getAuthorizationEndpointWithParams(
-                            sourceType = user.sourceType,
-                            userId = user.id!!,
-                            state = tokenState.token,
-                        ),
+                    authorizationService.getAuthorizationEndpointWithParams(
+                        sourceType = user.sourceType,
+                        userId = user.id!!,
+                        state = tokenState.token,
+                    ),
                 )
         }
         Response
@@ -145,11 +145,11 @@ class RegistrationResource(
         RegistrationResponse(
             token = registration.token,
             authEndpointUrl =
-                authorizationService.getAuthorizationEndpointWithParams(
-                    sourceType = registration.user.sourceType,
-                    userId = registration.user.id!!,
-                    state = registration.token,
-                ),
+            authorizationService.getAuthorizationEndpointWithParams(
+                sourceType = registration.user.sourceType,
+                userId = registration.user.id!!,
+                state = registration.token,
+            ),
             userId = registration.user.id!!.toString(),
             project = project,
             createdAt = registration.createdAt,

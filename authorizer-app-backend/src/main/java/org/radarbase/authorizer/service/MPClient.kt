@@ -1,15 +1,18 @@
 package org.radarbase.authorizer.service
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpHeaders
+import io.ktor.http.Parameters
+import io.ktor.http.headers
+import io.ktor.http.isSuccess
+import io.ktor.serialization.kotlinx.json.json
 import jakarta.inject.Singleton
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -39,13 +42,13 @@ class MPClient {
             httpClient.submitForm(
                 url = config.auth.authUrl,
                 formParameters =
-                    Parameters.build {
-                        append("grant_type", "client_credentials")
-                        append("client_id", "radar_rest_sources_auth_backend")
-                        append("client_secret", "secret")
-                        append("scope", "SUBJECT.READ PROJECT.READ")
-                        append("audience", "res_ManagementPortal")
-                    },
+                Parameters.build {
+                    append("grant_type", "client_credentials")
+                    append("client_id", config.auth.clientId)
+                    append("client_secret", config.auth.clientSecret!!)
+                    append("scope", "SUBJECT.READ PROJECT.READ")
+                    append("audience", "res_ManagementPortal")
+                },
             )
 
         if (!response.status.isSuccess()) {

@@ -34,11 +34,11 @@ class ManagementPortalEnhancerFactory(
         val authConfig =
             AuthConfig(
                 managementPortal =
-                    MPConfig(
-                        url = config.auth.managementPortalUrl.trimEnd('/'),
-                        syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
-                        syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
-                    ),
+                MPConfig(
+                    url = config.auth.managementPortalUrl.trimEnd('/'),
+                    syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
+                    syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
+                ),
                 jwtResourceName = config.auth.jwtResourceName,
                 jwksUrls = config.auth.jwksUrls,
             )
@@ -46,10 +46,10 @@ class ManagementPortalEnhancerFactory(
         val dbConfig =
             config.database.copy(
                 managedClasses =
-                    listOf(
-                        RestSourceUser::class.qualifiedName!!,
-                        RegistrationState::class.qualifiedName!!,
-                    ),
+                listOf(
+                    RestSourceUser::class.qualifiedName!!,
+                    RegistrationState::class.qualifiedName!!,
+                ),
             )
         return listOf(
             Enhancers.radar(authConfig),

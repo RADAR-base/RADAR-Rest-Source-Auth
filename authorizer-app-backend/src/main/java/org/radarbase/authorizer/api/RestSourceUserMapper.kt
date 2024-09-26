@@ -34,10 +34,10 @@ class RestSourceUserMapper {
             projectId = user.projectId,
             userId = user.userId,
             humanReadableUserId =
-                mpUser
-                    ?.attributes
-                    ?.get("Human-readable-identifier")
-                    ?.takeIf { it.isNotBlank() && it != "null" },
+            mpUser
+                ?.attributes
+                ?.get("Human-readable-identifier")
+                ?.takeIf { it.isNotBlank() && it != "null" },
             externalId = mpUser?.externalId,
             sourceId = user.sourceId,
             isAuthorized = user.authorized,

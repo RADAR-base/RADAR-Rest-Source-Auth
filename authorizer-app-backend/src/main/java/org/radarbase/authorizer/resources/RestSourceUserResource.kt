@@ -238,11 +238,11 @@ class RestSourceUserResource(
         ) = RestSourceUsers(
             users = listOf(),
             metadata =
-                Page(
-                    pageNumber = pageNumber,
-                    pageSize = pageSize,
-                    totalElements = 0,
-                ),
+            Page(
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                totalElements = 0,
+            ),
         )
     }
 }
