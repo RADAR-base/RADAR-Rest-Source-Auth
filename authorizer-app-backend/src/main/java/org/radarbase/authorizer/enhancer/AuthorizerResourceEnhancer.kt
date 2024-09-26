@@ -32,11 +32,11 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.
 import org.radarbase.authorizer.service.GarminSourceAuthorizationService
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.OuraAuthorizationService
+import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.service.RestSourceUserService
-import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.filter.Filters
 import org.radarbase.jersey.service.ProjectService
@@ -44,26 +44,29 @@ import org.radarbase.jersey.service.ProjectService
 class AuthorizerResourceEnhancer(
     private val config: AuthorizerConfig,
 ) : JerseyResourceEnhancer {
-    private val restSourceClients = RestSourceClients(
-        config.restSourceClients
-            .map { it.withEnv() }
-            .onEach {
-                requireNotNull(it.clientId) { "Client ID of ${it.sourceType} is missing" }
-                requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
-            },
-    )
+    private val restSourceClients =
+        RestSourceClients(
+            config.restSourceClients
+                .map { it.withEnv() }
+                .onEach {
+                    requireNotNull(it.clientId) { "Client ID of ${it.sourceType} is missing" }
+                    requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
+                },
+        )
 
     override val classes: Array<Class<*>>
-        get() = listOfNotNull(
-            Filters.cache,
-            Filters.logResponse,
-            if (config.service.enableCors == true) Filters.cors else null,
-        ).toTypedArray()
+        get() =
+            listOfNotNull(
+                Filters.cache,
+                Filters.logResponse,
+                if (config.service.enableCors == true) Filters.cors else null,
+            ).toTypedArray()
 
-    override val packages: Array<String> = arrayOf(
-        "org.radarbase.authorizer.resources",
-        "org.radarbase.authorizer.lifecycle",
-    )
+    override val packages: Array<String> =
+        arrayOf(
+            "org.radarbase.authorizer.resources",
+            "org.radarbase.authorizer.lifecycle",
+        )
 
     override fun AbstractBinder.enhance() {
         // Bind instances. These cannot use any injects themselves

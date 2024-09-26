@@ -16,28 +16,28 @@
 
 package org.radarbase.authorizer.api
 
-import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RadarProjectService
-import org.radarbase.authorizer.service.MPClient
 import org.radarbase.kotlin.coroutines.forkJoin
-import org.radarbase.jersey.auth.AuthService
 
-class RestSourceUserMapper(
-) {
+class RestSourceUserMapper {
     private val projectService: RadarProjectService = RadarProjectService()
 
     suspend fun fromEntity(user: RestSourceUser): RestSourceUserDTO {
-        val mpUser = user.projectId?.let { p ->
-            user.userId?.let { u -> projectService.subject(p, u) }
-        }
+        val mpUser =
+            user.projectId?.let { p ->
+                user.userId?.let { u -> projectService.subject(p, u) }
+            }
         return RestSourceUserDTO(
             id = user.id.toString(),
             createdAt = user.createdAt,
             projectId = user.projectId,
             userId = user.userId,
-            humanReadableUserId = mpUser?.attributes?.get("Human-readable-identifier")
-                ?.takeIf { it.isNotBlank() && it != "null" },
+            humanReadableUserId =
+                mpUser
+                    ?.attributes
+                    ?.get("Human-readable-identifier")
+                    ?.takeIf { it.isNotBlank() && it != "null" },
             externalId = mpUser?.externalId,
             sourceId = user.sourceId,
             isAuthorized = user.authorized,
@@ -52,7 +52,10 @@ class RestSourceUserMapper(
         )
     }
 
-    suspend fun fromRestSourceUsers(records: List<RestSourceUser>, page: Page?) = RestSourceUsers(
+    suspend fun fromRestSourceUsers(
+        records: List<RestSourceUser>,
+        page: Page?,
+    ) = RestSourceUsers(
         users = records.forkJoin { fromEntity(it) },
         metadata = page,
     )
