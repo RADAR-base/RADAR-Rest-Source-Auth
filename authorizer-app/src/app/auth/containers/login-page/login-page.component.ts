@@ -81,8 +81,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   redirectToAuthRequestLink() {
-    window.location.href = `${environment.authBaseUrl}/authorize?client_id=${
+    const scopes = "SOURCETYPE.READ%20PROJECT.READ%20SUBJECT.READ%20SUBJECT.UPDATE%20SUBJECT.CREATE"
+    window.location.href = `${environment.authBaseUrl}/auth?client_id=${
       environment.appClientId
-    }&response_type=code&redirect_uri=${window.location.href.split('?')[0]}`;
+    }&response_type=code&state=${Date.now()}&audience=res_restAuthorizer&scope=${scopes}&redirect_uri=${window.location.href.split('?')[0]}`;
   }
 }
