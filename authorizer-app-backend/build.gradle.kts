@@ -4,6 +4,9 @@ plugins {
     kotlin("plugin.noarg")
     kotlin("plugin.jpa")
     kotlin("plugin.allopen")
+    // TODO Remove this when new release of radar-commons is available and used in this project.
+    // This version has Sentry support built in for radar-kotlin plugin.
+    id("io.sentry.jvm.gradle") version "4.11.0"
 }
 
 application {
