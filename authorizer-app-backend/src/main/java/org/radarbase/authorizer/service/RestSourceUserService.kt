@@ -40,16 +40,14 @@ class RestSourceUserService(
 
     suspend fun create(userDto: RestSourceUserDTO): RestSourceUserDTO {
         userDto.ensure()
-        val existingUserDto = userMapper.fromEntity(
-            userRepository.findByUserIdProjectIdSourceType(
-                userId = userDto.userId!!,
-                projectId = userDto.projectId!!,
-                sourceType = userDto.sourceType,
-            )!!,
+        val existingUser = userRepository.findByUserIdProjectIdSourceType(
+            userId = userDto.userId!!,
+            projectId = userDto.projectId!!,
+            sourceType = userDto.sourceType,
         )
-        if (existingUserDto != null) {
+        if (existingUser != null) {
             val response = Response.status(Response.Status.CONFLICT)
-                .entity(mapOf("status" to 409, "message" to "User already exists.", "user" to existingUserDto))
+                .entity(mapOf("status" to 409, "message" to "User already exists.", "user" to userMapper.fromEntity(existingUser)))
                 .build()
 
             throw WebApplicationException(response)
