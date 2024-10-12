@@ -40,6 +40,7 @@ import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.api.RestSourceUsers
 import org.radarbase.authorizer.api.SignRequestParams
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
@@ -67,8 +68,9 @@ class RestSourceUserResource(
     @Context private val userService: RestSourceUserService,
     @Context private val asyncService: AsyncCoroutineService,
     @Context private val authService: AuthService,
+    @Context private val config: AuthorizerConfig,
 ) {
-    private val projectService: RadarProjectService = RadarProjectService()
+    private val projectService: RadarProjectService = RadarProjectService(config)
 
     @GET
     @NeedsPermission(Permission.SUBJECT_READ)

@@ -1,6 +1,8 @@
 package org.radarbase.authorizer.service
 
 import io.ktor.http.HttpStatusCode
+import jakarta.ws.rs.core.Context
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.service.ProjectService
 import org.radarbase.kotlin.coroutines.CacheConfig
@@ -16,8 +18,10 @@ import java.util.concurrent.ConcurrentMap
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toKotlinDuration
 
-class RadarProjectService : ProjectService {
-    private val mpClient: MPClient = MPClient()
+class RadarProjectService(
+    @Context private val config: AuthorizerConfig,
+) : ProjectService {
+    private val mpClient: MPClient = MPClient(config)
 
     private val projects: CachedMap<String, MPProject>
     private val organizations: CachedMap<String, MPOrganization>

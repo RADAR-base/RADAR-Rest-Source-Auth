@@ -16,6 +16,7 @@ import io.ktor.http.headers
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import jakarta.inject.Singleton
+import jakarta.ws.rs.core.Context
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.radarbase.authorizer.config.AuthorizerConfig
@@ -25,10 +26,10 @@ import org.radarbase.management.client.MPSubject
 import org.slf4j.LoggerFactory
 
 @Singleton
-class MPClient {
-    private val config: AuthorizerConfig = AuthorizerConfig()
+class MPClient(
+    @Context private val config: AuthorizerConfig,
+) {
     private val logger = LoggerFactory.getLogger(MPClient::class.java)
-
     private val httpClient =
         HttpClient(CIO) {
             install(ContentNegotiation) {
@@ -75,8 +76,8 @@ class MPClient {
             }
 
         if (!response.status.isSuccess()) {
-            logger.error("Failed to fetch projects: ${response.status}")
-            throw RuntimeException("Failed to fetch projects")
+            logger.error("Failed to fetch organizations: ${response.status}")
+            throw RuntimeException("Failed to fetch organizations")
         }
 
         return response.body()
@@ -116,8 +117,8 @@ class MPClient {
             }
 
         if (!response.status.isSuccess()) {
-            logger.error("Failed to fetch projects: ${response.status}")
-            throw RuntimeException("Failed to fetch projects")
+            logger.error("Failed to fetch subjects: ${response.status}")
+            throw RuntimeException("Failed to fetch subjects")
         }
 
         return response.body()

@@ -16,12 +16,16 @@
 
 package org.radarbase.authorizer.api
 
+import jakarta.ws.rs.core.Context
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.kotlin.coroutines.forkJoin
 
-class RestSourceUserMapper {
-    private val projectService: RadarProjectService = RadarProjectService()
+class RestSourceUserMapper(
+    @Context private val config: AuthorizerConfig,
+) {
+    private val projectService: RadarProjectService = RadarProjectService(config)
 
     suspend fun fromEntity(user: RestSourceUser): RestSourceUserDTO {
         val mpUser =

@@ -21,6 +21,7 @@ import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.StateCreateDTO
 import org.radarbase.authorizer.api.TokenSecret
 import org.radarbase.authorizer.api.toProject
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RadarProjectService
@@ -49,8 +50,9 @@ class RegistrationResource(
     @Context private val registrationService: RegistrationService,
     @Context private val asyncService: AsyncCoroutineService,
     @Context private val authService: AuthService,
+    @Context private val config: AuthorizerConfig,
 ) {
-    private val projectService: RadarProjectService = RadarProjectService()
+    private val projectService: RadarProjectService = RadarProjectService(config)
 
     @POST
     @Authenticated
