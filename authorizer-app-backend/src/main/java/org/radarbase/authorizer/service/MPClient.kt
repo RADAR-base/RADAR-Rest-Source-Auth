@@ -17,6 +17,8 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import jakarta.inject.Singleton
 import jakarta.ws.rs.core.Context
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.radarbase.authorizer.config.AuthorizerConfig
@@ -40,7 +42,12 @@ class MPClient(
             }
         }
 
-    suspend fun getAccessToken(): String {
+    private var accessToken: String? = null
+    private var tokenExpiration: Long = 0
+
+    private val mutex = Mutex()
+
+    private suspend fun fetchAccessToken(): String {
         val response: HttpResponse =
             httpClient.submitForm(
                 url = config.auth.authUrl,
@@ -60,7 +67,20 @@ class MPClient(
         }
 
         val tokenResponse = response.body<TokenResponse>()
-        return tokenResponse.access_token
+        accessToken = tokenResponse.access_token
+        tokenExpiration = System.currentTimeMillis() + (tokenResponse.expires_in * 1000) // Convert seconds to milliseconds
+
+        return accessToken!!
+    }
+
+    private suspend fun getAccessToken(): String {
+        mutex.withLock {
+            return if (accessToken == null || System.currentTimeMillis() >= tokenExpiration) {
+                fetchAccessToken()
+            } else {
+                accessToken!!
+            }
+        }
     }
 
     suspend fun requestOrganizations(
