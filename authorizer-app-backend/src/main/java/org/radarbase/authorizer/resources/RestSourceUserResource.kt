@@ -40,7 +40,9 @@ import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.api.RestSourceUsers
 import org.radarbase.authorizer.api.SignRequestParams
+import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RestSourceUserRepository
+import org.radarbase.authorizer.service.RadarProjectService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.service.RestSourceUserService
@@ -50,7 +52,6 @@ import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.exception.HttpBadRequestException
 import org.radarbase.jersey.service.AsyncCoroutineService
-import org.radarbase.jersey.service.managementportal.RadarProjectService
 import java.net.URI
 
 @Path("users")
@@ -62,91 +63,108 @@ import java.net.URI
 class RestSourceUserResource(
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val userMapper: RestSourceUserMapper,
-    @Context private val projectService: RadarProjectService,
     @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val sourceClientService: RestSourceClientService,
     @Context private val userService: RestSourceUserService,
     @Context private val asyncService: AsyncCoroutineService,
     @Context private val authService: AuthService,
+    @Context private val config: AuthorizerConfig,
 ) {
+    private val projectService: RadarProjectService = RadarProjectService(config)
+
     @GET
     @NeedsPermission(Permission.SUBJECT_READ)
     fun query(
         @QueryParam("project-id") projectId: String?,
         @QueryParam("source-type") sourceType: String?,
         @QueryParam("search") search: String?,
-        @DefaultValue("true")
-        @QueryParam("authorized")
-        isAuthorized: String,
-        @DefaultValue(Integer.MAX_VALUE.toString())
-        @QueryParam("size")
-        pageSize: Int,
-        @DefaultValue("1")
-        @QueryParam("page")
-        pageNumber: Int,
+        @DefaultValue("true") @QueryParam("authorized") isAuthorized: String,
+        @DefaultValue(Integer.MAX_VALUE.toString()) @QueryParam("size") pageSize: Int,
+        @DefaultValue("1") @QueryParam("page") pageNumber: Int,
         @Suspended asyncResponse: AsyncResponse,
     ) = asyncService.runAsCoroutine(asyncResponse) {
-        val projectIds = if (projectId == null) {
-            projectService.userProjects(Permission.SUBJECT_READ)
-                .also { projects -> if (projects.isEmpty()) return@runAsCoroutine emptyUsers(pageNumber, pageSize) }
-                .map { it.id }
-        } else {
-            authService.checkPermission(Permission.SUBJECT_READ, EntityDetails(project = projectId))
-            listOf(projectId)
-        }
+        val projectIds =
+            if (projectId == null) {
+                projectService
+                    .userProjects()
+                    .filter {
+                        authService.hasPermission(
+                            Permission.SUBJECT_READ,
+                            EntityDetails(
+                                organization = it.organization?.id,
+                                project = it.id,
+                            ),
+                        )
+                    }.also { projects ->
+                        if (projects.isEmpty()) {
+                            return@runAsCoroutine emptyUsers(
+                                pageNumber,
+                                pageSize,
+                            )
+                        }
+                    }.map { it.id }
+            } else {
+                authService.checkPermission(
+                    Permission.SUBJECT_READ,
+                    EntityDetails(project = projectId),
+                )
+                listOf(projectId)
+            }
 
-        val sanitizedSourceType = when (sourceType) {
-            null -> null
-            in sourceClientService -> sourceType
-            else -> return@runAsCoroutine emptyUsers(pageNumber, pageSize)
-        }
+        val sanitizedSourceType =
+            when (sourceType) {
+                null -> null
+                in sourceClientService -> sourceType
+                else -> return@runAsCoroutine emptyUsers(pageNumber, pageSize)
+            }
 
         val sanitizedSearch = search?.takeIf { it.length >= 2 }
 
-        val userIds = if (sanitizedSearch != null) {
-            projectId ?: throw HttpBadRequestException(
-                "missing_project_id",
-                "Cannot search without a fixed project ID.",
-            )
-            projectService.projectSubjects(projectId)
-                .mapNotNull { sub ->
+        val userIds =
+            if (sanitizedSearch != null) {
+                projectId
+                    ?: throw HttpBadRequestException(
+                        "missing_project_id",
+                        "Cannot search without a fixed project ID.",
+                    )
+                projectService.projectSubjects(projectId).mapNotNull { sub ->
                     val externalId = sub.externalId ?: return@mapNotNull null
                     sub.id.takeIf { sanitizedSearch in externalId }
                 }
-        } else {
-            emptyList()
-        }
+            } else {
+                emptyList()
+            }
 
-        val authorizedBoolean = when (isAuthorized) {
-            "true", "yes" -> true
-            "false", "no" -> false
-            else -> null
-        }
+        val authorizedBoolean =
+            when (isAuthorized) {
+                "true", "yes" -> true
+                "false", "no" -> false
+                else -> null
+            }
 
         val queryPage = Page(pageNumber = pageNumber, pageSize = pageSize)
-        val (records, page) = userRepository.query(
-            queryPage,
-            projectIds,
-            sanitizedSourceType,
-            sanitizedSearch,
-            userIds,
-            authorizedBoolean,
-        )
+        val (records, page) =
+            userRepository.query(
+                queryPage,
+                projectIds,
+                sanitizedSourceType,
+                sanitizedSearch,
+                userIds,
+                authorizedBoolean,
+            )
 
         userMapper.fromRestSourceUsers(records, page)
     }
 
     @POST
-    @NeedsPermission(Permission.SUBJECT_CREATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun create(
         userDto: RestSourceUserDTO,
         @Suspended asyncResponse: AsyncResponse,
     ) = asyncService.runAsCoroutine(asyncResponse) {
         val user = userService.create(userDto)
 
-        Response.created(URI("users/${user.id}"))
-            .entity(user)
-            .build()
+        Response.created(URI("users/${user.id}")).entity(user).build()
     }
 
     @POST
@@ -156,9 +174,7 @@ class RestSourceUserResource(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO,
         @Suspended asyncResponse: AsyncResponse,
-    ) = asyncService.runAsCoroutine(asyncResponse) {
-        userService.update(userId, user)
-    }
+    ) = asyncService.runAsCoroutine(asyncResponse) { userService.update(userId, user) }
 
     @GET
     @Path("{id}")
@@ -167,9 +183,7 @@ class RestSourceUserResource(
     fun readUser(
         @PathParam("id") userId: Long,
         @Suspended asyncResponse: AsyncResponse,
-    ) = asyncService.runAsCoroutine(asyncResponse) {
-        userService.get(userId)
-    }
+    ) = asyncService.runAsCoroutine(asyncResponse) { userService.get(userId) }
 
     @DELETE
     @Path("{id}")
@@ -179,9 +193,7 @@ class RestSourceUserResource(
         @Suspended asyncResponse: AsyncResponse,
     ) = asyncService.runAsCoroutine(asyncResponse) {
         userService.delete(userId)
-        Response.noContent()
-            .header("user-removed", userId)
-            .build()
+        Response.noContent().header("user-removed", userId).build()
     }
 
     @POST
@@ -191,9 +203,7 @@ class RestSourceUserResource(
         @PathParam("id") userId: Long,
         user: RestSourceUserDTO,
         @Suspended asyncResponse: AsyncResponse,
-    ) = asyncService.runAsCoroutine(asyncResponse) {
-        userService.reset(userId, user)
-    }
+    ) = asyncService.runAsCoroutine(asyncResponse) { userService.reset(userId, user) }
 
     @GET
     @Path("{id}/token")
@@ -201,9 +211,7 @@ class RestSourceUserResource(
     fun requestToken(
         @PathParam("id") userId: Long,
         @Suspended asyncResponse: AsyncResponse,
-    ) = asyncService.runAsCoroutine(asyncResponse) {
-        userService.ensureToken(userId)
-    }
+    ) = asyncService.runAsCoroutine(asyncResponse) { userService.ensureToken(userId) }
 
     @POST
     @Path("{id}/token")
@@ -211,9 +219,7 @@ class RestSourceUserResource(
     fun refreshToken(
         @PathParam("id") userId: Long,
         @Suspended asyncResponse: AsyncResponse,
-    ) = asyncService.runAsCoroutine(asyncResponse) {
-        userService.refreshToken(userId)
-    }
+    ) = asyncService.runAsCoroutine(asyncResponse) { userService.refreshToken(userId) }
 
     @POST
     @Path("{id}/token/sign")
@@ -228,9 +234,13 @@ class RestSourceUserResource(
     }
 
     companion object {
-        private fun emptyUsers(pageNumber: Int, pageSize: Int) = RestSourceUsers(
+        private fun emptyUsers(
+            pageNumber: Int,
+            pageSize: Int,
+        ) = RestSourceUsers(
             users = listOf(),
-            metadata = Page(
+            metadata =
+            Page(
                 pageNumber = pageNumber,
                 pageSize = pageSize,
                 totalElements = 0,

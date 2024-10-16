@@ -23,7 +23,6 @@ import org.radarbase.authorizer.api.Page
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.service.AsyncCoroutineService
@@ -52,19 +51,20 @@ class RestSourceUserRepositoryImpl(
             .resultList.firstOrNull()
 
         if (existingUser != null) {
-            throw HttpConflictException("user_exists", "User ${user.userId} already exists.")
-        }
-        RestSourceUser(
-            projectId = user.projectId,
-            userId = user.userId,
-            sourceId = user.sourceId ?: UUID.randomUUID().toString(),
-            sourceType = user.sourceType,
-            createdAt = Instant.now(),
-            version = Instant.now().toString(),
-            startDate = user.startDate,
-            endDate = user.endDate,
-        ).also {
-            persist(it)
+            existingUser
+        } else {
+            RestSourceUser(
+                projectId = user.projectId,
+                userId = user.userId,
+                sourceId = user.sourceId ?: UUID.randomUUID().toString(),
+                sourceType = user.sourceType,
+                createdAt = Instant.now(),
+                version = Instant.now().toString(),
+                startDate = user.startDate,
+                endDate = user.endDate,
+            ).also {
+                persist(it)
+            }
         }
     }
 
@@ -209,6 +209,27 @@ class RestSourceUserRepositoryImpl(
             }.resultList
         }
         return if (result.isEmpty()) null else result[0]
+    }
+
+    override suspend fun findByUserIdProjectIdSourceType(
+        userId: String,
+        projectId: String,
+        sourceType: String,
+    ): RestSourceUser? = transact {
+        createQuery(
+            """
+            SELECT u
+            FROM RestSourceUser u
+            WHERE u.userId = :userId
+            AND u.projectId = :projectId
+            AND u.sourceType = :sourceType
+            """.trimIndent(),
+            RestSourceUser::class.java,
+        ).apply {
+            setParameter("userId", userId)
+            setParameter("projectId", projectId)
+            setParameter("sourceType", sourceType)
+        }.resultList.firstOrNull()
     }
 
     override suspend fun delete(user: RestSourceUser) = transact {

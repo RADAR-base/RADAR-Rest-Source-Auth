@@ -28,16 +28,19 @@ import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
 import jakarta.ws.rs.core.MediaType
+import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.authorizer.api.ProjectList
 import org.radarbase.authorizer.api.UserList
 import org.radarbase.authorizer.api.toProject
 import org.radarbase.authorizer.api.toUser
+import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.service.RadarProjectService
+import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.cache.Cache
 import org.radarbase.jersey.service.AsyncCoroutineService
-import org.radarbase.jersey.service.managementportal.RadarProjectService
 
 @Path("projects")
 @Authenticated
@@ -46,17 +49,30 @@ import org.radarbase.jersey.service.managementportal.RadarProjectService
 @Resource
 @Singleton
 class ProjectResource(
-    @Context private val projectService: RadarProjectService,
     @Context private val asyncService: AsyncCoroutineService,
+    @Context private val authService: AuthService,
+    @Context private val config: AuthorizerConfig,
 ) {
+    private val projectService: RadarProjectService = RadarProjectService(config)
 
     @GET
     @NeedsPermission(Permission.PROJECT_READ)
     @Cache(maxAge = 300, isPrivate = true, vary = [AUTHORIZATION])
-    fun projects(@Suspended asyncResponse: AsyncResponse) = asyncService.runAsCoroutine(asyncResponse) {
+    fun projects(
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
         ProjectList(
-            projectService.userProjects()
-                .map { it.toProject() },
+            projectService
+                .userProjects()
+                .filter {
+                    authService.hasPermission(
+                        Permission.SUBJECT_READ,
+                        EntityDetails(
+                            organization = it.organization?.id,
+                            project = it.id,
+                        ),
+                    )
+                }.map { it.toProject() },
         )
     }
 
@@ -69,8 +85,7 @@ class ProjectResource(
         @Suspended asyncResponse: AsyncResponse,
     ) = asyncService.runAsCoroutine(asyncResponse) {
         UserList(
-            projectService.projectSubjects(projectId)
-                .map { it.toUser() },
+            projectService.projectSubjects(projectId).map { it.toUser(projectId) },
         )
     }
 
@@ -81,7 +96,5 @@ class ProjectResource(
     fun project(
         @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
-    ) = asyncService.runAsCoroutine(asyncResponse) {
-        projectService.project(projectId).toProject()
-    }
+    ) = asyncService.runAsCoroutine(asyncResponse) { projectService.project(projectId).toProject() }
 }

@@ -39,4 +39,5 @@ interface RestSourceUserRepository {
     suspend fun delete(user: RestSourceUser)
     suspend fun reset(user: RestSourceUser, startDate: Instant, endDate: Instant?): RestSourceUser
     suspend fun findByExternalId(externalId: String, sourceType: String): RestSourceUser?
+    suspend fun findByUserIdProjectIdSourceType(userId: String, projectId: String, sourceType: String): RestSourceUser?
 }
