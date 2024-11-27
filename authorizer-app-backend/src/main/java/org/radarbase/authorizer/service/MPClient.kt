@@ -16,9 +16,8 @@ import io.ktor.http.headers
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import jakarta.inject.Singleton
-import jakarta.ws.rs.core.Context
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.radarbase.authorizer.config.AuthorizerConfig
@@ -26,10 +25,11 @@ import org.radarbase.management.client.MPOrganization
 import org.radarbase.management.client.MPProject
 import org.radarbase.management.client.MPSubject
 import org.slf4j.LoggerFactory
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class MPClient(
-    @Context private val config: AuthorizerConfig,
+    private val config: AuthorizerConfig,
 ) {
     private val logger = LoggerFactory.getLogger(MPClient::class.java)
     private val httpClient =
@@ -38,49 +38,48 @@ class MPClient(
                 json(Json { ignoreUnknownKeys = true })
             }
             install(HttpTimeout) {
-                requestTimeoutMillis = 30_000
+                val millis = 30.seconds.inWholeMilliseconds
+                connectTimeoutMillis = millis
+                socketTimeoutMillis = millis
+                requestTimeoutMillis = millis
             }
         }
 
-    private var accessToken: String? = null
+    private var accessToken: String = ""
     private var tokenExpiration: Long = 0
 
-    private val mutex = Mutex()
+    private suspend fun fetchAccessToken(): String =
+        withContext(Dispatchers.IO) {
+            val response: HttpResponse =
+                httpClient.submitForm(
+                    url = config.auth.authUrl,
+                    formParameters =
+                        Parameters.build {
+                            append("grant_type", "client_credentials")
+                            append("client_id", config.auth.clientId)
+                            append("client_secret", config.auth.clientSecret!!)
+                            append("scope", "SUBJECT.READ PROJECT.READ")
+                            append("audience", "res_ManagementPortal")
+                        },
+                )
 
-    private suspend fun fetchAccessToken(): String {
-        val response: HttpResponse =
-            httpClient.submitForm(
-                url = config.auth.authUrl,
-                formParameters =
-                Parameters.build {
-                    append("grant_type", "client_credentials")
-                    append("client_id", config.auth.clientId)
-                    append("client_secret", config.auth.clientSecret!!)
-                    append("scope", "SUBJECT.READ PROJECT.READ")
-                    append("audience", "res_ManagementPortal")
-                },
-            )
+            if (!response.status.isSuccess()) {
+                logger.error("Failed to acquire access token: ${response.status}")
+                throw RuntimeException("Unable to retrieve access token")
+            }
 
-        if (!response.status.isSuccess()) {
-            logger.error("Failed to acquire access token: ${response.status}")
-            throw RuntimeException("Unable to retrieve access token")
+            val tokenResponse = response.body<TokenResponse>()
+            accessToken = tokenResponse.access_token
+            tokenExpiration = System.currentTimeMillis() + (tokenResponse.expires_in * 1000) // Convert seconds to milliseconds
+
+            accessToken
         }
-
-        val tokenResponse = response.body<TokenResponse>()
-        accessToken = tokenResponse.access_token
-        tokenExpiration = System.currentTimeMillis() + (tokenResponse.expires_in * 1000) // Convert seconds to milliseconds
-
-        return accessToken!!
-    }
 
     private suspend fun getAccessToken(): String {
-        mutex.withLock {
-            return if (accessToken == null || System.currentTimeMillis() >= tokenExpiration) {
-                fetchAccessToken()
-            } else {
-                accessToken!!
-            }
+        if (accessToken.isEmpty() || System.currentTimeMillis() >= tokenExpiration) {
+            this.accessToken = fetchAccessToken()
         }
+        return this.accessToken
     }
 
     suspend fun requestOrganizations(
