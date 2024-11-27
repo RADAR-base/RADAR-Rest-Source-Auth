@@ -24,8 +24,8 @@ import org.radarbase.kotlin.coroutines.forkJoin
 
 class RestSourceUserMapper(
     @Context private val config: AuthorizerConfig,
+    @Context private val projectService: RadarProjectService
 ) {
-    private val projectService: RadarProjectService = RadarProjectService(config)
 
     suspend fun fromEntity(user: RestSourceUser): RestSourceUserDTO {
         val mpUser =

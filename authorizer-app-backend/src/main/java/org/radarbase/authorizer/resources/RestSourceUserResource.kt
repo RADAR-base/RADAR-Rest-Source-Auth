@@ -69,8 +69,8 @@ class RestSourceUserResource(
     @Context private val asyncService: AsyncCoroutineService,
     @Context private val authService: AuthService,
     @Context private val config: AuthorizerConfig,
+    @Context private val projectService: RadarProjectService
 ) {
-    private val projectService: RadarProjectService = RadarProjectService(config)
 
     @GET
     @NeedsPermission(Permission.SUBJECT_READ)

@@ -20,8 +20,8 @@ import kotlin.time.toKotlinDuration
 
 class RadarProjectService(
     @Context private val config: AuthorizerConfig,
+    @Context private val mpClient: MPClient,
 ) : ProjectService {
-    private val mpClient: MPClient = MPClient(config)
 
     private val projects: CachedMap<String, MPProject>
     private val organizations: CachedMap<String, MPOrganization>
