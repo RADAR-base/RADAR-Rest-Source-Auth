@@ -9,5 +9,5 @@ data class AuthConfig(
     val jwtRSAPublicKeys: List<String>? = null,
     val jwtIssuer: String? = null,
     val jwtResourceName: String = "res_restAuthorizer",
-    val jwksUrls: List<String> = listOf("http://hydra-admin:4445/admin/keys/hydra.jwt.access-token"),
+    val jwksUrls: List<String> = listOf("http://hydra-public:4444/.well-known/jwks.json"),
 )
