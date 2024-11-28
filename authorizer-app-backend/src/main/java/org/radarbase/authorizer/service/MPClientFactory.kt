@@ -21,14 +21,13 @@ class MPClientFactory(
         val customTokenUrl = config.auth.authUrl
 
         val mpClientConfig = MPClient.Config().apply {
-            url = baseUrl
 
             auth {
                 val authConfig = ClientCredentialsConfig(
                     tokenUrl = customTokenUrl,
                     clientId = clientId,
                     clientSecret = clientSecret,
-                    additionalParameters = mapOf("audience" to "res_ManagementPortal"),
+                    audience = "res_ManagementPortal",
                 ).copyWithEnv()
 
                 return@auth clientCredentials(
