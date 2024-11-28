@@ -54,8 +54,6 @@ class AuthorizerResourceEnhancer(
                 },
         )
 
-    private val mpClient = MPClient(config)
-
     override val classes: Array<Class<*>>
         get() =
             listOfNotNull(
