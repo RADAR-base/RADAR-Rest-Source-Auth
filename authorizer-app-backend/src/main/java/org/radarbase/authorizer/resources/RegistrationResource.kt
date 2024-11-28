@@ -24,7 +24,7 @@ import org.radarbase.authorizer.api.toProject
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
-import org.radarbase.authorizer.service.RadarProjectService
+import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceUserService

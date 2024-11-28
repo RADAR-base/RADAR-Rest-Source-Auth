@@ -16,6 +16,7 @@
 
 package org.radarbase.authorizer.enhancer
 
+import jakarta.inject.Singleton
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RegistrationState
 import org.radarbase.authorizer.doa.entity.RestSourceUser
@@ -25,6 +26,7 @@ import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
+import org.radarbase.management.client.MPClient
 
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
 class ManagementPortalEnhancerFactory(
@@ -36,6 +38,8 @@ class ManagementPortalEnhancerFactory(
                 managementPortal =
                 MPConfig(
                     url = config.auth.managementPortalUrl.trimEnd('/'),
+                    clientId = config.auth.clientId,
+                    clientSecret = config.auth.clientSecret,
                     syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
                     syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
                 ),
@@ -55,7 +59,7 @@ class ManagementPortalEnhancerFactory(
             Enhancers.radar(authConfig),
             Enhancers.health,
             HibernateResourceEnhancer(dbConfig),
-            Enhancers.managementPortal(authConfig),
+            ManagementPortalResourceEnhancer(authConfig),
             Enhancers.ecdsa,
             JedisResourceEnhancer(),
             Enhancers.exception,

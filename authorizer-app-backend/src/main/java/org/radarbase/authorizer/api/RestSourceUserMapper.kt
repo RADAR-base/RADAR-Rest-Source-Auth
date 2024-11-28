@@ -19,7 +19,7 @@ package org.radarbase.authorizer.api
 import jakarta.ws.rs.core.Context
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.service.RadarProjectService
+import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.radarbase.kotlin.coroutines.forkJoin
 
 class RestSourceUserMapper(

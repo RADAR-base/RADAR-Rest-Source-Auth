@@ -42,7 +42,7 @@ import org.radarbase.authorizer.api.RestSourceUsers
 import org.radarbase.authorizer.api.SignRequestParams
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RestSourceUserRepository
-import org.radarbase.authorizer.service.RadarProjectService
+import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.service.RestSourceUserService

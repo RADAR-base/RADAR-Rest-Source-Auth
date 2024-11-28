@@ -30,10 +30,9 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.OURA_AUTH
 import org.radarbase.authorizer.service.GarminSourceAuthorizationService
-import org.radarbase.authorizer.service.MPClient
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.OuraAuthorizationService
-import org.radarbase.authorizer.service.RadarProjectService
+import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
@@ -75,9 +74,6 @@ class AuthorizerResourceEnhancer(
         // Bind instances. These cannot use any injects themselves
         bind(config)
             .to(AuthorizerConfig::class.java)
-
-        bind(mpClient)
-            .to(MPClient::class.java)
 
         bind(restSourceClients)
             .to(RestSourceClients::class.java)
@@ -126,11 +122,6 @@ class AuthorizerResourceEnhancer(
         bind(OuraAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(OURA_AUTH)
-            .`in`(Singleton::class.java)
-
-        bind(RadarProjectService::class.java)
-            .to(ProjectService::class.java) // For injecting as ProjectService
-            .to(RadarProjectService::class.java) // For injecting as RadarProjectService
             .`in`(Singleton::class.java)
     }
 }
