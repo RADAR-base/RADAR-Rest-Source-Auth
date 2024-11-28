@@ -21,7 +21,6 @@ class ManagementPortalResourceEnhancer(private val config: AuthConfig) : JerseyR
     override fun AbstractBinder.enhance() {
         val config = config.withEnv()
 
-        // Bind other necessary services
         bindFactory(TokenValidatorFactory::class.java)
             .to(TokenValidator::class.java)
             .`in`(Singleton::class.java)
@@ -34,13 +33,11 @@ class ManagementPortalResourceEnhancer(private val config: AuthConfig) : JerseyR
             .to(AuthorizationOracle::class.java)
             .`in`(Singleton::class.java)
 
-        // If managementPortal.clientId is available, bind your custom MPClient
         if (config.managementPortal.clientId != null) {
-            bindFactory(MPClientFactory::class.java)  // Bind your custom MPClientFactory
+            bindFactory(MPClientFactory::class.java)
                 .to(MPClient::class.java)
                 .`in`(Singleton::class.java)
 
-            // Bind other services related to ProjectService
             bind(ProjectServiceWrapper::class.java)
                 .to(ProjectService::class.java)
                 .`in`(Singleton::class.java)
