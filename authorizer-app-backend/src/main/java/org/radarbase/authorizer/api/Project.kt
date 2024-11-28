@@ -19,9 +19,7 @@ package org.radarbase.authorizer.api
 import org.radarbase.management.client.MPProject
 import org.radarbase.management.client.MPSubject
 
-data class ProjectList(
-    val projects: List<Project>,
-)
+data class ProjectList(val projects: List<Project>)
 
 data class Project(
     val id: String,
@@ -31,30 +29,21 @@ data class Project(
     val description: String? = null,
 )
 
-fun MPProject.toProject() =
-    Project(
-        id = id,
-        name = name,
-        location = location,
-        organization = organization?.id,
-        description = description,
-    )
-
-data class UserList(
-    val users: List<User>,
+fun MPProject.toProject() = Project(
+    id = id,
+    name = name,
+    location = location,
+    organization = organization?.id,
+    description = description,
 )
 
-data class User(
-    val id: String,
-    val projectId: String,
-    val externalId: String? = null,
-    val status: String,
-)
+data class UserList(val users: List<User>)
 
-fun MPSubject.toUser(projectId: String) =
-    User(
-        id = checkNotNull(id) { "User must have a login" },
-        projectId = projectId,
-        externalId = externalId,
-        status = status,
-    )
+data class User(val id: String, val projectId: String, val externalId: String? = null, val status: String)
+
+fun MPSubject.toUser() = User(
+    id = checkNotNull(id) { "User must have a login" },
+    projectId = checkNotNull(projectId) { "User must have a project ID" },
+    externalId = externalId,
+    status = status,
+)
