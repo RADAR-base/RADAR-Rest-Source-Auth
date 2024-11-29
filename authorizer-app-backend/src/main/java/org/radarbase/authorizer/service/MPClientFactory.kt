@@ -21,6 +21,7 @@ class MPClientFactory(
         val customTokenUrl = config.auth.authUrl
 
         val mpClientConfig = MPClient.Config().apply {
+            url = baseUrl
 
             auth {
                 val authConfig = ClientCredentialsConfig(
