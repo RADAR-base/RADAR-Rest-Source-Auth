@@ -137,7 +137,7 @@ class RestSourceUserResource(
     }
 
     @POST
-    @NeedsPermission(Permission.SUBJECT_CREATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun create(
         userDto: RestSourceUserDTO,
         @Suspended asyncResponse: AsyncResponse,

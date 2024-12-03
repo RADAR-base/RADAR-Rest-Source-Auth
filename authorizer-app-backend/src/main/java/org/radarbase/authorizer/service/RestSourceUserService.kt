@@ -1,5 +1,6 @@
 package org.radarbase.authorizer.service
 
+import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.Response
 import org.radarbase.auth.authorization.EntityDetails
@@ -39,6 +40,18 @@ class RestSourceUserService(
 
     suspend fun create(userDto: RestSourceUserDTO): RestSourceUserDTO {
         userDto.ensure()
+        val existingUser = userRepository.findByUserIdProjectIdSourceType(
+            userId = userDto.userId!!,
+            projectId = userDto.projectId!!,
+            sourceType = userDto.sourceType,
+        )
+        if (existingUser != null) {
+            val response = Response.status(Response.Status.CONFLICT)
+                .entity(mapOf("status" to 409, "message" to "User already exists.", "user" to userMapper.fromEntity(existingUser)))
+                .build()
+
+            throw WebApplicationException(response)
+        }
         val user = userRepository.create(userDto)
         return userMapper.fromEntity(user)
     }
