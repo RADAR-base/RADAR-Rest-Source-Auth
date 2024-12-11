@@ -27,6 +27,11 @@ if __name__ == "__main__":
 
     # make request to get all the subjects from the REST_SOURCES_AUTH_BACKEND_URL
     response = requests.get(REST_SOURCES_AUTH_BACKEND_URL + f"/users?project-id={PROJECT_ID}&source-type={SOURCE_TYPE}&authorized=true", headers={"Authorization": "Bearer " + TOKEN})
+    
+    if response.status_code != 200:
+        logger.error(f"{response.json().get('error', 'Error')}: {response.json().get('error_description', 'Error fetching subjects')}")
+        exit()
+    
     subjects = response.json()['users']
 
     logger.debug(f"Type: {type(subjects)} ,Subjects: {subjects}")
