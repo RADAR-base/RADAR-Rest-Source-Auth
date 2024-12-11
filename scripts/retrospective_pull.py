@@ -39,6 +39,11 @@ if __name__ == "__main__":
     if len(subjects) == 0:
         logger.error("No subjects found")
         exit()
+    
+    confirm = input(f"Are you sure you want to reset {len(subjects)} subjects? (y/n): ")
+    if confirm.lower() != "y":
+        logger.info("Exiting")
+        exit()
 
     # for each subject, make a request to the REST_SOURCES_AUTH_BACKEND_URL to update the user's start and end date and reset the user
     for subject in subjects:
