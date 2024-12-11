@@ -27,30 +27,38 @@ import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
-class ManagementPortalEnhancerFactory(private val config: AuthorizerConfig) : EnhancerFactory {
+class ManagementPortalEnhancerFactory(
+    private val config: AuthorizerConfig,
+) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
-        val authConfig = AuthConfig(
-            managementPortal = MPConfig(
-                url = config.auth.managementPortalUrl.trimEnd('/'),
-                clientId = config.auth.clientId,
-                clientSecret = config.auth.clientSecret,
-                syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
-                syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
-            ),
-            jwtResourceName = config.auth.jwtResourceName,
-        )
+        val authConfig =
+            AuthConfig(
+                managementPortal =
+                MPConfig(
+                    url = config.auth.managementPortalUrl.trimEnd('/'),
+                    clientId = config.auth.clientId,
+                    clientSecret = config.auth.clientSecret,
+                    syncProjectsIntervalMin = config.service.syncProjectsIntervalMin,
+                    syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
+                ),
+                jwtResourceName = config.auth.jwtResourceName,
+                jwksUrls = config.auth.jwksUrls,
+            )
 
-        val dbConfig = config.database.copy(
-            managedClasses = listOf(
-                RestSourceUser::class.qualifiedName!!,
-                RegistrationState::class.qualifiedName!!,
-            ),
-        )
+        val dbConfig =
+            config.database.copy(
+                managedClasses =
+                listOf(
+                    RestSourceUser::class.qualifiedName!!,
+                    RegistrationState::class.qualifiedName!!,
+                ),
+            )
         return listOf(
             Enhancers.radar(authConfig),
             Enhancers.health,
             HibernateResourceEnhancer(dbConfig),
-            Enhancers.managementPortal(authConfig),
+            ManagementPortalResourceEnhancer(authConfig),
+            Enhancers.ecdsa,
             JedisResourceEnhancer(),
             Enhancers.exception,
             AuthorizerResourceEnhancer(config),
