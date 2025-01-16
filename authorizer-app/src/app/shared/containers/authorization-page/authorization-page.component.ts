@@ -23,21 +23,25 @@ export class AuthorizationPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const {token, secret} = this.activatedRoute.snapshot.queryParams;
+    const {token, secret, redirect, return_to} = this.activatedRoute.snapshot.queryParams;
     if(!token || !secret){
       this.error = 'SHARED.AUTHORIZATION_PAGE.ERROR.badUrl';
       this.isLoading = false;
       return;
     }
-    localStorage.setItem(StorageItem.AUTHORIZATION_TOKEN, token);
+    this.userService.storeAuthorizationToken(token);
+    this.userService.storeReturnUrl(return_to);
     this.userService.getAuthEndpointUrl({secret}, token).subscribe({
       next: (resp) => {
         if (resp.authEndpointUrl) {
           this.sourceType = resp.sourceType;
           this.project = resp.project.id;
           this.authEndpointUrl = resp.authEndpointUrl;
-          this.isLoading = false;
           this.userService.storeUserAuthParams(resp.authEndpointUrl);
+          if (redirect) {
+            this.authorize();
+          }
+          this.isLoading = false;
         }
       },
       error: (error) => {
