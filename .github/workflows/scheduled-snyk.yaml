@@ -11,13 +11,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@3
-        with:
-          node-version: 18
-          cache: npm
-          cache-dependency-path: '**/yarn.lock'
-
-      - name: Run Snyk to check for vulnerabilities
+      
+      - name: Run Snyk to check for vulnerabilities in backend
         uses: snyk/actions/gradle-jdk17@master
         continue-on-error: true # To make sure that SARIF upload gets called
         env:
@@ -36,4 +31,25 @@ jobs:
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
+          category: backend
+          sarif_file: snyk.sarif
+
+      - name: Run Snyk to check for vulnerabilities in frontend
+        uses: snyk/actions/node@master
+        continue-on-error: true # To make sure that SARIF upload gets called
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args:  >-
+            --all-projects
+            --fail-on=upgradable
+            --severity-threshold=high
+            --policy-path=.snyk
+            --org=radar-base
+            --sarif-file-output=snyk.sarif
+
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          category: frontend
           sarif_file: snyk.sarif
