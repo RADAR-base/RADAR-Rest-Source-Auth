@@ -70,6 +70,26 @@ export class UserService {
     return this.http.delete(url);
   }
 
+  storeAuthorizationToken(token: string) {
+    localStorage.setItem(StorageItem.AUTHORIZATION_TOKEN, token);
+  }
+
+  getAuthorizationToken() {
+    return localStorage.getItem(StorageItem.AUTHORIZATION_TOKEN);
+  }
+
+  storeReturnUrl(url: string) {
+    localStorage.setItem(StorageItem.EXTERNAL_RETURN_URL, url);
+  }
+
+  getReturnUrl() {
+    return localStorage.getItem(StorageItem.EXTERNAL_RETURN_URL);
+  }
+
+  clearReturnUrl() {
+    localStorage.removeItem(StorageItem.EXTERNAL_RETURN_URL);
+  }
+
   storeUserAuthParams(url: string) {
     const params = this.getJsonFromUrl(url);
     localStorage.setItem(
@@ -86,7 +106,6 @@ export class UserService {
     const params = localStorage.getItem(StorageItem.AUTH_ENDPOINT_PARAMS_STORAGE_KEY);
     return params ? JSON.parse(params) : {};
   }
-
 
   getJsonFromUrl(url: string) {
     const query = url.split('?')[1];
