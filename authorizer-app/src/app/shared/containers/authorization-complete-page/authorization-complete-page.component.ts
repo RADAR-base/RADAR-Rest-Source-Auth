@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import {UserService} from "@app/admin/services/user.service";
-import {AuthService} from "@app/auth/services/auth.service";
-import {StorageItem as SharedStorageItem} from "@app/shared/enums/storage-item";
-import {StorageItem} from "@app/auth/enums/storage-item";
+import { UserService } from "@app/admin/services/user.service";
+import { AuthService } from "@app/auth/services/auth.service";
+import { StorageItem as SharedStorageItem } from "@app/shared/enums/storage-item";
+import { StorageItem } from "@app/auth/enums/storage-item";
 
 @Component({
   selector: 'app-authorization-complete-page',
@@ -23,7 +23,7 @@ export class AuthorizationCompletePageComponent implements OnInit {
     private router: Router,
     private service: UserService,
     public authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -78,13 +78,22 @@ export class AuthorizationCompletePageComponent implements OnInit {
     const externalUrl = this.service.getReturnUrl();
     if (externalUrl) {
       this.service.clearReturnUrl();
-      window.location.href = externalUrl;
+      let redirectUrl = externalUrl;
+
+      if (this.error) {
+        const encodedError = encodeURIComponent(this.error);
+        const separator = externalUrl.includes('?') ? '&' : '?';
+        redirectUrl += `${separator}error=${encodedError}`;
+      }
+
+      window.location.href = redirectUrl;
     }
   }
 
   private handleError(message: string): void {
     this.error = message;
     this.isLoading = false;
+    this.redirectToExternalUrl();
   }
 
   private getOrDefault(value: any, defaultValue: any): any {
