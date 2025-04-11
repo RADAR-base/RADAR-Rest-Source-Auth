@@ -43,7 +43,7 @@ class ManagementPortalEnhancerFactory(
                 ),
                 jwtResourceName = config.auth.jwtResourceName,
                 jwksUrls = config.auth.jwksUrls +
-                    config.auth.managementPortalUrl.trimEnd('/') + "/oauth/token_key",
+                    "${config.auth.managementPortalUrl.trimEnd('/')}/oauth/token_key",
             )
 
         val dbConfig =
