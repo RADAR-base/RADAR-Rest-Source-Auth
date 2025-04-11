@@ -17,7 +17,7 @@ class MPClientFactory(
         val baseUrl = config.auth.managementPortalUrl.trimEnd('/')
         val clientId = config.auth.clientId
         val clientSecret = config.auth.clientSecret ?: throw IllegalArgumentException("Client Secret is required")
-        val customTokenUrl = config.auth.authUrl ?: "${baseUrl}/oauth/token"
+        val customTokenUrl = config.auth.authUrl ?: baseUrl + "/oauth/token"
 
         val mpClientConfig = MPClient.Config().apply {
             url = baseUrl
