@@ -16,5 +16,7 @@ export const environment = {
   // Callback URL registered in MP.
   authCallbackUrl: 'AUTH_CALLBACK_URL',
   // Management Portal URL.
-  authBaseUrl: 'AUTH_URI'
+  authBaseUrl: 'AUTH_URI',
+  // Appended to the authBaseUrl to construct the full auth URL
+  authPath: 'AUTH_PATH',
 };

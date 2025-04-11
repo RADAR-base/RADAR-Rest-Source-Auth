@@ -1,15 +1,15 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Subscription} from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
-import {AuthService} from '@app/auth/services/auth.service';
-import {GrantType} from '@app/auth/enums/grant-type';
-import {AuthStateCommand} from "@app/auth/enums/auth-state-command";
-import {StorageItem} from "@app/auth/enums/storage-item";
-import {MessageBoxType} from "@app/shared/components/message-box/message-box.component";
+import { AuthService } from '@app/auth/services/auth.service';
+import { GrantType } from '@app/auth/enums/grant-type';
+import { AuthStateCommand } from "@app/auth/enums/auth-state-command";
+import { StorageItem } from "@app/auth/enums/storage-item";
+import { MessageBoxType } from "@app/shared/components/message-box/message-box.component";
 
-import {environment} from '@environments/environment';
-import {first} from "rxjs/operators";
+import { environment } from '@environments/environment';
+import { first } from "rxjs/operators";
 
 @Component({
   selector: 'app-login-page',
@@ -17,7 +17,13 @@ import {first} from "rxjs/operators";
   styleUrls: ['./login-page.component.scss']
 })
 export class LoginPageComponent implements OnInit, OnDestroy {
-
+  DEFAULT_AUTH_SCOPES = [
+    'SOURCETYPE.READ',
+    'PROJECT.READ',
+    'SUBJECT.READ',
+    'SUBJECT.UPDATE'
+  ];
+  DEFAULT_AUTH_AUDIENCE = 'res_restAuthorizer';
   isLoading = false;
   error?: string;
 
@@ -48,7 +54,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   loginWithAuthCode() {
     this.routerSubscription = this.activatedRoute.queryParams.subscribe({
       next: params => {
-        const {code} = params;
+        const { code } = params;
         if (code) {
           this.isLoading = true;
           this.authService
@@ -59,7 +65,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
                 const lastLocation = JSON.parse(localStorage.getItem(StorageItem.LAST_LOCATION) || '{}');
                 this.router.navigate(
                   [lastLocation.url || '/'],
-                  {queryParams: lastLocation.params}
+                  { queryParams: lastLocation.params }
                 ).then(() => this.authService.clearLastLocation());
               },
               error: (error) => this.error = error.error?.error_description || error.message || error
@@ -81,9 +87,16 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   }
 
   redirectToAuthRequestLink() {
-    const scopes = "SOURCETYPE.READ%20PROJECT.READ%20SUBJECT.READ%20SUBJECT.UPDATE"
-    window.location.href = `${environment.authBaseUrl}/auth?client_id=${
-      environment.appClientId
-    }&response_type=code&state=${Date.now()}&audience=res_restAuthorizer&scope=${scopes}&redirect_uri=${window.location.href.split('?')[0]}`;
+    const baseUrl = `${environment.authBaseUrl.replace(/\/+$/, '')}${environment.authPath}`;
+    const params = new URLSearchParams({
+      client_id: environment.appClientId,
+      response_type: 'code',
+      state: Date.now().toString(),
+      audience: this.DEFAULT_AUTH_AUDIENCE,
+      scope: this.DEFAULT_AUTH_SCOPES.join(' '),
+      redirect_uri: window.location.href.split('?')[0],
+    });
+
+    window.location.href = `${baseUrl}?${params.toString()}`;
   }
 }
