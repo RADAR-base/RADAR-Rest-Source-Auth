@@ -20,6 +20,8 @@ export const environment = {
   authCallbackUrl: 'http://localhost:8080/login',
   // Management Portal URL.
   authBaseUrl: 'https://radar-k3s-test.thehyve.net/managementportal/oauth',
+  // Appended to the authBaseUrl to construct the full auth URL
+  authPath: '/authorize'
 };
 
 /*

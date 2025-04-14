@@ -19,6 +19,7 @@ ENV BASE_HREF="/rest-sources/authorizer/" \
     AUTH_CLIENT_SECRET="" \
     AUTH_CALLBACK_URL="http://localhost/rest-sources/authorizer/login" \
     AUTH_URI="http://localhost/managementportal/oauth" \
+    AUTH_PATH="/authorize" \
     RADAR_BASE_URL="http://localhost"
 
 # add init script
