@@ -14,10 +14,11 @@ class MPClientFactory(
 ) : Supplier<MPClient> {
 
     override fun get(): MPClient {
-        val baseUrl = config.auth.managementPortalUrl
+        val baseUrl = config.auth.managementPortalUrl.trimEnd('/')
         val clientId = config.auth.clientId
         val clientSecret = config.auth.clientSecret ?: throw IllegalArgumentException("Client Secret is required")
-        val customTokenUrl = config.auth.authUrl
+        val customTokenUrl = config.auth.authUrl ?: baseUrl + "/oauth/token"
+        val scopes = config.auth.scopes
 
         val mpClientConfig = MPClient.Config().apply {
             url = baseUrl
@@ -27,6 +28,7 @@ class MPClientFactory(
                     tokenUrl = customTokenUrl,
                     clientId = clientId,
                     clientSecret = clientSecret,
+                    scope = scopes,
                     audience = "res_ManagementPortal",
                 ).copyWithEnv()
 

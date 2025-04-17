@@ -42,7 +42,9 @@ class ManagementPortalEnhancerFactory(
                     syncParticipantsIntervalMin = config.service.syncParticipantsIntervalMin,
                 ),
                 jwtResourceName = config.auth.jwtResourceName,
-                jwksUrls = config.auth.jwksUrls,
+                jwksUrls = config.auth.jwksUrls.ifEmpty {
+                    listOf("${config.auth.managementPortalUrl.trimEnd('/')}/oauth/token_key")
+                },
             )
 
         val dbConfig =

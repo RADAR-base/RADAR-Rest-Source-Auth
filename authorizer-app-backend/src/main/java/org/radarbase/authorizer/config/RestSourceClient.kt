@@ -18,4 +18,6 @@ data class RestSourceClient(
     fun withEnv(): RestSourceClient = this
         .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
         .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_SECRET") { copy(clientSecret = it) }
+        .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_AUTH_URL") { copy(authorizationEndpoint = it) }
+        .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_TOKEN_URL") { copy(tokenEndpoint = it) }
 }

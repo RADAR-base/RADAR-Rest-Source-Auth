@@ -45,6 +45,7 @@ do
   replace "AUTH_CLIENT_SECRET" "${AUTH_CLIENT_SECRET}" "$file"
   replace "AUTH_CALLBACK_URL" "${AUTH_CALLBACK_URL}" "$file"
   replace "AUTH_URI" "${AUTH_URI}" "$file"
+  replace "AUTH_PATH" "${AUTH_PATH}" "$file"
   replace "RADAR_BASE_URL" "${RADAR_BASE_URL}" "$file"
 done
 
