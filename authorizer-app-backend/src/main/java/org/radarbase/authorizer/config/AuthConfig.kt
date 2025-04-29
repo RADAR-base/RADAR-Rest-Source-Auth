@@ -5,6 +5,7 @@ data class AuthConfig(
     val authUrl: String? = null,
     val clientId: String = "radar_rest_sources_auth_backend",
     val clientSecret: String? = "",
+    val scopes: String = "SUBJECT.READ PROJECT.READ",
     val jwtECPublicKeys: List<String>? = null,
     val jwtRSAPublicKeys: List<String>? = null,
     val jwtIssuer: String? = null,
