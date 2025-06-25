@@ -45,5 +45,7 @@ allOpen {
 radarKotlin {
     javaVersion.set(Versions.java)
     kotlinVersion.set(Versions.kotlin)
+    log4j2Version.set(Versions.log4j2)
     sentryEnabled.set(true)
+    openTelemetryAgentEnabled.set(true)
 }
