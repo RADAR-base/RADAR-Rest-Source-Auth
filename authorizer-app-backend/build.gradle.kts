@@ -1,9 +1,12 @@
+import org.radarbase.gradle.plugin.radarKotlin
+
 plugins {
     application
-    kotlin("plugin.serialization")
-    kotlin("plugin.noarg")
-    kotlin("plugin.jpa")
-    kotlin("plugin.allopen")
+    id("org.radarbase.radar-kotlin")
+    kotlin("plugin.serialization") version Versions.kotlin
+    kotlin("plugin.noarg") version Versions.kotlin
+    kotlin("plugin.jpa") version Versions.kotlin
+    kotlin("plugin.allopen") version Versions.kotlin
 }
 
 application {
@@ -11,7 +14,6 @@ application {
 }
 
 dependencies {
-    api(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
     implementation("org.radarbase:radar-jersey:${Versions.radarJersey}")
@@ -22,7 +24,7 @@ dependencies {
 
     implementation("redis.clients:jedis:${Versions.jedis}")
 
-    implementation(enforcedPlatform("io.ktor:ktor-bom:${Versions.ktor}"))
+    implementation(enforcedPlatform("io.ktor:ktor-bom"))
     implementation("io.ktor:ktor-client-core")
     implementation("io.ktor:ktor-client-auth")
     implementation("io.ktor:ktor-client-cio")
@@ -38,4 +40,12 @@ allOpen {
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.MappedSuperclass")
     annotation("jakarta.persistence.Embeddable")
+}
+
+radarKotlin {
+    javaVersion.set(Versions.java)
+    kotlinVersion.set(Versions.kotlin)
+    log4j2Version.set(Versions.log4j2)
+    sentryEnabled.set(true)
+    openTelemetryAgentEnabled.set(true)
 }
