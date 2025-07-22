@@ -40,6 +40,22 @@ class RestSourceUserService(
 
     suspend fun create(userDto: RestSourceUserDTO): RestSourceUserDTO {
         userDto.ensure()
+
+        // Check if the service user ID is already in use for the same source type.
+        userDto.serviceUserId?.let { serviceUserId ->
+            val existingExternalUser = userRepository.findByExternalId(
+                externalId = serviceUserId,
+                sourceType = userDto.sourceType,
+            )
+            if (existingExternalUser != null) {
+                val response = Response.status(Response.Status.CONFLICT)
+                    .entity(mapOf("status" to 409, "message" to "Account with this service user ID $serviceUserId already exists for source type ${userDto.sourceType}.", "user" to userMapper.fromEntity(existingExternalUser)))
+                    .build()
+
+                throw WebApplicationException(response)
+            }
+        }
+
         val existingUser = userRepository.findByUserIdProjectIdSourceType(
             userId = userDto.userId!!,
             projectId = userDto.projectId!!,
@@ -52,6 +68,7 @@ class RestSourceUserService(
 
             throw WebApplicationException(response)
         }
+
         val user = userRepository.create(userDto)
         return userMapper.fromEntity(user)
     }
@@ -69,6 +86,22 @@ class RestSourceUserService(
 
     suspend fun update(userId: Long, user: RestSourceUserDTO): RestSourceUserDTO {
         user.ensure()
+
+        // Check if the service user ID is already in use for the same source type but different user.
+        user.serviceUserId?.let { serviceUserId ->
+            val existingExternalUser = userRepository.findByExternalId(
+                externalId = serviceUserId,
+                sourceType = user.sourceType,
+            )
+            if (existingExternalUser != null && existingExternalUser.id != userId) {
+                val response = Response.status(Response.Status.CONFLICT)
+                    .entity(mapOf("status" to 409, "message" to "Account with this service user ID $serviceUserId already exists for source type ${user.sourceType}.", "user" to userMapper.fromEntity(existingExternalUser)))
+                    .build()
+
+                throw WebApplicationException(response)
+            }
+        }
+
         return userMapper.fromEntity(
             runLocked(userId) {
                 userRepository.update(userId, user)

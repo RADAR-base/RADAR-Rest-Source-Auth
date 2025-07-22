@@ -11,4 +11,5 @@
   <include file="db/changelog/changes/00000000000003_add_created_at_column.xml"/>
   <include file="db/changelog/changes/20210721100000_add_registration_table.xml"/>
   <include file="db/changelog/changes/20211008113000_add_registration_created_at.xml"/>
+  <include file="db/changelog/changes/20240607120000_add_unique_constraint_external_user_id.xml"/>
 </databaseChangeLog>
