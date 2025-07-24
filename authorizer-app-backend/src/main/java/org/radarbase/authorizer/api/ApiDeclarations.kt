@@ -56,7 +56,7 @@ data class OuraAuthUserId(
     val weight: Float? = null,
     val height: Float? = null,
     val biological_sex: String? = null,
-    val email: String,
+    val email: String? = null,
     @SerialName("id") val userId: String,
 )
 
