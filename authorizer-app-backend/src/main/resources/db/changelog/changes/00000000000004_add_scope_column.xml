@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+    <changeSet author="pauline" id="addScope">
+        <addColumn tableName="rest_source_user">
+            <column name="scope" type="varchar(200)" defaultValue="null" value="null">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
