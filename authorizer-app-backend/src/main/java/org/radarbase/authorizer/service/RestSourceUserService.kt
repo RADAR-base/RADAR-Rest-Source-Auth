@@ -42,7 +42,6 @@ class RestSourceUserService(
 
     suspend fun create(userDto: RestSourceUserDTO): RestSourceUserDTO {
         userDto.ensure()
-
         val existingUser = userRepository.findByUserIdProjectIdSourceType(
             userId = userDto.userId!!,
             projectId = userDto.projectId!!,
@@ -55,7 +54,6 @@ class RestSourceUserService(
 
             throw WebApplicationException(response)
         }
-
         val user = userRepository.create(userDto)
         return userMapper.fromEntity(user)
     }
@@ -73,7 +71,6 @@ class RestSourceUserService(
 
     suspend fun update(userId: Long, user: RestSourceUserDTO): RestSourceUserDTO {
         user.ensure()
-
         return userMapper.fromEntity(
             runLocked(userId) {
                 userRepository.update(userId, user)
