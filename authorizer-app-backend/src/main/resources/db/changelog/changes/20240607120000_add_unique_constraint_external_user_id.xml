@@ -7,31 +7,35 @@
 
     <changeSet author="yatharth" id="20240607120000-add-unique-constraint-external-user-id">
         <!-- Update duplicates to a fixed value for investigation, appending the external_user_id, except the row with the lowest id -->
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM (
-                  SELECT external_user_id FROM rest_source_user
-                  WHERE external_user_id IS NOT NULL
-                  GROUP BY external_user_id
-                  HAVING COUNT(*) > 1
-                ) t;
-            </sqlCheck>
+        <preConditions onFail="CONTINUE">
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*) FROM (
+                      SELECT external_user_id, source_type FROM rest_source_user
+                      WHERE external_user_id IS NOT NULL
+                      GROUP BY external_user_id, source_type
+                      HAVING COUNT(*) > 1
+                    ) t;
+                </sqlCheck>
+            </not>
         </preConditions>
         <sql dbms="postgresql">
             UPDATE rest_source_user a
-            SET external_user_id = 'DUPLICATE_INVESTIGATE_' || a.external_user_id
+            SET external_user_id = 'DUPLICATE_INVESTIGATE_' || a.id || '_' || a.external_user_id
             FROM rest_source_user b
             WHERE a.external_user_id = b.external_user_id
+              AND a.source_type = b.source_type
               AND a.id > b.id
               AND a.external_user_id IS NOT NULL
               AND b.id = (
                   SELECT MIN(id) FROM rest_source_user c
                   WHERE c.external_user_id = a.external_user_id
+                    AND c.source_type = a.source_type
               );
         </sql>
         <addUniqueConstraint 
             tableName="rest_source_user"
-            columnNames="external_user_id"
-            constraintName="uk_rest_source_user_external_user_id"/>
+            columnNames="external_user_id,source_type"
+            constraintName="uk_rest_source_user_external_user_id_source_type"/>
     </changeSet>
 </databaseChangeLog> 
