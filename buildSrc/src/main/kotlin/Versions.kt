@@ -20,5 +20,5 @@ object Versions {
     const val mockitoKotlin = "5.3.1"
     const val hamcrest = "2.2"
 
-    const val gradle = "8.4"
+    const val gradle = "8.13"
 }
