@@ -18,7 +18,7 @@ env:
     'name': 'radar-rest-source-authorizer',
     'build_file': 'authorizer-app/Dockerfile',
     'authors': 'Peyman Mohtashami <peyman@thehyve.nl>, Pauline Conde <pauline.conde@kcl.ac.uk>',
-    'description': 'RADAR-base rest sources authorizer frontend application'
+    'description': 'RADAR-base rest sources authorizer frontend application',
     'cache_keys_files': ['authorizer-app/**']
     }]
 
