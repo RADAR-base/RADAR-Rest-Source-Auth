@@ -34,7 +34,10 @@ LABEL description="RADAR-base rest sources authorizer backend application"
 
 # Override JAVA_OPTS to set heap parameters, for example
 ENV JAVA_OPTS="" \
-    AUTHORIZER_APP_BACKEND_OPTS=""
+    AUTHORIZER_APP_BACKEND_OPTS="" \
+    # Globally disables liquibase analytics.
+    # (see: https://docs.liquibase.com/pro/user-guide/what-data-does-liquibase-collect-and-how-is-it-used)
+    LIQUIBASE_ANALYTICS_ENABLED=false
 
 COPY --from=builder /code/authorizer-app-backend/build/scripts/* /usr/bin/
 COPY --from=builder /code/authorizer-app-backend/build/third-party/* /usr/lib/
