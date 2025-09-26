@@ -97,6 +97,16 @@ class RestSourceUserRepositoryImpl(
 
     override suspend fun read(id: Long): RestSourceUser? = transact { find(RestSourceUser::class.java, id) }
 
+    override suspend fun listAll(): List<RestSourceUser> = transact {
+        createQuery(
+            """
+            SELECT u
+            FROM RestSourceUser u
+            """.trimIndent(),
+            RestSourceUser::class.java,
+        ).resultList
+    }
+
     override suspend fun update(userId: Long, user: RestSourceUserDTO): RestSourceUser = transact {
         val existingUser = find(RestSourceUser::class.java, userId)
             ?: throw HttpNotFoundException("user_not_found", "User with ID $userId not found")
