@@ -113,5 +113,3 @@ class UserSyncLifecycleManager(
         private val logger = LoggerFactory.getLogger(UserSyncLifecycleManager::class.java)
     }
 }
-
-
