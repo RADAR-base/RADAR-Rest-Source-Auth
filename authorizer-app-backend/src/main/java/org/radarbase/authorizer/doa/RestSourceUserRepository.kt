@@ -26,6 +26,7 @@ interface RestSourceUserRepository {
     suspend fun create(user: RestSourceUserDTO): RestSourceUser
     suspend fun updateToken(token: RestOauth2AccessToken?, user: RestSourceUser): RestSourceUser
     suspend fun read(id: Long): RestSourceUser?
+    suspend fun listAll(): List<RestSourceUser>
     suspend fun update(userId: Long, user: RestSourceUserDTO): RestSourceUser
     suspend fun query(
         page: Page,
