@@ -22,7 +22,6 @@ import org.radarbase.authorizer.api.StateCreateDTO
 import org.radarbase.authorizer.api.TokenSecret
 import org.radarbase.authorizer.api.toProject
 import org.radarbase.authorizer.doa.RegistrationRepository
-import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceUserService
@@ -45,7 +44,6 @@ class RegistrationResource(
     @Context private val registrationRepository: RegistrationRepository,
     @Context private val restSourceUserService: RestSourceUserService,
     @Context private val authorizationService: RestSourceAuthorizationService,
-    @Context private val userRepository: RestSourceUserRepository,
     @Context private val registrationService: RegistrationService,
     @Context private val projectService: RadarProjectService,
     @Context private val authService: AuthService,
@@ -154,7 +152,7 @@ class RegistrationResource(
     ) = asyncService.runAsCoroutine(asyncResponse) {
         val registration = registrationService.ensureRegistration(token)
         val accessToken = authorizationService.requestAccessToken(payload, registration.user.sourceType)
-        val user = userRepository.updateToken(accessToken, registration.user)
+        val user = restSourceUserService.updateUserToken(accessToken, registration.user)
         val project = registration.user.projectId?.let {
             projectService.project(it).toProject()
         }
