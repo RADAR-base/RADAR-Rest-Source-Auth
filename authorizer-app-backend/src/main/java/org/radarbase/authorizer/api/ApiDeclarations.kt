@@ -32,6 +32,8 @@ data class RestOauth2AccessToken(
     val tokenType: String? = null,
     @SerialName("user_id")
     val externalUserId: String? = null,
+    @SerialName("scope")
+    val scope: String? = null,
 )
 
 @Serializable
@@ -101,6 +103,7 @@ data class RequestTokenPayload(
     val oauth_token: String? = null,
     val oauth_verifier: String? = null,
     val oauth_token_secret: String? = null,
+    val scope: String? = null,
 )
 
 data class ShareableClientDetail(

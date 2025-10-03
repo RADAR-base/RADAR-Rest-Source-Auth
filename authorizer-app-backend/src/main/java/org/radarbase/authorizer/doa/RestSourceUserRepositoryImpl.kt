@@ -78,6 +78,7 @@ class RestSourceUserRepositoryImpl(
             this.refreshToken = token.refreshToken
             this.expiresIn = token.expiresIn
             this.expiresAt = Instant.now().plusSeconds(token.expiresIn.toLong()) - expiryTimeMargin
+            this.scope = token.scope
         } else {
             this.externalUserId = null
             this.authorized = false
