@@ -11,7 +11,6 @@ import org.glassfish.jersey.server.monitoring.RequestEventListener
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.managementportal.RadarProjectService
 import org.slf4j.LoggerFactory
@@ -27,7 +26,6 @@ class UserSyncLifecycleManager(
     private val scheduler: ScheduledExecutorService,
     @Context private val userRepository: RestSourceUserRepository,
     @Context private val projectService: RadarProjectService,
-    @Context private val authorizationService: RestSourceAuthorizationService,
     @Context private val asyncService: AsyncCoroutineService,
     @Context private val config: AuthorizerConfig,
 ) : ApplicationEventListener {
