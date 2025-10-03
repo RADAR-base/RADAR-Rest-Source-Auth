@@ -5,6 +5,7 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.Response
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
+import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RestSourceUserDTO
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.api.TokenDTO
@@ -13,6 +14,7 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadRequestException
+import org.radarbase.jersey.exception.HttpConflictException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import kotlin.time.Duration.Companion.seconds
 
@@ -106,6 +108,36 @@ class RestSourceUserService(
         )
     }
 
+    /**
+     * Validates that an external user ID is not already in use by another user.
+     * Should be called before updating a user's token with an external user ID.
+     */
+    private suspend fun validateExternalUserId(token: RestOauth2AccessToken?, user: RestSourceUser) {
+        if (token?.externalUserId != null) {
+            val existingUser = userRepository.findByExternalId(token.externalUserId, user.sourceType)
+            if (existingUser != null && existingUser.id != user.id) {
+                throw HttpConflictException(
+                    "external_user_id_already_exists",
+                    "External user ID ${token.externalUserId} is already registered for another user of source type ${user.sourceType} and user id ${existingUser.userId}",
+                )
+            }
+        } else {
+            throw HttpBadRequestException(
+                "missing_external_user_id",
+                "External user ID cannot be empty",
+            )
+        }
+    }
+
+    /**
+     * Updates a user's token after validating the external user ID.
+     * This method ensures no duplicate external user IDs exist in the system.
+     */
+    suspend fun updateUserToken(token: RestOauth2AccessToken?, user: RestSourceUser): RestSourceUser {
+        validateExternalUserId(token, user)
+        return userRepository.updateToken(token, user)
+    }
+
     suspend fun ensureToken(userId: Long): TokenDTO {
         ensureUser(userId, Permission.MEASUREMENT_CREATE)
         return runLocked(userId) { user ->
@@ -151,7 +183,7 @@ class RestSourceUserService(
         }
 
         val token = authorizationService.refreshToken(user)
-        val updatedUser = userRepository.updateToken(token, user)
+        val updatedUser = updateUserToken(token, user)
 
         if (!updatedUser.authorized) {
             throw HttpApplicationException(

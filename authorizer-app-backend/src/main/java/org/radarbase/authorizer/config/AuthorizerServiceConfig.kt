@@ -16,7 +16,7 @@ data class AuthorizerServiceConfig(
     val resourceConfig: Class<out EnhancerFactory> = ManagementPortalEnhancerFactory::class.java,
     val enableCors: Boolean? = false,
     val syncProjectsIntervalMin: Long = 30,
-    val syncParticipantsIntervalMin: Long = 30,
+    val syncParticipantsIntervalMin: Long = 1440, // 1 day,
     val tokenExpiryTimeInMinutes: Long = 15,
     val persistentTokenExpiryInMin: Long = 3.days.inWholeMinutes,
 ) {
