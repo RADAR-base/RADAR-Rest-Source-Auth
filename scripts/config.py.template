@@ -1,0 +1,15 @@
+TOKEN="" # token for access to the REST sources auth backend
+REST_SOURCES_AUTH_BACKEND_URL="https://stage.radar-base.net/rest-sources/backend" # base url of the REST sources auth backend. no trailing slash
+
+# Specify either PULL_PERIOD_IN_MONTHS or START_DATE + END_DATE
+PULL_PERIOD_IN_WEEKS=4 # period of time in weeks to pull data retrospectively from today
+START_DATE="" # in format "%Y-%m-%dT%H%M%SZ" ISO 8601 format
+END_DATE="" # in format "%Y-%m-%dT%H%M%SZ" ISO 8601 format
+
+SOURCE_TYPE="Garmin" # source type to update the data for (e.g. Garmin, FitBit, or Oura)
+PROJECT_ID="STAGING_PROJECT" # project id to update the data for
+
+INCLUDE_SUBJECTS=[] # list of subject ids to include in the retrospective pull
+EXCLUDE_SUBJECTS=[] # list of subject ids to exclude from the retrospective pull
+
+ENABLE_DEBUG=False # enable debug mode
