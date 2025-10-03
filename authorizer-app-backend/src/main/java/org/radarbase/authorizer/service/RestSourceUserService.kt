@@ -121,6 +121,11 @@ class RestSourceUserService(
                     "External user ID ${token.externalUserId} is already registered for another user of source type ${user.sourceType} and user id ${existingUser.userId}",
                 )
             }
+        } else {
+            throw HttpBadRequestException(
+                "missing_external_user_id",
+                "External user ID cannot be empty",
+            )
         }
     }
 
