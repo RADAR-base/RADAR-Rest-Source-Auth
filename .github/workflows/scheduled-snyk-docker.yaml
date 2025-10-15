@@ -10,10 +10,10 @@ env:
   REPOSITORY: ${{ github.repository }}
   IMAGES: >-
     [{
-    'name': 'authorizer-app-backend',
+    'name': 'radar-rest-source-auth-backend',
     'build_file': 'authorizer-app-backend/Dockerfile'
     },{
-    'name': 'authorizer-app',
+    'name': 'radar-rest-source-authorizer',
     'build_file': 'authorizer-app/Dockerfile'
     }]
 
