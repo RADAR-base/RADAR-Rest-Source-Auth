@@ -7,7 +7,7 @@ object Versions {
     const val kotlin = "1.9.23"
 
     const val radarCommons = "1.2.4"
-    const val radarJersey = "0.12.4"
+    const val radarJersey = "0.12.5"
     const val postgresql = "42.6.1"
     const val ktor = "2.3.11"
     const val jedis = "5.1.3"
