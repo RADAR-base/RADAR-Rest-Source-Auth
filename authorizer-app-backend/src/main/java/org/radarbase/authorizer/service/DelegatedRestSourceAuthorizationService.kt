@@ -33,7 +33,7 @@ class DelegatedRestSourceAuthorizationService(
         return provider.get()
     }
 
-    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken =
+    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String, token: String?): RestOauth2AccessToken =
         delegate(sourceType).requestAccessToken(payload, sourceType)
 
     override suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? =
