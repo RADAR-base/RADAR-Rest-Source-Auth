@@ -26,3 +26,4 @@ restSourceClients:
     clientId: <CLIENT_ID>
     clientSecret: <CLIENT_SECRET>
     scope: activity heartrate sleep profile
+    usesPkce: false
