@@ -17,10 +17,13 @@
 package org.radarbase.authorizer.service
 
 import io.ktor.client.call.body
-import io.ktor.client.request.forms.formData
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLBuilder
 import io.ktor.http.isSuccess
@@ -32,14 +35,12 @@ import kotlinx.coroutines.withContext
 import org.glassfish.jersey.server.BackgroundScheduler
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.SignRequestParams
+import org.radarbase.authorizer.api.RestOauth2UserId
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
-import org.radarbase.authorizer.doa.entity.RegistrationState
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
-import org.radarbase.authorizer.service.GarminSourceAuthorizationService.Companion.DEREGISTER_CHECK_PERIOD
 import org.radarbase.authorizer.util.PkceUtil
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpInternalServerException
@@ -103,9 +104,12 @@ class GarminAuthorizationService(
         if (!response.status.isSuccess()) {
             throw HttpBadGatewayException("Failed to request access token (HTTP status code ${response.status}): ${response.bodyAsText()}")
         }
-        response.body<RestOauth2AccessToken>().let {
-        }
 
+        return response.body<RestOauth2AccessToken>().run {
+            this.copy(
+                externalUserId = getExternalId(accessToken)
+            )
+        }
     }
 
     override suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? = withContext(Dispatchers.IO) {
@@ -132,8 +136,38 @@ class GarminAuthorizationService(
         }
     }
 
-    override suspend fun revokeToken(user: RestSourceUser): Boolean {
-        return super.revokeToken(user)
+    override suspend fun revokeToken(user: RestSourceUser): Boolean = withContext(Dispatchers.IO) {
+        val accessToken = user.accessToken ?: run {
+            logger.error("Can't revoke token of user {} without an access token", user.userId)
+            return@withContext false
+        }
+
+        val authConfig = clientService.forSourceType(user.sourceType)
+        val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint) {
+            "Missing Garmin deregistration endpoint configuration"
+        }
+
+        val response = httpClient.delete(deregistrationEndpoint) {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessToken")
+            }
+        }
+
+        when (response.status) {
+            HttpStatusCode.OK, HttpStatusCode.NoContent -> {
+                logger.info("Successfully deregistered user {}", user.userId)
+                true
+            }
+            else -> {
+                logger.error(
+                    "Failed to deregister user {} (HTTP status {}): {}",
+                    user.userId,
+                    response.status,
+                    response.bodyAsText()
+                )
+                false
+            }
+        }
     }
 
     override suspend fun revokeToken(
@@ -180,11 +214,24 @@ class GarminAuthorizationService(
         userRepository.delete(user)
     }
 
-    override fun signRequest(
-        user: RestSourceUser,
-        payload: SignRequestParams
-    ): SignRequestParams {
-        return super.signRequest(user, payload)
+    suspend fun getExternalId(accessToken: String): String = withContext(Dispatchers.IO) {
+        val response = httpClient.get(GARMIN_USER_ID_ENDPOINT) {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessToken")
+            }
+        }
+
+        when (response.status) {
+            HttpStatusCode.OK -> withContext(Dispatchers.IO) {
+                response.body<RestOauth2UserId>().userId
+            }
+
+            HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> throw HttpBadGatewayException(
+                "Service was unable to fetch the external ID"
+            )
+
+            else -> throw HttpBadGatewayException("Cannot connect to ${response.request.url}: HTTP status ${response.status}")
+        }
     }
 
     companion object {
