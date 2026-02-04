@@ -23,7 +23,9 @@ class RegistrationService(
 
         val codeVerifier = if (clientService.forSourceType(user.sourceType).usesPkce) {
             PkceUtil.generateCodeVerifier()
-        } else null
+        } else {
+            null
+        }
 
         val tokenState = registrationRepository.generate(user, secret, persistent, codeVerifier)
             ?: throw HttpInternalServerException("token_not_generated", "Failed to generate token.")
@@ -33,7 +35,7 @@ class RegistrationService(
             secret = secret.secret,
             userId = tokenState.user.id?.toString() ?: throw HttpInternalServerException(
                 "token_incomplete",
-                "Failed to generate complete token."
+                "Failed to generate complete token.",
             ),
             createdAt = tokenState.createdAt,
             expiresAt = tokenState.expiresAt,

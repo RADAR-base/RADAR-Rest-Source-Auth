@@ -72,17 +72,17 @@ class GarminAuthorizationService(
     override suspend fun requestAccessToken(
         payload: RequestTokenPayload,
         sourceType: String,
-        token: String?
+        token: String?,
     ): RestOauth2AccessToken {
         val authConfig = clientService.forSourceType(sourceType)
         val codeVerifier = token?.let {
             registrationRepository.get(it)?.codeVerifier ?: throw HttpInternalServerException(
                 "internal_server_error",
-                "code verifier not found for state with token $it"
+                "code verifier not found for state with token $it",
             )
         } ?: throw HttpInternalServerException(
             "internal_server_error",
-            "token is null when requesting access token for source type $sourceType"
+            "token is null when requesting access token for source type $sourceType",
         )
 
         val response = withContext(Dispatchers.IO) {
@@ -97,7 +97,6 @@ class GarminAuthorizationService(
                     append("client_secret", checkNotNull(authConfig.clientSecret))
                     append("redirect_uri", config.service.callbackUrl.toString())
                     append("code_verifier", codeVerifier)
-
                 }
             }
         }
@@ -107,7 +106,7 @@ class GarminAuthorizationService(
 
         return response.body<RestOauth2AccessToken>().run {
             this.copy(
-                externalUserId = getExternalId(accessToken)
+                externalUserId = getExternalId(accessToken),
             )
         }
     }
@@ -163,7 +162,7 @@ class GarminAuthorizationService(
                     "Failed to deregister user {} (HTTP status {}): {}",
                     user.userId,
                     response.status,
-                    response.bodyAsText()
+                    response.bodyAsText(),
                 )
                 false
             }
@@ -173,7 +172,7 @@ class GarminAuthorizationService(
     override suspend fun revokeToken(
         externalId: String,
         sourceType: String,
-        token: String
+        token: String,
     ): Boolean {
         return super.revokeToken(externalId, sourceType, token)
     }
@@ -181,13 +180,13 @@ class GarminAuthorizationService(
     override suspend fun getAuthorizationEndpointWithParams(
         sourceType: String,
         userId: Long,
-        state: String
+        state: String,
     ): String {
         val authConfig = clientService.forSourceType(sourceType)
         val coderVerifier = registrationRepository.get(state)?.codeVerifier
             ?: throw HttpInternalServerException(
                 "internal_server_error",
-                "code verifier not found for state with token $state"
+                "code verifier not found for state with token $state",
             )
 
         return URLBuilder().run {
@@ -227,7 +226,7 @@ class GarminAuthorizationService(
             }
 
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> throw HttpBadGatewayException(
-                "Service was unable to fetch the external ID"
+                "Service was unable to fetch the external ID",
             )
 
             else -> throw HttpBadGatewayException("Cannot connect to ${response.request.url}: HTTP status ${response.status}")
