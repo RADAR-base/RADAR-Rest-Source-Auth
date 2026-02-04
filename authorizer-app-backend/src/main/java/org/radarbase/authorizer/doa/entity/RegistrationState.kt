@@ -34,6 +34,8 @@ class RegistrationState(
     val expiresAt: Instant,
     @Column(nullable = false)
     val persistent: Boolean,
+    @Column(name = "code_verifier", nullable = true)
+    val codeVerifier: String?,
 ) {
     val isValid: Boolean
         get() = Instant.now() < expiresAt
