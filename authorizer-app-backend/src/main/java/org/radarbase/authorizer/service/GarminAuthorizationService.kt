@@ -116,12 +116,18 @@ class GarminAuthorizationService(
         val authConfig = clientService.forSourceType(user.sourceType)
 
         logger.info("Requesting to refresh token")
-        val response = submitForm(user.sourceType) {
-            append("grant_type", "refresh_token")
-            append("refresh_token", refreshToken)
-            append("client_id", authConfig.clientId ?: "")
-            append("client_secret", authConfig.clientSecret ?: "")
+        val response = httpClient.submitForm {
+            url {
+                takeFrom(authConfig.tokenEndpoint)
+            }
+            parameters {
+                append("grant_type", "refresh_token")
+                append("refresh_token", refreshToken)
+                append("client_id", authConfig.clientId ?: "")
+                append("client_secret", authConfig.clientSecret ?: "")
+            }
         }
+
         when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> {
