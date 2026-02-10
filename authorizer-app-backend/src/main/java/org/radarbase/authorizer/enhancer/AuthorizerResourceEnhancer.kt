@@ -116,6 +116,7 @@ class AuthorizerResourceEnhancer(
             bind(GarminOauth1AuthorizationService::class.java)
                 .to(RestSourceAuthorizationService::class.java)
                 .named(GARMIN_AUTH)
+                .`in`(Singleton::class.java)
         }
 
         bind(GarminOAuth2AuthorizationService::class.java)
