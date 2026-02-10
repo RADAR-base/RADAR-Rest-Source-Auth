@@ -49,7 +49,7 @@ import org.radarbase.kotlin.coroutines.forkJoin
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-class GarminAuthorizationService(
+class GarminOAuth2AuthorizationService(
     @param:Context private val clientService: RestSourceClientService,
     @param:Context private val registrationRepository: RegistrationRepository,
     @param:Context private val userRepository: RestSourceUserRepository,
