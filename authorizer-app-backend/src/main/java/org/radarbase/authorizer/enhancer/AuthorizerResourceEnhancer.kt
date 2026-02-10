@@ -29,9 +29,11 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.OURA_AUTH
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.HUAWEI_AUTH
 import org.radarbase.authorizer.service.GarminSourceAuthorizationService
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.OuraAuthorizationService
+import org.radarbase.authorizer.service.HuaweiAuthorizationService
 import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
@@ -115,6 +117,11 @@ class AuthorizerResourceEnhancer(
         bind(OuraAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(OURA_AUTH)
+            .`in`(Singleton::class.java)
+        
+        bind(HuaweiAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(HUAWEI_AUTH)
             .`in`(Singleton::class.java)
     }
 }
