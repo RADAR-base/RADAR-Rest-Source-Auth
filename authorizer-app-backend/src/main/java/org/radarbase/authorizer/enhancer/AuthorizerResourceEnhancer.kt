@@ -118,7 +118,7 @@ class AuthorizerResourceEnhancer(
             .to(RestSourceAuthorizationService::class.java)
             .named(OURA_AUTH)
             .`in`(Singleton::class.java)
-        
+
         bind(HuaweiAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(HUAWEI_AUTH)

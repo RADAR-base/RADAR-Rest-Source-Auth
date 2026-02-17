@@ -1,24 +1,23 @@
 package org.radarbase.authorizer.service
 
 
-import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
-import jakarta.ws.rs.core.Context
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
-import io.ktor.client.request.get
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.headers
+import io.ktor.client.request.url
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
-import io.ktor.client.statement.bodyAsText
-import io.ktor.client.request.url
-import org.radarbase.authorizer.api.RestOauth2AccessToken
-import org.radarbase.authorizer.api.RequestTokenPayload
-import org.radarbase.authorizer.api.HuaweiUserId          
-import org.radarbase.authorizer.config.AuthorizerConfig
-import org.radarbase.jersey.exception.HttpBadGatewayException
-
+import jakarta.ws.rs.core.Context
 import java.io.IOException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.radarbase.authorizer.api.HuaweiUserId          
+import org.radarbase.authorizer.api.RequestTokenPayload
+import org.radarbase.authorizer.api.RestOauth2AccessToken
+import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
+import org.radarbase.jersey.exception.HttpBadGatewayException
 
 class HuaweiAuthorizationService(
     @Context private val clients: RestSourceClientService,
