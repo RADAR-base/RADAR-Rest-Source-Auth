@@ -14,7 +14,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.client.request.url
 import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.api.RequestTokenPayload
-import org.radarbase.authorizer.api.OuraAuthUserId          
+import org.radarbase.authorizer.api.HuaweiUserId          
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.jersey.exception.HttpBadGatewayException
 
@@ -30,34 +30,34 @@ class HuaweiAuthorizationService(
         return accessToken.copy(externalUserId = getExternalId(accessToken.accessToken))
     }
 
-    override suspend fun revokeToken(user: RestSourceUser): Boolean {
-        // Huawei OAuth2 deregistration/revocation
-        val accessToken = user.accessToken ?: run {
-            logger.error("Cannot revoke token of user {} without an access token", user.userId)
-            return false
-        }
+    // override suspend fun revokeToken(user: RestSourceUser): Boolean {
+    //     // Huawei OAuth2 deregistration/revocation
+    //     val accessToken = user.accessToken ?: run {
+    //         logger.error("Cannot revoke token of user {} without an access token", user.userId)
+    //         return false
+    //     }
         
-        val authConfig = clients.forSourceType(user.sourceType)
-        val revokeEndpoint = authConfig.deregistrationEndpoint ?: run {
-            logger.warn("No revocation endpoint configured for Huawei")
-            return true // Treat as success if no endpoint configured
-        }
+    //     val authConfig = clients.forSourceType(user.sourceType)
+    //     val revokeEndpoint = authConfig.deregistrationEndpoint ?: run {
+    //         logger.warn("No revocation endpoint configured for Huawei")
+    //         return true // Treat as success if no endpoint configured
+    //     }
 
-        return try {
-            withContext(Dispatchers.IO) {
-                val response = httpClient.submitForm {
-                    url {
-                        takeFrom(revokeEndpoint)
-                    }
-                    parameter("access_token", accessToken)
-                }
-                response.status.isSuccess()
-            }
-        } catch (ex: Exception) {
-            logger.error("Failed to revoke token: {}", ex.message)
-            false
-        }
-    }
+    //     return try {
+    //         withContext(Dispatchers.IO) {
+    //             val response = httpClient.submitForm {
+    //                 url {
+    //                     takeFrom(revokeEndpoint)
+    //                 }
+    //                 parameter("access_token", accessToken)
+    //             }
+    //             response.status.isSuccess()
+    //         }
+    //     } catch (ex: Exception) {
+    //         logger.error("Failed to revoke token: {}", ex.message)
+    //         false
+    //     }
+    // }
 
     private suspend fun getExternalId(accessToken: String): String = withContext(Dispatchers.IO) {
         try {
@@ -68,7 +68,7 @@ class HuaweiAuthorizationService(
                 }
             }
             if (response.status.isSuccess()) {
-                response.body<OuraAuthUserId>().userId
+                response.body<HuaweiUserId>().userId
             } else {
                 logger.error(
                     "Unable to fetch data from Oura $HUAWEI_USER_ID_ENDPOINT (Http Status {}): {}",
