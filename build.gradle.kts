@@ -1,28 +1,24 @@
 import org.radarbase.gradle.plugin.radarKotlin
 
 plugins {
-    id("org.radarbase.radar-root-project") version Versions.radarCommons
-    id("org.radarbase.radar-dependency-management") version Versions.radarCommons
-    id("org.radarbase.radar-kotlin") version Versions.radarCommons apply false
-    kotlin("plugin.serialization") version Versions.kotlin apply false
-    kotlin("plugin.noarg") version Versions.kotlin apply false
-    kotlin("plugin.jpa") version Versions.kotlin apply false
-    kotlin("plugin.allopen") version Versions.kotlin apply false
+    alias(libs.plugins.radar.root.project)
+    alias(libs.plugins.radar.dependency.management)
+    alias(libs.plugins.radar.kotlin) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.noarg) apply false
+    alias(libs.plugins.kotlin.jpa) apply false
+    alias(libs.plugins.kotlin.allopen) apply false
 }
 
 radarRootProject {
-    projectVersion.set(Versions.project)
-    gradleVersion.set(Versions.gradle)
+    projectVersion.set(libs.versions.project)
+    gradleVersion.set(libs.versions.gradle)
 }
 
 subprojects {
     apply(plugin = "org.radarbase.radar-kotlin")
 
     radarKotlin {
-        javaVersion.set(Versions.java)
-        kotlinVersion.set(Versions.kotlin)
-        slf4jVersion.set(Versions.slf4j)
-        log4j2Version.set(Versions.log4j2)
-        junitVersion.set(Versions.junit)
+        log4j2Version.set(rootProject.libs.versions.log4j2)
     }
 }
