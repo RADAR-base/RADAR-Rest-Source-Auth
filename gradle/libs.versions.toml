@@ -1,14 +1,15 @@
 [versions]
 project = "4.4.13"
 gradle = "8.14"
-kotlin = "1.9.23"
-radarCommons = "1.2.4"
-radarJersey = "0.12.5"
+kotlin = "1.9.24"
+radarCommons = "1.2.5"
+radarJersey = "0.12.7"
 postgresql = "42.6.1"
-ktor = "2.3.11"
+# @pin Upgrade to 3.x.x requires kotlin v2 minimum
+ktor = "2.3.13"
 jedis = "5.1.3"
 log4j2 = "2.23.1"
-jersey = "3.1.7"
+jersey = "3.1.8"
 mockitoKotlin = "5.3.1"
 hamcrest = "2.2"
 
