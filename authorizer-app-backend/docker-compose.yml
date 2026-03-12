@@ -59,6 +59,10 @@ services:
 #      - REST_SOURCE_AUTHORIZER_MANAGEMENT_PORTAL_OAUTH_CLIENT_SECRET=secret
 #      - LOGGING_LEVEL_ORG_RADARBASE_AUTHORIZER=DEBUG
 #      - APP_SLEEP=10 # gives time for the database to boot before the application
+#      - SENTRY_LOG_LEVEL='ERROR'
+#      - SENTRY_DSN='https://000000000000.ingest.de.sentry.io/000000000000'
+#      - SENTRY_ATTACHSTACKTRACE=true
+#      - SENTRY_STACKTRACE_APP_PACKAGES=org.radarbase.authorizer
 #    volumes:
 #      - ./docker/etc/rest-source-authorizer/:/app-includes/
 #    healthcheck:
