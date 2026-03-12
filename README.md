@@ -2,6 +2,17 @@
 
 An application to get authorization from users to access their data through 3rd party APIs. Mainly supports OAuth2 Authorization code follow to request authorization and processes the returned authorization code to add new entries of users. It creates new users and adds properties compatible and required by the [RADAR REST and Fitbit connectors](https://github.com/RADAR-base/RADAR-REST-Connector).
 
+<!-- TOC -->
+* [RADAR-REST-Source-Auth](#radar-rest-source-auth)
+  * [Features supported](#features-supported)
+  * [APIs to be used by REST Source-Connectors](#apis-to-be-used-by-rest-source-connectors)
+  * [Installation](#installation)
+  * [Authorization](#authorization)
+    * [Registering OAuth Clients with ManagementPortal](#registering-oauth-clients-with-managementportal)
+  * [Sentry monitoring](#sentry-monitoring)
+  * [Migrating from 1.\*.\* version to 2.\*](#migrating-from-1-version-to-2)
+<!-- TOC -->
+
 ## Features supported
 
 1. It has one active entity where we store user properties.
@@ -59,6 +70,10 @@ scope: SOURCETYPE.READ,PROJECT.READ,SUBJECT.READ,SUBJECT.UPDATE,SUBJECT.CREATE
 callback-url: <advertised-url-of-rest-sources-authorizer-app>/login 
 # the callback-url should be resolvable and match with the environment variable of radar-rest-sources-authorizer -> AUTH_CALLBACK_URL in the docker-compose.yml file. 
 ```
+
+## Sentry monitoring
+
+See [here](authorizer-app-backend/README.md#sentry-monitoring) for instructions on how to enable Sentry monitoring.
 
 ## Migrating from 1.\*.\* version to 2.\*
 
