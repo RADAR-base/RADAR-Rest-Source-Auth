@@ -29,7 +29,8 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.OURA_AUTH
-import org.radarbase.authorizer.service.GarminAuthorizationService
+import org.radarbase.authorizer.service.GarminOAuth2AuthorizationService
+import org.radarbase.authorizer.service.GarminOauth1AuthorizationService
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.OuraAuthorizationService
 import org.radarbase.authorizer.service.RegistrationService
@@ -50,6 +51,10 @@ class AuthorizerResourceEnhancer(
                 requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
             },
     )
+
+    private val sourceTypeOauthMap: Map<String, String> = config.restSourceClients.associate {
+        it.sourceType to it.oauthVersion.lowercase()
+    }
 
     override val classes: Array<Class<*>>
         get() = listOfNotNull(
@@ -102,7 +107,19 @@ class AuthorizerResourceEnhancer(
         bind(DelegatedRestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
 
-        bind(GarminAuthorizationService::class.java)
+        if (sourceTypeOauthMap[GARMIN_AUTH].equals("oauth2", ignoreCase = true)) {
+            bind(GarminOAuth2AuthorizationService::class.java)
+                .to(RestSourceAuthorizationService::class.java)
+                .named(GARMIN_AUTH)
+                .`in`(Singleton::class.java)
+        } else {
+            bind(GarminOauth1AuthorizationService::class.java)
+                .to(RestSourceAuthorizationService::class.java)
+                .named(GARMIN_AUTH)
+                .`in`(Singleton::class.java)
+        }
+
+        bind(GarminOAuth2AuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(GARMIN_AUTH)
             .`in`(Singleton::class.java)

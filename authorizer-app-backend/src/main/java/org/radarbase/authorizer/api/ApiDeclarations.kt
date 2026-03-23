@@ -45,6 +45,12 @@ data class RestOauth1AccessToken(
 )
 
 @Serializable
+data class RestOauth1UserId(
+    @SerialName("userId")
+    val userId: String,
+)
+
+@Serializable
 data class RestOauth2UserId(
     @SerialName("userId")
     val userId: String,
