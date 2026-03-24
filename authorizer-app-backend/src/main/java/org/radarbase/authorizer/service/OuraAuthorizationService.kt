@@ -30,6 +30,11 @@ class OuraAuthorizationService(
         return accessToken.copy(externalUserId = getExternalId(accessToken.accessToken))
     }
 
+    override suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? {
+        val token = super.refreshToken(user)
+        return token?.copy(externalUserId = token.externalUserId ?: user.externalUserId)
+    }
+
     override suspend fun revokeToken(user: RestSourceUser): Boolean {
         val accessToken = user.accessToken ?: run {
             logger.error("Cannot revoke token of user {} without an access token", user.userId)
