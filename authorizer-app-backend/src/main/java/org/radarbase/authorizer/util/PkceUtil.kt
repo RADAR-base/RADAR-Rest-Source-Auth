@@ -1,13 +1,8 @@
 package org.radarbase.authorizer.util
 
 import java.security.MessageDigest
-import java.security.SecureRandom
-import java.util.Base64
 
 object PkceUtil {
-    private val secureRandom = SecureRandom()
-    private val base64UrlEncoder = Base64.getUrlEncoder().withoutPadding()
-
     // code verifier length needs to be between 43-128 characters
     private const val CODE_VERIFIER_LENGTH = 64
 
