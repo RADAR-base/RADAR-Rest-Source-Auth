@@ -129,7 +129,12 @@ class GarminOAuth2AuthorizationService(
         }
 
         when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.OK -> {
+                val token: RestOauth2AccessToken = response.body()
+                // Garmin's refresh token response may not include the user ID,
+                // so fall back to the existing externalUserId from the user record.
+                token.copy(externalUserId = token.externalUserId ?: user.externalUserId)
+            }
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> {
                 logger.error("Failed to refresh token (HTTP status {}): {}", response.status, response.bodyAsText())
                 null
@@ -141,15 +146,35 @@ class GarminOAuth2AuthorizationService(
         }
     }
 
+    /**
+     * Revokes the user's Garmin OAuth2 token by sending a DELETE request
+     * with Bearer authentication to the Garmin deregistration endpoint.
+     * This overrides the parent's generic OAuth2 revocation which uses
+     * token POST, as Garmin requires DELETE with Bearer auth instead.
+     */
     override suspend fun revokeToken(user: RestSourceUser): Boolean {
-        return super.revokeToken(user)
+        val accessToken = user.accessToken ?: run {
+            logger.error("Cannot revoke token of user {} without an access token", user.userId)
+            return false
+        }
+        return deleteRegistration(user.sourceType, accessToken, user.userId ?: "unknown")
     }
 
     override suspend fun revokeToken(
         externalId: String,
         sourceType: String,
         token: String,
-    ): Boolean {
+    ): Boolean = deleteRegistration(sourceType, token, externalId)
+
+    /**
+     * Sends a DELETE request to the Garmin deregistration endpoint with Bearer auth
+     * to revoke the given access token. [userIdentifier] is used only for logging.
+     */
+    private suspend fun deleteRegistration(
+        sourceType: String,
+        accessToken: String,
+        userIdentifier: String,
+    ): Boolean = withContext(Dispatchers.IO) {
         val authConfig = clientService.forSourceType(sourceType)
         val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint) {
             "Missing Garmin deregistration endpoint configuration"
@@ -157,19 +182,19 @@ class GarminOAuth2AuthorizationService(
 
         val response = httpClient.delete(deregistrationEndpoint) {
             headers {
-                append(HttpHeaders.Authorization, "Bearer $token")
+                append(HttpHeaders.Authorization, "Bearer $accessToken")
             }
         }
 
-        return when (response.status) {
+        when (response.status) {
             HttpStatusCode.OK, HttpStatusCode.NoContent -> {
-                logger.info("Successfully deregistered user with serviceId {}", externalId)
+                logger.info("Successfully deregistered user {}", userIdentifier)
                 true
             }
             else -> {
                 logger.error(
-                    "Failed to deregister user with serviceId {} (HTTP status {}): {}",
-                    externalId,
+                    "Failed to deregister user {} (HTTP status {}): {}",
+                    userIdentifier,
                     response.status,
                     response.bodyAsText(),
                 )
