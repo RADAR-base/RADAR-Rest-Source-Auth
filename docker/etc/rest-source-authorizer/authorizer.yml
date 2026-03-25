@@ -36,3 +36,15 @@ restSourceClients:
     clientId: Oura-clientid
     clientSecret: Oura-clinetsecret
     scope: daily session heartrate workout tag personal email spo2 ring_configuration
+  # Garmin OAuth2 PKCE configuration.
+  # oauthVersion: "oauth2" selects the GarminOAuth2AuthorizationService;
+  #   "oauth1" selects the legacy GarminOAuth1AuthorizationService.
+  # usesPkce: must be true for Garmin OAuth2 (Garmin requires PKCE).
+  - sourceType: Garmin
+    authorizationEndpoint: https://connect.garmin.com/oauth2Confirm
+    tokenEndpoint: https://diauth.garmin.com/di-oauth2-service/oauth/token
+    deregistrationEndpoint: https://apis.garmin.com/wellness-api/rest/user/registration
+    clientId: Garmin-clientid
+    clientSecret: Garmin-clientsecret
+    oauthVersion: oauth2
+    usesPkce: true
