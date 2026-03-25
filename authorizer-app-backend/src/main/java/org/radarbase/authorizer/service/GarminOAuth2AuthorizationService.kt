@@ -141,38 +141,8 @@ class GarminOAuth2AuthorizationService(
         }
     }
 
-    override suspend fun revokeToken(user: RestSourceUser): Boolean = withContext(Dispatchers.IO) {
-        val accessToken = user.accessToken ?: run {
-            logger.error("Can't revoke token of user {} without an access token", user.userId)
-            return@withContext false
-        }
-
-        val authConfig = clientService.forSourceType(user.sourceType)
-        val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint) {
-            "Missing Garmin deregistration endpoint configuration"
-        }
-
-        val response = httpClient.delete(deregistrationEndpoint) {
-            headers {
-                append(HttpHeaders.Authorization, "Bearer $accessToken")
-            }
-        }
-
-        when (response.status) {
-            HttpStatusCode.OK, HttpStatusCode.NoContent -> {
-                logger.info("Successfully deregistered user {}", user.userId)
-                true
-            }
-            else -> {
-                logger.error(
-                    "Failed to deregister user {} (HTTP status {}): {}",
-                    user.userId,
-                    response.status,
-                    response.bodyAsText(),
-                )
-                false
-            }
-        }
+    override suspend fun revokeToken(user: RestSourceUser): Boolean {
+        return super.revokeToken(user)
     }
 
     override suspend fun revokeToken(
@@ -180,7 +150,32 @@ class GarminOAuth2AuthorizationService(
         sourceType: String,
         token: String,
     ): Boolean {
-        return super.revokeToken(externalId, sourceType, token)
+        val authConfig = clientService.forSourceType(sourceType)
+        val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint) {
+            "Missing Garmin deregistration endpoint configuration"
+        }
+
+        val response = httpClient.delete(deregistrationEndpoint) {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK, HttpStatusCode.NoContent -> {
+                logger.info("Successfully deregistered user with serviceId {}", externalId)
+                true
+            }
+            else -> {
+                logger.error(
+                    "Failed to deregister user with serviceId {} (HTTP status {}): {}",
+                    externalId,
+                    response.status,
+                    response.bodyAsText(),
+                )
+                false
+            }
+        }
     }
 
     override suspend fun getAuthorizationEndpointWithParams(
