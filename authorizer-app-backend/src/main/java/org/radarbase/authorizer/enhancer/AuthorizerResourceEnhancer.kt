@@ -52,6 +52,11 @@ class AuthorizerResourceEnhancer(
             },
     )
 
+    /**
+     * Maps a source type to its configured OAuth version (e.g., "oauth1" or "oauth2").
+     * This is used to conditionally bind the correct authorization service implementation.
+     * Configure via the `oauthVersion` field in `authorizer.yml` under each `restSourceClients` entry.
+     */
     private val sourceTypeOauthMap: Map<String, String> = config.restSourceClients.associate {
         it.sourceType to it.oauthVersion.lowercase()
     }
@@ -107,6 +112,7 @@ class AuthorizerResourceEnhancer(
         bind(DelegatedRestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
 
+        // Bind Garmin service based on a configured oauthVersion: "oauth2" → PKCE flow, "oauth1" → legacy flow.
         if (sourceTypeOauthMap[GARMIN_AUTH].equals("oauth2", ignoreCase = true)) {
             bind(GarminOAuth2AuthorizationService::class.java)
                 .to(RestSourceAuthorizationService::class.java)
