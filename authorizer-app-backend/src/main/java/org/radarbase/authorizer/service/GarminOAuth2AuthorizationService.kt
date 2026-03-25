@@ -131,8 +131,6 @@ class GarminOAuth2AuthorizationService(
         when (response.status) {
             HttpStatusCode.OK -> {
                 val token: RestOauth2AccessToken = response.body()
-                // Garmin's refresh token response may not include the user ID,
-                // so fall back to the existing externalUserId from the user record.
                 token.copy(externalUserId = token.externalUserId ?: user.externalUserId)
             }
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> {
