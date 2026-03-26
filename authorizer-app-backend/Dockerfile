@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM --platform=$BUILDPLATFORM gradle:8.3-jdk17 as builder
+FROM --platform=$BUILDPLATFORM gradle:8.14-jdk17 as builder
 
 RUN mkdir /code
 WORKDIR /code
@@ -18,9 +18,8 @@ WORKDIR /code
 ENV GRADLE_USER_HOME=/code/.gradlecache \
     GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork -Dorg.gradle.vfs.watch=false"
 
-COPY ./buildSrc /code/buildSrc
+COPY ./gradle/libs.versions.toml /code/gradle/
 COPY ./build.gradle.kts ./settings.gradle.kts ./gradle.properties /code/
-COPY ./buildSrc /code/buildSrc
 COPY authorizer-app-backend/build.gradle.kts  /code/authorizer-app-backend/
 RUN gradle downloadDependencies copyDependencies startScripts
 
@@ -34,7 +33,10 @@ LABEL description="RADAR-base rest sources authorizer backend application"
 
 # Override JAVA_OPTS to set heap parameters, for example
 ENV JAVA_OPTS="" \
-    AUTHORIZER_APP_BACKEND_OPTS=""
+    AUTHORIZER_APP_BACKEND_OPTS="" \
+    # Globally disables liquibase analytics.
+    # (see: https://docs.liquibase.com/pro/user-guide/what-data-does-liquibase-collect-and-how-is-it-used)
+    LIQUIBASE_ANALYTICS_ENABLED=false
 
 COPY --from=builder /code/authorizer-app-backend/build/scripts/* /usr/bin/
 COPY --from=builder /code/authorizer-app-backend/build/third-party/* /usr/lib/
