@@ -118,7 +118,7 @@ class RestSourceUserService(
             if (existingUser != null && existingUser.id != user.id) {
                 throw HttpConflictException(
                     "external_user_id_already_exists",
-                    "External user ID ${token.externalUserId} is already registered for another user of source type ${user.sourceType} and user id ${existingUser.userId}",
+                    "External user ID ${token.externalUserId} is already registered for another user with source type ${user.sourceType}, project ${existingUser.projectId}, and user ID ${existingUser.userId}",
                 )
             }
         } else {
