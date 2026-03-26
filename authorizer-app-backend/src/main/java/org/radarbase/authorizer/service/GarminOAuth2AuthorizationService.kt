@@ -25,9 +25,9 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.Parameters
 import io.ktor.http.URLBuilder
 import io.ktor.http.isSuccess
-import io.ktor.http.parameters
 import io.ktor.http.takeFrom
 import jakarta.ws.rs.core.Context
 import kotlinx.coroutines.Dispatchers
@@ -86,19 +86,17 @@ class GarminOAuth2AuthorizationService(
         )
 
         val response = withContext(Dispatchers.IO) {
-            httpClient.submitForm {
-                url {
-                    takeFrom(authConfig.tokenEndpoint)
-                }
-                parameters {
+            httpClient.submitForm(
+                url = authConfig.tokenEndpoint,
+                formParameters = Parameters.build {
                     payload.code?.let { append("code", it) }
                     append("grant_type", "authorization_code")
                     append("client_id", checkNotNull(authConfig.clientId))
                     append("client_secret", checkNotNull(authConfig.clientSecret))
                     append("redirect_uri", config.service.callbackUrl.toString())
                     append("code_verifier", codeVerifier)
-                }
-            }
+                },
+            )
         }
         if (!response.status.isSuccess()) {
             throw HttpBadGatewayException("Failed to request access token (HTTP status code ${response.status}): ${response.bodyAsText()}")
@@ -116,17 +114,15 @@ class GarminOAuth2AuthorizationService(
         val authConfig = clientService.forSourceType(user.sourceType)
 
         logger.info("Requesting to refresh token")
-        val response = httpClient.submitForm {
-            url {
-                takeFrom(authConfig.tokenEndpoint)
-            }
-            parameters {
+        val response = httpClient.submitForm(
+            url = authConfig.tokenEndpoint,
+            formParameters = Parameters.build {
                 append("grant_type", "refresh_token")
                 append("refresh_token", refreshToken)
                 append("client_id", authConfig.clientId ?: "")
                 append("client_secret", authConfig.clientSecret ?: "")
-            }
-        }
+            },
+        )
 
         when (response.status) {
             HttpStatusCode.OK -> {
@@ -207,7 +203,7 @@ class GarminOAuth2AuthorizationService(
         state: String,
     ): String {
         val authConfig = clientService.forSourceType(sourceType)
-        val coderVerifier = registrationRepository.get(state)?.codeVerifier
+        val codeVerifier = registrationRepository.get(state)?.codeVerifier
             ?: throw HttpInternalServerException(
                 "internal_server_error",
                 "code verifier not found for state with token $state",
@@ -217,7 +213,7 @@ class GarminOAuth2AuthorizationService(
             takeFrom(authConfig.authorizationEndpoint)
             parameters.append("response_type", "code")
             parameters.append("client_id", authConfig.clientId ?: "")
-            parameters.append("code_challenge", pkceCodeChallenge(coderVerifier))
+            parameters.append("code_challenge", pkceCodeChallenge(codeVerifier))
             parameters.append("code_challenge_method", PKCE_CODE_CHALLENGE_METHOD)
             parameters.append("state", state)
             parameters.append("redirect_uri", config.service.callbackUrl.toString())
@@ -245,9 +241,7 @@ class GarminOAuth2AuthorizationService(
         }
 
         when (response.status) {
-            HttpStatusCode.OK -> withContext(Dispatchers.IO) {
-                response.body<RestOauth2UserId>().userId
-            }
+            HttpStatusCode.OK -> response.body<RestOauth2UserId>().userId
 
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> throw HttpBadGatewayException(
                 "Service was unable to fetch the external ID",
