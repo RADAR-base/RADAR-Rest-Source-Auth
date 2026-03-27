@@ -15,7 +15,7 @@ data class RestSourceClient(
     val scope: String? = null,
     val state: String? = null,
     val usesPkce: Boolean = false,
-    val oauthVersion: String = "oauth1",
+    val oauthVersion: String = "oauth2",
 ) {
     fun withEnv(): RestSourceClient =
         this.copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
