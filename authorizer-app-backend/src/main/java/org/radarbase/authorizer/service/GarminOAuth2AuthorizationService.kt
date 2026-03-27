@@ -78,7 +78,7 @@ class GarminOAuth2AuthorizationService(
         val codeVerifier = token?.let {
             registrationRepository.get(it)?.codeVerifier ?: throw HttpInternalServerException(
                 "internal_server_error",
-                "code verifier not found for state with token $it",
+                "code verifier not found for provided state token",
             )
         } ?: throw HttpInternalServerException(
             "internal_server_error",
@@ -119,8 +119,8 @@ class GarminOAuth2AuthorizationService(
             formParameters = Parameters.build {
                 append("grant_type", "refresh_token")
                 append("refresh_token", refreshToken)
-                append("client_id", authConfig.clientId ?: "")
-                append("client_secret", authConfig.clientSecret ?: "")
+                append("client_id", checkNotNull(authConfig.clientId))
+                append("client_secret", checkNotNull(authConfig.clientSecret))
             },
         )
 
@@ -206,7 +206,7 @@ class GarminOAuth2AuthorizationService(
         val codeVerifier = registrationRepository.get(state)?.codeVerifier
             ?: throw HttpInternalServerException(
                 "internal_server_error",
-                "code verifier not found for state with token $state",
+                "code verifier not found for provided state token",
             )
 
         return URLBuilder().run {
