@@ -253,7 +253,7 @@ class GarminOAuth2AuthorizationService(
 
     companion object {
         private const val PKCE_CODE_CHALLENGE_METHOD = "S256"
-        private const val GARMIN_USER_ID_ENDPOINT = "https://healthapi.garmin.com/wellness-api/rest/user/id"
+        private const val GARMIN_USER_ID_ENDPOINT = "https://apis.garmin.com/wellness-api/rest/user/id"
         private const val DEREGISTER_CHECK_PERIOD = 3600000L
 
         private fun pkceCodeChallenge(codeVerifier: String) = PkceUtil.generateCodeChallenge(codeVerifier)
