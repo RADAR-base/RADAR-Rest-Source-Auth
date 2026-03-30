@@ -141,6 +141,6 @@ open class OAuth2RestSourceAuthorizationService(
     }
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(OAuth2RestSourceAuthorizationService::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(OAuth2RestSourceAuthorizationService::class.java)
     }
 }
