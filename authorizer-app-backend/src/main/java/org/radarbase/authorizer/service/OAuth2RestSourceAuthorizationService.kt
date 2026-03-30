@@ -81,16 +81,47 @@ open class OAuth2RestSourceAuthorizationService(
         }
     }
 
-    override suspend fun revokeToken(user: RestSourceUser): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun revokeToken(user: RestSourceUser): Boolean {
         val accessToken = user.accessToken ?: run {
             logger.error("Cannot revoke token of user {} without an access token", user.userId)
-            return@withContext false
+            return false
         }
-        logger.info("Requesting to revoke access token")
-        val response = submitForm(user.sourceType) {
-            append("token", accessToken)
+        // revoke token using the deregistrationEndpoint token endpoint
+        val authConfig = clients.forSourceType(user.sourceType)
+        val deregistrationEndpoint = checkNotNull(authConfig.deregistrationEndpoint) { "Missing deregistration endpoint configuration" }
+
+        val isSuccess = try {
+            withContext(Dispatchers.IO) {
+                val response = httpClient.submitForm {
+                    url {
+                        takeFrom(deregistrationEndpoint)
+                        parameters.append("token", accessToken)
+                        parameters.append("client_id", authConfig.clientId!!)
+                    }
+                }
+                if (response.status.isSuccess()) {
+                    true
+                } else {
+                    logger.error(
+                        "Failed to revoke token for user {}: {}",
+                        user.userId,
+                        response.bodyAsText().take(512),
+                    )
+                    false
+                }
+            }
+        } catch (ex: Exception) {
+            logger.warn("Revoke endpoint error: {}", ex.toString())
+            false
         }
-        response.status.isSuccess()
+
+        return if (isSuccess) {
+            logger.info("Successfully revoked token for user {}", user.userId)
+            true
+        } else {
+            logger.error("Failed to revoke token for user {}", user.userId)
+            false
+        }
     }
 
     override suspend fun revokeToken(externalId: String, sourceType: String, token: String): Boolean =
