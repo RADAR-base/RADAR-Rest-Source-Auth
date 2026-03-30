@@ -29,7 +29,8 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.OURA_AUTH
-import org.radarbase.authorizer.service.GarminSourceAuthorizationService
+import org.radarbase.authorizer.service.GarminOAuth2AuthorizationService
+import org.radarbase.authorizer.service.GarminOauth1AuthorizationService
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.OuraAuthorizationService
 import org.radarbase.authorizer.service.RegistrationService
@@ -50,6 +51,15 @@ class AuthorizerResourceEnhancer(
                 requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
             },
     )
+
+    /**
+     * Maps a source type to its configured OAuth version (e.g., "oauth1" or "oauth2").
+     * This is used to conditionally bind the correct authorization service implementation.
+     * Configure via the `oauthVersion` field in `authorizer.yml` under each `restSourceClients` entry.
+     */
+    private val sourceTypeOauthMap: Map<String, String> = config.restSourceClients.associate {
+        it.sourceType to it.oauthVersion.lowercase()
+    }
 
     override val classes: Array<Class<*>>
         get() = listOfNotNull(
@@ -102,10 +112,18 @@ class AuthorizerResourceEnhancer(
         bind(DelegatedRestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
 
-        bind(GarminSourceAuthorizationService::class.java)
-            .to(RestSourceAuthorizationService::class.java)
-            .named(GARMIN_AUTH)
-            .`in`(Singleton::class.java)
+        // Bind Garmin service based on a configured oauthVersion: "oauth2" → PKCE flow, "oauth1" → legacy flow.
+        if (sourceTypeOauthMap[GARMIN_AUTH].equals("oauth2", ignoreCase = true)) {
+            bind(GarminOAuth2AuthorizationService::class.java)
+                .to(RestSourceAuthorizationService::class.java)
+                .named(GARMIN_AUTH)
+                .`in`(Singleton::class.java)
+        } else {
+            bind(GarminOauth1AuthorizationService::class.java)
+                .to(RestSourceAuthorizationService::class.java)
+                .named(GARMIN_AUTH)
+                .`in`(Singleton::class.java)
+        }
 
         bind(OAuth2RestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)

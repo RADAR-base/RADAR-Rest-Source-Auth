@@ -58,7 +58,7 @@ abstract class OAuth1RestSourceAuthorizationService(
 ) : RestSourceAuthorizationService {
     private val httpClient = RestSourceAuthorizationService.httpClient()
 
-    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
+    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String, token: String?): RestOauth2AccessToken {
         val authConfig = clientService.forSourceType(sourceType)
         logger.info("Requesting access token..")
 

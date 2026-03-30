@@ -53,6 +53,12 @@ data class RestOauth1UserId(
 )
 
 @Serializable
+data class RestOauth2UserId(
+    @SerialName("userId")
+    val userId: String,
+)
+
+@Serializable
 data class OuraAuthUserId(
     val age: Int? = null,
     val weight: Float? = null,
