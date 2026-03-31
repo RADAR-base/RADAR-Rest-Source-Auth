@@ -246,7 +246,7 @@ class GarminOAuth2AuthorizationService(
             HttpStatusCode.OK -> response.body<RestOauth2UserId>().userId
 
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> throw HttpBadGatewayException(
-                "Service was unable to fetch the external ID",
+                "Unable to fetch external ID (HTTP status ${response.status}): ${response.bodyAsText()}",
             )
 
             else -> throw HttpBadGatewayException("Cannot connect to ${response.request.url}: HTTP status ${response.status}")
