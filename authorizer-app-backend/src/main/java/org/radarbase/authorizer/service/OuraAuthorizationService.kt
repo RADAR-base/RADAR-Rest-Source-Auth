@@ -26,8 +26,8 @@ class OuraAuthorizationService(
     @Context private val clients: RestSourceClientService,
     @Context private val config: AuthorizerConfig,
 ) : OAuth2RestSourceAuthorizationService(clients, config) {
-    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String, token: String?): RestOauth2AccessToken {
-        val accessToken: RestOauth2AccessToken = super.requestAccessToken(payload, sourceType, token)
+    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
+        val accessToken: RestOauth2AccessToken = super.requestAccessToken(payload, sourceType)
         return accessToken.copy(externalUserId = getExternalId(accessToken.accessToken))
     }
 
