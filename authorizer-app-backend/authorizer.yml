@@ -36,8 +36,8 @@ restSourceClients:
     clientId: <GARMIN_CLIENT_ID>
     clientSecret: <GARMIN_CLIENT_SECRET>
     oauthVersion: oauth2
-  # Google Health API - successor to the Fitbit Web API
-  - sourceType: GoogleHealth
+  # Google Health API
+  - sourceType: Google
     authorizationEndpoint: https://accounts.google.com/o/oauth2/v2/auth
     tokenEndpoint: https://oauth2.googleapis.com/token
     clientId: <GOOGLE_CLIENT_ID>
