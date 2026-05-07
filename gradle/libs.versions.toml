@@ -1,0 +1,35 @@
+[versions]
+project = "4.4.14"
+gradle = "8.14"
+kotlin = "1.9.24"
+radarCommons = "1.2.6"
+radarJersey = "0.12.7"
+postgresql = "42.6.1"
+# @pin Upgrade to 3.x.x requires kotlin v2 minimum
+ktor = "2.3.13"
+jedis = "5.1.3"
+log4j2 = "2.23.1"
+jersey = "3.1.8"
+mockitoKotlin = "5.4.0"
+hamcrest = "2.2"
+
+[libraries]
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+radar-jersey = { module = "org.radarbase:radar-jersey", version.ref = "radarJersey" }
+radar-jersey-hibernate = { module = "org.radarbase:radar-jersey-hibernate", version.ref = "radarJersey" }
+radar-commons-kotlin = { module = "org.radarbase:radar-commons-kotlin", version.ref = "radarCommons" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
+ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+jersey-testframework = { module = "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2", version.ref = "jersey" }
+
+[plugins]
+radar-root-project = { id = "org.radarbase.radar-root-project", version.ref = "radarCommons" }
+radar-dependency-management = { id = "org.radarbase.radar-dependency-management", version.ref = "radarCommons" }
+radar-kotlin = { id = "org.radarbase.radar-kotlin", version.ref = "radarCommons" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-noarg = { id = "org.jetbrains.kotlin.plugin.noarg", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
