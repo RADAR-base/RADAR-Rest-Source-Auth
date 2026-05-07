@@ -60,6 +60,11 @@ data class OuraAuthUserId(
     @SerialName("id") val userId: String,
 )
 
+@Serializable
+data class HuaweiUserId(
+    @SerialName("openid") val userId: String,
+)
+
 data class SignRequestParams(
     val url: String,
     val method: String,

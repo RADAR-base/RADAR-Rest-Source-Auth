@@ -1,33 +1,45 @@
 service:
-  # Interval time in minutes for syncing projects and subjects.
+  # base url for authorizer-app-backend service
   baseUri: http://0.0.0.0:8085/rest-sources/backend/
-  advertisedBaseUri: http://localhost:8080/rest-sources/backend/
+  # advertised url of the service
+  advertisedBaseUri: http://0.0.0.0:8080/rest-sources/backend/
+  # if cors filter should be enabled
   enableCors: true
 
 auth:
   # Management Portal URL
-  managementPortalUrl: http://managementportal:8080/managementportal
-  # OAuth2 Client id of more-promasys-sync application
+  managementPortalUrl: http://managementportal-app:8080/managementportal/
+  # OAuth2 Client id of authorizer-app-backend application
   clientId: radar_rest_sources_auth_backend
-  # OAuth2 Client Secret of more_promasys_sync_client client
+  # OAuth2 Client Secret of authorizer-app-backend client
   clientSecret: secret
 
 database:
+  # JDBC Driver of the database used for persistence
   driver: org.postgresql.Driver
-  url: jdbc:postgresql://rest-auth-postgresql:5432/restsourceauthorizer
+  # JBDC database connection url
+  url: jdbc:postgresql://radarbase-postgresql:5432/restsourceauthorizer
+  # Database username
   user: radarcns
+  # Database password
   password: radarcns
   dialect: org.hibernate.dialect.PostgreSQLDialect
 
-redis:
-  uri: redis://redis:6379
-
 restSourceClients:
+  # List of rest-source types and properties e.g FitBit, Garmin
   - sourceType: FitBit
     authorizationEndpoint: https://www.fitbit.com/oauth2/authorize
     tokenEndpoint: https://api.fitbit.com/oauth2/token
     clientId: Fitbit-clientid
     clientSecret: Fitbit-clientsecret
+    scope: activity heartrate sleep profile
+  - sourceType: Garmin
+    preAuthorizationEndpoint: https://connectapi.garmin.com/oauth-service/oauth/request_token
+    authorizationEndpoint: https://connect.garmin.com/oauthConfirm
+    deregistrationEndpoint: https://healthapi.garmin.com/wellness-api/rest/user/registration
+    tokenEndpoint: https://connectapi.garmin.com/oauth-service/oauth/access_token
+    clientId: Garmin-clientid
+    clientSecret: Garmin-clientsecret
     scope: activity heartrate sleep profile
   - sourceType: Oura
     authorizationEndpoint: https://cloud.ouraring.com/oauth/authorize
@@ -36,3 +48,9 @@ restSourceClients:
     clientId: Oura-clientid
     clientSecret: Oura-clinetsecret
     scope: daily session heartrate workout tag personal email spo2 ring_configuration
+  - sourceType: Huawei
+    authorizationEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v3/authorize
+    tokenEndpoint: https://oauth-api.cloud.huawei.com/oauth2/v3/token
+    clientId: Huawei-clientid
+    clientSecret: Huawei-clientsecret
+    scope: activity heartrate sleep profile
