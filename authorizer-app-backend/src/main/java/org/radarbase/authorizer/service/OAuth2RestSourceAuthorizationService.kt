@@ -115,7 +115,7 @@ open class OAuth2RestSourceAuthorizationService(
         }
     }
 
-    override suspend fun deregisterUser(user: RestSourceUser) =
+    override suspend fun deregisterUser(user: RestSourceUser): Unit =
         throw HttpBadRequestException("", "Not available for auth type")
 
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
@@ -141,6 +141,6 @@ open class OAuth2RestSourceAuthorizationService(
     }
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(OAuth2RestSourceAuthorizationService::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(OAuth2RestSourceAuthorizationService::class.java)
     }
 }

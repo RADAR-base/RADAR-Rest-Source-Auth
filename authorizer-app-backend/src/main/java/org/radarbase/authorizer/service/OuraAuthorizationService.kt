@@ -19,6 +19,7 @@ import org.radarbase.authorizer.api.RestOauth2AccessToken
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.jersey.exception.HttpBadGatewayException
+import org.slf4j.LoggerFactory
 import java.io.IOException
 
 class OuraAuthorizationService(
@@ -28,6 +29,11 @@ class OuraAuthorizationService(
     override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken {
         val accessToken: RestOauth2AccessToken = super.requestAccessToken(payload, sourceType)
         return accessToken.copy(externalUserId = getExternalId(accessToken.accessToken))
+    }
+
+    override suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? {
+        val token = super.refreshToken(user)
+        return token?.copy(externalUserId = token.externalUserId ?: user.externalUserId)
     }
 
     override suspend fun revokeToken(user: RestSourceUser): Boolean {
@@ -101,6 +107,7 @@ class OuraAuthorizationService(
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(OuraAuthorizationService::class.java)
         private const val OURA_USER_ID_ENDPOINT = "https://api.ouraring.com/v2/usercollection/personal_info"
     }
 }

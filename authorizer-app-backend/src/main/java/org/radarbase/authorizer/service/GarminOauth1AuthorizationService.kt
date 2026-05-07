@@ -36,14 +36,14 @@ import org.radarbase.kotlin.coroutines.forkJoin
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-class GarminSourceAuthorizationService(
-    @Context private val clientService: RestSourceClientService,
-    @Context private val userRepository: RestSourceUserRepository,
-    @Context private val asyncService: AsyncCoroutineService,
-    @Context
-    @BackgroundScheduler
+class GarminOauth1AuthorizationService(
+    @param:Context private val clientService: RestSourceClientService,
+    @param:Context private val userRepository: RestSourceUserRepository,
+    @param:Context private val asyncService: AsyncCoroutineService,
+    @param:Context
+    @param:BackgroundScheduler
     private val scheduler: ScheduledExecutorService,
-    @Context private val config: AuthorizerConfig,
+    @param:Context private val config: AuthorizerConfig,
 ) : OAuth1RestSourceAuthorizationService(
     clientService,
     userRepository,
@@ -80,6 +80,7 @@ class GarminSourceAuthorizationService(
         asyncService.runBlocking {
             userRepository
                 .queryAllWithElapsedEndDate(GARMIN_AUTH)
+                .filter { it.authorized }
                 .forkJoin { revokeToken(it) }
         }
     }

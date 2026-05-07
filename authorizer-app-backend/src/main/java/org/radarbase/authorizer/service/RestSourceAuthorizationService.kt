@@ -33,6 +33,9 @@ import kotlin.time.Duration.Companion.seconds
 interface RestSourceAuthorizationService {
     suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken
 
+    suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String, token: String?): RestOauth2AccessToken =
+        requestAccessToken(payload, sourceType)
+
     suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
 
     suspend fun revokeToken(user: RestSourceUser): Boolean
