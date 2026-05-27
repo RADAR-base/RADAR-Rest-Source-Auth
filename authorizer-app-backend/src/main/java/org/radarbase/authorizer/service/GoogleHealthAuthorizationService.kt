@@ -61,6 +61,7 @@ class GoogleHealthAuthorizationService(
     @param:Context private val registrationRepository: RegistrationRepository,
     @param:Context private val userRepository: RestSourceUserRepository,
     @param:Context private val config: AuthorizerConfig,
+    @param:Context private val authServices: RestSourceAuthorizationService,
 ) : OAuth2RestSourceAuthorizationService(clientService, config) {
 
     override suspend fun requestAccessToken(
@@ -99,11 +100,11 @@ class GoogleHealthAuthorizationService(
         }
 
         val accessToken = response.body<RestOauth2AccessToken>()
-        val externalUserId = getExternalId(accessToken.accessToken)
+        val identity = fetchIdentity(accessToken.accessToken)
 
-        cascadeDeregisterFitbit(registration.user)
+        cascadeDeregisterFitbit(registration.user, identity.legacyUserId)
 
-        return accessToken.copy(externalUserId = externalUserId)
+        return accessToken.copy(externalUserId = identity.healthUserId)
     }
 
     override suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? = withContext(Dispatchers.IO) {
@@ -209,7 +210,7 @@ class GoogleHealthAuthorizationService(
         userRepository.delete(user)
     }
 
-    private suspend fun getExternalId(accessToken: String): String = withContext(Dispatchers.IO) {
+    private suspend fun fetchIdentity(accessToken: String): RestGoogleHealthIdentity = withContext(Dispatchers.IO) {
         val response = httpClient.get(GOOGLE_HEALTH_IDENTITY_ENDPOINT) {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $accessToken")
@@ -217,7 +218,7 @@ class GoogleHealthAuthorizationService(
         }
 
         when (response.status) {
-            HttpStatusCode.OK -> response.body<RestGoogleHealthIdentity>().healthUserId
+            HttpStatusCode.OK -> response.body<RestGoogleHealthIdentity>()
 
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden ->
                 throw HttpBadGatewayException(
@@ -230,24 +231,51 @@ class GoogleHealthAuthorizationService(
         }
     }
 
-    private suspend fun cascadeDeregisterFitbit(newUser: RestSourceUser) {
-        val userId = newUser.userId ?: return
-        val projectId = newUser.projectId ?: return
-        val existing = runCatching {
-            userRepository.findByUserIdProjectIdSourceType(userId, projectId, FITBIT_AUTH)
-        }.onFailure {
-            logger.warn("Cascade: lookup for existing FitBit record failed for user {}", userId, it)
-        }.getOrNull() ?: return
+    private suspend fun cascadeDeregisterFitbit(newUser: RestSourceUser, legacyUserId: String?) {
+        val cleanedIds = mutableSetOf<Long>()
 
-        logger.info(
-            "Cascade: removing legacy FitBit authorization (projectId={}, userId={}, id={}) after Google Health consent",
-            projectId,
-            userId,
-            existing.id,
-        )
-        runCatching { userRepository.delete(existing) }.onFailure {
-            logger.warn("Cascade: failed to delete legacy FitBit record for user {}", userId, it)
+        val radarUserId = newUser.userId
+        val projectId = newUser.projectId
+        if (radarUserId != null && projectId != null) {
+            runCatching {
+                userRepository.findByUserIdProjectIdSourceType(radarUserId, projectId, FITBIT_AUTH)
+            }.onFailure {
+                logger.warn("Cascade: lookup by RADAR identity failed for user {}", radarUserId, it)
+            }.getOrNull()?.let { fitbitUser ->
+                revokeAndDelete(fitbitUser, "RADAR identity (projectId=$projectId, userId=$radarUserId)")
+                fitbitUser.id?.let(cleanedIds::add)
+            }
         }
+
+        if (legacyUserId != null) {
+            runCatching {
+                userRepository.findByExternalId(legacyUserId, FITBIT_AUTH)
+            }.onFailure {
+                logger.warn("Cascade: lookup by externalUserId={} failed", legacyUserId, it)
+            }.getOrNull()
+                ?.takeIf { it.id !in cleanedIds }
+                ?.let { fitbitUser ->
+                    revokeAndDelete(fitbitUser, "Google legacyUserId=$legacyUserId")
+                }
+        }
+    }
+
+    private suspend fun revokeAndDelete(user: RestSourceUser, matchedBy: String) {
+        val id = user.id
+        logger.info(
+            "Cascade: removing legacy FitBit authorization id={} (matched by {}, projectId={}, userId={}, externalUserId={})",
+            id, matchedBy, user.projectId, user.userId, user.externalUserId,
+        )
+        runCatching { authServices.revokeToken(user) }
+            .onSuccess { ok ->
+                if (ok) logger.info("Cascade: revoked Fitbit token for id={}", id)
+                else logger.info("Cascade: Fitbit revoke returned false for id={} (token may already be invalid)", id)
+            }
+            .onFailure { logger.warn("Cascade: Fitbit revoke threw for id={} — proceeding with delete", id, it) }
+
+        runCatching { userRepository.delete(user) }
+            .onSuccess { logger.info("Cascade: deleted FitBit row id={}", id) }
+            .onFailure { logger.warn("Cascade: failed to delete FitBit row id={}", id, it) }
     }
 
     companion object {
