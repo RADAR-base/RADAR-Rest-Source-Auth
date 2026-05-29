@@ -14,9 +14,16 @@ data class RestSourceClient(
     val grantType: String? = null,
     val scope: String? = null,
     val state: String? = null,
-    val usesPkce: Boolean = false,
     val oauthVersion: String = "oauth2",
 ) {
+    val usesPkce: Boolean
+        get() = when {
+            sourceType == "Garmin" && oauthVersion.equals("oauth2", ignoreCase = true) -> true
+            sourceType == "Google" -> true
+            sourceType == "Oura" -> true
+            else -> false
+        }
+
     fun withEnv(): RestSourceClient =
         this.copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
             .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_SECRET") { copy(clientSecret = it) }

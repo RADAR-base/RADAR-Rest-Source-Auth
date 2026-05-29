@@ -48,15 +48,6 @@ class AuthorizerResourceEnhancer(
     private val restSourceClients = RestSourceClients(
         config.restSourceClients
             .map { it.withEnv() }
-            .map {
-                when {
-                    it.sourceType == GARMIN_AUTH && it.oauthVersion.equals("oauth2", ignoreCase = true) ->
-                        it.copy(usesPkce = true)
-                    it.sourceType == GOOGLE_AUTH ->
-                        it.copy(usesPkce = true)
-                    else -> it
-                }
-            }
             .onEach {
                 requireNotNull(it.clientId) { "Client ID of ${it.sourceType} is missing" }
                 requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
