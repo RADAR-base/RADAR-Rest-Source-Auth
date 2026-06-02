@@ -20,7 +20,6 @@ data class RestSourceClient(
         get() = when {
             sourceType == "Garmin" && oauthVersion.equals("oauth2", ignoreCase = true) -> true
             sourceType == "Google" -> true
-            sourceType == "Oura" -> true
             else -> false
         }
 
