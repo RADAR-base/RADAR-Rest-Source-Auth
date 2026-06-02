@@ -54,6 +54,9 @@ class AuthorizerResourceEnhancer(
             },
     )
 
+    private val garminUsesOauth2 = restSourceClients.clients
+        .firstOrNull { it.sourceType == GARMIN_AUTH }?.usesOauth2 == true
+
     override val classes: Array<Class<*>>
         get() = listOfNotNull(
             Filters.cache,
@@ -105,9 +108,7 @@ class AuthorizerResourceEnhancer(
         bind(DelegatedRestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
 
-        // Bind Garmin service based on configured oauthVersion: "oauth2" → PKCE flow, "oauth1" → legacy flow.
-        val garminUsesPkce = restSourceClients.clients.firstOrNull { it.sourceType == GARMIN_AUTH }?.usesPkce == true
-        if (garminUsesPkce) {
+        if (garminUsesOauth2) {
             bind(GarminOAuth2AuthorizationService::class.java)
                 .to(RestSourceAuthorizationService::class.java)
                 .named(GARMIN_AUTH)
