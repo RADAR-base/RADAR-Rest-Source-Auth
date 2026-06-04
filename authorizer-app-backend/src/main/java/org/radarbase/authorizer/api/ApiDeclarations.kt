@@ -57,6 +57,12 @@ data class RestOauth2UserId(
 )
 
 @Serializable
+data class RestGoogleHealthIdentity(
+    val healthUserId: String,
+    val legacyUserId: String? = null,
+)
+
+@Serializable
 data class OuraAuthUserId(
     val age: Int? = null,
     val weight: Float? = null,
