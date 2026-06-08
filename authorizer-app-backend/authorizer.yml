@@ -37,7 +37,7 @@ restSourceClients:
     clientSecret: <GARMIN_CLIENT_SECRET>
     oauthVersion: oauth2
   # Google Health API
-  - sourceType: Google
+  - sourceType: GoogleHealth
     authorizationEndpoint: https://accounts.google.com/o/oauth2/v2/auth
     tokenEndpoint: https://oauth2.googleapis.com/token
     clientId: <GOOGLE_CLIENT_ID>
