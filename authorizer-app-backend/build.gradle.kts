@@ -1,9 +1,9 @@
 plugins {
     application
-    kotlin("plugin.serialization")
-    kotlin("plugin.noarg")
-    kotlin("plugin.jpa")
-    kotlin("plugin.allopen")
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.noarg)
+    alias(libs.plugins.kotlin.jpa)
+    alias(libs.plugins.kotlin.allopen)
 }
 
 application {
@@ -12,26 +12,27 @@ application {
 
 dependencies {
     api(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
 
-    implementation("org.radarbase:radar-jersey:${Versions.radarJersey}")
-    implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJersey}") {
-        runtimeOnly("org.postgresql:postgresql:${Versions.postgresql}")
+    implementation(libs.radar.jersey)
+    implementation(libs.radar.jersey.hibernate) {
+        runtimeOnly(libs.postgresql)
     }
-    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
+    implementation(libs.radar.commons.kotlin)
 
-    implementation("redis.clients:jedis:${Versions.jedis}")
+    implementation(libs.jedis)
 
-    implementation(enforcedPlatform("io.ktor:ktor-bom:${Versions.ktor}"))
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-auth")
-    implementation("io.ktor:ktor-client-cio")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    // Provided by radar-commons
+    compileOnly(enforcedPlatform(libs.ktor.bom))
+    compileOnly("io.ktor:ktor-client-core")
+    compileOnly("io.ktor:ktor-client-auth")
+    compileOnly("io.ktor:ktor-client-cio")
+    compileOnly("io.ktor:ktor-client-content-negotiation")
+    compileOnly("io.ktor:ktor-serialization-kotlinx-json")
 
-    testImplementation("org.hamcrest:hamcrest:${Versions.hamcrest}")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}")
-    testImplementation("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:${Versions.jersey}")
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.jersey.testframework)
 }
 
 allOpen {

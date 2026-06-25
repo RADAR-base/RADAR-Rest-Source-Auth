@@ -26,6 +26,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.BatchSize
 import org.hibernate.annotations.Cache
 import org.hibernate.annotations.CacheConcurrencyStrategy
@@ -36,7 +37,7 @@ import java.util.Objects
 import java.util.UUID
 
 @Entity
-@Table(name = "rest_source_user")
+@Table(name = "rest_source_user", uniqueConstraints = [UniqueConstraint(columnNames = ["external_user_id", "source_type"])])
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 class RestSourceUser(
     @Id

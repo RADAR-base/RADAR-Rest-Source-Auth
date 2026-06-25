@@ -28,6 +28,7 @@ class RegistrationRepository(
         user: RestSourceUser,
         secret: Hmac256Secret?,
         persistent: Boolean,
+        codeVerifier: String? = null,
     ): RegistrationState? {
         val createdAt = Instant.now()
         val expiryTime = if (persistent) persistentTokenExpiryTime else tokenExpiryTime
@@ -46,6 +47,7 @@ class RegistrationRepository(
                             salt = secret?.salt,
                             secretHash = secret?.secretHash,
                             persistent = persistent,
+                            codeVerifier = codeVerifier,
                         ).also { persist(it) }
                     }
                 } catch (ex: PersistenceException) {

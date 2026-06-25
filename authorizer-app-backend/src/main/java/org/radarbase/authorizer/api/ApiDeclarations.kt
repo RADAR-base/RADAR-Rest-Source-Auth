@@ -51,12 +51,24 @@ data class RestOauth1UserId(
 )
 
 @Serializable
+data class RestOauth2UserId(
+    @SerialName("userId")
+    val userId: String,
+)
+
+@Serializable
+data class RestGoogleHealthIdentity(
+    val healthUserId: String,
+    val legacyUserId: String? = null,
+)
+
+@Serializable
 data class OuraAuthUserId(
     val age: Int? = null,
     val weight: Float? = null,
     val height: Float? = null,
     val biological_sex: String? = null,
-    val email: String,
+    val email: String? = null,
     @SerialName("id") val userId: String,
 )
 

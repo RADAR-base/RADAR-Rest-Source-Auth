@@ -31,7 +31,7 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import kotlin.time.Duration.Companion.seconds
 
 interface RestSourceAuthorizationService {
-    suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken
+    suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String, token: String? = null): RestOauth2AccessToken
 
     suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken?
 

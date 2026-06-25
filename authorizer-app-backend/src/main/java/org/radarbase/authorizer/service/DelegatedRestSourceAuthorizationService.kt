@@ -33,8 +33,8 @@ class DelegatedRestSourceAuthorizationService(
         return provider.get()
     }
 
-    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken =
-        delegate(sourceType).requestAccessToken(payload, sourceType)
+    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String, token: String?): RestOauth2AccessToken =
+        delegate(sourceType).requestAccessToken(payload, sourceType, token)
 
     override suspend fun refreshToken(user: RestSourceUser): RestOauth2AccessToken? =
         delegate(user.sourceType).refreshToken(user)
@@ -64,5 +64,6 @@ class DelegatedRestSourceAuthorizationService(
         const val FITBIT_AUTH = "FitBit"
         const val OURA_AUTH = "Oura"
         const val HUAWEI_AUTH = "Huawei"
+        const val GOOGLE_AUTH = "GoogleHealth"
     }
 }

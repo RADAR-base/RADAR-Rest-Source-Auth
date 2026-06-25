@@ -48,7 +48,7 @@ open class OAuth2RestSourceAuthorizationService(
 ) : RestSourceAuthorizationService {
     protected val httpClient = RestSourceAuthorizationService.httpClient()
 
-    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String): RestOauth2AccessToken = withContext(Dispatchers.IO) {
+    override suspend fun requestAccessToken(payload: RequestTokenPayload, sourceType: String, token: String?): RestOauth2AccessToken = withContext(Dispatchers.IO) {
         logger.info("Requesting access token with authorization code")
         val response = submitForm(sourceType) { authorizationConfig ->
             payload.code?.let { append("code", it) }
@@ -115,7 +115,7 @@ open class OAuth2RestSourceAuthorizationService(
         }
     }
 
-    override suspend fun deregisterUser(user: RestSourceUser) =
+    override suspend fun deregisterUser(user: RestSourceUser): Unit =
         throw HttpBadRequestException("", "Not available for auth type")
 
     override fun signRequest(user: RestSourceUser, payload: SignRequestParams): SignRequestParams =
