@@ -1,7 +1,7 @@
 service:
   # Interval time in minutes for syncing projects and subjects.
   baseUri: http://0.0.0.0:8085/rest-sources/backend/
-  advertisedBaseUri: http://example.org/rest-sources/backend/
+  advertisedBaseUri: http://localhost:8085/rest-sources/backend/
   enableCors: true
 
 auth:
@@ -26,3 +26,23 @@ restSourceClients:
     clientId: <CLIENT_ID>
     clientSecret: <CLIENT_SECRET>
     scope: activity heartrate sleep profile
+
+  - sourceType: Huawei
+    authorizationEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v2/authorize
+    tokenEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v3/token
+    clientId: <CLIENT_ID>
+    clientSecret: <CLIENT_SECRET>
+    # openid will be prepended automatically by HuaweiAuthorizationService
+    scope: >-
+      https://www.huawei.com/healthkit/step.read
+      https://www.huawei.com/healthkit/calories.read
+      https://www.huawei.com/healthkit/heartrate.read
+      https://www.huawei.com/healthkit/sleep.read
+      https://www.huawei.com/healthkit/activity.read
+      https://www.huawei.com/healthkit/dailyActivitySummary.read
+      https://www.huawei.com/healthkit/oxygenSaturation.read
+      https://www.huawei.com/healthkit/stress.read
+      https://www.huawei.com/healthkit/bloodGlucose.read
+      https://www.huawei.com/healthkit/bloodPressure.read
+      https://www.huawei.com/healthkit/bodyTemperature.read
+      https://www.huawei.com/healthkit/bodyfat.read

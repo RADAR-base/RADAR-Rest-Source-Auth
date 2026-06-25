@@ -23,7 +23,7 @@ ENV BASE_HREF="/rest-sources/authorizer/" \
     RADAR_BASE_URL="http://localhost"
 
 # add init script
-COPY docker/optimization.conf /etc/nginx/conf.d/
+COPY --chown=101 docker/optimization.conf /etc/nginx/conf.d/
 COPY --chown=101 docker/default.conf /etc/nginx/conf.d/
 COPY docker/30-env-subst.sh /docker-entrypoint.d/
 
