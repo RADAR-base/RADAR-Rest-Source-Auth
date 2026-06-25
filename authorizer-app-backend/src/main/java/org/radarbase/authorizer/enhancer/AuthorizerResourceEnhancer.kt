@@ -21,6 +21,7 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.config.OAuthVersion
 import org.radarbase.authorizer.config.RestSourceClients
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
@@ -50,20 +51,14 @@ class AuthorizerResourceEnhancer(
     private val restSourceClients = RestSourceClients(
         config.restSourceClients
             .map { it.withEnv() }
-            .map {
-                when {
-                    it.sourceType == GARMIN_AUTH && it.oauthVersion.equals("oauth2", ignoreCase = true) ->
-                        it.copy(usesPkce = true)
-                    it.sourceType == GOOGLE_AUTH ->
-                        it.copy(usesPkce = true)
-                    else -> it
-                }
-            }
             .onEach {
                 requireNotNull(it.clientId) { "Client ID of ${it.sourceType} is missing" }
                 requireNotNull(it.clientSecret) { "Client secret of ${it.sourceType} is missing" }
             },
     )
+
+    private val garminUsesOauth2 = restSourceClients.clients
+        .firstOrNull { it.sourceType == GARMIN_AUTH }?.oauthVersion == OAuthVersion.OAUTH2
 
     override val classes: Array<Class<*>>
         get() = listOfNotNull(
@@ -116,9 +111,7 @@ class AuthorizerResourceEnhancer(
         bind(DelegatedRestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
 
-        // Bind Garmin service based on configured oauthVersion: "oauth2" → PKCE flow, "oauth1" → legacy flow.
-        val garminUsesPkce = restSourceClients.clients.firstOrNull { it.sourceType == GARMIN_AUTH }?.usesPkce == true
-        if (garminUsesPkce) {
+        if (garminUsesOauth2) {
             bind(GarminOAuth2AuthorizationService::class.java)
                 .to(RestSourceAuthorizationService::class.java)
                 .named(GARMIN_AUTH)
