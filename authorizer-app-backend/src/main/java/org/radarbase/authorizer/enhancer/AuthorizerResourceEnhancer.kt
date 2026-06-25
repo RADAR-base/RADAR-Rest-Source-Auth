@@ -21,6 +21,7 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.config.OAuthVersion
 import org.radarbase.authorizer.config.RestSourceClients
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
@@ -55,7 +56,7 @@ class AuthorizerResourceEnhancer(
     )
 
     private val garminUsesOauth2 = restSourceClients.clients
-        .firstOrNull { it.sourceType == GARMIN_AUTH }?.usesOauth2 == true
+        .firstOrNull { it.sourceType == GARMIN_AUTH }?.oauthVersion == OAuthVersion.OAUTH2
 
     override val classes: Array<Class<*>>
         get() = listOfNotNull(

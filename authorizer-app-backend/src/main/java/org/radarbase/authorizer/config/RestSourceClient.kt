@@ -16,20 +16,11 @@ data class RestSourceClient(
     val grantType: String? = null,
     val scope: String? = null,
     val state: String? = null,
-    val oauthVersion: String = "oauth2",
+    val oauthVersion: OAuthVersion = OAuthVersion.OAUTH2,
 ) {
-    val usesOauth2: Boolean
-        get() = when {
-            oauthVersion.equals("oauth2", ignoreCase = true) -> true
-            oauthVersion.equals("oauth1", ignoreCase = true) -> false
-            else -> throw IllegalArgumentException(
-                "Invalid OAuth version for $sourceType: '$oauthVersion'. Expected 'oauth1' or 'oauth2'.",
-            )
-        }
-
     val usesPkce: Boolean
         get() = when {
-            sourceType == GARMIN_AUTH && usesOauth2 -> true
+            sourceType == GARMIN_AUTH && oauthVersion == OAuthVersion.OAUTH2 -> true
             sourceType == GOOGLE_AUTH -> true
             else -> false
         }
