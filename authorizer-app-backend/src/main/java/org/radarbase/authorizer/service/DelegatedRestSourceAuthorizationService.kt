@@ -63,6 +63,6 @@ class DelegatedRestSourceAuthorizationService(
         const val GARMIN_AUTH = "Garmin"
         const val FITBIT_AUTH = "FitBit"
         const val OURA_AUTH = "Oura"
-        const val GOOGLE_AUTH = "Google"
+        const val GOOGLE_AUTH = "GoogleHealth"
     }
 }

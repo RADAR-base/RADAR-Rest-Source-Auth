@@ -264,12 +264,19 @@ class GoogleHealthAuthorizationService(
         val id = user.id
         logger.info(
             "Cascade: removing legacy FitBit authorization id={} (matched by {}, projectId={}, userId={}, externalUserId={})",
-            id, matchedBy, user.projectId, user.userId, user.externalUserId,
+            id,
+            matchedBy,
+            user.projectId,
+            user.userId,
+            user.externalUserId,
         )
         runCatching { authServices.revokeToken(user) }
             .onSuccess { ok ->
-                if (ok) logger.info("Cascade: revoked Fitbit token for id={}", id)
-                else logger.info("Cascade: Fitbit revoke returned false for id={} (token may already be invalid)", id)
+                if (ok) {
+                    logger.info("Cascade: revoked Fitbit token for id={}", id)
+                } else {
+                    logger.info("Cascade: Fitbit revoke returned false for id={} (token may already be invalid)", id)
+                }
             }
             .onFailure { logger.warn("Cascade: Fitbit revoke threw for id={} — proceeding with delete", id, it) }
 
