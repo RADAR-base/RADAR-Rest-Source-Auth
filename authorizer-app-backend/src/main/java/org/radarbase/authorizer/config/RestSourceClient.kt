@@ -1,5 +1,7 @@
 package org.radarbase.authorizer.config
 
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GOOGLE_AUTH
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 import java.util.Locale
 
@@ -14,9 +16,15 @@ data class RestSourceClient(
     val grantType: String? = null,
     val scope: String? = null,
     val state: String? = null,
-    val usesPkce: Boolean = false,
-    val oauthVersion: String = "oauth2",
+    val oauthVersion: OAuthVersion = OAuthVersion.OAUTH2,
 ) {
+    val usesPkce: Boolean
+        get() = when {
+            sourceType == GARMIN_AUTH && oauthVersion == OAuthVersion.OAUTH2 -> true
+            sourceType == GOOGLE_AUTH -> true
+            else -> false
+        }
+
     fun withEnv(): RestSourceClient =
         this.copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
             .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_SECRET") { copy(clientSecret = it) }

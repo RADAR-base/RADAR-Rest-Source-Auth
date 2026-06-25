@@ -21,6 +21,7 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.radarbase.authorizer.api.RestSourceClientMapper
 import org.radarbase.authorizer.api.RestSourceUserMapper
 import org.radarbase.authorizer.config.AuthorizerConfig
+import org.radarbase.authorizer.config.OAuthVersion
 import org.radarbase.authorizer.config.RestSourceClients
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
@@ -28,9 +29,11 @@ import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GOOGLE_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.OURA_AUTH
 import org.radarbase.authorizer.service.GarminOAuth2AuthorizationService
 import org.radarbase.authorizer.service.GarminOauth1AuthorizationService
+import org.radarbase.authorizer.service.GoogleHealthAuthorizationService
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.OuraAuthorizationService
 import org.radarbase.authorizer.service.RegistrationService
@@ -52,14 +55,8 @@ class AuthorizerResourceEnhancer(
             },
     )
 
-    /**
-     * Maps a source type to its configured OAuth version (e.g., "oauth1" or "oauth2").
-     * This is used to conditionally bind the correct authorization service implementation.
-     * Configure via the `oauthVersion` field in `authorizer.yml` under each `restSourceClients` entry.
-     */
-    private val sourceTypeOauthMap: Map<String, String> = config.restSourceClients.associate {
-        it.sourceType to it.oauthVersion.lowercase()
-    }
+    private val garminUsesOauth2 = restSourceClients.clients
+        .firstOrNull { it.sourceType == GARMIN_AUTH }?.oauthVersion == OAuthVersion.OAUTH2
 
     override val classes: Array<Class<*>>
         get() = listOfNotNull(
@@ -112,8 +109,7 @@ class AuthorizerResourceEnhancer(
         bind(DelegatedRestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
 
-        // Bind Garmin service based on a configured oauthVersion: "oauth2" → PKCE flow, "oauth1" → legacy flow.
-        if (sourceTypeOauthMap[GARMIN_AUTH].equals("oauth2", ignoreCase = true)) {
+        if (garminUsesOauth2) {
             bind(GarminOAuth2AuthorizationService::class.java)
                 .to(RestSourceAuthorizationService::class.java)
                 .named(GARMIN_AUTH)
@@ -133,6 +129,11 @@ class AuthorizerResourceEnhancer(
         bind(OuraAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(OURA_AUTH)
+            .`in`(Singleton::class.java)
+
+        bind(GoogleHealthAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(GOOGLE_AUTH)
             .`in`(Singleton::class.java)
     }
 }
