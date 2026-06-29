@@ -44,3 +44,19 @@ restSourceClients:
     clientSecret: <GOOGLE_CLIENT_SECRET>
     scope: https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly https://www.googleapis.com/auth/googlehealth.sleep.readonly https://www.googleapis.com/auth/googlehealth.irn.readonly https://www.googleapis.com/auth/googlehealth.ecg.readonly https://www.googleapis.com/auth/googlehealth.settings.readonly https://www.googleapis.com/auth/googlehealth.location.readonly
     oauthVersion: OAUTH2
+
+googleHealth:
+  serviceAccountKeyPath: ""        # path to the Google service-account JSON (or env GOOGLE_HEALTH_SERVICE_ACCOUNT_PATH)
+  apiBaseUrl: https://health.googleapis.com/v4
+  googleCloudProjectId: ""
+  subscriberId: radar-pushendpoint-stage   # MUST match the Push Endpoint subscriberId
+  dataTypes:
+    - steps
+    - heart-rate
+    - heart-rate-variability
+    - total-calories
+    - daily-resting-heart-rate
+    - respiratory-rate-sleep-summary
+    - daily-sleep-temperature-derivations
+    - sleep
+    - exercise
