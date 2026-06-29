@@ -26,6 +26,7 @@ import org.radarbase.authorizer.config.RestSourceClients
 import org.radarbase.authorizer.doa.RegistrationRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.RestSourceUserRepositoryImpl
+import org.radarbase.authorizer.doa.RestSourceUserSubscriptionRepository
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
@@ -34,12 +35,15 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.
 import org.radarbase.authorizer.service.GarminOAuth2AuthorizationService
 import org.radarbase.authorizer.service.GarminOauth1AuthorizationService
 import org.radarbase.authorizer.service.GoogleHealthAuthorizationService
+import org.radarbase.authorizer.service.GoogleHealthSubscriptionClient
+import org.radarbase.authorizer.service.GoogleServiceAccountTokenProvider
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.OuraAuthorizationService
 import org.radarbase.authorizer.service.RegistrationService
 import org.radarbase.authorizer.service.RestSourceAuthorizationService
 import org.radarbase.authorizer.service.RestSourceClientService
 import org.radarbase.authorizer.service.RestSourceUserService
+import org.radarbase.authorizer.service.RestSourceUserSubscriptionService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.filter.Filters
 
@@ -58,6 +62,9 @@ class AuthorizerResourceEnhancer(
     private val garminUsesOauth2 = restSourceClients.clients
         .firstOrNull { it.sourceType == GARMIN_AUTH }?.oauthVersion == OAuthVersion.OAUTH2
 
+    // Apply environment overrides (e.g. GOOGLE_HEALTH_SERVICE_ACCOUNT_PATH) to the Google Health config.
+    private val effectiveConfig = config.copy(googleHealth = config.googleHealth.withEnv())
+
     override val classes: Array<Class<*>>
         get() = listOfNotNull(
             Filters.cache,
@@ -72,7 +79,7 @@ class AuthorizerResourceEnhancer(
 
     override fun AbstractBinder.enhance() {
         // Bind instances. These cannot use any injects themselves
-        bind(config)
+        bind(effectiveConfig)
             .to(AuthorizerConfig::class.java)
 
         bind(restSourceClients)
@@ -88,6 +95,23 @@ class AuthorizerResourceEnhancer(
 
         bind(RestSourceUserService::class.java)
             .to(RestSourceUserService::class.java)
+            .`in`(Singleton::class.java)
+
+        // Google Health per-user subscription management.
+        bind(GoogleServiceAccountTokenProvider::class.java)
+            .to(GoogleServiceAccountTokenProvider::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(GoogleHealthSubscriptionClient::class.java)
+            .to(GoogleHealthSubscriptionClient::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(RestSourceUserSubscriptionRepository::class.java)
+            .to(RestSourceUserSubscriptionRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(RestSourceUserSubscriptionService::class.java)
+            .to(RestSourceUserSubscriptionService::class.java)
             .`in`(Singleton::class.java)
 
         bind(RestSourceUserMapper::class.java)

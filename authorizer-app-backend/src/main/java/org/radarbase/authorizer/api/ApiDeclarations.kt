@@ -145,6 +145,7 @@ data class RestSourceUserDTO(
     val isAuthorized: Boolean = false,
     val registrationCreatedAt: Instant? = null,
     val hasValidToken: Boolean = false,
+    val isSubscribed: Boolean = false,
     val version: String? = null,
     val timesReset: Long = 0,
 )

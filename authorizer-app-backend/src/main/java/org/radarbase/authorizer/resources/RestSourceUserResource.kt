@@ -185,6 +185,28 @@ class RestSourceUserResource(
     }
 
     @POST
+    @Path("{id}/subscription")
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
+    fun subscribe(
+        @PathParam("id") userId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        val subscribed = userService.subscribe(userId)
+        Response.ok(mapOf("userId" to userId, "subscribed" to subscribed)).build()
+    }
+
+    @DELETE
+    @Path("{id}/subscription")
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
+    fun unsubscribe(
+        @PathParam("id") userId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        val unsubscribed = userService.unsubscribe(userId)
+        Response.ok(mapOf("userId" to userId, "subscribed" to !unsubscribed)).build()
+    }
+
+    @POST
     @Path("{id}/reset")
     @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun reset(

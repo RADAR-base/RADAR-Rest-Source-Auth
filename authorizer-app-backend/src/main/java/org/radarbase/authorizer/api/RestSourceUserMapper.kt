@@ -40,6 +40,7 @@ class RestSourceUserMapper(
             isAuthorized = user.authorized,
             registrationCreatedAt = user.registrations.maxOfOrNull { it.createdAt },
             hasValidToken = user.hasValidToken(),
+            isSubscribed = user.subscription?.isSubscribed == true,
             sourceType = user.sourceType,
             endDate = user.endDate,
             startDate = user.startDate,
