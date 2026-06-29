@@ -24,4 +24,5 @@ data class AuthorizerConfig(
     val database: DatabaseConfig = DatabaseConfig(),
     val restSourceClients: List<RestSourceClient> = emptyList(),
     val redis: RedisConfig = RedisConfig(),
+    val googleHealth: GoogleHealthSubscriptionConfig = GoogleHealthSubscriptionConfig(),
 )
