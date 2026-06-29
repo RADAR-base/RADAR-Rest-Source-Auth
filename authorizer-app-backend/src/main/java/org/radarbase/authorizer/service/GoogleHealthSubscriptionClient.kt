@@ -47,14 +47,6 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.security.MessageDigest
 
-/**
- * Thin client over the Google Health subscriptions API for this deployment's project-level
- * subscriber. The subscriber itself is registered by the Push Endpoint; this only manages the
- * per-user subscriptions under it.
- *
- * Ported from RADAR-PushEndpoint's `GoogleHealthSubscriptionService`, adapted to ktor so it shares
- * the authorizer's HTTP stack.
- */
 class GoogleHealthSubscriptionClient(
     @param:Context private val config: AuthorizerConfig,
     @param:Context private val tokenProvider: GoogleServiceAccountTokenProvider,

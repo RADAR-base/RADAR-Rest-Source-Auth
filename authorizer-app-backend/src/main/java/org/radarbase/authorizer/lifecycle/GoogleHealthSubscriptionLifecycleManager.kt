@@ -36,18 +36,6 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-/**
- * One-shot reconcile of Google Health subscriptions against the authorized-user set, run shortly
- * after startup. It exists purely as a safety net for the synchronous, event-driven path:
- *
- *  - seeds/repairs subscriptions for authorized users that Google does not have one for,
- *  - re-patches subscriptions whose data types drifted from the current config (i.e. picks up a
- *    config change to [AuthorizerConfig.googleHealth] dataTypes),
- *  - deletes orphaned subscriptions whose user is no longer authorized (e.g. a delete that happened
- *    while the provider was unreachable).
- *
- * Dormant unless a service account is configured.
- */
 @Provider
 @Singleton
 class GoogleHealthSubscriptionLifecycleManager(
