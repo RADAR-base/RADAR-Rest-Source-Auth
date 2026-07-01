@@ -23,6 +23,14 @@ redis:
   uri: redis://redis:6379
 
 restSourceClients:
+  - sourceType: Huawei
+    authorizationEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v2/authorize
+    tokenEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v3/token
+    clientId: Huawei-clientid
+    clientSecret: Huawei-clientsecret
+    # openid is prepended automatically by HuaweiAuthorizationService
+    scope: >-
+      https://www.huawei.com/healthkit/step.read https://www.huawei.com/healthkit/calories.read https://www.huawei.com/healthkit/heartrate.read https://www.huawei.com/healthkit/sleep.read https://www.huawei.com/healthkit/activity.read https://www.huawei.com/healthkit/dailyActivitySummary.read https://www.huawei.com/healthkit/oxygenSaturation.read https://www.huawei.com/healthkit/stress.read https://www.huawei.com/healthkit/bloodGlucose.read https://www.huawei.com/healthkit/bloodPressure.read https://www.huawei.com/healthkit/bodyTemperature.read https://www.huawei.com/healthkit/bodyfat.read
   - sourceType: FitBit
     authorizationEndpoint: https://www.fitbit.com/oauth2/authorize
     tokenEndpoint: https://api.fitbit.com/oauth2/token
@@ -37,12 +45,12 @@ restSourceClients:
     clientSecret: Oura-clinetsecret
     scope: daily session heartrate workout tag personal email spo2 ring_configuration
   # Garmin OAuth2 PKCE configuration.
-  # oauthVersion: "oauth2" selects the GarminOAuth2AuthorizationService;
-  #   "oauth1" selects the legacy GarminOAuth1AuthorizationService.
+  # oauthVersion: OAUTH2 selects the GarminOAuth2AuthorizationService;
+  #   OAUTH1 selects the legacy GarminOAuth1AuthorizationService.
   - sourceType: Garmin
     authorizationEndpoint: https://connect.garmin.com/oauth2Confirm
     tokenEndpoint: https://diauth.garmin.com/di-oauth2-service/oauth/token
     deregistrationEndpoint: https://apis.garmin.com/wellness-api/rest/user/registration
     clientId: Garmin-clientid
     clientSecret: Garmin-clientsecret
-    oauthVersion: oauth2
+    oauthVersion: OAUTH2
