@@ -23,6 +23,14 @@ redis:
   uri: redis://redis:6379
 
 restSourceClients:
+  - sourceType: Huawei
+    authorizationEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v2/authorize
+    tokenEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v3/token
+    clientId: Huawei-clientid
+    clientSecret: Huawei-clientsecret
+    # openid is prepended automatically by HuaweiAuthorizationService
+    scope: >-
+      https://www.huawei.com/healthkit/step.read https://www.huawei.com/healthkit/calories.read https://www.huawei.com/healthkit/heartrate.read https://www.huawei.com/healthkit/sleep.read https://www.huawei.com/healthkit/activity.read https://www.huawei.com/healthkit/dailyActivitySummary.read https://www.huawei.com/healthkit/oxygenSaturation.read https://www.huawei.com/healthkit/stress.read https://www.huawei.com/healthkit/bloodGlucose.read https://www.huawei.com/healthkit/bloodPressure.read https://www.huawei.com/healthkit/bodyTemperature.read https://www.huawei.com/healthkit/bodyfat.read
   - sourceType: FitBit
     authorizationEndpoint: https://www.fitbit.com/oauth2/authorize
     tokenEndpoint: https://api.fitbit.com/oauth2/token
