@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:18-alpine as builder
+FROM --platform=$BUILDPLATFORM node:18-alpine AS builder
 
 RUN mkdir /app
 WORKDIR /app
@@ -23,7 +23,7 @@ ENV BASE_HREF="/rest-sources/authorizer/" \
     RADAR_BASE_URL="http://localhost"
 
 # add init script
-COPY --chown=101 docker/optimization.conf /etc/nginx/conf.d/
+COPY --chown=101 authorizer-app/docker/optimization.conf /etc/nginx/conf.d/
 COPY --chown=101 authorizer-app/docker/default.conf /etc/nginx/conf.d/
 COPY authorizer-app/docker/30-env-subst.sh /docker-entrypoint.d/
 
