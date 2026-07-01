@@ -46,6 +46,7 @@ import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpInternalServerException
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.kotlin.coroutines.forkJoin
+import org.slf4j.LoggerFactory
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
@@ -225,6 +226,7 @@ class GarminOAuth2AuthorizationService(
         asyncService.runBlocking {
             userRepository
                 .queryAllWithElapsedEndDate(GARMIN_AUTH)
+                .filter { it.authorized }
                 .forkJoin { revokeToken(it) }
         }
     }
@@ -244,7 +246,7 @@ class GarminOAuth2AuthorizationService(
             HttpStatusCode.OK -> response.body<RestOauth2UserId>().userId
 
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> throw HttpBadGatewayException(
-                "Service was unable to fetch the external ID",
+                "Unable to fetch external ID (HTTP status ${response.status}): ${response.bodyAsText()}",
             )
 
             else -> throw HttpBadGatewayException("Cannot connect to ${response.request.url}: HTTP status ${response.status}")
@@ -252,6 +254,8 @@ class GarminOAuth2AuthorizationService(
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(GarminOAuth2AuthorizationService::class.java)
+
         private const val PKCE_CODE_CHALLENGE_METHOD = "S256"
         private const val GARMIN_USER_ID_ENDPOINT = "https://apis.garmin.com/wellness-api/rest/user/id"
         private const val DEREGISTER_CHECK_PERIOD = 3600000L

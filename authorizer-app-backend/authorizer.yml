@@ -26,7 +26,6 @@ restSourceClients:
     clientId: <CLIENT_ID>
     clientSecret: <CLIENT_SECRET>
     scope: activity heartrate sleep profile
-
   - sourceType: Huawei
     authorizationEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v2/authorize
     tokenEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v3/token
