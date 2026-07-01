@@ -61,6 +61,7 @@ class HuaweiAuthorizationService(
     override suspend fun requestAccessToken(
         payload: RequestTokenPayload,
         sourceType: String,
+        token: String?,
     ): RestOauth2AccessToken = withContext(Dispatchers.IO) {
         val authConfig = clients.forSourceType(sourceType)
         val response = httpClient.submitForm(
