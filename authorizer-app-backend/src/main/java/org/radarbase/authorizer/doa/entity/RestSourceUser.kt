@@ -108,6 +108,9 @@ class RestSourceUser(
     @Column(name = "times_reset")
     var timesReset: Long = 0,
 
+    @Column(name = "scope")
+    var scope: String? = null,
+
     @OneToMany(
         fetch = FetchType.EAGER,
         targetEntity = RegistrationState::class,
