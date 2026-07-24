@@ -138,11 +138,11 @@ class AuthorizerResourceEnhancer(
             .to(RestSourceAuthorizationService::class.java)
             .named(HUAWEI_AUTH)
 
-        bind(GoogleHealthAuthorizationService::class.java)
+        bind(OAuth2RestSourceAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(DEXCOM_AUTH)
             .`in`(Singleton::class.java)
-            
+
         bind(GoogleHealthAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(GOOGLE_AUTH)
