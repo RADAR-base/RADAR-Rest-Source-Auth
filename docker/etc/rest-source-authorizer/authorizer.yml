@@ -24,8 +24,8 @@ redis:
 
 restSourceClients:
   - sourceType: Dexcom
-    authorizationEndpoint: https://api.dexcom.com/v3/oauth2/login
-    tokenEndpoint: https://api.dexcom.com/v2/oauth2/token
+    authorizationEndpoint: https://sandbox-api.dexcom.com/v3/oauth2/login
+    tokenEndpoint: https://sandbox-api.dexcom.com/v3/oauth2/token 
     clientId: Dexcom-clientid
     clientSecret: Dexcom-clientsecret
     scope: offline_access
