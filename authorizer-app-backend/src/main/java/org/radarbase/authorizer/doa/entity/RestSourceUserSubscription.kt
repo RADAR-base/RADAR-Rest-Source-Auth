@@ -65,7 +65,7 @@ class RestSourceUserSubscription(
         return user == other.user
     }
 
-    override fun hashCode(): Int = Objects.hash(sourceType, externalUserId)
+    override fun hashCode(): Int = Objects.hash(user)
 
     override fun toString(): String =
         "RestSourceUserSubscription(id=$id, sourceType=$sourceType, externalUserId=$externalUserId, isSubscribed=$isSubscribed)"

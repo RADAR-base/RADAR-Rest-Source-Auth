@@ -19,20 +19,42 @@ package org.radarbase.authorizer.config
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 data class GoogleHealthSubscriptionConfig(
+    /** Master switch for per-user subscription management, without unsetting the service account. */
+    val enabled: Boolean = true,
     val serviceAccountKeyPath: String? = null,
     val apiBaseUrl: String = "https://health.googleapis.com/v4",
     val googleCloudProjectId: String = "",
     val subscriberId: String = "radar-pep",
-    /** Data types each per-user subscription subscribes to  */
+    /** How often the background reconcile compares local state against Google's subscriptions. */
+    val reconcileIntervalMinutes: Long = 5,
+    /**
+     * If a single pass would delete more orphaned subscriptions than this, it skips deletion and
+     * warns instead. Zero or less disables the cap.
+     */
+    val reconcileMaxDeletesPerPass: Int = 50,
+    /**
+     * Data types each per-user subscription subscribes to. MUST stay identical to the Push Endpoint's
+     * `pushIntegration.googlehealth.triggerDataTypes`, which configures the shared subscriber these
+     * subscriptions hang off — a type present here but not there never yields a webhook trigger.
+     * Only valid trigger types may be listed; anything else makes Google reject the create outright.
+     */
     val dataTypes: List<String> = listOf(
-        "steps", "heart-rate", "heart-rate-variability", "total-calories",
-        "daily-resting-heart-rate", "respiratory-rate-sleep-summary",
-        "daily-sleep-temperature-derivations", "sleep", "exercise",
+        "steps",
+        "heart-rate",
+        "heart-rate-variability",
+        "daily-resting-heart-rate",
+        "respiratory-rate-sleep-summary",
+        "daily-sleep-temperature-derivations",
+        "sleep",
+        "exercise",
+        "floors",
+        "sedentary-period",
+        "activity-level",
     ),
 ) {
     fun withEnv(): GoogleHealthSubscriptionConfig =
         copyEnv("GOOGLE_HEALTH_SERVICE_ACCOUNT_PATH") { copy(serviceAccountKeyPath = it) }
 
     val isConfigured: Boolean
-        get() = !serviceAccountKeyPath.isNullOrEmpty() && googleCloudProjectId.isNotEmpty()
+        get() = enabled && !serviceAccountKeyPath.isNullOrEmpty() && googleCloudProjectId.isNotEmpty()
 }
