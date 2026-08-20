@@ -22,8 +22,6 @@ dependencies {
 
     implementation(libs.jedis)
 
-    implementation(libs.google.auth.oauth2)
-
     // Provided by radar-commons
     compileOnly(enforcedPlatform(libs.ktor.bom))
     compileOnly("io.ktor:ktor-client-core")

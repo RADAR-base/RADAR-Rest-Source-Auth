@@ -62,7 +62,6 @@ class GoogleHealthAuthorizationService(
     @param:Context private val userRepository: RestSourceUserRepository,
     @param:Context private val config: AuthorizerConfig,
     @param:Context private val authServices: RestSourceAuthorizationService,
-    @param:Context private val subscriptionService: RestSourceUserSubscriptionService,
 ) : OAuth2RestSourceAuthorizationService(clientService, config) {
 
     override suspend fun requestAccessToken(
@@ -137,8 +136,6 @@ class GoogleHealthAuthorizationService(
                     response.status,
                     response.bodyAsText(),
                 )
-                // The user can no longer be served; remove their subscription so PINGs stop.
-                subscriptionService.unsubscribe(user)
                 null
             }
             else -> throw HttpBadGatewayException(
@@ -152,10 +149,7 @@ class GoogleHealthAuthorizationService(
             logger.error("Cannot revoke token of user {} without an access token", user.userId)
             return false
         }
-        val revoked = revokeAtGoogle(accessToken, user.userId ?: "unknown")
-        // Revoking the token ends data flow, so the subscription is no longer useful.
-        subscriptionService.unsubscribe(user)
-        return revoked
+        return revokeAtGoogle(accessToken, user.userId ?: "unknown")
     }
 
     override suspend fun revokeToken(
@@ -213,8 +207,6 @@ class GoogleHealthAuthorizationService(
     }
 
     override suspend fun deregisterUser(user: RestSourceUser) {
-        // Remove the webhook subscription before the user row (and its subscription row) are deleted.
-        subscriptionService.removeForUser(user)
         userRepository.delete(user)
     }
 

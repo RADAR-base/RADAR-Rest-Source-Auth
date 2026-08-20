@@ -184,34 +184,6 @@ class RestSourceUserResource(
             .build()
     }
 
-    /**
-     * Creates the user's webhook subscription. `success` reports whether this call did so; it is
-     * false both on failure and for sources that do not use subscriptions. The user's subscription
-     * state itself is reported as `isSubscribed` by `GET users/{id}`.
-     */
-    @POST
-    @Path("{id}/subscription")
-    @NeedsPermission(Permission.SUBJECT_UPDATE)
-    fun subscribe(
-        @PathParam("id") userId: Long,
-        @Suspended asyncResponse: AsyncResponse,
-    ) = asyncService.runAsCoroutine(asyncResponse) {
-        val subscribed = userService.subscribe(userId)
-        Response.ok(mapOf("userId" to userId, "success" to subscribed)).build()
-    }
-
-    /** Removes the user's webhook subscription. See [subscribe] for the meaning of `success`. */
-    @DELETE
-    @Path("{id}/subscription")
-    @NeedsPermission(Permission.SUBJECT_UPDATE)
-    fun unsubscribe(
-        @PathParam("id") userId: Long,
-        @Suspended asyncResponse: AsyncResponse,
-    ) = asyncService.runAsCoroutine(asyncResponse) {
-        val unsubscribed = userService.unsubscribe(userId)
-        Response.ok(mapOf("userId" to userId, "success" to unsubscribed)).build()
-    }
-
     @POST
     @Path("{id}/reset")
     @NeedsPermission(Permission.SUBJECT_UPDATE)

@@ -19,7 +19,6 @@ package org.radarbase.authorizer.enhancer
 import org.radarbase.authorizer.config.AuthorizerConfig
 import org.radarbase.authorizer.doa.entity.RegistrationState
 import org.radarbase.authorizer.doa.entity.RestSourceUser
-import org.radarbase.authorizer.doa.entity.RestSourceUserSubscription
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -48,7 +47,14 @@ class ManagementPortalEnhancerFactory(
                 },
             )
 
-        val dbConfig = config.database.copy(managedClasses = MANAGED_CLASSES)
+        val dbConfig =
+            config.database.copy(
+                managedClasses =
+                listOf(
+                    RestSourceUser::class.qualifiedName!!,
+                    RegistrationState::class.qualifiedName!!,
+                ),
+            )
         return listOf(
             Enhancers.radar(authConfig),
             Enhancers.health,
@@ -58,18 +64,6 @@ class ManagementPortalEnhancerFactory(
             JedisResourceEnhancer(),
             Enhancers.exception,
             AuthorizerResourceEnhancer(config),
-        )
-    }
-
-    companion object {
-        /**
-         * Every entity Hibernate is given. An entity left out of this list fails the SessionFactory
-         * build — and so application startup — as soon as a listed entity associates with it.
-         */
-        val MANAGED_CLASSES: List<String> = listOf(
-            RestSourceUser::class.qualifiedName!!,
-            RegistrationState::class.qualifiedName!!,
-            RestSourceUserSubscription::class.qualifiedName!!,
         )
     }
 }
