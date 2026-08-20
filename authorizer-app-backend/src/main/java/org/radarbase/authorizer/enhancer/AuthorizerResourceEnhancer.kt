@@ -62,8 +62,7 @@ class AuthorizerResourceEnhancer(
     private val garminUsesOauth2 = restSourceClients.clients
         .firstOrNull { it.sourceType == GARMIN_AUTH }?.oauthVersion == OAuthVersion.OAUTH2
 
-    // Apply environment overrides (e.g. GOOGLE_HEALTH_SERVICE_ACCOUNT_PATH) to the Google Health config.
-    private val effectiveConfig = config.copy(googleHealth = config.googleHealth.withEnv())
+    private val appConfig = config.copy(restSourceClients = restSourceClients.clients)
 
     override val classes: Array<Class<*>>
         get() = listOfNotNull(
@@ -79,7 +78,7 @@ class AuthorizerResourceEnhancer(
 
     override fun AbstractBinder.enhance() {
         // Bind instances. These cannot use any injects themselves
-        bind(effectiveConfig)
+        bind(appConfig)
             .to(AuthorizerConfig::class.java)
 
         bind(restSourceClients)
