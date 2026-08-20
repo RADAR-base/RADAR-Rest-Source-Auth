@@ -80,6 +80,7 @@ class GarminOauth1AuthorizationService(
         asyncService.runBlocking {
             userRepository
                 .queryAllWithElapsedEndDate(GARMIN_AUTH)
+                .filter { it.authorized }
                 .forkJoin { revokeToken(it) }
         }
     }

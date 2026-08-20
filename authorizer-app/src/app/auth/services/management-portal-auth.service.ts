@@ -89,7 +89,7 @@ export class ManagementPortalAuthService extends AuthService {
   getAccessTokenRequestParams(authCode: string) {
     return new HttpParams()
       .set('grant_type', environment.authorizationGrantType)
-      .set('redirect_uri', window.location.href.split('?')[0])
+      .set('redirect_uri', environment.authCallbackUrl)
       .set('code', authCode)
       .set('client_id', environment.appClientId)
   }

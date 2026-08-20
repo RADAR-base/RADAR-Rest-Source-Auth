@@ -52,7 +52,7 @@ export class AuthorizationCompletePageComponent implements OnInit {
 
   private buildAuthorizeRequest(queryParams: any, storedParams: any): any {
     return {
-      code: this.getOrDefault(queryParams.code, storedParams.code),
+      code: this.getOrDefault(queryParams.code ?? queryParams.authorization_code, storedParams.code),
       oauth_token: this.getOrDefault(queryParams.oauth_token, storedParams.oauth_token),
       oauth_verifier: this.getOrDefault(queryParams.oauth_verifier, storedParams.oauth_verifier),
       oauth_token_secret: this.getOrDefault(queryParams.oauth_token_secret, storedParams.oauth_token_secret)

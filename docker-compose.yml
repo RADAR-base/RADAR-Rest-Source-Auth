@@ -30,20 +30,20 @@ services:
       - "traefik.http.services.managementportal.loadbalancer.server.port=8080"
 
   mp-postgresql:
-    image: bitnami/postgresql:15
+    image: postgres:15
     environment:
-      - POSTGRESQL_USERNAME=radarcns
-      - POSTGRESQL_PASSWORD=radarcns
-      - POSTGRESQL_DATABASE=managementportal
+      - POSTGRES_USER=radarcns
+      - POSTGRES_PASSWORD=radarcns
+      - POSTGRES_DB=managementportal
     labels:
       - "traefik.enable=false"
 
   rest-auth-postgresql:
-    image: bitnami/postgresql:15
+    image: postgres:15
     environment:
-      - POSTGRESQL_USERNAME=radarcns
-      - POSTGRESQL_PASSWORD=radarcns
-      - POSTGRESQL_DATABASE=restsourceauthorizer
+      - POSTGRES_USER=radarcns
+      - POSTGRES_PASSWORD=radarcns
+      - POSTGRES_DB=restsourceauthorizer
     labels:
       - "traefik.enable=false"
 

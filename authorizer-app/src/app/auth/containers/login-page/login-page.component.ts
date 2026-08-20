@@ -94,7 +94,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       state: Date.now().toString(),
       audience: this.DEFAULT_AUTH_AUDIENCE,
       scope: this.DEFAULT_AUTH_SCOPES.join(' '),
-      redirect_uri: window.location.href.split('?')[0],
+      redirect_uri: environment.authCallbackUrl,
     });
 
     window.location.href = `${baseUrl}?${params.toString()}`;

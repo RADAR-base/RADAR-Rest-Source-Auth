@@ -31,12 +31,14 @@ import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GARMIN_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GOOGLE_AUTH
+import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.HUAWEI_AUTH
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.OURA_AUTH
 import org.radarbase.authorizer.service.GarminOAuth2AuthorizationService
 import org.radarbase.authorizer.service.GarminOauth1AuthorizationService
 import org.radarbase.authorizer.service.GoogleHealthAuthorizationService
 import org.radarbase.authorizer.service.GoogleHealthSubscriptionClient
 import org.radarbase.authorizer.service.GoogleServiceAccountTokenProvider
+import org.radarbase.authorizer.service.HuaweiAuthorizationService
 import org.radarbase.authorizer.service.OAuth2RestSourceAuthorizationService
 import org.radarbase.authorizer.service.OuraAuthorizationService
 import org.radarbase.authorizer.service.RegistrationService
@@ -154,6 +156,9 @@ class AuthorizerResourceEnhancer(
             .named(OURA_AUTH)
             .`in`(Singleton::class.java)
 
+        bind(HuaweiAuthorizationService::class.java)
+            .to(RestSourceAuthorizationService::class.java)
+            .named(HUAWEI_AUTH)
         bind(GoogleHealthAuthorizationService::class.java)
             .to(RestSourceAuthorizationService::class.java)
             .named(GOOGLE_AUTH)
