@@ -17,6 +17,8 @@ data class RestSourceClient(
     val scope: String? = null,
     val state: String? = null,
     val oauthVersion: OAuthVersion = OAuthVersion.OAUTH2,
+    /** How per-user subscriptions at this source are managed, or null for sources that have none. */
+    val subscription: ClientSubscriptionConfig? = null,
 ) {
     val usesPkce: Boolean
         get() = when {
@@ -26,7 +28,8 @@ data class RestSourceClient(
         }
 
     fun withEnv(): RestSourceClient =
-        this.copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
+        copy(subscription = subscription?.withEnv())
+            .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_ID") { copy(clientId = it) }
             .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_SECRET") { copy(clientSecret = it) }
             .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_AUTH_URL") { copy(authorizationEndpoint = it) }
             .copyEnv("${sourceType.uppercase(Locale.US)}_CLIENT_TOKEN_URL") { copy(tokenEndpoint = it) }
