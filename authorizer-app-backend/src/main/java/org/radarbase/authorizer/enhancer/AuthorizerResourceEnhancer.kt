@@ -64,7 +64,9 @@ class AuthorizerResourceEnhancer(
     private val garminUsesOauth2 = restSourceClients.clients
         .firstOrNull { it.sourceType == GARMIN_AUTH }?.oauthVersion == OAuthVersion.OAUTH2
 
-    private val appConfig = config.copy(restSourceClients = restSourceClients.clients)
+    private val appConfig = config
+        .copy(restSourceClients = restSourceClients.clients)
+        .withSubscriptionEnv()
 
     override val classes: Array<Class<*>>
         get() = listOfNotNull(

@@ -16,7 +16,6 @@
 
 package org.radarbase.authorizer.config
 
-import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GOOGLE_AUTH
 import org.radarbase.jersey.hibernate.config.DatabaseConfig
 
 data class AuthorizerConfig(
@@ -24,16 +23,21 @@ data class AuthorizerConfig(
     val auth: AuthConfig = AuthConfig(),
     val database: DatabaseConfig = DatabaseConfig(),
     val restSourceClients: List<RestSourceClient> = emptyList(),
+    val restSourceClientSubscriptions: RestSourceClientSubscriptions = RestSourceClientSubscriptions(),
     val redis: RedisConfig = RedisConfig(),
 ) {
+    /** Applies the environment overrides of every subscription, e.g. a key path kept out of the file. */
+    fun withSubscriptionEnv(env: (String?) -> String? = System::getenv): AuthorizerConfig =
+        copy(restSourceClientSubscriptions = restSourceClientSubscriptions.withEnv(env))
+
     /**
-     * Subscription configuration of the GoogleHealth client, or a disabled one when that client is
-     * absent or manages no subscriptions, so that callers can read it without a null check.
+     * Google Health subscription configuration, or a disabled one when that source manages no
+     * subscriptions, so that callers can read it without a null check.
      */
-    val googleHealth: ClientSubscriptionConfig
-        get() = restSourceClients.firstOrNull { it.sourceType == GOOGLE_AUTH }?.subscription ?: NO_SUBSCRIPTIONS
+    val googleHealth: GoogleHealthSubscriptionConfig
+        get() = restSourceClientSubscriptions.googleHealth ?: NO_SUBSCRIPTIONS
 
     companion object {
-        private val NO_SUBSCRIPTIONS = ClientSubscriptionConfig(enabled = false)
+        private val NO_SUBSCRIPTIONS = GoogleHealthSubscriptionConfig(enabled = false)
     }
 }

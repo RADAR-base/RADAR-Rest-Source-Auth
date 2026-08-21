@@ -19,25 +19,16 @@ package org.radarbase.authorizer.config
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 /**
- * Configuration of the per-user subscriptions a [RestSourceClient] manages at its source, i.e.
- * telling that source which users this deployment wants data for. Clients that manage no
- * subscriptions leave the `subscription` block out entirely.
- *
- * Google Health is the only source with subscriptions so far, so the fields it needs are the ones
- * that are here; a client sets only what its own source uses and leaves the rest unset.
+ * Per-user Google Health webhook subscriptions. The subscriber they hang off is registered by the
+ * Push Endpoint, which receives the webhooks; only the per-user subscriptions are managed here.
  */
-data class ClientSubscriptionConfig(
-    /** Master switch for subscription management, without unsetting the credentials it needs. */
-    val enabled: Boolean = true,
-    /** Path to the service-account JSON used to call the subscription API. Google Health only. */
+data class GoogleHealthSubscriptionConfig(
+    override val enabled: Boolean = true,
     val serviceAccountKeyPath: String? = null,
-    /** Base URL of the API that owns the subscriptions. */
-    val apiBaseUrl: String = "https://health.googleapis.com/v4",
-    /** Cloud project that owns the subscriber. Google Health only. */
+    override val apiBaseUrl: String = "https://health.googleapis.com/v4",
     val googleCloudProjectId: String = "",
-    /** Subscriber the per-user subscriptions belong to. */
     val subscriberId: String = "radar-pep",
-    /** How often the background reconcile compares local state against the source's subscriptions. */
+    /** How often the background reconcile compares local state against Google's subscriptions. */
     val reconcileIntervalMinutes: Long = 5,
     /**
      * If a single pass would delete more orphaned subscriptions than this, it skips deletion and
@@ -63,10 +54,10 @@ data class ClientSubscriptionConfig(
         "sedentary-period",
         "activity-level",
     ),
-) {
-    fun withEnv(): ClientSubscriptionConfig =
-        copyEnv("GOOGLE_HEALTH_SERVICE_ACCOUNT_PATH") { copy(serviceAccountKeyPath = it) }
+) : ClientSubscriptionConfig {
+    fun withEnv(env: (String?) -> String? = System::getenv): GoogleHealthSubscriptionConfig =
+        copyEnv("GOOGLE_HEALTH_SERVICE_ACCOUNT_PATH", env) { copy(serviceAccountKeyPath = it) }
 
-    val isConfigured: Boolean
+    override val isConfigured: Boolean
         get() = enabled && !serviceAccountKeyPath.isNullOrEmpty() && googleCloudProjectId.isNotEmpty()
 }
