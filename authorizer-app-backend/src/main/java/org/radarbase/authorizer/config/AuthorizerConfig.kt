@@ -35,7 +35,7 @@ data class AuthorizerConfig(
      * subscriptions, so that callers can read it without a null check.
      */
     val googleHealth: GoogleHealthSubscriptionConfig
-        get() = restSourceClientSubscriptions.googleHealth ?: NO_SUBSCRIPTIONS
+        get() = restSourceClientSubscriptions.googlehealth ?: NO_SUBSCRIPTIONS
 
     companion object {
         private val NO_SUBSCRIPTIONS = GoogleHealthSubscriptionConfig(enabled = false)

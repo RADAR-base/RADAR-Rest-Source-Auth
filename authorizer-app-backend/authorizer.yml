@@ -68,7 +68,7 @@ restSourceClients:
 restSourceClientSubscriptions:
   # Per-user Google Health webhook subscriptions. The subscriber they hang off is registered by the
   # Push Endpoint, which receives the webhooks; only the per-user subscriptions are managed here.
-  GoogleHealth:
+  googlehealth:
     enabled: true                    # set false to stop managing subscriptions without dropping the key
     serviceAccountKeyPath: ""        # path to the Google service-account JSON (or env GOOGLE_HEALTH_SERVICE_ACCOUNT_PATH)
     apiBaseUrl: https://health.googleapis.com/v4

@@ -16,22 +16,17 @@
 
 package org.radarbase.authorizer.config
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GOOGLE_AUTH
-
 /**
  * Per-user subscriptions to manage, i.e. telling a source which users this deployment wants data
- * for. One entry per source that has them, named after the `sourceType` of the [RestSourceClient] it
- * belongs to; each source keeps its own settings in its own type, so adding one is a new class and a
- * new field here.
+ * for. One entry per source that has them, named after the source; each source keeps its own
+ * settings in its own type, so adding one is a new class and a new field here.
  */
 data class RestSourceClientSubscriptions(
-    @param:JsonProperty(GOOGLE_AUTH)
-    val googleHealth: GoogleHealthSubscriptionConfig? = null,
+    val googlehealth: GoogleHealthSubscriptionConfig? = null,
 ) {
     /** Applies environment overrides, for values a deployment keeps out of the config file. */
     fun withEnv(env: (String?) -> String? = System::getenv): RestSourceClientSubscriptions =
-        copy(googleHealth = googleHealth?.withEnv(env))
+        copy(googlehealth = googlehealth?.withEnv(env))
 }
 
 /** What every source's subscription configuration has in common. */
