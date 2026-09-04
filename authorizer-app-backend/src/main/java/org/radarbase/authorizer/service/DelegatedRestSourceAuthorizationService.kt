@@ -68,5 +68,6 @@ class DelegatedRestSourceAuthorizationService(
         const val OURA_AUTH = "Oura"
         const val HUAWEI_AUTH = "Huawei"
         const val GOOGLE_AUTH = "GoogleHealth"
+        const val DEXCOM_AUTH = "Dexcom"
     }
 }
