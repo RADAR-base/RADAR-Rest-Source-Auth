@@ -24,6 +24,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
+import jakarta.persistence.OneToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
@@ -117,6 +118,16 @@ class RestSourceUser(
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 2)
     var registrations: List<RegistrationState> = listOf(),
+
+    @OneToOne(
+        fetch = FetchType.EAGER,
+        cascade = [CascadeType.REMOVE],
+        mappedBy = "user",
+        orphanRemoval = true,
+    )
+    @Fetch(FetchMode.SELECT)
+    @BatchSize(size = 30)
+    var subscription: RestSourceUserSubscription? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
