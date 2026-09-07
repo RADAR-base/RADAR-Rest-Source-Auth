@@ -23,6 +23,12 @@ redis:
   uri: redis://redis:6379
 
 restSourceClients:
+  - sourceType: Dexcom
+    authorizationEndpoint: https://sandbox-api.dexcom.com/v3/oauth2/login
+    tokenEndpoint: https://sandbox-api.dexcom.com/v3/oauth2/token 
+    clientId: Dexcom-clientid
+    clientSecret: Dexcom-clientsecret
+    scope: offline_access
   - sourceType: Huawei
     authorizationEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v2/authorize
     tokenEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v3/token
