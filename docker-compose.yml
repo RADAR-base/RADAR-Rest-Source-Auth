@@ -70,8 +70,8 @@ services:
   radar-rest-sources-authorizer:
     image: radarbase/radar-rest-source-authorizer:dev
     build:
-      context: authorizer-app
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: authorizer-app/Dockerfile
     depends_on:
       - radar-rest-sources-backend
       - managementportal
