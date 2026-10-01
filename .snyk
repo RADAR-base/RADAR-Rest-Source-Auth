@@ -12,4 +12,85 @@ ignore:
         reason: Only reading trusted configuration files with YAML
         expires: 2024-01-12T15:07:16.614Z
         created: 2022-12-13T15:07:16.622Z
+  SNYK-JS-ANGULARCORE-17353317:
+    - '*':
+        reason: >
+          Modification of Assumed-Immutable Data in @angular/core@15.0.4. Fixed by upgrading
+          @angular/core@15.0.4 to 20.3.25, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-18550632:
+    - '*':
+        reason: >
+          Insufficient Verification of Data Authenticity in @angular/common@15.0.4. Fixed by
+          upgrading @angular/common@15.0.4 to 20.3.27, which is not part of this change. Ignored
+          while dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-MOMENT-19821607:
+    - '*':
+        reason: >
+          Directory Traversal in moment@2.29.4. Fixed by upgrading moment@2.29.4 to 2.31.0, which is
+          not part of this change. Ignored while dependency scanning moves from Snyk to Trivy, which
+          will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-14135651:
+    - '*':
+        reason: >
+          Insertion of Sensitive Information Into Sent Data in @angular/common@15.0.4. Fixed by
+          upgrading @angular/common@15.0.4 to 20.3.27, which is not part of this change. Ignored
+          while dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMPILER-14157154:
+    - '*':
+        reason: >
+          Cross-site Scripting (XSS) in @angular/compiler@15.0.4. Fixed by upgrading
+          @angular/compiler@15.0.4 to 19.2.17, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-17353316:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in @angular/common@15.0.4. Fixed by
+          upgrading @angular/common@15.0.4 to 20.3.27, which is not part of this change. Ignored
+          while dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-DEEPMERGE-19964053:
+    - '*':
+        reason: >
+          Prototype Pollution in deepmerge@4.2.2 (through @larscom/ngx-translate-module-
+          loader@3.0.7). Fixed by upgrading @larscom/ngx-translate-module-loader@3.0.7 to 3.1.1,
+          which is not part of this change. Ignored while dependency scanning moves from Snyk to
+          Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-17356486:
+    - '*':
+        reason: >
+          Regular Expression Denial of Service (ReDoS) in @angular/common@15.0.4. Fixed by upgrading
+          @angular/common@15.0.4 to 20.3.27, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCORE-15353393:
+    - '*':
+        reason: >
+          Cross-site Scripting (XSS) in @angular/core@15.0.4. Fixed by upgrading
+          @angular/core@15.0.4 to 20.3.25, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-17356555:
+    - '*':
+        reason: >
+          Use of Weak Hash in @angular/common@15.0.4. Fixed by upgrading @angular/common@15.0.4 to
+          20.3.27, which is not part of this change. Ignored while dependency scanning moves from
+          Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
 patch: {}
