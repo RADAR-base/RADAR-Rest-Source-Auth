@@ -184,7 +184,12 @@ class GoogleHealthSubscriptionClient(
                     logger.info("Subscription {} ok for {} (name={})", action, identifier, name)
                     SubscriptionResult.Success(name)
                 }
-                // create: subscription already present. delete: subscription already gone.
+                // create: a subscription with this id is already present, possibly orphaned.
+                code == 409 && action == "create" -> {
+                    logger.info("Subscription create found an existing subscription for {}", identifier)
+                    SubscriptionResult.AlreadyExists
+                }
+                // delete: subscription already gone.
                 code == 409 || code == 404 -> SubscriptionResult.Success(null)
 
                 code == 429 || code in 500..599 -> {

@@ -1,8 +1,16 @@
 package org.radarbase.authorizer.model
 
 sealed interface SubscriptionResult {
-    /** The subscription is in the desired state (created, already existed, or already deleted). */
+    /** The subscription is in the desired state (created, or deleted or already gone). */
     data class Success(val name: String?) : SubscriptionResult
+
+    /**
+     * Create found a subscription with the same id at Google (HTTP 409). It may be orphaned: after a
+     * user's grant expires (mainly while the OAuth client is in "Testing" mode, where grants last 7
+     * days), Google keeps the subscription but stops delivering, hides it from the list, and still
+     * rejects a new create with this id.
+     */
+    data object AlreadyExists : SubscriptionResult
 
     /** No service account configured; the call was not attempted. */
     data object NotConfigured : SubscriptionResult

@@ -23,6 +23,7 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.model.SubscriptionResult
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GOOGLE_AUTH
 import org.slf4j.LoggerFactory
+import java.io.IOException
 import kotlin.time.Duration.Companion.seconds
 
 class RestSourceUserSubscriptionService(
@@ -95,7 +96,11 @@ class RestSourceUserSubscriptionService(
             logger.warn("Cannot subscribe user {} without a Google health user id (externalUserId)", user.userId)
             return false
         }
-        return when (val result = client.createSubscription(healthUserId)) {
+        var result = client.createSubscription(healthUserId)
+        if (result is SubscriptionResult.AlreadyExists) {
+            result = recreateIfOrphaned(user, healthUserId)
+        }
+        return when (result) {
             is SubscriptionResult.Success -> {
                 subscriptionRepository.markSubscribed(userId, healthUserId, true)
                 logger.info("Subscribed user={}", user.userId)
@@ -106,6 +111,25 @@ class RestSourceUserSubscriptionService(
                 false
             }
         }
+    }
+
+    /**
+     * Create found a subscription with this id. If Google still lists it, it is healthy and kept as it is.
+     * If not, it is the orphan Google can keep after a user's grant expired, mainly while the OAuth client is in
+     * "Testing" mode, where grants expire after 7 days. The orphan stops delivering and is hidden from the list,
+     * but still blocks a create with the same id, so it is deleted and created again.
+     */
+    private suspend fun recreateIfOrphaned(user: RestSourceUser, healthUserId: String): SubscriptionResult {
+        val listed = try {
+            client.listSubscriptions().any { it.healthUserId == healthUserId }
+        } catch (ex: IOException) {
+            return SubscriptionResult.TransientFailure("list: ${ex.message}")
+        }
+        if (listed) return SubscriptionResult.Success(null)
+
+        logger.info("Subscription of user={} exists at Google but is not listed. Deleting and creating it again.", user.userId)
+        val deleted = client.deleteSubscription(healthUserId)
+        return if (deleted is SubscriptionResult.Success) client.createSubscription(healthUserId) else deleted
     }
 
     private suspend fun doUnsubscribe(user: RestSourceUser): Boolean {
