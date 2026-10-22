@@ -197,6 +197,12 @@ class GoogleHealthSubscriptionClient(
                     SubscriptionResult.TransientFailure("HTTP $code")
                 }
 
+                // Usually a user who withdrew consent. The reconcile resolves it, so it is not an error.
+                code == 403 -> {
+                    logger.warn("Permission denied for {} of {}: HTTP {} - {}", action, identifier, code, body)
+                    SubscriptionResult.PermanentFailure(code, body)
+                }
+
                 else -> {
                     logger.error("Permanent {} failure for {}: HTTP {} - {}", action, identifier, code, body)
                     SubscriptionResult.PermanentFailure(code, body)
