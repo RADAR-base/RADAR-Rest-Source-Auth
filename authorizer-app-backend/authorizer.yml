@@ -75,7 +75,7 @@ restSourceClientSubscriptions:
     googleCloudProjectId: ""
     subscriberId: radar-pep          # MUST match the Push Endpoint subscriberId
     reconcileIntervalMinutes: 5      # how often to reconcile local state against Google
-    reconcileMaxDeletesPerPass: 50   # skip (and warn) rather than delete more orphans than this in one pass
+    reconcileMaxDeletesPerPass: 50   # skip (and warn) rather than delete more orphans than this in one pass. 0 or less never deletes
     # MUST stay identical to the Push Endpoint's pushIntegration.googlehealth.triggerDataTypes.
     dataTypes:
       - steps
