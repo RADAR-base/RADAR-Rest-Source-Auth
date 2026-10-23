@@ -31,6 +31,7 @@ import io.ktor.http.URLBuilder
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
 import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.radarbase.authorizer.api.RequestTokenPayload
@@ -42,6 +43,7 @@ import org.radarbase.authorizer.doa.RestSourceUserRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.FITBIT_AUTH
 import org.radarbase.authorizer.util.PkceUtil
+import org.radarbase.jersey.exception.HttpApplicationException
 import org.radarbase.jersey.exception.HttpBadGatewayException
 import org.radarbase.jersey.exception.HttpInternalServerException
 import org.slf4j.LoggerFactory
@@ -62,6 +64,7 @@ class GoogleHealthAuthorizationService(
     @param:Context private val userRepository: RestSourceUserRepository,
     @param:Context private val config: AuthorizerConfig,
     @param:Context private val authServices: RestSourceAuthorizationService,
+    @param:Context private val subscriptionService: RestSourceUserSubscriptionService,
 ) : OAuth2RestSourceAuthorizationService(clientService, config) {
 
     override suspend fun requestAccessToken(
@@ -136,7 +139,16 @@ class GoogleHealthAuthorizationService(
                     response.status,
                     response.bodyAsText(),
                 )
-                null
+                // The user can no longer be served; remove their subscription so PINGs stop.
+                subscriptionService.unsubscribe(user)
+                // Mark the user unauthorized here, so the UI asks them to authorize again. Returning no token
+                // instead would fail the external id check in RestSourceUserService before that happens.
+                userRepository.updateToken(null, user)
+                throw HttpApplicationException(
+                    Response.Status.PROXY_AUTHENTICATION_REQUIRED,
+                    "user_unauthorized",
+                    "Refresh token for ${user.userId} is no longer valid. Invalidated user authorization.",
+                )
             }
             else -> throw HttpBadGatewayException(
                 "Cannot connect to ${response.request.url} (HTTP status ${response.status}): ${response.bodyAsText()}",
@@ -149,7 +161,10 @@ class GoogleHealthAuthorizationService(
             logger.error("Cannot revoke token of user {} without an access token", user.userId)
             return false
         }
-        return revokeAtGoogle(accessToken, user.userId ?: "unknown")
+        val revoked = revokeAtGoogle(accessToken, user.userId ?: "unknown")
+        // Revoking the token ends data flow, so the subscription is no longer useful.
+        subscriptionService.unsubscribe(user)
+        return revoked
     }
 
     override suspend fun revokeToken(
@@ -207,6 +222,8 @@ class GoogleHealthAuthorizationService(
     }
 
     override suspend fun deregisterUser(user: RestSourceUser) {
+        // Remove the webhook subscription before the user row (and its subscription row) are deleted.
+        subscriptionService.removeForUser(user)
         userRepository.delete(user)
     }
 
