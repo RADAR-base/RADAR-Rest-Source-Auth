@@ -184,12 +184,23 @@ class GoogleHealthSubscriptionClient(
                     logger.info("Subscription {} ok for {} (name={})", action, identifier, name)
                     SubscriptionResult.Success(name)
                 }
-                // create: subscription already present. delete: subscription already gone.
+                // create: a subscription with this id is already present, possibly orphaned.
+                code == 409 && action == "create" -> {
+                    logger.info("Subscription create found an existing subscription for {}", identifier)
+                    SubscriptionResult.AlreadyExists
+                }
+                // delete: subscription already gone.
                 code == 409 || code == 404 -> SubscriptionResult.Success(null)
 
                 code == 429 || code in 500..599 -> {
                     logger.warn("Transient {} failure for {}: HTTP {} - {}", action, identifier, code, body)
                     SubscriptionResult.TransientFailure("HTTP $code")
+                }
+
+                // Usually a user who withdrew consent. The reconcile resolves it, so it is not an error.
+                code == 403 -> {
+                    logger.warn("Permission denied for {} of {}: HTTP {} - {}", action, identifier, code, body)
+                    SubscriptionResult.PermanentFailure(code, body)
                 }
 
                 else -> {

@@ -123,7 +123,6 @@ class RestSourceUser(
         fetch = FetchType.EAGER,
         cascade = [CascadeType.REMOVE],
         mappedBy = "user",
-        orphanRemoval = true,
     )
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 30)

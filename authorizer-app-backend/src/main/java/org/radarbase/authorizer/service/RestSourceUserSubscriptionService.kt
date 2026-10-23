@@ -23,6 +23,7 @@ import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.model.SubscriptionResult
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GOOGLE_AUTH
 import org.slf4j.LoggerFactory
+import java.io.IOException
 import kotlin.time.Duration.Companion.seconds
 
 class RestSourceUserSubscriptionService(
@@ -36,22 +37,30 @@ class RestSourceUserSubscriptionService(
 
     private fun isSubscribed(user: RestSourceUser): Boolean = user.subscription?.isSubscribed == true
 
-    private suspend fun <T> withLock(user: RestSourceUser, block: suspend () -> T): T? {
+    /**
+     * Runs [block] under the user's token lock (`token-{id}`), the one lock that serializes all token and
+     * subscription changes of a user. The methods below do not lock by themselves: the token paths already
+     * hold this lock when they call them, and taking a second lock inside it would hold two pooled Redis
+     * connections at once, which can deadlock the pool. Only callers outside a token path (the reconcile) use
+     * this.
+     */
+    suspend fun <T> withUserLock(user: RestSourceUser, block: suspend () -> T): T? {
         val userId = user.id ?: return null
-        return lockService.runLocked("subscription-$userId", LOCK_TIMEOUT) { block() }
+        return lockService.runLocked("token-$userId", LOCK_TIMEOUT) { block() }
     }
 
-    /** Subscribe or unsubscribe to match the user's current authorization. Called after a token update. */
+    /**
+     * Subscribe or unsubscribe to match the user's current authorization. Called after a token update, with the
+     * user's token lock held.
+     */
     suspend fun syncForToken(user: RestSourceUser) {
         if (!applies(user)) return
         val desired = user.authorized && user.accessToken != null
         try {
-            withLock(user) {
-                when {
-                    desired && !isSubscribed(user) -> doSubscribe(user)
-                    !desired && isSubscribed(user) -> doUnsubscribe(user)
-                    else -> true
-                }
+            when {
+                desired && !isSubscribed(user) -> doSubscribe(user)
+                !desired && isSubscribed(user) -> doUnsubscribe(user)
+                else -> Unit
             }
         } catch (ex: Exception) {
             logger.warn("Subscription sync failed for user {} — leaving state unchanged", user.userId, ex)
@@ -63,13 +72,11 @@ class RestSourceUserSubscriptionService(
         if (!applies(user)) return
         val healthUserId = user.externalUserId ?: user.subscription?.externalUserId ?: return
         try {
-            withLock(user) {
-                when (val result = client.deleteSubscription(healthUserId)) {
-                    is SubscriptionResult.Success ->
-                        logger.info("Deleted subscription for user={} ahead of deregistration", user.userId)
-                    else ->
-                        logger.warn("Could not delete subscription for user={} ahead of deregistration: {}", user.userId, result)
-                }
+            when (val result = client.deleteSubscription(healthUserId)) {
+                is SubscriptionResult.Success ->
+                    logger.info("Deleted subscription for user={} ahead of deregistration", user.userId)
+                else ->
+                    logger.warn("Could not delete subscription for user={} ahead of deregistration: {}", user.userId, result)
             }
         } catch (ex: Exception) {
             logger.warn("Subscription removal failed for user {} ahead of deregistration", user.userId, ex)
@@ -77,35 +84,61 @@ class RestSourceUserSubscriptionService(
     }
 
     /** Force-create the subscription (manual endpoint / reconcile). Returns true when Google confirms it. */
-    suspend fun subscribe(user: RestSourceUser): Boolean {
-        if (!applies(user)) return false
-        return withLock(user) { doSubscribe(user) } ?: false
+    suspend fun subscribe(user: RestSourceUser): Boolean = subscribeResult(user).isSuccess
+
+    /** Like [subscribe], but returns Google's answer, so the reconcile can react to a refused create. */
+    suspend fun subscribeResult(user: RestSourceUser): SubscriptionResult {
+        if (!applies(user)) return SubscriptionResult.NotConfigured
+        return doSubscribe(user)
     }
 
     /** Force-delete the subscription (manual endpoint / revoke / refresh failure). Returns true when Google confirms it. */
     suspend fun unsubscribe(user: RestSourceUser): Boolean {
         if (!applies(user)) return false
-        return withLock(user) { doUnsubscribe(user) } ?: false
+        return doUnsubscribe(user)
     }
 
-    private suspend fun doSubscribe(user: RestSourceUser): Boolean {
-        val userId = user.id ?: return false
+    private suspend fun doSubscribe(user: RestSourceUser): SubscriptionResult {
+        val userId = user.id ?: return SubscriptionResult.PermanentFailure(0, "user has no id")
         val healthUserId = user.externalUserId
         if (healthUserId == null) {
             logger.warn("Cannot subscribe user {} without a Google health user id (externalUserId)", user.userId)
-            return false
+            return SubscriptionResult.PermanentFailure(0, "user has no Google health user id")
         }
-        return when (val result = client.createSubscription(healthUserId)) {
+        var result = client.createSubscription(healthUserId)
+        if (result is SubscriptionResult.AlreadyExists) {
+            result = recreateIfOrphaned(user, healthUserId)
+        }
+        return when (result) {
             is SubscriptionResult.Success -> {
                 subscriptionRepository.markSubscribed(userId, healthUserId, true)
                 logger.info("Subscribed user={}", user.userId)
-                true
+                result
             }
             else -> {
                 logger.warn("Subscribe failed for user={}: {}", user.userId, result)
-                false
+                result
             }
         }
+    }
+
+    /**
+     * Create found a subscription with this id. If Google still lists it, it is healthy and kept as it is.
+     * If not, it is the orphan Google can keep after a user's grant expired, mainly while the OAuth client is in
+     * "Testing" mode, where grants expire after 7 days. The orphan stops delivering and is hidden from the list,
+     * but still blocks a create with the same id, so it is deleted and created again.
+     */
+    private suspend fun recreateIfOrphaned(user: RestSourceUser, healthUserId: String): SubscriptionResult {
+        val listed = try {
+            client.listSubscriptions().any { it.healthUserId == healthUserId }
+        } catch (ex: IOException) {
+            return SubscriptionResult.TransientFailure("list: ${ex.message}")
+        }
+        if (listed) return SubscriptionResult.Success(null)
+
+        logger.info("Subscription of user={} exists at Google but is not listed. Deleting and creating it again.", user.userId)
+        val deleted = client.deleteSubscription(healthUserId)
+        return if (deleted is SubscriptionResult.Success) client.createSubscription(healthUserId) else deleted
     }
 
     private suspend fun doUnsubscribe(user: RestSourceUser): Boolean {
