@@ -32,7 +32,7 @@ data class GoogleHealthSubscriptionConfig(
     val reconcileIntervalMinutes: Long = 5,
     /**
      * If a single pass would delete more orphaned subscriptions than this, it skips deletion and
-     * warns instead. Zero or less disables the cap.
+     * warns instead. Zero or less turns orphan deletion off completely.
      */
     val reconcileMaxDeletesPerPass: Int = 50,
     /**
