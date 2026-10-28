@@ -34,6 +34,9 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.radarbase.authorizer.api.RequestTokenPayload
 import org.radarbase.authorizer.api.RestGoogleHealthIdentity
 import org.radarbase.authorizer.api.RestOauth2AccessToken
@@ -134,13 +137,23 @@ class GoogleHealthAuthorizationService(
                 )
             }
             HttpStatusCode.BadRequest, HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> {
+                val body = response.bodyAsText()
                 logger.error(
-                    "Failed to refresh GoogleHealth token (HTTP status {}): {}",
+                    "Failed to refresh GoogleHealth token for user {} (HTTP status {}): {}",
+                    user.userId,
                     response.status,
-                    response.bodyAsText(),
+                    body,
                 )
+                // Only a 400 with invalid_grant is about this user's refresh token. Other errors such as
+                // invalid_client (wrong or rotated client secret) would otherwise unauthorize every Google user.
+                if (response.status != HttpStatusCode.BadRequest || oauthError(body) != "invalid_grant") {
+                    throw HttpBadGatewayException(
+                        "Cannot refresh GoogleHealth token (HTTP status ${response.status}): $body",
+                    )
+                }
                 // The user can no longer be served; remove their subscription so PINGs stop.
-                subscriptionService.unsubscribe(user)
+                runCatching { subscriptionService.unsubscribe(user) }
+                    .onFailure { logger.warn("Failed to unsubscribe user {} after refused refresh", user.userId, it) }
                 // Mark the user unauthorized here, so the UI asks them to authorize again. Returning no token
                 // instead would fail the external id check in RestSourceUserService before that happens.
                 userRepository.updateToken(null, user)
@@ -155,6 +168,10 @@ class GoogleHealthAuthorizationService(
             )
         }
     }
+
+    private fun oauthError(body: String): String? = runCatching {
+        Json.parseToJsonElement(body).jsonObject["error"]?.jsonPrimitive?.content
+    }.getOrNull()
 
     override suspend fun revokeToken(user: RestSourceUser): Boolean {
         val accessToken = user.accessToken ?: run {
