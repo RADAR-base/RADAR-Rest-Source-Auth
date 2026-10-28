@@ -23,5 +23,21 @@ data class AuthorizerConfig(
     val auth: AuthConfig = AuthConfig(),
     val database: DatabaseConfig = DatabaseConfig(),
     val restSourceClients: List<RestSourceClient> = emptyList(),
+    val restSourceClientSubscriptions: RestSourceClientSubscriptions = RestSourceClientSubscriptions(),
     val redis: RedisConfig = RedisConfig(),
-)
+) {
+    /** Applies the environment overrides of every subscription, e.g. a key path kept out of the file. */
+    fun withSubscriptionEnv(env: (String?) -> String? = System::getenv): AuthorizerConfig =
+        copy(restSourceClientSubscriptions = restSourceClientSubscriptions.withEnv(env))
+
+    /**
+     * Google Health subscription configuration, or a disabled one when that source manages no
+     * subscriptions, so that callers can read it without a null check.
+     */
+    val googleHealth: GoogleHealthSubscriptionConfig
+        get() = restSourceClientSubscriptions.googlehealth ?: NO_SUBSCRIPTIONS
+
+    companion object {
+        private val NO_SUBSCRIPTIONS = GoogleHealthSubscriptionConfig(enabled = false)
+    }
+}

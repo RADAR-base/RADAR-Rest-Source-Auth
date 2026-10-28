@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+    <changeSet author="aditya" id="20260628120000-add-rest-source-user-subscription-table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="rest_source_user_subscription"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="rest_source_user_subscription_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="rest_source_user_subscription">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" unique="true"
+                    foreignKeyName="fk_subscription_user"
+                    references="rest_source_user(id)"
+                    deleteCascade="true"/>
+            </column>
+            <column name="source_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_user_id" type="varchar(200)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_subscribed" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

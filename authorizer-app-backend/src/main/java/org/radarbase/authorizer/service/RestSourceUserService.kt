@@ -23,6 +23,7 @@ class RestSourceUserService(
     @Context private val userMapper: RestSourceUserMapper,
     @Context private val lockService: LockService,
     @Context private val authorizationService: RestSourceAuthorizationService,
+    @Context private val subscriptionService: RestSourceUserSubscriptionService,
     @Context private val authService: AuthService,
 ) {
     suspend fun ensureUser(userId: Long, permission: Permission? = null): RestSourceUser {
@@ -65,6 +66,8 @@ class RestSourceUserService(
         ensureUser(userId, Permission.SUBJECT_UPDATE)
         runLocked(userId) { user ->
             if (user.accessToken != null) authorizationService.revokeToken(user)
+            // Remove the webhook subscription before the user row (and its subscription row) are deleted.
+            subscriptionService.removeForUser(user)
             userRepository.delete(user)
         }
     }
@@ -135,7 +138,22 @@ class RestSourceUserService(
      */
     suspend fun updateUserToken(token: RestOauth2AccessToken?, user: RestSourceUser): RestSourceUser {
         validateExternalUserId(token, user)
-        return userRepository.updateToken(token, user)
+        val updatedUser = userRepository.updateToken(token, user)
+        // Subscribe/unsubscribe to match the new authorization state (no-op for non-subscription sources).
+        subscriptionService.syncForToken(updatedUser)
+        return updatedUser
+    }
+
+    /** Manually (re)create a user's webhook subscription. */
+    suspend fun subscribe(userId: Long): Boolean {
+        ensureUser(userId, Permission.SUBJECT_UPDATE)
+        return runLocked(userId) { user -> subscriptionService.subscribe(user) }
+    }
+
+    /** Manually remove a user's webhook subscription. */
+    suspend fun unsubscribe(userId: Long): Boolean {
+        ensureUser(userId, Permission.SUBJECT_UPDATE)
+        return runLocked(userId) { user -> subscriptionService.unsubscribe(user) }
     }
 
     suspend fun ensureToken(userId: Long): TokenDTO {
