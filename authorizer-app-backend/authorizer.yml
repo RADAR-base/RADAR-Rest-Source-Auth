@@ -23,6 +23,7 @@ restSourceClients:
   - sourceType: FitBit
     authorizationEndpoint: https://www.fitbit.com/oauth2/authorize
     tokenEndpoint: https://api.fitbit.com/oauth2/token
+    deregistrationEndpoint: https://api.fitbit.com/oauth2/revoke
     clientId: <CLIENT_ID>
     clientSecret: <CLIENT_SECRET>
     scope: activity heartrate sleep profile
