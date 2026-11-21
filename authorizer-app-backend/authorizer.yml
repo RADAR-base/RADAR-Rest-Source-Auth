@@ -31,20 +31,30 @@ restSourceClients:
     tokenEndpoint: https://oauth-login.cloud.huawei.com/oauth2/v3/token
     clientId: <CLIENT_ID>
     clientSecret: <CLIENT_SECRET>
-    # openid will be prepended automatically by HuaweiAuthorizationService
+    # openid will be prepended automatically by HuaweiAuthorizationService. These scopes cover
+    # every data type the RADAR Huawei connector collects; historydata.open.year gives access to
+    # one year of history.
     scope: >-
       https://www.huawei.com/healthkit/step.read
+      https://www.huawei.com/healthkit/distance.read
       https://www.huawei.com/healthkit/calories.read
-      https://www.huawei.com/healthkit/heartrate.read
-      https://www.huawei.com/healthkit/sleep.read
       https://www.huawei.com/healthkit/activity.read
-      https://www.huawei.com/healthkit/dailyActivitySummary.read
-      https://www.huawei.com/healthkit/oxygenSaturation.read
+      https://www.huawei.com/healthkit/activehours.read
+      https://www.huawei.com/healthkit/activityrecord.read
+      https://www.huawei.com/healthkit/dailyactivitysummary.read
+      https://www.huawei.com/healthkit/strength.read
+      https://www.huawei.com/healthkit/heartrate.read
+      https://www.huawei.com/healthkit/hearthealth.read
+      https://www.huawei.com/healthkit/oxygensaturation.read
+      https://www.huawei.com/healthkit/pulmonary.read
       https://www.huawei.com/healthkit/stress.read
-      https://www.huawei.com/healthkit/bloodGlucose.read
-      https://www.huawei.com/healthkit/bloodPressure.read
-      https://www.huawei.com/healthkit/bodyTemperature.read
+      https://www.huawei.com/healthkit/sleep.read
+      https://www.huawei.com/healthkit/bloodglucose.read
+      https://www.huawei.com/healthkit/bloodpressure.read
+      https://www.huawei.com/healthkit/bodytemperature.read
       https://www.huawei.com/healthkit/bodyfat.read
+      https://www.huawei.com/healthkit/heightweight.read
+      https://www.huawei.com/healthkit/historydata.open.year
   # Garmin OAuth2 PKCE configuration.
   # oauthVersion: OAUTH2 selects the GarminOAuth2AuthorizationService;
   #               OAUTH1 selects the legacy GarminOAuth1AuthorizationService.
