@@ -160,6 +160,30 @@ class GoogleHealthSubscriptionClient(
         return result
     }
 
+    /**
+     * All of [subscriberIds] that have a subscription for [healthUserId]. A subscriber that does not
+     * exist (404) has none. Any other error is logged and that subscriber is counted as not having it.
+     */
+    suspend fun siblingSubscribersOf(healthUserId: String, subscriberIds: List<String>): List<String> {
+        if (subscriberIds.isEmpty()) return emptyList()
+        val token = tokenProvider.getAccessToken()
+        return subscriberIds.filter { subscriber ->
+            val response = httpClient.get("$baseUrl/projects/$projectId/subscribers/$subscriber/subscriptions") {
+                headers { append(HttpHeaders.Authorization, "Bearer $token") }
+                parameter("filter", "user=\"${userResourceName(healthUserId)}\"")
+            }
+            val body = response.bodyAsText()
+            when {
+                response.status.isSuccess() -> "\"subscriptions\"" in body
+                response.status.value == 404 -> false
+                else -> {
+                    logger.warn("Could not list subscriptions of {} for {}: HTTP {} - {}", subscriber, healthUserId, response.status, body)
+                    false
+                }
+            }
+        }
+    }
+
     private suspend fun execute(
         identifier: String,
         action: String,
