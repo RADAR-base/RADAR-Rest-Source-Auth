@@ -53,7 +53,14 @@ class RestSourceUserSubscriptionRepository(
     ): RestSourceUserSubscription = transact {
         val user = find(RestSourceUser::class.java, userId)
             ?: throw HttpNotFoundException("user_not_found", "Rest-Source-User with ID $userId does not exist")
-        val existing = user.subscription
+        val existing = createQuery(
+            """
+            SELECT s
+            FROM RestSourceUserSubscription s
+            WHERE s.user.id = :userId
+            """.trimIndent(),
+            RestSourceUserSubscription::class.java,
+        ).setParameter("userId", userId).resultList.firstOrNull()
         if (existing == null) {
             RestSourceUserSubscription(
                 user = user,
