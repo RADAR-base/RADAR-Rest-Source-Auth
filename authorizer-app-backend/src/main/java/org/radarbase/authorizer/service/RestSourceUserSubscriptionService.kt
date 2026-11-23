@@ -87,11 +87,11 @@ class RestSourceUserSubscriptionService(
     /** Refuses a Google account that another deployment's subscriber already has a subscription for. */
     suspend fun ensureNotSubscribedElsewhere(healthUserId: String) {
         if (!config.googleHealth.isConfigured || !client.isConfigured) return
-        val siblings = client.siblingSubscribersOf(healthUserId, config.googleHealth.siblingSubscriberIds)
-        if (siblings.isEmpty()) return
+        val others = client.otherSubscribersOf(healthUserId)
+        if (others.isEmpty()) return
         throw HttpConflictException(
             "google_account_connected_elsewhere",
-            "This Google account is already connected to another deployment (subscriber ${siblings.joinToString()}).",
+            "This Google account is already connected to another deployment (subscriber ${others.joinToString()}).",
         )
     }
 

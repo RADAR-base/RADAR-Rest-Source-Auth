@@ -46,6 +46,7 @@ import org.radarbase.authorizer.model.SubscriptionResult
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.security.MessageDigest
+import kotlin.coroutines.cancellation.CancellationException
 
 class GoogleHealthSubscriptionClient(
     @param:Context private val config: AuthorizerConfig,
@@ -161,27 +162,45 @@ class GoogleHealthSubscriptionClient(
     }
 
     /**
-     * All of [subscriberIds] that have a subscription for [healthUserId]. A subscriber that does not
-     * exist (404) has none. Any other error is logged and that subscriber is counted as not having it.
+     * The other subscribers in this Google Cloud project that already have a subscription for
+     * [healthUserId]. Other deployments, e.g. dev next to stage, register their own subscriber in the
+     * same project, so they are found by listing the project's subscribers instead of being configured.
+     *
+     * Fails open: if Google cannot be asked, the error is logged and the user is not refused, so an
+     * outage at Google never blocks an authorization.
      */
-    suspend fun siblingSubscribersOf(healthUserId: String, subscriberIds: List<String>): List<String> {
-        if (subscriberIds.isEmpty()) return emptyList()
+    suspend fun otherSubscribersOf(healthUserId: String): List<String> = try {
+        // One page holds up to 1000 subscribers, far more than a project has.
+        getJson("projects/$projectId/subscribers", "pageSize" to "1000")["subscribers"]?.jsonArray.orEmpty()
+            .mapNotNull { it.jsonObject["name"]?.jsonPrimitive?.contentOrNull?.substringAfterLast('/') }
+            .filter { it != subscriberId }
+            .filter { subscriber ->
+                getJson(
+                    "projects/$projectId/subscribers/$subscriber/subscriptions",
+                    "filter" to "user = \"${userResourceName(healthUserId)}\"",
+                )["subscriptions"]?.jsonArray.orEmpty().isNotEmpty()
+            }
+    } catch (ex: CancellationException) {
+        throw ex
+    } catch (ex: Exception) {
+        logger.warn("Could not check other subscribers for {}, allowing the authorization", healthUserId, ex)
+        emptyList()
+    }
+
+    /** GET [path] under the API base URL and parse the JSON body. Throws on any non-2xx response. */
+    @Throws(IOException::class)
+    private suspend fun getJson(path: String, vararg params: Pair<String, String>): JsonObject {
         val token = tokenProvider.getAccessToken()
-        return subscriberIds.filter { subscriber ->
-            val response = httpClient.get("$baseUrl/projects/$projectId/subscribers/$subscriber/subscriptions") {
-                headers { append(HttpHeaders.Authorization, "Bearer $token") }
-                parameter("filter", "user=\"${userResourceName(healthUserId)}\"")
+        val response = httpClient.get("$baseUrl/$path") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $token")
+                append(HttpHeaders.Accept, ContentType.Application.Json.toString())
             }
-            val body = response.bodyAsText()
-            when {
-                response.status.isSuccess() -> "\"subscriptions\"" in body
-                response.status.value == 404 -> false
-                else -> {
-                    logger.warn("Could not list subscriptions of {} for {}: HTTP {} - {}", subscriber, healthUserId, response.status, body)
-                    false
-                }
-            }
+            params.forEach { (name, value) -> parameter(name, value) }
         }
+        val body = response.bodyAsText()
+        if (!response.status.isSuccess()) throw IOException("GET $path failed: HTTP ${response.status} - $body")
+        return if (body.isEmpty()) JsonObject(emptyMap()) else json.parseToJsonElement(body).jsonObject
     }
 
     private suspend fun execute(
