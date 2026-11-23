@@ -170,14 +170,13 @@ class GoogleHealthSubscriptionClient(
      * outage at Google never blocks an authorization.
      */
     suspend fun otherSubscribersOf(healthUserId: String): List<String> = try {
-        // One page holds up to 1000 subscribers, far more than a project has.
-        getJson("projects/$projectId/subscribers", "pageSize" to "1000")["subscribers"]?.jsonArray.orEmpty()
+        getJson("projects/$projectId/subscribers")["subscribers"]?.jsonArray.orEmpty()
             .mapNotNull { it.jsonObject["name"]?.jsonPrimitive?.contentOrNull?.substringAfterLast('/') }
             .filter { it != subscriberId }
             .filter { subscriber ->
                 getJson(
                     "projects/$projectId/subscribers/$subscriber/subscriptions",
-                    "filter" to "user = \"${userResourceName(healthUserId)}\"",
+                    "filter" to "user=\"${userResourceName(healthUserId)}\"",
                 )["subscriptions"]?.jsonArray.orEmpty().isNotEmpty()
             }
     } catch (ex: CancellationException) {
