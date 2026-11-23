@@ -36,12 +36,6 @@ data class GoogleHealthSubscriptionConfig(
      */
     val reconcileMaxDeletesPerPass: Int = 50,
     /**
-     * Subscribers of other deployments in the same Google Cloud project, e.g. `radar-push-endpoint-dev`
-     * is a sibling of `radar-push-endpoint-stage` as they share the same project.
-     * A Google account already subscribed under one of them cannot be authorized here.
-     */
-    val siblingSubscriberIds: List<String> = emptyList(),
-    /**
      * Data types each per-user subscription subscribes to. MUST stay identical to the Push Endpoint's
      * `pushIntegration.googlehealth.triggerDataTypes`, which configures the shared subscriber these
      * subscriptions hang off — a type present here but not there never yields a webhook trigger.
