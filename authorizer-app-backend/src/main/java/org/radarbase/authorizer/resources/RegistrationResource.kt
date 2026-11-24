@@ -152,7 +152,7 @@ class RegistrationResource(
     ) = asyncService.runAsCoroutine(asyncResponse) {
         val registration = registrationService.ensureRegistration(token)
         val accessToken = authorizationService.requestAccessToken(payload, registration.user.sourceType, token)
-        val user = restSourceUserService.updateUserToken(accessToken, registration.user)
+        val user = restSourceUserService.authorizeUser(accessToken, registration.user.id!!)
         val project = registration.user.projectId?.let {
             projectService.project(it).toProject()
         }

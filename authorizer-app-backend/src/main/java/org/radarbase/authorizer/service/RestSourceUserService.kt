@@ -133,8 +133,17 @@ class RestSourceUserService(
     }
 
     /**
+     * Stores the token from a completed authorization, under the user's token lock. The lock keeps the
+     * subscription created here from running at the same time as the reconcile, which takes the same lock
+     * before it subscribes the user.
+     */
+    suspend fun authorizeUser(token: RestOauth2AccessToken?, userId: Long): RestSourceUser =
+        runLocked(userId) { user -> updateUserToken(token, user) }
+
+    /**
      * Updates a user's token after validating the external user ID.
      * This method ensures no duplicate external user IDs exist in the system.
+     * Callers must hold the user's token lock.
      */
     suspend fun updateUserToken(token: RestOauth2AccessToken?, user: RestSourceUser): RestSourceUser {
         validateExternalUserId(token, user)
