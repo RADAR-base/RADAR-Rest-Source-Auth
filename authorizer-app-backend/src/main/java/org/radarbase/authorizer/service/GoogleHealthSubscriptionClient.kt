@@ -30,11 +30,13 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import jakarta.ws.rs.core.Context
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -46,6 +48,10 @@ import org.radarbase.authorizer.model.SubscriptionResult
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.security.MessageDigest
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 class GoogleHealthSubscriptionClient(
     @param:Context private val config: AuthorizerConfig,
@@ -57,6 +63,10 @@ class GoogleHealthSubscriptionClient(
     private val baseUrl = ghConfig.apiBaseUrl.trimEnd('/')
     private val defaultDataTypes = ghConfig.dataTypes
     private val httpClient = RestSourceAuthorizationService.httpClient()
+
+    /** When the project's subscriber ids were listed, and the ids. See [projectSubscriberIds]. */
+    @Volatile
+    private var subscriberCache: Pair<TimeMark, List<String>>? = null
 
     val isConfigured: Boolean
         get() = tokenProvider.isConfigured
@@ -160,6 +170,58 @@ class GoogleHealthSubscriptionClient(
         return result
     }
 
+    /**
+     * The other subscribers in this Google Cloud project that already have a subscription for
+     * [healthUserId]. Other deployments, e.g. dev next to stage, register their own subscriber in the
+     * same project, so they are found by listing the project's subscribers instead of being configured.
+     *
+     * Fails open: if Google cannot be asked, the error is logged and the user is not refused, so an
+     * outage at Google never blocks an authorization.
+     */
+    suspend fun otherSubscribersOf(healthUserId: String): List<String> = try {
+        projectSubscriberIds()
+            .filter { it != subscriberId }
+            .filter { subscriber ->
+                getJson(
+                    "projects/$projectId/subscribers/$subscriber/subscriptions",
+                    "filter" to "user=\"${userResourceName(healthUserId)}\"",
+                )["subscriptions"]?.jsonArray.orEmpty().isNotEmpty()
+            }
+    } catch (ex: CancellationException) {
+        throw ex
+    } catch (ex: Exception) {
+        logger.warn("Could not check other subscribers for {}, allowing the authorization", healthUserId, ex)
+        emptyList()
+    }
+
+    /**
+     * Ids of every subscriber in this project, our own included. Subscribers only change when a
+     * deployment is set up or removed, so a successful list is reused for [SUBSCRIBER_CACHE_TTL].
+     */
+    @Throws(IOException::class)
+    private suspend fun projectSubscriberIds(): List<String> {
+        subscriberCache?.let { (fetchedAt, ids) -> if (fetchedAt.elapsedNow() < SUBSCRIBER_CACHE_TTL) return ids }
+        return json.decodeFromJsonElement<ListSubscribersResponse>(getJson("projects/$projectId/subscribers"))
+            .subscribers.map { it.name.substringAfterLast('/') }
+            .also { subscriberCache = TimeSource.Monotonic.markNow() to it }
+    }
+
+    /** GET [path] under the API base URL and parse the JSON body. Throws on any non-2xx response. */
+    @Throws(IOException::class)
+    private suspend fun getJson(path: String, vararg params: Pair<String, String>): JsonObject {
+        val token = tokenProvider.getAccessToken()
+        val response = httpClient.get("$baseUrl/$path") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $token")
+                append(HttpHeaders.Accept, ContentType.Application.Json.toString())
+            }
+            params.forEach { (name, value) -> parameter(name, value) }
+        }
+        val body = response.bodyAsText()
+        if (!response.status.isSuccess()) throw IOException("GET $path failed: HTTP ${response.status} - $body")
+        return if (body.isEmpty()) JsonObject(emptyMap()) else json.parseToJsonElement(body).jsonObject
+    }
+
     private suspend fun execute(
         identifier: String,
         action: String,
@@ -232,8 +294,16 @@ class GoogleHealthSubscriptionClient(
         return "u" + hex.take(SUBSCRIPTION_ID_HEX_LEN)
     }
 
+    /** A subscriber as Google lists it, `projects/{project}/subscribers/{id}`. Other fields are ignored. */
+    @Serializable
+    private data class SubscriberDto(val name: String)
+
+    @Serializable
+    private data class ListSubscribersResponse(val subscribers: List<SubscriberDto> = emptyList())
+
     companion object {
         private const val PAGE_SIZE = 1000
+        private val SUBSCRIBER_CACHE_TTL = 20.minutes
         private const val SUBSCRIPTION_ID_HEX_LEN = 32
         private val json = Json { ignoreUnknownKeys = true }
         private val logger = LoggerFactory.getLogger(GoogleHealthSubscriptionClient::class.java)

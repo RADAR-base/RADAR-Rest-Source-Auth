@@ -107,6 +107,9 @@ class GoogleHealthAuthorizationService(
 
         val accessToken = response.body<RestOauth2AccessToken>()
         val identity = fetchIdentity(accessToken.accessToken)
+        // Before anything is stored. On a conflict the new token is dropped, not revoked, since all
+        // deployments share one grant and a revoke would end the other deployment's access too.
+        subscriptionService.ensureNotSubscribedElsewhere(identity.healthUserId)
 
         cascadeDeregisterFitbit(registration.user, identity.legacyUserId)
 
