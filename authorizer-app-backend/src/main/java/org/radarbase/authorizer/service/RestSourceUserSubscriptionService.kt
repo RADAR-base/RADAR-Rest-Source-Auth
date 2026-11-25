@@ -22,6 +22,7 @@ import org.radarbase.authorizer.doa.RestSourceUserSubscriptionRepository
 import org.radarbase.authorizer.doa.entity.RestSourceUser
 import org.radarbase.authorizer.model.SubscriptionResult
 import org.radarbase.authorizer.service.DelegatedRestSourceAuthorizationService.Companion.GOOGLE_AUTH
+import org.radarbase.jersey.exception.HttpConflictException
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import kotlin.time.Duration.Companion.seconds
@@ -81,6 +82,17 @@ class RestSourceUserSubscriptionService(
         } catch (ex: Exception) {
             logger.warn("Subscription removal failed for user {} ahead of deregistration", user.userId, ex)
         }
+    }
+
+    /** Refuses a Google account that another deployment's subscriber already has a subscription for. */
+    suspend fun ensureNotSubscribedElsewhere(healthUserId: String) {
+        if (!config.googleHealth.isConfigured || !client.isConfigured) return
+        val others = client.otherSubscribersOf(healthUserId)
+        if (others.isEmpty()) return
+        throw HttpConflictException(
+            "google_account_connected_elsewhere",
+            "This Google account is already connected to another deployment (subscriber ${others.joinToString()}).",
+        )
     }
 
     /** Force-create the subscription (manual endpoint / reconcile). Returns true when Google confirms it. */
